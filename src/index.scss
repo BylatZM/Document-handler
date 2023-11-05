@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;500&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@layer utilities {
+  *::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background: #ccc;
+  }
+}
+
+html,
+body {
+  overflow: hidden;
+  min-width: 100vw;
+  min-height: 100vh;
+}
