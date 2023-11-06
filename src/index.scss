@@ -16,8 +16,8 @@
     width: 5px;
   }
 
-  body::-webkit-scrollbar-thumb {
-    background: #ccc;
+  *::-webkit-scrollbar-thumb {
+    background: #898989;
   }
 }
 
@@ -26,4 +26,8 @@ body {
   overflow: hidden;
   min-width: 100vw;
   min-height: 100vh;
+}
+
+.errorText {
+  @apply text-red-500 text-sm text-left;
 }

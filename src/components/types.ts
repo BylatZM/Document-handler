@@ -1,28 +1,45 @@
 export interface IError {
-  type: 'email' | 'userName' | 'password';
+  type: string;
   error: string;
 }
 
 export interface StoreState {
   AuthReducer: IAuthState;
   RegReducer: IRegState;
+  HelpFormReducer: IHelpFormState;
 }
 
 export interface IAuthState {
-  login: string;
-  password: string;
-  error: IError[] | null;
-  isLoading: boolean;
-}
-
-export type IAuthRequest = Omit<IAuthState, 'error' | 'isLoading'>;
-
-export interface IRegState {
-  userName: string;
   email: string;
   password: string;
   error: IError[] | null;
   isLoading: boolean;
 }
 
-export type IRegRequest = Omit<IRegState, 'error' | 'isLoading'>;
+export interface IHelpFormState {
+  userName: string;
+  email: string;
+  title: string;
+  reason: string;
+  address: string | null;
+  isLoading: boolean;
+  error: IError[] | null;
+}
+
+export type IAuthRequest = Omit<IAuthState, 'error' | 'isLoading'>;
+
+export interface IRegState {
+  name: string;
+  surName: string;
+  email: string;
+  password: string;
+  error: IError[] | null;
+  isLoading: boolean;
+}
+
+export type IRegRequest = Omit<IRegState, 'error' | 'isLoading'> & {
+  patronymic: null;
+  phone: null;
+};
+
+export type IHelpFormRequest = Omit<IHelpFormState, 'error' | 'isLoading'>;

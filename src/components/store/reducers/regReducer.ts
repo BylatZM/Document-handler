@@ -2,7 +2,8 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IRegState, IRegRequest, IError } from '../../types';
 
 const initialState: IRegState = {
-  userName: '',
+  name: '',
+  surName: '',
   email: '',
   password: '',
   error: null,
@@ -18,8 +19,8 @@ export const regReducer = createSlice({
     },
     regSuccess: (state, { payload }: PayloadAction<IRegRequest>): IRegState => {
       return {
-        ...state,
-        userName: payload.userName,
+        name: payload.name,
+        surName: payload.surName,
         password: payload.password,
         email: payload.email,
         isLoading: false,

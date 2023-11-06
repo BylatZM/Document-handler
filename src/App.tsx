@@ -1,11 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
-import { Init } from './components/init/Init';
+import { Main } from './components/log_reg/Main';
 
 export const App = () => {
   return (
-    <div className='min-w-full min-h-screen bg-red-500'>
+    <div className='w-full min-h-screen'>
       <Routes>
-        <Route path='/*' element={<Init />} />
+        <Route path='/*' element={<Main pageType='auth' />} />
+        <Route path='/registration' element={<Main pageType='reg' />} />
       </Routes>
     </div>
   );

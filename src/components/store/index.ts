@@ -3,10 +3,12 @@ import logger from 'redux-logger';
 import { authReducer } from './reducers/authReducer';
 import { regReducer } from './reducers/regReducer';
 import { StoreState } from '../types';
+import { helpFormReducer } from './reducers/helpFormReducer';
 
 const reducers = combineReducers<StoreState>({
   AuthReducer: authReducer.reducer,
   RegReducer: regReducer.reducer,
+  HelpFormReducer: helpFormReducer.reducer,
 });
 
 export const store = configureStore({

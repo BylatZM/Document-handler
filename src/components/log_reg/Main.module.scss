@@ -1,0 +1,100 @@
+.main {
+  @apply flex w-full h-screen;
+  .formCurtain {
+    @apply fixed inset-0 flex opacity-0 bg-none justify-center;
+  }
+  .formCurtain_active {
+    @apply bg-black opacity-80 z-[200];
+    transition: opacity 0.5s ease-in-out;
+  }
+  .form {
+    @apply w-[500px] flex flex-col translate-x-[-500px] shadow-slate-600 shadow-xl;
+  }
+  .form_active {
+    @apply translate-x-0;
+    transition: transform 2s ease-in-out;
+  }
+  .carouselSection {
+    @apply w-full flex relative;
+    .carousel {
+      @apply opacity-0 h-[25rem] w-[52rem] flex self-center;
+      .carouselItem {
+        @apply h-[20rem] flex flex-col justify-center items-center;
+        span {
+          @apply text-2xl font-bold text-center;
+        }
+        p {
+          @apply text-center text-[#44546B] w-1/2 text-lg;
+        }
+        ul {
+          @apply text-[#44546B] mx-auto text-lg;
+        }
+        ul > li {
+          content: '•';
+          margin-right: 10px;
+          color: #44546b;
+        }
+      }
+    }
+    .carousel_active {
+      @apply opacity-100;
+      transition: opacity 2s ease-in-out;
+    }
+    .bubbles {
+      @apply inset-0;
+      position: absolute;
+      display: flex;
+      justify-content: space-around;
+    }
+    .bubbles span {
+      position: relative;
+      z-index: -1;
+      width: 20px;
+      height: 20px;
+      background: #85d1eb;
+      border-radius: 100%;
+      -webkit-box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
+      -moz-box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
+      box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
+      animation: animate linear infinite;
+    }
+    .bubbles span:first-child {
+      animation-duration: 7s;
+    }
+    .bubbles span:nth-child(2) {
+      animation-duration: 7.8s;
+    }
+    .bubbles span:nth-child(3) {
+      animation-duration: 7.6s;
+    }
+    .bubbles span:nth-child(4) {
+      animation-duration: 8.3s;
+    }
+    .bubbles span:nth-child(5) {
+      animation-duration: 7s;
+    }
+    .bubbles span:nth-child(6) {
+      animation-duration: 7.5s;
+    }
+    .bubbles span:nth-child(7) {
+      animation-duration: 7.9s;
+    }
+    .bubbles span:nth-child(8) {
+      animation-duration: 7.7s;
+    }
+    .bubbles span:nth-child(9) {
+      animation-duration: 7.75s;
+    }
+    .bubbles span:nth-child(10) {
+      animation-duration: 8.3s;
+    }
+    @keyframes animate {
+      0% {
+        transform: translateY(100vh) scale(0);
+      }
+      100% {
+        transform: translateY(-10vh) scale(1);
+      }
+    }
+  }
+}

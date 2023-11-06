@@ -3,7 +3,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IAuthState, IAuthRequest, IError } from '../../types';
 
 const initialState: IAuthState = {
-  login: '',
+  email: '',
   password: '',
   error: null,
   isLoading: false,
@@ -19,7 +19,7 @@ export const authReducer = createSlice({
     loginSuccess: (state, { payload }: PayloadAction<IAuthRequest>): IAuthState => {
       return {
         ...state,
-        login: payload.login,
+        email: payload.email,
         password: payload.password,
         error: null,
         isLoading: false,
