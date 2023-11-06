@@ -20,7 +20,7 @@ interface IFinishProps {
 }
 
 export const HelpForm: FC<IHelpFormProps> = ({ showHelpForm, changeShowForm }) => {
-  const { helpFormReducerError, helpFormReducerStart, helpFormReducerSuccess } = useActions();
+  const { helpFormReducerStart, helpFormReducerSuccess } = useActions();
   const [isAgrChecked, changeIsAgr] = useState(true);
 
   const onFinish = (props: IFinishProps) => {

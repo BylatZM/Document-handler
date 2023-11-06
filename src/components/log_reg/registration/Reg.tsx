@@ -19,7 +19,7 @@ interface IFinishProps {
 }
 
 export const Reg: FC<IRegProps> = ({ changeAnimState, isAgrChecked }) => {
-  const { regError, regStart, regSuccess } = useActions();
+  const { regStart, regSuccess } = useActions();
   const [isPassEquals, changeIsEquals] = useState(true);
 
   const onFinish = (props: IFinishProps) => {

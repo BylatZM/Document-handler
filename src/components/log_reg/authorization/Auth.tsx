@@ -16,7 +16,7 @@ interface IFinishProps {
 }
 
 export const Auth: FC<IAuthProps> = ({ changeAnimState, isAgrChecked }) => {
-  const { loginStart, loginSuccess, loginError } = useActions();
+  const { loginStart, loginSuccess } = useActions();
 
   const onFinish = (Props: IFinishProps) => {
     loginStart();

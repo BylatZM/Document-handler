@@ -1,4 +1,4 @@
-import { Form, Button, ConfigProvider } from 'antd';
+import { Form, Button } from 'antd';
 import { FC } from 'react';
 import { ImSpinner9 } from 'react-icons/im';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
