@@ -1,14 +1,22 @@
 import { useDispatch } from 'react-redux';
 import { useMemo } from 'react';
 import { bindActionCreators } from '@reduxjs/toolkit';
-import { authReducer } from '../store/reducers/authReducer';
-import { regReducer } from '../store/reducers/regReducer';
-import { helpFormReducer } from '../store/reducers/helpFormReducer';
+import { AuthReducer } from '../../store/reducers/AuthReducer';
+import { RegReducer } from '../../store/reducers/RegReducer';
+import { HelpFormReducer } from '../../store/reducers/HelpFormReducer';
+import { UserReducer } from '../../store/reducers/UserReducer';
+import { CitizenReducer } from '../../store/reducers/CitizenReducer';
+import { PossessionReducer } from './../../store/reducers/PossessionReducer';
+import { ApplicationReducer } from '../../store/reducers/ApplicationReducer';
 
 const rootActions = {
-  ...authReducer.actions,
-  ...regReducer.actions,
-  ...helpFormReducer.actions,
+  ...AuthReducer.actions,
+  ...RegReducer.actions,
+  ...HelpFormReducer.actions,
+  ...UserReducer.actions,
+  ...CitizenReducer.actions,
+  ...PossessionReducer.actions,
+  ...ApplicationReducer.actions,
 };
 
 export const useActions = () => {

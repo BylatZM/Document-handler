@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { IHelpFormState, IHelpFormRequest, IError } from '../../types';
+import { IHelpFormState, IHelpFormRequest, IError } from '../../components/types';
 
 const initialState: IHelpFormState = {
   userName: '',
@@ -11,8 +11,8 @@ const initialState: IHelpFormState = {
   error: null,
 };
 
-export const helpFormReducer = createSlice({
-  name: 'helpFormReducer',
+export const HelpFormReducer = createSlice({
+  name: 'HelpFormReducer',
   initialState,
   reducers: {
     helpFormReducerStart: (state): IHelpFormState => {
@@ -32,13 +32,16 @@ export const helpFormReducer = createSlice({
         error: null,
       };
     },
-    helpFormReducerError: (state, { payload }: PayloadAction<IError[]>): IHelpFormState => {
+    helpFormReducerError: (state, { payload }: PayloadAction<IError>): IHelpFormState => {
       return { ...state, isLoading: false, error: payload };
+    },
+    helpFormClear: (state): IHelpFormState => {
+      return initialState;
     },
   },
 });
 
-export const { helpFormReducerStart, helpFormReducerSuccess, helpFormReducerError } =
-  helpFormReducer.actions;
+export const { helpFormReducerStart, helpFormReducerSuccess, helpFormReducerError, helpFormClear } =
+  HelpFormReducer.actions;
 
-export default helpFormReducer.reducer;
+export default HelpFormReducer.reducer;

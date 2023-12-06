@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;500;600;700;800&display=swap');
 
 * {
   font-family: 'Inter', sans-serif;
@@ -23,11 +23,25 @@
 
 html,
 body {
-  overflow: hidden;
   min-width: 100vw;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .errorText {
   @apply text-red-500 text-sm text-left;
+}
+
+.transitionOpacity {
+  transition: opacity 1.4s ease-in-out;
+}
+
+.transitionTransform {
+  transition: all 1s ease-in-out;
+}
+
+.primaryField::after {
+  margin-left: 4px;
+  content: '*';
+  color: rgb(222, 40, 40);
 }

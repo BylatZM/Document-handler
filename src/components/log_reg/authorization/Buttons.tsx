@@ -11,13 +11,13 @@ export const Buttons: FC<IButtonsProps> = ({ isAgrChecked }) => {
   const { isLoading } = useTypedSelector((state) => state.AuthReducer);
   return (
     <Form.Item>
-      <span className='block text-blue-700 mb-5 cursor-pointer'>Забыл пароль?</span>
+      <span className='block text-blue-700 mb-2 cursor-pointer'>Забыл пароль?</span>
 
       <Button
         disabled={isAgrChecked}
         type='primary'
         htmlType='submit'
-        className='text-white bg-blue-700 w-full h-[45px] text-lg'
+        className='text-white bg-blue-700 w-full h-[35px] text-lg'
       >
         {isLoading && (
           <div className='inline-flex items-center'>

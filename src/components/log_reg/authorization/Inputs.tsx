@@ -9,16 +9,13 @@ export const Inputs = () => {
       <Form.Item
         name='email'
         style={{ marginBottom: 25 }}
-        validateStatus={error && error.some((el) => el.type === 'email') ? 'error' : undefined}
+        validateStatus={error && error.type === 'email' ? 'error' : undefined}
         help={
-          error !== null &&
-          error
-            .filter((el) => el.type === 'email')
-            .map((el) => <div className='errorText'>{el.error}</div>)
+          error !== null && error.type === 'email' && <div className='errorText'>{error.error}</div>
         }
       >
         <Input
-          className='rounded-sm h-[50px] text-lg'
+          className='rounded-sm h-[40px]'
           maxLength={50}
           type='email'
           required
@@ -29,16 +26,14 @@ export const Inputs = () => {
       <Form.Item
         name='password'
         style={{ marginBottom: 25 }}
-        validateStatus={error && error.some((el) => el.type === 'password') ? 'error' : undefined}
+        validateStatus={error && error.type === 'password' ? 'error' : undefined}
         help={
           error !== null &&
-          error
-            .filter((el) => el.type === 'password')
-            .map((el) => <div className='errorText'>{el.error}</div>)
+          error.type === 'password' && <div className='errorText'>{error.error}</div>
         }
       >
         <Input.Password
-          className='rounded-sm h-[50px] text-lg'
+          className='rounded-sm h-[40px]'
           maxLength={50}
           required
           size='large'

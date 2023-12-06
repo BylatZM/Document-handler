@@ -1,5 +1,4 @@
 import { Form, Checkbox, ConfigProvider } from 'antd';
-import Styles from './HelpForm.module.scss';
 import { FC, useState } from 'react';
 import clsx from 'clsx';
 import { Buttons } from './Buttons';
@@ -7,8 +6,9 @@ import { Inputs } from './Inputs';
 import { useActions } from '../../hooks/useActions';
 
 interface IHelpFormProps {
-  showHelpForm: boolean;
-  changeShowForm: (state: boolean) => void;
+  IsHidden: boolean;
+  IsCurtainActive: boolean;
+  changeIsHidden: (IsHidden: boolean) => void;
 }
 
 interface IFinishProps {
@@ -19,7 +19,7 @@ interface IFinishProps {
   reason: string;
 }
 
-export const HelpForm: FC<IHelpFormProps> = ({ showHelpForm, changeShowForm }) => {
+export const HelpForm: FC<IHelpFormProps> = ({ IsHidden, changeIsHidden, IsCurtainActive }) => {
   const { helpFormReducerStart, helpFormReducerSuccess } = useActions();
   const [isAgrChecked, changeIsAgr] = useState(true);
 
@@ -31,19 +31,28 @@ export const HelpForm: FC<IHelpFormProps> = ({ showHelpForm, changeShowForm }) =
   };
 
   return (
-    <div className={clsx(Styles.main, showHelpForm && Styles.main_active)}>
-      <h1 className={Styles.title}>Обратная связь</h1>
+    <div
+      className={clsx(
+        'bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[21] fixed inset-0 m-auto rounded-md w-[500px] h-[500px] overflow-y-auto border-solid border-blue-500 border-2',
+        'transitionOpacity',
+        IsCurtainActive && 'hidden',
+        IsHidden ? 'opacity-0' : 'opacity-100',
+      )}
+    >
+      <div className='text-center'>
+        <span className='text-xl font-bold'>Обратная связь</span>
+      </div>
 
       <Form
-        name='form'
-        className={Styles.form}
+        name='HelpForm'
+        className='flex flex-col justify-between h-5/6'
         initialValues={{
           remember: true,
         }}
         onFinish={onFinish}
         autoComplete='off'
       >
-        <div className={Styles.inputs}>
+        <div className=''>
           <Inputs />
         </div>
         <ConfigProvider
@@ -58,7 +67,7 @@ export const HelpForm: FC<IHelpFormProps> = ({ showHelpForm, changeShowForm }) =
           }}
         >
           <Checkbox
-            className='text-left text-gray-400 px-5 py-2'
+            className='text-left text-gray-400 py-2'
             onClick={() => changeIsAgr(!isAgrChecked)}
           >
             Я принимаю пользовательское соглашение и даю разрешение порталу на обработку моих
@@ -66,11 +75,7 @@ export const HelpForm: FC<IHelpFormProps> = ({ showHelpForm, changeShowForm }) =
             персональных данных”"
           </Checkbox>
         </ConfigProvider>
-        <Buttons
-          changeShowForm={changeShowForm}
-          isAgrChecked={isAgrChecked}
-          showHelpForm={showHelpForm}
-        />
+        <Buttons changeIsHidden={changeIsHidden} isAgrChecked={isAgrChecked} />
       </Form>
     </div>
   );

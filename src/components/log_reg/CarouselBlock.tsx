@@ -1,13 +1,13 @@
 import { Carousel, ConfigProvider } from 'antd';
 import Styles from './Main.module.scss';
 import clsx from 'clsx';
-import { FC } from 'react';
+import React, { FC } from 'react';
 
 interface ICarouselProps {
   showAnimation: boolean;
 }
 
-export const CarouselBlock: FC<ICarouselProps> = ({ showAnimation }) => {
+export const CarouselBlock: FC<ICarouselProps> = React.memo(({ showAnimation }) => {
   return (
     <div className='flex self-center mx-auto w-[52rem] h-[30rem] justify-center'>
       <ConfigProvider
@@ -24,6 +24,7 @@ export const CarouselBlock: FC<ICarouselProps> = ({ showAnimation }) => {
         <Carousel
           autoplay
           className={clsx(Styles.carousel, showAnimation && Styles.carousel_active)}
+          autoplaySpeed={10000}
         >
           <div>
             <div className={Styles.carouselItem}>
@@ -66,4 +67,4 @@ export const CarouselBlock: FC<ICarouselProps> = ({ showAnimation }) => {
       </ConfigProvider>
     </div>
   );
-};
+});
