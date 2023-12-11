@@ -1,0 +1,12 @@
+.svg {
+  stroke-width: 6;
+  stroke-dasharray: 6000;
+  stroke-dashoffset: 6000;
+  animation: draw 3s linear infinite;
+}
+
+@keyframes draw {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}

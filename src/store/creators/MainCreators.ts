@@ -25,7 +25,6 @@ export const loginRequest = async (data: IAuthRequest): Promise<IAuthGoodRespons
       error = e.response?.data as IError;
     }
   }
-  alert(error.error);
   return error;
 };
 

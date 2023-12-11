@@ -1,5 +1,5 @@
 import { getCitizenRequest, getUserRequest } from '../../store/creators/PersonCreators';
-import { Loading } from '../Loading';
+import { Loading } from '../Loading/Loading';
 import { useActions } from '../hooks/useActions';
 import { Applications } from './content/applications/Applications';
 import { PersonalAccount } from './content/personalAccount/PersonalAccount';
@@ -19,6 +19,7 @@ import {
   getStatusesRequest,
   getTypesRequest,
 } from '../../store/creators/ApplicationCreators';
+import { CreateUser } from './content/personalAccount/dispetcher/CreateUser';
 
 export const Account = () => {
   const dispatch = useDispatch();
@@ -46,11 +47,13 @@ export const Account = () => {
     else {
       if (profile_response && 'first_name' in profile_response) {
         userSuccess(profile_response);
-        if (profile_response.role.role === 'житель') {
+        if (['житель', 'диспетчер'].some((el) => el === profile_response.role.role)) {
           await get_citizen();
         }
-        const employs = await getEmploysRequest();
-        if (employs !== 403) employsSuccess(employs);
+        if (profile_response.role.role === 'диспетчер') {
+          const employs = await getEmploysRequest();
+          if (employs !== 403) employsSuccess(employs);
+        }
 
         await get_citizen_select_info();
         await get_dispatcher_select_info();
@@ -76,9 +79,7 @@ export const Account = () => {
 
   const get_citizen = async () => {
     const response = await getCitizenRequest();
-    if (response !== 403) {
-      citizenSuccess(response);
-    }
+    if (response !== 403) citizenSuccess(response);
   };
 
   const get_applications = async () => {
@@ -109,11 +110,12 @@ export const Account = () => {
   return (
     <>
       <Menu isOpened={isOpened} />
-      <div className='min-h-screen bg-gray-200 relative inset-0'>
+      <div className='min-h-screen bg-gray-100 relative inset-0'>
         <Header changeIsOpened={changeIsOpened} isOpened={isOpened} />
         <div className='mt-[68px] '>
           {pathname.includes('/account/aboutMe') && <PersonalAccount />}
           {pathname.includes('/account/applications') && <Applications />}
+          {pathname.includes('/account/create/possession') && <CreateUser />}
         </div>
       </div>
     </>

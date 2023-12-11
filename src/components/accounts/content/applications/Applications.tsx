@@ -1,13 +1,18 @@
-import { Input, Button, ConfigProvider } from 'antd';
+import { Input, Button, ConfigProvider, Popover } from 'antd';
 import { AppForm } from './AppForm';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
+import {
+  getCitizenByUserIdRequest,
+  getCitizenRequest,
+} from '../../../../store/creators/PersonCreators';
 import { useActions } from '../../../hooks/useActions';
 
 const { Search } = Input;
 
 export const Applications = () => {
+  const { citizenSuccess } = useActions();
   const [IsCurtainHidden, changeCurtainHidden] = useState(true);
   const [IsFormHidden, changeIsFormHidden] = useState(true);
   const { userApplication } = useTypedSelector((state) => state.ApplicationReducer);
@@ -23,9 +28,26 @@ export const Applications = () => {
     else changeCurtainHidden(false);
   };
 
-  const showForm = (application_id: number) => {
+  const showForm = async (application_id: number) => {
     changeSelectedItem(application_id);
+    if (application_id !== selectedItem && role === 'диспетчер') {
+      if (application_id === 0) {
+        await getCurrentCitizen();
+      } else await getCitizenById(userApplication.filter((el) => el.id === application_id)[0].user);
+    }
     changeFormVisibility(false);
+  };
+
+  const getCurrentCitizen = async () => {
+    citizenSuccess([]);
+    const response = await getCitizenRequest();
+    if (response !== 403) citizenSuccess(response);
+  };
+
+  const getCitizenById = async (id: number) => {
+    citizenSuccess([]);
+    const response = await getCitizenByUserIdRequest(id);
+    if (response !== 403) citizenSuccess(response);
   };
 
   return (
@@ -62,7 +84,7 @@ export const Applications = () => {
             </span>
             <Search placeholder='Найти' type='text' onSearch={(e) => console.log(e)} />
           </div>
-          {role === 'житель' && (
+          {['житель', 'диспетчер'].some((el) => el === role) && (
             <ConfigProvider
               theme={{
                 components: {
@@ -72,12 +94,14 @@ export const Applications = () => {
                 },
               }}
             >
-              <Button
-                className='w-[30px] h-[30px] rounded-full border-none bg-blue-700 text-white flex items-center justify-center'
-                onClick={() => showForm(0)}
-              >
-                +
-              </Button>
+              <Popover content='Создать заявку'>
+                <Button
+                  className='w-[30px] h-[30px] rounded-full border-none bg-blue-700 text-white flex items-center justify-center'
+                  onClick={() => showForm(0)}
+                >
+                  +
+                </Button>
+              </Popover>
             </ConfigProvider>
           )}
         </div>
@@ -86,12 +110,12 @@ export const Applications = () => {
             <span className='min-w-[20px] max-w-[20px]'>№</span>
             <span className='min-w-[180px] max-w-[180px] '>Статус</span>
             <span className='min-w-[140px] max-w-[140px] '>Приоритет</span>
-            <span className='min-w-[140px] max-w-[140px] '>Дата создания</span>
+            <span className='min-w-[160px] max-w-[160px] '>Дата создания</span>
             <span className='min-w-[140px] max-w-[140px] '>Класс заявки</span>
             <span className='min-w-[220px] max-w-[220px] '>Тип заявки</span>
           </div>
           <hr className='w-full h-[0.1rem] border-none bg-black' />
-          <div className='flex flex-col gap-y-4 text-sm'>
+          <div className='flex flex-col text-sm'>
             {userApplication &&
               userApplication.map((el) => (
                 <div
@@ -112,9 +136,17 @@ export const Applications = () => {
                             'bg-green-400 text-white',
                           statuses &&
                             el.status &&
-                            statuses.filter((item) => item.id === el.status)[0].appStatus !==
-                              'Новая' &&
-                            'bg-gray-500 text-black',
+                            !['Новая', 'Закрыта'].some(
+                              (element) =>
+                                element ===
+                                statuses.filter((item) => item.id === el.status)[0].appStatus,
+                            ) &&
+                            'bg-blue-700 text-white',
+                          statuses &&
+                            el.status &&
+                            statuses.filter((item) => item.id === el.status)[0].appStatus ===
+                              'Закрыта' &&
+                            'bg-gray-300 text-red-500',
                         )}
                       >
                         {statuses &&
@@ -127,7 +159,7 @@ export const Applications = () => {
                         el.priority &&
                         priorities.filter((item) => item.id === el.priority)[0].appPriority}
                     </span>
-                    <span className='min-w-[140px] max-w-[140px]'>{el.creatingDate}</span>
+                    <span className='min-w-[160px] max-w-[160px]'>{el.creatingDate}</span>
                     <span className='min-w-[140px] max-w-[140px]'>
                       {grades &&
                         el.grade &&

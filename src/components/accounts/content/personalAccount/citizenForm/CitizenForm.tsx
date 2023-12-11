@@ -7,14 +7,12 @@ import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import {
   createCitizenRequest,
   deleteCitizenRequest,
-  getCitizenRequest,
   updateCitizenRequest,
 } from '../../../../../store/creators/PersonCreators';
 import {
   getBuildingsRequest,
   getPossessionsRequest,
 } from '../../../../../store/creators/PossessionCreators';
-import { citizenSuccess } from '../../../../../store/reducers/CitizenReducer';
 
 interface ICitizenFormProps {
   data: {
@@ -37,9 +35,7 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
   } = useActions();
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
   const isLoadingPossession = useTypedSelector((state) => state.PossessionReducer.isLoading);
-  const building = useTypedSelector((state) => state.PossessionReducer.building);
-  const possession = useTypedSelector((state) => state.PossessionReducer.possession);
-  const complex = useTypedSelector((state) => state.PossessionReducer.complex);
+  const { complex, building, possession } = useTypedSelector((state) => state.PossessionReducer);
   const [formData, changeFormData] = useState<ICitizen>(data.info);
 
   const getBuildings = async (complex_id: string) => {
@@ -106,6 +102,7 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
     deleteCitizenForm({ form_id: data.key });
     if (data.key > 0) await deleteCitizenRequest(data.key);
   };
+
   return (
     <>
       <div className='mt-2 mb-2 text-sm'>
@@ -135,10 +132,11 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
           value={parseInt(formData.ownershipType)}
           disabled={isLoading && isLoading.form_id === data.key ? isLoading.isLoading : false}
           onChange={(e: number) => {
+            citizenErrors(null);
             changeFormData((prev) => ({
               ...prev,
               ownershipType: e.toString(),
-              possession: { id: 0, address: '' },
+              possession: { id: 0, address: '', car: null },
             }));
             if (formData.building.id) {
               getPossessions(e.toString(), formData.building.id.toString());
@@ -162,7 +160,7 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
             changeFormData((prev) => ({
               ...prev,
               ownershipStatus: e.toString(),
-              possession: { id: 0, address: '' },
+              possession: { id: 0, address: '', car: null },
             }));
             if (formData.building.id) getPossessions(e.toString(), formData.building.id.toString());
           }}
@@ -187,7 +185,7 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
               ...prev,
               complex: { id: e, name: '' },
               building: { id: 0, address: '' },
-              possession: { id: 0, address: '' },
+              possession: { id: 0, address: '', car: null },
             }));
             getBuildings(e.toString());
           }}
@@ -211,14 +209,14 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
             changeFormData((prev) => ({
               ...prev,
               building: { id: e, address: '' },
-              possession: { id: 0, address: '' },
+              possession: { id: 0, address: '', car: null },
             }));
             getPossessions(formData.ownershipType, e.toString());
           }}
         />
       </div>
       <div className='mt-2 mb-2 text-sm'>
-        <span>Номер/Адресс собственности</span>
+        <span>Номер квартиры (номер собственности) </span>
         <Select
           className='w-full'
           disabled={
@@ -229,13 +227,57 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
           value={!formData.possession.id ? undefined : formData.possession.id}
           options={!possession ? [] : possession.map((el) => ({ value: el.id, label: el.address }))}
           onChange={(e: number) => {
-            changeFormData((prev) => ({ ...prev, possession: { id: e, address: '' } }));
+            citizenErrors(null);
+            changeFormData((prev) => ({
+              ...prev,
+              possession: {
+                id: e,
+                address: '',
+                car:
+                  possession && possession.filter((el) => el.id === e)[0].car
+                    ? possession.filter((el) => el.id === e)[0].car
+                    : null,
+              },
+            }));
           }}
         />
         {error && error.form_id === data.key && error.error.type === 'possession' && (
           <div className='errorText'>{error.error.error}</div>
         )}
       </div>
+      {parseInt(formData.ownershipType) === 3 && formData.possession.id !== 0 && (
+        <>
+          <div className='mt-2 mb-2 text-sm'>
+            <span>Марка автомобиля</span>
+            <Input
+              disabled={true}
+              value={!formData.possession.car ? '' : formData.possession.car.car_brand}
+            />
+          </div>
+          <div className='mt-2 mb-2 text-sm'>
+            <span>Модель автомобиля</span>
+            <Input
+              disabled={true}
+              value={
+                formData.possession.car && formData.possession.car.car_model
+                  ? formData.possession.car.car_model
+                  : ''
+              }
+            />
+          </div>
+          <div className='mt-2 mb-2 text-sm'>
+            <span>Гос. номер</span>
+            <Input
+              disabled={true}
+              value={
+                formData.possession.car && formData.possession.car.car_model
+                  ? formData.possession.car.car_model
+                  : ''
+              }
+            />
+          </div>
+        </>
+      )}
       <div className='flex gap-4'>
         <Button
           className='text-white bg-blue-700'

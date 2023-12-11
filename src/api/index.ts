@@ -21,8 +21,7 @@ import {
   IPriority,
   ISource,
   IStatus,
-  IApplicationCreate,
-  IApplicationUpdate,
+  IApplicationRequest,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -53,6 +52,9 @@ export const getPossessions = (
 
 export const getCitizen = (): AxiosPromise<ICitizen[]> => axiosInstance.get(endpoints.citizen.get);
 
+export const getCitizenByUserId = (id: string): AxiosPromise<ICitizen[]> =>
+  axiosInstance.get(endpoints.citizen.get + `/${id}`);
+
 export const createCitizen = (citizen: ICitizenRequest): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.citizen.create, citizen);
 
@@ -62,12 +64,12 @@ export const updateCitizen = (id: number, citizen: ICitizenRequest): AxiosPromis
 export const deleteCitizen = (id: number): AxiosPromise<void> =>
   axiosInstance.delete(endpoints.citizen.delete + `/${id}`);
 
-export const createApplication = (application: IApplicationCreate): AxiosPromise<IError | void> =>
+export const createApplication = (application: IApplicationRequest): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.application.create, application);
 
 export const updateApplication = (
   id: number,
-  application: IApplicationUpdate,
+  application: IApplicationRequest,
 ): AxiosPromise<IError | void> =>
   axiosInstance.put(endpoints.application.update + `/${id}`, application);
 

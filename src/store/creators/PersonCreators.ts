@@ -10,6 +10,7 @@ import {
   createCitizen,
   deleteCitizen,
   getCitizen,
+  getCitizenByUserId,
   getUser,
   updateCitizen,
   updateUser,
@@ -61,6 +62,22 @@ export const getCitizenRequest = async (): Promise<ICitizen[] | 403> => {
         const refresh_status = await refreshRequest();
         if (refresh_status === 200) {
           return await getCitizen().then((response) => response.data);
+        }
+      }
+    }
+  }
+  return 403;
+};
+
+export const getCitizenByUserIdRequest = async (id: number): Promise<ICitizen[] | 403> => {
+  try {
+    return await getCitizenByUserId(id.toString()).then((response) => response.data);
+  } catch (e) {
+    if (request.isAxiosError(e) && e.response) {
+      if (e.response.status === 401) {
+        const refresh_status = await refreshRequest();
+        if (refresh_status === 200) {
+          return await getCitizenByUserId(id.toString()).then((response) => response.data);
         }
       }
     }

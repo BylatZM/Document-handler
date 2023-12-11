@@ -1,12 +1,12 @@
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { Input, Form, Button } from 'antd';
-import { CitizenForm } from './citizenForm/CitizenForm';
 import { useActions } from '../../../hooks/useActions';
-import { useEffect, useState } from 'react';
-import { DefineOwnership } from './DefineOwnership';
+import { useState } from 'react';
+import { OwnershipCreateHandler } from './OwnershipCreateHandler';
 import { ImSpinner9 } from 'react-icons/im';
 import { clsx } from 'clsx';
-import { getCitizenRequest, updateUserRequest } from '../../../../store/creators/PersonCreators';
+import { updateUserRequest } from '../../../../store/creators/PersonCreators';
+import { AddCitizen } from './citizenForm/AddCitizen';
 
 interface IGenFormData {
   first_name: string | undefined;
@@ -19,19 +19,13 @@ export const PersonalAccount = () => {
   const [IsCurtainHidden, changeCurtainHidden] = useState(true);
   const [IsFormHidden, changeIsFormHidden] = useState(true);
   const { user, isLoading, error } = useTypedSelector((state) => state.UserReducer);
-  const { userSuccess, userStart, addCitizenForm, citizenSuccess } = useActions();
-  const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
-  const [needUpdateCitizen, changeNeedUpdate] = useState(false);
+  const { userSuccess, userStart } = useActions();
 
   const changeFormVisibility = (status: boolean) => {
     setTimeout(() => changeIsFormHidden(status), 100);
     if (status) setTimeout(() => changeCurtainHidden(true), 1400);
     else changeCurtainHidden(false);
   };
-
-  useEffect(() => {
-    if (user.role.role === 'житель' && needUpdateCitizen) getCitizenData();
-  }, [needUpdateCitizen]);
 
   const onFinish = async ({ first_name, last_name, patronymic, phone }: IGenFormData) => {
     userStart();
@@ -52,11 +46,6 @@ export const PersonalAccount = () => {
     }
   };
 
-  const getCitizenData = async () => {
-    const response = await getCitizenRequest();
-    if (response !== 403) citizenSuccess(response);
-  };
-
   return (
     <>
       <div
@@ -66,7 +55,7 @@ export const PersonalAccount = () => {
           IsFormHidden ? 'opacity-0' : 'opacity-100',
         )}
       ></div>
-      <DefineOwnership
+      <OwnershipCreateHandler
         IsHidden={IsFormHidden}
         changeIsHidden={changeFormVisibility}
         IsCurtainActive={IsCurtainHidden}
@@ -154,35 +143,7 @@ export const PersonalAccount = () => {
             )}
           </Button>
         </Form>
-        {user.role.role === 'житель' && (
-          <>
-            <span className='text-xl'>Информация роли "житель"</span>
-            <div className='flex gap-4'>
-              <Button
-                className='bg-blue-700 text-white w-min'
-                type='primary'
-                onClick={() => addCitizenForm()}
-              >
-                Добавить собственность
-              </Button>
-              <Button className='w-min' type='link' onClick={() => changeFormVisibility(false)}>
-                Не нашли вашу собственность?
-              </Button>
-            </div>
-
-            {citizens.map((el, index) => (
-              <CitizenForm
-                data={{
-                  key: !el.id ? -1 * citizens.length : el.id,
-                  info: el,
-                  isFirstItem: index === 0 ? true : false,
-                  isNew: el.id < 1 ? true : false,
-                }}
-                changeNeedUpdate={changeNeedUpdate}
-              />
-            ))}
-          </>
-        )}
+        {user.role.role === 'житель' && <AddCitizen />}
       </div>
     </>
   );

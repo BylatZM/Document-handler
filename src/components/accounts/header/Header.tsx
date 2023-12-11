@@ -34,6 +34,7 @@ export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
             user?.isApproved &&
             user.role.role === 'житель' &&
             'Добавить арендатора'}
+          {pathname === '/account/create/possession' && 'Житель'}
         </b>
         <Popover content={'Информация'}>
           <IoIosInformationCircleOutline className='text-gray-400' />

@@ -1,6 +1,5 @@
 import {
-  IApplicationCreate,
-  IApplicationUpdate,
+  IApplicationRequest,
   IEmployee,
   IGrade,
   IPriority,
@@ -48,7 +47,7 @@ export const getApplicationsRequest = async (): Promise<IApplication[] | 403> =>
 };
 
 export const createApplicationsRequest = async (
-  application: IApplicationCreate,
+  application: IApplicationRequest,
 ): Promise<IError | 201 | 403> => {
   try {
     await createApplication(application);
@@ -75,7 +74,7 @@ export const createApplicationsRequest = async (
 
 export const updateApplicationsRequest = async (
   id: number,
-  application: IApplicationUpdate,
+  application: IApplicationRequest,
 ): Promise<IError | 200 | 403> => {
   try {
     await updateApplication(id, application);

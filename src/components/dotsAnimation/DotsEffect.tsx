@@ -13,6 +13,7 @@ export const DotsEffect: FC<IProps> = React.memo(({ dotsQuantity }) => {
         <span
           key={i}
           style={{ animationDuration: (Math.random() * 6 + 4).toFixed(2) + 's' }}
+          className='z-[2]'
         ></span>,
       );
     }

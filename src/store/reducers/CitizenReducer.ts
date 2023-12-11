@@ -19,6 +19,7 @@ const defaultCitizen: ICitizen = {
   possession: {
     id: 0,
     address: '',
+    car: null,
   },
 };
 
@@ -36,7 +37,8 @@ export const CitizenReducer = createSlice({
       state.isLoading = { form_id: payload.form_id, isLoading: true };
     },
     citizenSuccess: (state, { payload }: PayloadAction<ICitizen[]>) => {
-      state.citizen = payload;
+      if (payload.length < 1) state.citizen = [defaultCitizen];
+      else state.citizen = payload;
       state.isLoading = null;
     },
     citizenErrors: (state, { payload }: PayloadAction<ICitizenError | null>) => {

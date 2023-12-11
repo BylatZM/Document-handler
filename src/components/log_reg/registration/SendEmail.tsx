@@ -22,7 +22,7 @@ export const SendEmail: FC<IProps> = ({ email }) => {
       <DotsEffect dotsQuantity={10} />
       <div
         className={clsx(
-          'border-blue-500 relative border-2 p-2 rounded-md flex w-[600px] h-[300px] flex-col justify-around bg-blue-700 bg-opacity-10 backdrop-blur-md',
+          'border-blue-500 z-20 relative border-2 p-2 rounded-md flex w-[600px] h-[300px] flex-col justify-around bg-blue-700 bg-opacity-10 backdrop-blur-md',
           'transitionOpacity',
           showCard ? 'opacity-100' : 'opacity-0',
         )}

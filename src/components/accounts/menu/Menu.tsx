@@ -28,7 +28,7 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
       <div
         className={clsx(
           'transitionTransform fixed z-20 inset-y-0 w-[280px] flex flex-col bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-500 border-2 shadow-black shadow-lg p-4',
-          isOpened ? 'left-0' : 'left-[-300px]',
+          isOpened ? 'left-0' : 'left-[-600px]',
         )}
       >
         <div className='w-min mx-auto'>
@@ -50,7 +50,7 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
           </Button>
           <Popover
             content={
-              (!isApproved || !citizen[0].id) && role !== 'диспетчер'
+              (!isApproved || !citizen[0].id) && role !== 'диспетчер' && role !== 'исполнитель'
                 ? 'Сперва укажите собственность и получите подтверждение аккаунта от администратора'
                 : ''
             }
@@ -60,7 +60,11 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
                 'flex items-center cursor-pointer p-5 rounded-md text-lg',
                 activeItem === 2 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
               )}
-              disabled={(!isApproved || !citizen[0].id) && role !== 'диспетчер' ? true : false}
+              disabled={
+                (!isApproved || !citizen[0].id) && role !== 'диспетчер' && role !== 'исполнитель'
+                  ? true
+                  : false
+              }
               onClick={() => {
                 changeActiveItem(2);
                 navigate('/account/applications');
@@ -91,6 +95,23 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
               >
                 <IoIosAddCircle className='mr-4' />
                 <span>Добавить арендатора</span>
+              </Button>
+            </Popover>
+          )}
+          {role === 'диспетчер' && (
+            <Popover content='Создать собственность гражданина'>
+              <Button
+                className={clsx(
+                  'flex items-center cursor-pointer p-5 rounded-md text-lg',
+                  activeItem === 4 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
+                )}
+                onClick={() => {
+                  changeActiveItem(4);
+                  navigate('/account/create/possession');
+                }}
+              >
+                <IoIosAddCircle className='mr-4' />
+                <span>Житель</span>
               </Button>
             </Popover>
           )}

@@ -33,7 +33,7 @@ export interface IAuthState {
 export type IPosLoading = 'complex' | 'building' | 'possession' | null;
 
 export interface IPossessionState {
-  building: IPossession[] | null;
+  building: IBuilding[] | null;
   complex: IComplex[] | null;
   possession: IPossession[] | null;
   isLoading: IPosLoading;
@@ -113,36 +113,32 @@ export type IUserUpdate = Omit<IUser, 'role' | 'isApproved' | 'email'>;
 
 export interface IApplication {
   id: number;
-  status: number | null;
-  priority: number | null;
-  type: number;
-  grade: number;
-  creatingDate: string | null;
-  dueDate: string | null;
-  description: string;
-  source: number;
+  status?: number | null;
+  priority?: number | null;
+  type?: number;
+  grade?: number | null;
+  creatingDate?: string | null;
+  dueDate?: string | null;
+  citizenComment?: string;
+  source?: number;
   complex: IComplex;
-  building: IPossession;
+  building: IBuilding;
   possession: IPossession;
-  employee: IEmployee | null;
-  isAppeal: boolean;
-  dispatcherComment: string | null;
+  employee?: IEmployee | null;
+  isAppeal?: boolean;
+  dispatcherComment?: string | null;
+  employeeComment?: string | null;
+  user: number;
 }
 
-export type IApplicationCreate = Pick<
+export type IApplicationRequest = Omit<
   IApplication,
-  'type' | 'description' | 'source' | 'isAppeal'
+  'complex' | 'building' | 'possession' | 'id' | 'employee' | 'user'
 > & {
-  complex: number;
-  building: number;
-  possession: number;
-};
-
-export type IApplicationUpdate = Pick<
-  IApplication,
-  'status' | 'grade' | 'priority' | 'dispatcherComment' | 'creatingDate' | 'dueDate'
-> & {
-  employee: number;
+  complex?: number;
+  building?: number;
+  possession?: number;
+  employee?: number;
 };
 
 export interface IStatus {
@@ -181,7 +177,7 @@ export interface ICitizen {
   ownershipType: string;
   ownershipStatus: string;
   complex: IComplex;
-  building: IPossession;
+  building: IBuilding;
   possession: IPossession;
 }
 
@@ -200,7 +196,16 @@ export interface IComplex {
   name: string;
 }
 
+export interface ICar {
+  car_brand: string;
+  car_model: string | null;
+  state_number: string | null;
+}
+
 export interface IPossession {
   id: number;
   address: string;
+  car: ICar | null;
 }
+
+export type IBuilding = Omit<IPossession, 'car'>;

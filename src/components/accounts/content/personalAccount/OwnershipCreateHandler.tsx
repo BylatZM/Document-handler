@@ -14,7 +14,11 @@ interface IProps {
   changeIsHidden: (IsHidden: boolean) => void;
 }
 
-export const DefineOwnership: FC<IProps> = ({ IsHidden, changeIsHidden, IsCurtainActive }) => {
+export const OwnershipCreateHandler: FC<IProps> = ({
+  IsHidden,
+  changeIsHidden,
+  IsCurtainActive,
+}) => {
   const [ErrorComponent, changeErrorComponent] = useState<'complex' | 'building' | 'flat' | null>(
     null,
   );
