@@ -9,7 +9,7 @@ interface ICarouselProps {
 
 export const CarouselBlock: FC<ICarouselProps> = React.memo(({ showAnimation }) => {
   return (
-    <div className='flex self-center mx-auto w-[52rem] h-[30rem] justify-center'>
+    <div className='flex self-center mx-auto w-[52rem] h-[30rem] justify-center border-none backdrop-blur-md bg-opacity-10 z-10'>
       <ConfigProvider
         theme={{
           components: {

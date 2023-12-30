@@ -5,6 +5,7 @@ import { SendEmail } from './components/log_reg/registration/SendEmail';
 import { Account } from './components/accounts/Account';
 import { RequireAuth } from './components/RequireAuth';
 import { useEffect } from 'react';
+import { Loading } from './components/Loading/Loading';
 
 export const App = () => {
   const navigate = useNavigate();

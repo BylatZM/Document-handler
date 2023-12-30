@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { OwnershipCreateHandler } from './OwnershipCreateHandler';
 import { ImSpinner9 } from 'react-icons/im';
 import { clsx } from 'clsx';
-import { updateUserRequest } from '../../../../store/creators/PersonCreators';
+import { updateUserRequest } from '../../../../api/requests/Person';
 import { AddCitizen } from './citizenForm/AddCitizen';
+import { useLogout } from '../../../hooks/useLogout';
 
 interface IGenFormData {
   first_name: string | undefined;
@@ -20,6 +21,7 @@ export const PersonalAccount = () => {
   const [IsFormHidden, changeIsFormHidden] = useState(true);
   const { user, isLoading, error } = useTypedSelector((state) => state.UserReducer);
   const { userSuccess, userStart } = useActions();
+  const logout = useLogout();
 
   const changeFormVisibility = (status: boolean) => {
     setTimeout(() => changeIsFormHidden(status), 100);
@@ -29,12 +31,15 @@ export const PersonalAccount = () => {
 
   const onFinish = async ({ first_name, last_name, patronymic, phone }: IGenFormData) => {
     userStart();
-    const response = await updateUserRequest({
-      first_name: !first_name ? '' : first_name,
-      last_name: !last_name ? '' : last_name,
-      patronymic: !patronymic ? null : patronymic,
-      phone: !phone ? null : phone,
-    });
+    const response = await updateUserRequest(
+      {
+        first_name: !first_name ? '' : first_name,
+        last_name: !last_name ? '' : last_name,
+        patronymic: !patronymic ? null : patronymic,
+        phone: !phone ? null : phone,
+      },
+      logout,
+    );
     if (response === 200 && user) {
       userSuccess({
         ...user,
@@ -143,7 +148,7 @@ export const PersonalAccount = () => {
             )}
           </Button>
         </Form>
-        {user.role.role === 'житель' && <AddCitizen />}
+        {user.role.role === 'citizen' && <AddCitizen />}
       </div>
     </>
   );

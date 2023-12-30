@@ -7,8 +7,9 @@ import {
   createApplicationsRequest,
   getApplicationsRequest,
   updateApplicationsRequest,
-} from '../../../../store/creators/ApplicationCreators';
+} from '../../../../api/requests/Application';
 import { useActions } from '../../../hooks/useActions';
+import { useLogout } from '../../../hooks/useLogout';
 
 const { TextArea } = Input;
 
@@ -49,6 +50,7 @@ const initialApplication: IApplication = {
 };
 
 export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden, id }) => {
+  const logout = useLogout();
   const role = useTypedSelector((state) => state.UserReducer.user.role);
   const citizen = useTypedSelector((state) => state.CitizenReducer.citizen);
   const { employs, types, sources, statuses, priorities, grades, userApplication } =
@@ -63,8 +65,8 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
   );
 
   const get_applications = async () => {
-    const applications = await getApplicationsRequest();
-    if (applications !== 403) applicationSuccess(applications);
+    const applications = await getApplicationsRequest(logout);
+    if (applications) applicationSuccess(applications);
   };
 
   useEffect(() => {
@@ -92,18 +94,17 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
       possession: FormData.possession.id,
       employee: !FormData.employee ? 1 : FormData.employee.id,
     };
-    if (role.role === 'исполнитель') {
+    if (role.role === 'executor') {
       data = {
         status: FormData.status,
         employeeComment: FormData.employeeComment,
       };
     }
-    const response = await updateApplicationsRequest(id, data);
+    const response = await updateApplicationsRequest(id, logout, data);
     if (response === 200) {
       updateApplication({ app_id: id, application: FormData });
       if (FormData.status === 10) await get_applications();
     }
-    if (typeof response !== 'number' && 'type' in response) console.log(response);
   };
 
   const create_application = async () => {
@@ -116,7 +117,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
       building: FormData.building.id,
       possession: FormData.possession.id,
     };
-    if (role.role === 'диспетчер') {
+    if (role.role === 'dispatcher') {
       data = {
         grade: FormData.grade,
         status: FormData.status,
@@ -133,9 +134,8 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
       };
     }
 
-    const response = await createApplicationsRequest(data);
+    const response = await createApplicationsRequest(logout, data);
     if (response === 201) await get_applications();
-    if (typeof response !== 'number' && 'type' in response) console.log(response);
   };
   return (
     <div
@@ -155,7 +155,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
               value={!FormData.grade ? undefined : FormData.grade}
               onChange={(e: number) => changeFormData((prev) => ({ ...prev, grade: e }))}
               disabled={
-                ['житель', 'исполнитель'].some((el) => el === role.role) ||
+                ['citizen', 'executor'].some((el) => el === role.role) ||
                 (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
@@ -176,7 +176,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
               value={!FormData.status ? undefined : FormData.status}
               onChange={(e: number) => changeFormData((prev) => ({ ...prev, status: e }))}
               disabled={
-                role.role === 'житель' || (formInfo.length > 0 && formInfo[0].status !== 1)
+                role.role === 'citizen' || (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
               }
@@ -195,8 +195,8 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
             <Select
               value={!FormData.type ? undefined : FormData.type}
               disabled={
-                role.role === 'исполнитель' ||
-                (role.role === 'житель' && id > 0) ||
+                role.role === 'executor' ||
+                (role.role === 'citizen' && id > 0) ||
                 (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
@@ -218,8 +218,8 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
           className='mt-2'
           checked={!FormData.isAppeal ? false : true}
           disabled={
-            role.role === 'исполнитель' ||
-            (role.role === 'житель' && id > 0) ||
+            role.role === 'executor' ||
+            (role.role === 'citizen' && id > 0) ||
             (formInfo.length > 0 && formInfo[0].status !== 1)
               ? true
               : false
@@ -238,8 +238,8 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
             }
             className='rounded-md h-[60px]'
             disabled={
-              role.role === 'исполнитель' ||
-              (role.role === 'житель' && id > 0) ||
+              role.role === 'executor' ||
+              (role.role === 'citizen' && id > 0) ||
               (formInfo.length > 0 && formInfo[0].status !== 1)
                 ? true
                 : false
@@ -254,8 +254,8 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
           <Select
             value={!FormData.source ? undefined : FormData.source}
             disabled={
-              role.role === 'исполнитель' ||
-              (role.role === 'житель' && id > 0) ||
+              role.role === 'executor' ||
+              (role.role === 'citizen' && id > 0) ||
               (formInfo.length > 0 && formInfo[0].status !== 1)
                 ? true
                 : false
@@ -275,7 +275,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
           <span>Приоритет исполнения</span>
           <Select
             disabled={
-              ['исполнитель', 'житель'].some((el) => el === role.role) ||
+              ['executor', 'citizen'].some((el) => el === role.role) ||
               (formInfo.length > 0 && formInfo[0].status !== 1)
                 ? true
                 : false
@@ -314,14 +314,14 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
                 }))
               }
               disabled={
-                role.role === 'исполнитель' ||
-                (role.role === 'житель' && id !== 0) ||
+                role.role === 'executor' ||
+                (role.role === 'citizen' && id !== 0) ||
                 (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
               }
               options={
-                role.role === 'исполнитель' || (role.role === 'житель' && id !== 0)
+                role.role === 'executor' || (role.role === 'citizen' && id !== 0)
                   ? [{ value: FormData.complex.id, label: FormData.complex.name }]
                   : citizen
                       .filter((el, index, array) => {
@@ -358,14 +358,14 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
                 }))
               }
               disabled={
-                role.role === 'исполнитель' ||
-                (role.role === 'житель' && id !== 0) ||
+                role.role === 'executor' ||
+                (role.role === 'citizen' && id !== 0) ||
                 (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
               }
               options={
-                role.role === 'исполнитель' || (role.role === 'житель' && id !== 0)
+                role.role === 'executor' || (role.role === 'citizen' && id !== 0)
                   ? [{ label: FormData.building.address, value: FormData.building.id }]
                   : citizen.map((el) => ({
                       value: el.building.id,
@@ -393,14 +393,14 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
                 }))
               }
               disabled={
-                role.role === 'исполнитель' ||
-                (role.role === 'житель' && id !== 0) ||
+                role.role === 'executor' ||
+                (role.role === 'citizen' && id !== 0) ||
                 (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
               }
               options={
-                role.role === 'исполнитель' || (role.role === 'житель' && id !== 0)
+                role.role === 'executor' || (role.role === 'citizen' && id !== 0)
                   ? [{ label: FormData.possession.address, value: FormData.possession.id }]
                   : citizen.map((el) => ({
                       value: el.possession.id,
@@ -431,7 +431,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
               maxLength={500}
               showCount
               style={{ resize: 'none' }}
-              disabled={['житель', 'исполнитель'].some((el) => el === role.role) ? true : false}
+              disabled={['citizen', 'executor'].some((el) => el === role.role) ? true : false}
             />
           </div>
           <div className='flex flex-col gap-2 w-full mt-6'>
@@ -446,7 +446,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
               maxLength={500}
               style={{ resize: 'none' }}
               disabled={
-                ['житель', 'диспетчер'].some((el) => el === role.role) ||
+                ['citizen', 'dispatcher'].some((el) => el === role.role) ||
                 (formInfo.length > 0 && formInfo[0].status !== 1)
                   ? true
                   : false
@@ -457,7 +457,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
         <div className='bg-blue-300 p-5 mt-2 rounded-md backdrop-blur-md bg-opacity-50 flex flex-col gap-2'>
           <span className='font-bold text-lg'>Исполнители</span>
           <div className='flex flex-col gap-2 w-full'>
-            <span>Исполнитель</span>
+            <span>исполнитель</span>
             <Select
               value={!FormData.employee ? undefined : FormData.employee.id}
               onChange={(e: number) =>
@@ -473,9 +473,9 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
                   },
                 }))
               }
-              disabled={['житель', 'исполнитель'].some((el) => el === role.role) ? true : false}
+              disabled={['citizen', 'executor'].some((el) => el === role.role) ? true : false}
               options={
-                ['житель', 'исполнитель'].some((el) => el === role.role) && FormData.employee
+                ['citizen', 'executor'].some((el) => el === role.role) && FormData.employee
                   ? [
                       {
                         label:
@@ -499,7 +499,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
           </div>
         </div>
         <div className='gap-4 flex justify-center mt-4'>
-          {id < 1 && ['житель', 'диспетчер'].some((el) => el === role.role) && (
+          {id < 1 && ['citizen', 'dispatcher'].some((el) => el === role.role) && (
             <Button
               type='primary'
               onClick={() => {
@@ -514,13 +514,13 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
                 FormData.source &&
                 FormData.type &&
                 FormData.citizenComment &&
-                ((role.role === 'диспетчер' &&
+                ((role.role === 'dispatcher' &&
                   FormData.dispatcherComment &&
                   FormData.employee &&
                   FormData.status &&
                   FormData.priority &&
                   FormData.grade) ||
-                  role.role === 'житель')
+                  role.role === 'citizen')
                   ? false
                   : true
               }
@@ -528,7 +528,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
               Создать
             </Button>
           )}
-          {id !== 0 && ['диспетчер', 'исполнитель'].some((el) => el === role.role) && (
+          {id !== 0 && ['dispatcher', 'executor'].some((el) => el === role.role) && (
             <Button
               type='primary'
               onClick={() => {
@@ -538,7 +538,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
               className=' text-white bg-blue-700 '
               disabled={
                 FormData.status &&
-                ((role.role === 'диспетчер' &&
+                ((role.role === 'dispatcher' &&
                   FormData.dispatcherComment &&
                   FormData.employee &&
                   FormData.status &&
@@ -550,7 +550,7 @@ export const AppForm: FC<IProps> = ({ IsHidden, IsCurtainActive, changeIsHidden,
                   FormData.source &&
                   FormData.type &&
                   FormData.citizenComment) ||
-                  (role.role === 'исполнитель' &&
+                  (role.role === 'executor' &&
                     FormData.employeeComment &&
                     formInfo.length > 0 &&
                     formInfo[0].status === 1))

@@ -1,10 +1,14 @@
 const endpoints = {
   login: '/login',
   refresh: '/refresh',
+  helpForm: '/helpForm',
+  passwordUpdate: 'password/update',
   user: {
     create: '/user/new',
     get: '/user',
     update: '/user/update',
+    getNotApproved: 'user/noApproved/all',
+    approveUser: 'user/approve/',
   },
   complex: {
     getAll: '/complex/all',

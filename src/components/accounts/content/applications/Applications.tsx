@@ -3,15 +3,14 @@ import { AppForm } from './AppForm';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
-import {
-  getCitizenByUserIdRequest,
-  getCitizenRequest,
-} from '../../../../store/creators/PersonCreators';
+import { getCitizenByUserIdRequest, getCitizenRequest } from '../../../../api/requests/Person';
 import { useActions } from '../../../hooks/useActions';
+import { useLogout } from '../../../hooks/useLogout';
 
 const { Search } = Input;
 
 export const Applications = () => {
+  const logout = useLogout();
   const { citizenSuccess } = useActions();
   const [IsCurtainHidden, changeCurtainHidden] = useState(true);
   const [IsFormHidden, changeIsFormHidden] = useState(true);
@@ -30,7 +29,7 @@ export const Applications = () => {
 
   const showForm = async (application_id: number) => {
     changeSelectedItem(application_id);
-    if (application_id !== selectedItem && role === 'диспетчер') {
+    if (application_id !== selectedItem && role === 'dispatcher') {
       if (application_id === 0) {
         await getCurrentCitizen();
       } else await getCitizenById(userApplication.filter((el) => el.id === application_id)[0].user);
@@ -40,14 +39,14 @@ export const Applications = () => {
 
   const getCurrentCitizen = async () => {
     citizenSuccess([]);
-    const response = await getCitizenRequest();
-    if (response !== 403) citizenSuccess(response);
+    const response = await getCitizenRequest(logout);
+    if (response) citizenSuccess(response);
   };
 
   const getCitizenById = async (id: number) => {
     citizenSuccess([]);
-    const response = await getCitizenByUserIdRequest(id);
-    if (response !== 403) citizenSuccess(response);
+    const response = await getCitizenByUserIdRequest(id, logout);
+    if (response) citizenSuccess(response);
   };
 
   return (
@@ -84,7 +83,7 @@ export const Applications = () => {
             </span>
             <Search placeholder='Найти' type='text' onSearch={(e) => console.log(e)} />
           </div>
-          {['житель', 'диспетчер'].some((el) => el === role) && (
+          {['citizen', 'dispatcher'].some((el) => el === role) && (
             <ConfigProvider
               theme={{
                 components: {

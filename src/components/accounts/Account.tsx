@@ -1,4 +1,8 @@
-import { getCitizenRequest, getUserRequest } from '../../store/creators/PersonCreators';
+import {
+  getCitizenRequest,
+  getNotApprovedUsersRequest,
+  getUserRequest,
+} from '../../api/requests/Person';
 import { Loading } from '../Loading/Loading';
 import { useActions } from '../hooks/useActions';
 import { Applications } from './content/applications/Applications';
@@ -7,9 +11,8 @@ import { Header } from './header/Header';
 import { Menu } from './menu/Menu';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { logoutRequest } from '../../store/creators/MainCreators';
-import { getComplexesRequest } from '../../store/creators/PossessionCreators';
+import { useLogout } from '../hooks/useLogout';
+import { getComplexesRequest } from '../../api/requests/Possession';
 import {
   getApplicationsRequest,
   getEmploysRequest,
@@ -18,11 +21,12 @@ import {
   getSourcesRequest,
   getStatusesRequest,
   getTypesRequest,
-} from '../../store/creators/ApplicationCreators';
-import { CreateUser } from './content/personalAccount/dispetcher/CreateUser';
+} from '../../api/requests/Application';
+import { CreateUser } from './content/personalAccount/dispatcher/CreateUser';
+import { ApproveCitizen } from './content/personalAccount/dispatcher/ApproveCitizen';
 
 export const Account = () => {
-  const dispatch = useDispatch();
+  const logout = useLogout();
   const [isOpened, changeIsOpened] = useState(false);
   const { pathname } = useLocation();
   const {
@@ -37,66 +41,67 @@ export const Account = () => {
     statusesSuccess,
     prioritySuccess,
     employsSuccess,
+    notApprovedUsersSuccess,
   } = useActions();
   const [IsRequested, changeIsRequested] = useState(true);
 
   const get_user_data = async () => {
     userStart();
-    const profile_response = await getUserRequest();
-    if (profile_response === 403) logoutRequest(dispatch);
-    else {
-      if (profile_response && 'first_name' in profile_response) {
-        userSuccess(profile_response);
-        if (['житель', 'диспетчер'].some((el) => el === profile_response.role.role)) {
-          await get_citizen();
-        }
-        if (profile_response.role.role === 'диспетчер') {
-          const employs = await getEmploysRequest();
-          if (employs !== 403) employsSuccess(employs);
-        }
-
-        await get_citizen_select_info();
-        await get_dispatcher_select_info();
+    const profile_response = await getUserRequest(logout);
+    if (profile_response) {
+      userSuccess(profile_response);
+      if (['citizen', 'dispatcher'].some((el) => el === profile_response.role.role)) {
+        await get_citizen();
       }
+      if (profile_response.role.role === 'dispatcher') {
+        const employs = await getEmploysRequest(logout);
+        if (employs) employsSuccess(employs);
+
+        const notApprovedUsers = await getNotApprovedUsersRequest(logout);
+        if (notApprovedUsers) notApprovedUsersSuccess(notApprovedUsers);
+      }
+
+      await get_citizen_select_info();
+      await get_dispatcher_select_info();
     }
   };
 
   const get_citizen_select_info = async () => {
-    const types = await getTypesRequest();
-    if (types !== 403) typesSuccess(types);
-    const sources = await getSourcesRequest();
-    if (sources !== 403) sourcesSuccess(sources);
+    const types = await getTypesRequest(logout);
+    if (types) typesSuccess(types);
+    const sources = await getSourcesRequest(logout);
+    if (sources) sourcesSuccess(sources);
   };
 
   const get_dispatcher_select_info = async () => {
-    const grades = await getGradesRequest();
-    if (grades !== 403) gradesSuccess(grades);
-    const statuses = await getStatusesRequest();
-    if (statuses !== 403) statusesSuccess(statuses);
-    const priorities = await getPrioritiesRequest();
-    if (priorities !== 403) prioritySuccess(priorities);
+    const grades = await getGradesRequest(logout);
+    if (grades) gradesSuccess(grades);
+    const statuses = await getStatusesRequest(logout);
+    if (statuses) statusesSuccess(statuses);
+    const priorities = await getPrioritiesRequest(logout);
+    if (priorities) prioritySuccess(priorities);
   };
 
   const get_citizen = async () => {
-    const response = await getCitizenRequest();
-    if (response !== 403) citizenSuccess(response);
+    const response = await getCitizenRequest(logout);
+    if (response) citizenSuccess(response);
   };
 
   const get_applications = async () => {
-    const response = await getApplicationsRequest();
-    if (response !== 403 && response.length > 0) {
+    const response = await getApplicationsRequest(logout);
+    if (response && response.length > 0) {
       applicationSuccess(response);
     }
   };
 
   const get_complexes = async () => {
-    const complexes = await getComplexesRequest();
-    if (complexes !== 403) complexSuccess(complexes);
+    const complexes = await getComplexesRequest(logout);
+    if (complexes) complexSuccess(complexes);
   };
 
   const makeRequest = async () => {
-    await get_user_data();
     await get_applications();
+    await get_user_data();
     await get_complexes();
     changeIsRequested(false);
   };
@@ -116,6 +121,7 @@ export const Account = () => {
           {pathname.includes('/account/aboutMe') && <PersonalAccount />}
           {pathname.includes('/account/applications') && <Applications />}
           {pathname.includes('/account/create/possession') && <CreateUser />}
+          {pathname.includes('/account/citizen/approve') && <ApproveCitizen />}
         </div>
       </div>
     </>

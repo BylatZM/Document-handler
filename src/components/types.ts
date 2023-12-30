@@ -32,6 +32,14 @@ export interface IAuthState {
 
 export type IPosLoading = 'complex' | 'building' | 'possession' | null;
 
+export interface IHelpFormRequest {
+  name: string;
+  email: string;
+  title: string;
+  description: string;
+  address: string | undefined;
+}
+
 export interface IPossessionState {
   building: IBuilding[] | null;
   complex: IComplex[] | null;
@@ -41,6 +49,7 @@ export interface IPossessionState {
 
 export interface IUserState {
   user: IUser;
+  notApprovedUsers: INotApprovedUsers[] | null;
   isLoading: boolean;
   error: IError | null;
 }
@@ -64,11 +73,8 @@ export interface ICitizenState {
 }
 
 export interface IHelpFormState {
-  userName: string;
-  email: string;
-  title: string;
-  reason: string;
-  address: string | null;
+  info: IHelpFormRequest;
+  processed_possessions: string[] | null;
   isLoading: boolean;
   error: IError | null;
 }
@@ -89,6 +95,14 @@ export interface IAuthGoodResponse {
   refresh: string;
 }
 
+export interface INotApprovedUsers {
+  id: number;
+  first_name: string;
+  last_name: string;
+  patronymic: string | null;
+  email: string;
+}
+
 export interface IRefreshGoodResponse {
   access: string;
 }
@@ -96,8 +110,6 @@ export interface IRefreshGoodResponse {
 export interface IRegRequest {
   email: string;
 }
-
-export type IHelpFormRequest = Omit<IHelpFormState, 'error' | 'isLoading'>;
 
 export interface IUser {
   role: IRole;

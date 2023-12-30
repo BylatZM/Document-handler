@@ -8,11 +8,9 @@ import {
   createCitizenRequest,
   deleteCitizenRequest,
   updateCitizenRequest,
-} from '../../../../../store/creators/PersonCreators';
-import {
-  getBuildingsRequest,
-  getPossessionsRequest,
-} from '../../../../../store/creators/PossessionCreators';
+} from '../../../../../api/requests/Person';
+import { getBuildingsRequest, getPossessionsRequest } from '../../../../../api/requests/Possession';
+import { useLogout } from '../../../../hooks/useLogout';
 
 interface ICitizenFormProps {
   data: {
@@ -26,7 +24,7 @@ interface ICitizenFormProps {
 
 export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) => {
   const {
-    citizenStart,
+    citizenLoading,
     citizenErrors,
     updateCitizenForm,
     deleteCitizenForm,
@@ -36,23 +34,23 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
   const isLoadingPossession = useTypedSelector((state) => state.PossessionReducer.isLoading);
   const { complex, building, possession } = useTypedSelector((state) => state.PossessionReducer);
+  const logout = useLogout();
   const [formData, changeFormData] = useState<ICitizen>(data.info);
 
   const getBuildings = async (complex_id: string) => {
-    const response = await getBuildingsRequest(complex_id);
-    if (response !== 403) {
-      buildingSuccess(response);
-    }
+    const response = await getBuildingsRequest(complex_id, logout);
+    if (response) buildingSuccess(response);
   };
 
   const getPossessions = async (type: string, building_id: string) => {
-    const response = await getPossessionsRequest(data.key, type, building_id);
-    if (response !== 403) {
-      if ('form_id' in response) {
-        possessionSuccess(null);
-        citizenErrors(response);
-      } else possessionSuccess(response);
-    }
+    const response = await getPossessionsRequest(data.key, type, building_id, logout);
+
+    if (!response) return;
+
+    if ('form_id' in response) {
+      possessionSuccess(null);
+      citizenErrors(response);
+    } else possessionSuccess(response);
   };
 
   useEffect(() => {
@@ -63,9 +61,9 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
   }, []);
 
   const createCitizen = async () => {
-    citizenStart({ form_id: data.key });
+    citizenLoading({ form_id: data.key, isLoading: true });
 
-    const response = await createCitizenRequest(data.key, {
+    const response = await createCitizenRequest(data.key, logout, {
       personal_account: formData.personal_account,
       ownershipStatus: formData.ownershipStatus,
       ownershipType: formData.ownershipType,
@@ -73,15 +71,17 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
       building: formData.building.id,
       possession: formData.possession.id,
     });
-    if (response === 201) changeNeedUpdate(true);
-    else if (response !== 403 && 'form_id' in response) {
-      citizenErrors(response);
+    if (response) {
+      if (response === 201) changeNeedUpdate(true);
+      else citizenErrors(response);
     }
+
+    citizenLoading(null);
   };
 
   const updateCitizen = async () => {
-    citizenStart({ form_id: data.key });
-    const response = await updateCitizenRequest(data.key, {
+    citizenLoading({ form_id: data.key, isLoading: true });
+    const response = await updateCitizenRequest(data.key, logout, {
       personal_account: formData.personal_account,
       ownershipStatus: formData.ownershipStatus,
       ownershipType: formData.ownershipType,
@@ -90,17 +90,21 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
       possession: formData.possession.id,
     });
 
-    if (response === 200) {
-      updateCitizenForm({
-        form_id: data.key,
-        citizen: formData,
-      });
-    } else if (response !== 403) citizenErrors(response);
+    if (response) {
+      if (response === 200) {
+        updateCitizenForm({
+          form_id: data.key,
+          citizen: formData,
+        });
+      } else citizenErrors(response);
+    }
+
+    citizenLoading(null);
   };
 
   const deleteCitizen = async () => {
     deleteCitizenForm({ form_id: data.key });
-    if (data.key > 0) await deleteCitizenRequest(data.key);
+    if (data.key > 0) await deleteCitizenRequest(data.key, logout);
   };
 
   return (
@@ -270,8 +274,8 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
             <Input
               disabled={true}
               value={
-                formData.possession.car && formData.possession.car.car_model
-                  ? formData.possession.car.car_model
+                formData.possession.car && formData.possession.car.state_number
+                  ? formData.possession.car.state_number
                   : ''
               }
             />

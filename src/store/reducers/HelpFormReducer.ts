@@ -1,12 +1,17 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IHelpFormState, IHelpFormRequest, IError } from '../../components/types';
 
-const initialState: IHelpFormState = {
-  userName: '',
+const initHelpFormInfo: IHelpFormRequest = {
+  name: '',
   email: '',
   title: '',
-  reason: '',
-  address: null,
+  description: '',
+  address: '',
+};
+
+const initialState: IHelpFormState = {
+  info: initHelpFormInfo,
+  processed_possessions: null,
   isLoading: false,
   error: null,
 };
@@ -15,24 +20,21 @@ export const HelpFormReducer = createSlice({
   name: 'HelpFormReducer',
   initialState,
   reducers: {
-    helpFormReducerStart: (state): IHelpFormState => {
-      return { ...state, isLoading: true, error: null };
+    helpFormLoading: (state, { payload }: PayloadAction<boolean>) => {
+      state.isLoading = payload;
     },
-    helpFormReducerSuccess: (
+    helpFormInit: (
       state,
-      { payload }: PayloadAction<IHelpFormRequest>,
-    ): IHelpFormState => {
-      return {
-        userName: payload.userName,
-        email: payload.email,
-        title: payload.title,
-        reason: payload.reason,
-        address: payload.address,
-        isLoading: false,
-        error: null,
-      };
+      { payload }: PayloadAction<{ name: string; email: string; posses: string[] | null }>,
+    ) => {
+      state.info.name = payload.name;
+      state.info.email = payload.email;
+      state.processed_possessions = payload.posses;
     },
-    helpFormReducerError: (state, { payload }: PayloadAction<IError>): IHelpFormState => {
+    helpFormInfoSuccess: (state, { payload }: PayloadAction<IHelpFormRequest>): IHelpFormState => {
+      return { ...state, info: { ...payload } };
+    },
+    helpFormError: (state, { payload }: PayloadAction<IError>): IHelpFormState => {
       return { ...state, isLoading: false, error: payload };
     },
     helpFormClear: (state): IHelpFormState => {
@@ -41,7 +43,7 @@ export const HelpFormReducer = createSlice({
   },
 });
 
-export const { helpFormReducerStart, helpFormReducerSuccess, helpFormReducerError, helpFormClear } =
+export const { helpFormLoading, helpFormError, helpFormClear, helpFormInit, helpFormInfoSuccess } =
   HelpFormReducer.actions;
 
 export default HelpFormReducer.reducer;

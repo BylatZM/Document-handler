@@ -3,7 +3,7 @@ import { Form, Input, Button } from 'antd';
 import { FC } from 'react';
 import { useActions } from '../../hooks/useActions';
 import { IRegRequest } from '../../types';
-import { registrationRequest } from '../../../store/creators/MainCreators';
+import { registrationRequest } from '../../../api/requests/Main';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { ImSpinner9 } from 'react-icons/im';
 
@@ -13,15 +13,20 @@ interface IRegProps {
 }
 
 export const Reg: FC<IRegProps> = ({ changeAnimState, isAgrChecked }) => {
-  const { regSuccess, regStart, regError } = useActions();
+  const { regSuccess, regLoading, regError } = useActions();
   const error = useTypedSelector((state) => state.RegReducer.error);
   const isLoading = useTypedSelector((state) => state.RegReducer.isLoading);
 
   const onFinish = async (props: IRegRequest) => {
-    regStart();
+    regLoading(true);
     const response = await registrationRequest(props);
-    if (response === 201) regSuccess(props);
-    else regError(response);
+
+    if (response) {
+      if (response === 201) regSuccess(props);
+      else regError(response);
+    }
+
+    regLoading(false);
   };
 
   return (

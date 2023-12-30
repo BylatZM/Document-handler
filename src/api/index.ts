@@ -22,6 +22,8 @@ import {
   ISource,
   IStatus,
   IApplicationRequest,
+  IHelpFormRequest,
+  INotApprovedUsers,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -33,7 +35,21 @@ export const registration = (params: IRegRequest): AxiosPromise<IAuthGoodRespons
 export const refresh = (): AxiosPromise<IRefreshGoodResponse> =>
   axiosInstance.get(endpoints.refresh);
 
+export const helpForm = (params: IHelpFormRequest): AxiosPromise<void> =>
+  axiosInstance.post(endpoints.helpForm, params);
+
+export const updatePassword = (params: {
+  email: string;
+  phone: string;
+}): AxiosPromise<void | IError> => axiosInstance.put(endpoints.passwordUpdate, params);
+
 export const getUser = (): AxiosPromise<IUser> => axiosInstance.get(endpoints.user.get);
+
+export const approveUser = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.user.approveUser + `${id}`);
+
+export const getNotApprovedUsers = (): AxiosPromise<INotApprovedUsers[]> =>
+  axiosInstance.get(endpoints.user.getNotApproved);
 
 export const updateUser = (user: IUserUpdate): AxiosPromise<IError | void> =>
   axiosInstance.put(endpoints.user.update, user);

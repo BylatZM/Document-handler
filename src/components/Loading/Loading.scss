@@ -2,11 +2,43 @@
   stroke-width: 6;
   stroke-dasharray: 6000;
   stroke-dashoffset: 6000;
-  animation: draw 3s linear infinite;
+  animation: draw 2s linear infinite;
 }
 
 @keyframes draw {
   100% {
     stroke-dashoffset: 0;
+  }
+}
+
+.animate_cat {
+  animation: cat 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.animation_text {
+  animation: message 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes cat {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes message {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
   }
 }

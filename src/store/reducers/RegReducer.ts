@@ -11,17 +11,15 @@ export const RegReducer = createSlice({
   name: 'RegReducer',
   initialState,
   reducers: {
-    regStart: (state) => {
-      state.isLoading = true;
+    regLoading: (state, { payload }: PayloadAction<boolean>) => {
+      state.isLoading = payload;
     },
     regSuccess: (state, { payload }: PayloadAction<IRegRequest>) => {
       state.email = payload.email;
-      state.isLoading = false;
       state.error = null;
     },
     regError: (state, { payload }: PayloadAction<IError>) => {
       state.error = payload;
-      state.isLoading = false;
     },
     regClear: (state): IRegState => {
       return initialState;
@@ -29,6 +27,6 @@ export const RegReducer = createSlice({
   },
 });
 
-export const { regSuccess, regClear, regStart, regError } = RegReducer.actions;
+export const { regSuccess, regClear, regLoading, regError } = RegReducer.actions;
 
 export default RegReducer.reducer;

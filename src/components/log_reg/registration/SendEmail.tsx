@@ -4,6 +4,7 @@ import { Button } from 'antd';
 import clsx from 'clsx';
 import { RxCross1 } from 'react-icons/rx';
 import { useActions } from '../../hooks/useActions';
+import { updatePasswordRequest } from '../../../api/requests/Main';
 
 interface IProps {
   email: string;
@@ -12,10 +13,24 @@ interface IProps {
 export const SendEmail: FC<IProps> = ({ email }) => {
   const [showCard, changeShow] = useState(false);
   const { regSuccess } = useActions();
+  const [Time, changeTime] = useState(59);
 
   useEffect(() => {
     if (!showCard) changeShow(true);
   }, [showCard]);
+
+  const onFinish = async () => {
+    changeTime(59);
+    await updatePasswordRequest({ email: email, phone: '' });
+  };
+
+  useEffect(() => {
+    if (Time !== 0 && email !== '') {
+      setTimeout(() => {
+        changeTime((prev) => prev - 1);
+      }, 1000);
+    }
+  }, [Time]);
 
   return (
     <div className='w-full min-h-screen flex justify-center items-center'>
@@ -35,9 +50,16 @@ export const SendEmail: FC<IProps> = ({ email }) => {
           Ваш пароль и логин были высланы вам на почту: <b>{email}</b>. Пожалуйста, проверьте вашу
           почту
         </span>
-        <Button className='mx-auto bg-blue-500' type='primary'>
-          Выслать повторно
-        </Button>
+        {Time !== 0 && (
+          <span className='mx-auto'>
+            Отправка письма повторно будет доступна через: <span className='font-bold'>{Time}</span>
+          </span>
+        )}
+        {Time === 0 && (
+          <Button className='mx-auto bg-blue-500' type='primary' onClick={onFinish}>
+            Выслать повторно
+          </Button>
+        )}
       </div>
     </div>
   );

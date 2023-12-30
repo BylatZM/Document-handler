@@ -4,25 +4,31 @@ import { Buttons } from './Buttons';
 import { Link, useNavigate } from 'react-router-dom';
 import { FC } from 'react';
 import { useActions } from '../../hooks/useActions';
-import { loginRequest } from '../../../store/creators/MainCreators';
+import { loginRequest } from '../../../api/requests/Main';
 import { IAuthRequest } from '../../types';
 
 interface IAuthProps {
   changeAnimState: (animState: boolean) => void;
   isAgrChecked: boolean;
+  changeActiveForm: (activeForm: null | 'password' | 'help') => void;
 }
 
-export const Auth: FC<IAuthProps> = ({ changeAnimState, isAgrChecked }) => {
+export const Auth: FC<IAuthProps> = ({ changeAnimState, isAgrChecked, changeActiveForm }) => {
   const navigate = useNavigate();
-  const { loginStart, loginSuccess, loginError } = useActions();
+  const { loginLoading, loginSuccess, loginError } = useActions();
 
   const onFinish = async (Props: IAuthRequest) => {
-    loginStart();
+    loginLoading(true);
     const auth_response = await loginRequest(Props);
-    if ('user_id' in auth_response) {
-      loginSuccess(auth_response);
-      navigate('/account/aboutMe');
-    } else loginError(auth_response);
+
+    if (auth_response) {
+      if ('user_id' in auth_response) {
+        loginSuccess(auth_response);
+        navigate('/account/aboutMe');
+      } else loginError(auth_response);
+    }
+
+    loginLoading(false);
   };
 
   return (
@@ -48,7 +54,7 @@ export const Auth: FC<IAuthProps> = ({ changeAnimState, isAgrChecked }) => {
         autoComplete='off'
       >
         <Inputs />
-        <Buttons isAgrChecked={isAgrChecked} />
+        <Buttons isAgrChecked={isAgrChecked} changeActiveForm={changeActiveForm} />
       </Form>
     </div>
   );

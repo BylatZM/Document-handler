@@ -1,4 +1,4 @@
-import { ICitizenError } from '../../components/types';
+import { ICitizenError, ICitizenLoading } from '../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { ICitizenState, ICitizen } from '../../components/types';
@@ -33,16 +33,14 @@ export const CitizenReducer = createSlice({
   name: 'CitizenReducer',
   initialState,
   reducers: {
-    citizenStart: (state, { payload }: PayloadAction<{ form_id: number }>) => {
-      state.isLoading = { form_id: payload.form_id, isLoading: true };
+    citizenLoading: (state, { payload }: PayloadAction<ICitizenLoading | null>) => {
+      state.isLoading = payload;
     },
     citizenSuccess: (state, { payload }: PayloadAction<ICitizen[]>) => {
       if (payload.length < 1) state.citizen = [defaultCitizen];
       else state.citizen = payload;
-      state.isLoading = null;
     },
     citizenErrors: (state, { payload }: PayloadAction<ICitizenError | null>) => {
-      state.isLoading = null;
       state.error = payload;
     },
     addCitizenForm: (state) => {
@@ -65,7 +63,7 @@ export const CitizenReducer = createSlice({
 });
 
 export const {
-  citizenStart,
+  citizenLoading,
   citizenSuccess,
   citizenErrors,
   addCitizenForm,
