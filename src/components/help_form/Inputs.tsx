@@ -58,9 +58,7 @@ export const Inputs = () => {
           <div className='errorText mt-2'>{error.error}</div>
         )}
       </div>
-      <span className='primaryField' placeholder='Отключили электричество'>
-        Описание проблемы
-      </span>
+      <span className='primaryField'>Описание проблемы</span>
       <div style={{ marginBottom: 25 }}>
         <TextArea
           rows={2}
