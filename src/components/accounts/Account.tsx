@@ -22,7 +22,6 @@ import {
   getStatusesRequest,
   getTypesRequest,
 } from '../../api/requests/Application';
-import { CreateUser } from './content/personalAccount/dispatcher/CreateUser';
 import { ApproveCitizen } from './content/personalAccount/dispatcher/ApproveCitizen';
 
 export const Account = () => {
@@ -120,7 +119,6 @@ export const Account = () => {
         <div className='mt-[68px] '>
           {pathname.includes('/account/aboutMe') && <PersonalAccount />}
           {pathname.includes('/account/applications') && <Applications />}
-          {pathname.includes('/account/create/possession') && <CreateUser />}
           {pathname.includes('/account/citizen/approve') && <ApproveCitizen />}
         </div>
       </div>

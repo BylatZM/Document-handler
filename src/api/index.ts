@@ -24,6 +24,7 @@ import {
   IApplicationRequest,
   IHelpFormRequest,
   INotApprovedUsers,
+  IApprovePossessionRequest,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -66,10 +67,10 @@ export const getPossessions = (
 ): AxiosPromise<IPossession[] | IError> =>
   axiosInstance.get(endpoints.possession.getBy + `?type=${type}&building=${building}`);
 
-export const getCitizen = (): AxiosPromise<ICitizen[]> => axiosInstance.get(endpoints.citizen.get);
+export const createPossession = (possession: IApprovePossessionRequest): AxiosPromise<void> =>
+  axiosInstance.post(endpoints.possession.create, possession);
 
-export const getCitizenByUserId = (id: string): AxiosPromise<ICitizen[]> =>
-  axiosInstance.get(endpoints.citizen.get + `/${id}`);
+export const getCitizen = (): AxiosPromise<ICitizen[]> => axiosInstance.get(endpoints.citizen.get);
 
 export const createCitizen = (citizen: ICitizenRequest): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.citizen.create, citizen);

@@ -1,10 +1,7 @@
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { Input, Form, Button } from 'antd';
 import { useActions } from '../../../hooks/useActions';
-import { useState } from 'react';
-import { OwnershipCreateHandler } from './OwnershipCreateHandler';
 import { ImSpinner9 } from 'react-icons/im';
-import { clsx } from 'clsx';
 import { updateUserRequest } from '../../../../api/requests/Person';
 import { AddCitizen } from './citizenForm/AddCitizen';
 import { useLogout } from '../../../hooks/useLogout';
@@ -17,17 +14,9 @@ interface IGenFormData {
 }
 
 export const PersonalAccount = () => {
-  const [IsCurtainHidden, changeCurtainHidden] = useState(true);
-  const [IsFormHidden, changeIsFormHidden] = useState(true);
   const { user, isLoading, error } = useTypedSelector((state) => state.UserReducer);
   const { userSuccess, userStart } = useActions();
   const logout = useLogout();
-
-  const changeFormVisibility = (status: boolean) => {
-    setTimeout(() => changeIsFormHidden(status), 100);
-    if (status) setTimeout(() => changeCurtainHidden(true), 1400);
-    else changeCurtainHidden(false);
-  };
 
   const onFinish = async ({ first_name, last_name, patronymic, phone }: IGenFormData) => {
     userStart();
@@ -53,18 +42,6 @@ export const PersonalAccount = () => {
 
   return (
     <>
-      <div
-        className={clsx(
-          'transitionOpacity fixed inset-0 w-full h-screen bg-black bg-opacity-30 z-[10] backdrop-blur-md',
-          IsCurtainHidden && 'hidden',
-          IsFormHidden ? 'opacity-0' : 'opacity-100',
-        )}
-      ></div>
-      <OwnershipCreateHandler
-        IsHidden={IsFormHidden}
-        changeIsHidden={changeFormVisibility}
-        IsCurtainActive={IsCurtainHidden}
-      />
       <div className='w-[500px] flex flex-col gap-4 m-auto p-2'>
         <Form
           initialValues={{

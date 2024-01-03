@@ -54,7 +54,7 @@ export const CitizenForm: FC<ICitizenFormProps> = ({ data, changeNeedUpdate }) =
   };
 
   useEffect(() => {
-    if (!data.isNew) {
+    if (!data.isNew && !building && !possession) {
       getBuildings(formData.complex.id.toString());
       getPossessions(formData.ownershipType, formData.building.id.toString());
     }

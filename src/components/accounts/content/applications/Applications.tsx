@@ -3,17 +3,11 @@ import { AppForm } from './AppForm';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
-import { getCitizenByUserIdRequest, getCitizenRequest } from '../../../../api/requests/Person';
-import { useActions } from '../../../hooks/useActions';
-import { useLogout } from '../../../hooks/useLogout';
 
 const { Search } = Input;
 
 export const Applications = () => {
-  const logout = useLogout();
-  const { citizenSuccess } = useActions();
-  const [IsCurtainHidden, changeCurtainHidden] = useState(true);
-  const [IsFormHidden, changeIsFormHidden] = useState(true);
+  const [IsFormActive, changeIsFormActive] = useState(false);
   const { userApplication } = useTypedSelector((state) => state.ApplicationReducer);
   const [selectedItem, changeSelectedItem] = useState(0);
   const { types, statuses, priorities, grades } = useTypedSelector(
@@ -21,60 +15,24 @@ export const Applications = () => {
   );
   const role = useTypedSelector((state) => state.UserReducer.user.role.role);
 
-  const changeFormVisibility = (status: boolean) => {
-    setTimeout(() => changeIsFormHidden(status), 100);
-    if (status) setTimeout(() => changeCurtainHidden(true), 1400);
-    else changeCurtainHidden(false);
-  };
-
   const showForm = async (application_id: number) => {
     changeSelectedItem(application_id);
-    if (application_id !== selectedItem && role === 'dispatcher') {
-      if (application_id === 0) {
-        await getCurrentCitizen();
-      } else await getCitizenById(userApplication.filter((el) => el.id === application_id)[0].user);
-    }
-    changeFormVisibility(false);
-  };
-
-  const getCurrentCitizen = async () => {
-    citizenSuccess([]);
-    const response = await getCitizenRequest(logout);
-    if (response) citizenSuccess(response);
-  };
-
-  const getCitizenById = async (id: number) => {
-    citizenSuccess([]);
-    const response = await getCitizenByUserIdRequest(id, logout);
-    if (response) citizenSuccess(response);
+    changeIsFormActive(true);
   };
 
   return (
     <>
       <div
         className={clsx(
-          'transitionOpacity fixed inset-0 w-full h-screen bg-black bg-opacity-30 z-[10] backdrop-blur-md',
-          IsCurtainHidden && 'hidden',
-          IsFormHidden ? 'opacity-0' : 'opacity-100',
+          'transitionGeneral fixed inset-0 bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20]',
+          IsFormActive ? 'w-full' : 'w-0',
         )}
       ></div>
-      {selectedItem === 0 && (
-        <AppForm
-          IsHidden={IsFormHidden}
-          changeIsHidden={changeFormVisibility}
-          IsCurtainActive={IsCurtainHidden}
-          id={0}
-        />
-      )}
-      {selectedItem !== 0 && (
-        <AppForm
-          IsHidden={IsFormHidden}
-          changeIsHidden={changeFormVisibility}
-          IsCurtainActive={IsCurtainHidden}
-          id={selectedItem}
-        />
-      )}
-
+      <AppForm
+        IsFormActive={IsFormActive}
+        changeIsFormActive={changeIsFormActive}
+        id={selectedItem}
+      />
       <div className='w-max p-2 flex flex-col m-auto gap-4'>
         <div className='flex justify-between'>
           <div className='flex items-center gap-4'>

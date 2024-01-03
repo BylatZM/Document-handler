@@ -41,7 +41,7 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
       <div
         className={clsx(
           'transitionGeneral fixed z-[15] inset-0 w-[310px] flex flex-col bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg p-4',
-          isOpened ? 'translate-x-0' : 'translate-x-[-100vw]',
+          isOpened ? 'translate-x-0' : 'translate-x-[-315px]',
         )}
       >
         <div className='w-full'>
@@ -95,19 +95,13 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
             </Button>
           </Popover>
           {role === 'citizen' && (
-            <Popover
-              content={
-                !isApproved || citizen[0].id === 0
-                  ? 'Сперва укажите собственность и получите подтверждение аккаунта от администратора'
-                  : ''
-              }
-            >
+            <Popover content={'В разработке'}>
               <Button
                 className={clsx(
                   'flex items-center cursor-pointer p-5 rounded-md text-lg',
                   activeItem === 3 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
                 )}
-                disabled={!isApproved || citizen[0].id === 0 ? true : false}
+                disabled={true}
                 onClick={() => {
                   changeActiveItem(3);
                   navigate('/account/adding');
@@ -119,43 +113,24 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
             </Popover>
           )}
           {role === 'dispatcher' && (
-            <>
-              <Popover content='Создать собственность гражданина'>
-                <Button
-                  className={clsx(
-                    'flex items-center cursor-pointer p-5 rounded-md text-lg',
-                    activeItem === 4 && isApproved
-                      ? 'border-blue-700 text-blue-700'
-                      : 'border-black',
-                  )}
-                  onClick={() => {
-                    changeActiveItem(4);
-                    navigate('/account/create/possession');
-                  }}
-                >
-                  <FaBuildingUser className='mr-4' />
-                  <span>задать собственность</span>
-                </Button>
-              </Popover>
-              <Button
-                className={clsx(
-                  'flex items-center cursor-pointer p-5 rounded-md text-lg',
-                  activeItem === 5 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
-                )}
-                onClick={() => {
-                  changeActiveItem(5);
-                  navigate('/account/citizen/approve');
-                }}
-              >
-                <FaUserCheck className='mr-4' />
-                <span>подтвердить жителя</span>
-              </Button>
-            </>
+            <Button
+              className={clsx(
+                'flex items-center cursor-pointer p-5 rounded-md text-lg',
+                activeItem === 4 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
+              )}
+              onClick={() => {
+                changeActiveItem(4);
+                navigate('/account/citizen/approve');
+              }}
+            >
+              <FaUserCheck className='mr-4' />
+              <span>подтвердить жителя</span>
+            </Button>
           )}
           <Button
             className={clsx(
               'flex items-center cursor-pointer p-5 rounded-md text-lg',
-              activeItem === 6 ? 'border-blue-700 text-blue-700' : 'border-black',
+              activeItem === 5 ? 'border-blue-700 text-blue-700' : 'border-black',
             )}
             onClick={() => {
               changeActiveForm('help');

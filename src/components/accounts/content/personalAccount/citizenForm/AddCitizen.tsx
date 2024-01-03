@@ -4,26 +4,19 @@ import { useActions } from '../../../../hooks/useActions';
 import { useEffect, useState } from 'react';
 import { getCitizenRequest } from '../../../../../api/requests/Person';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import { Loading } from '../../../../Loading/Loading';
+
 import { clsx } from 'clsx';
 import { OwnershipCreateHandler } from '../OwnershipCreateHandler';
 import { useLogout } from '../../../../hooks/useLogout';
+import { LoadingForm } from './LoadingForm';
 
 export const AddCitizen = () => {
   const logout = useLogout();
   const role = useTypedSelector((state) => state.UserReducer.user.role.role);
   const { addCitizenForm, citizenSuccess } = useActions();
-  const [needUpdateCitizen, changeNeedUpdate] = useState(true);
-
-  const [IsCurtainHidden, changeCurtainHidden] = useState(true);
-  const [IsFormHidden, changeIsFormHidden] = useState(true);
+  const [needUpdateCitizen, changeNeedUpdate] = useState(false);
+  const [isFormActive, changeIsFormActive] = useState(false);
   const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
-
-  const changeFormVisibility = (status: boolean) => {
-    setTimeout(() => changeIsFormHidden(status), 100);
-    if (status) setTimeout(() => changeCurtainHidden(true), 1400);
-    else changeCurtainHidden(false);
-  };
 
   useEffect(() => {
     if (['citizen', 'dispatcher'].some((el) => el === role) && needUpdateCitizen) getCitizenData();
@@ -35,23 +28,17 @@ export const AddCitizen = () => {
     changeNeedUpdate(false);
   };
 
-  if (needUpdateCitizen) return <Loading />;
+  if (needUpdateCitizen) return <LoadingForm />;
 
   return (
     <>
       <div
         className={clsx(
-          'transitionOpacity',
-          'fixed inset-0 bg-black bg-opacity-10 backdrop-blur-xl z-[20]',
-          IsCurtainHidden && 'hidden',
-          IsFormHidden ? 'opacity-0' : 'opacity-100',
+          'transitionGeneral fixed inset-0 bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20]',
+          isFormActive ? 'w-full' : 'w-0',
         )}
       ></div>
-      <OwnershipCreateHandler
-        IsHidden={IsFormHidden}
-        changeIsHidden={changeFormVisibility}
-        IsCurtainActive={IsCurtainHidden}
-      />
+      <OwnershipCreateHandler isFormActive={isFormActive} changeIsFormActive={changeIsFormActive} />
       <span className='text-xl'>Собственность</span>
       <div className='flex gap-4'>
         <Button
@@ -61,13 +48,14 @@ export const AddCitizen = () => {
         >
           Добавить собственность
         </Button>
-        <Button type='link' onClick={() => changeFormVisibility(false)}>
+        <Button type='link' onClick={() => changeIsFormActive(true)}>
           Не нашли свою собственность?
         </Button>
       </div>
 
       {citizens.map((el, index) => (
         <CitizenForm
+          key={index}
           data={{
             key: !el.id ? -1 * citizens.length : el.id,
             info: el,

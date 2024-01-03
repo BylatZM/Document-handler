@@ -64,7 +64,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
           helpFormClear();
         }}
       >
-        Отмена
+        Закрыть
       </Button>
       <Popover content={'Ответ от тех.поддержки придет на почту, которую вы указали'}>
         <Button

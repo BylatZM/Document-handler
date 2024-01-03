@@ -21,6 +21,7 @@ const endpoints = {
   possession: {
     getBy: '/possession',
     getCurrent: '/possession/current',
+    create: '/possession/create',
   },
   citizen: {
     create: '/citizen/new',

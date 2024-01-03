@@ -9,6 +9,7 @@ import { Checkbox, ConfigProvider } from 'antd';
 import { Logo } from '../../assets/svg';
 import { DotsEffect } from '../dotsAnimation/DotsEffect';
 import { UpdatePassword } from '../UpdatePassword';
+import cat from '../../assets/images/cat.png';
 
 interface IMainProps {
   pageType: 'auth' | 'reg';
@@ -35,6 +36,13 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
       <UpdatePassword activeForm={activeForm} changeActiveForm={changeActiveForm} />
       <div className={clsx(Styles.form, isAnimActive && Styles.form_active)}>
         <div className='absolute inset-x-0 top-0 w-11/12 mx-auto'>
+          <div className='h-min flex items-center gap-4 bg-black'>
+            <img src={cat} className='h-auto ' width={'70px'} alt='' />
+            <div className='flex flex-col items-end overflow-hidden text-white'>
+              <span className='text-xs w-max leading-4'>Управляющая компания</span>
+              <span className='text-3xl leading-6'>Миллениум</span>
+            </div>
+          </div>
           <Logo />
         </div>
         <div className='w-11/12 mx-auto'>

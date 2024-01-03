@@ -45,7 +45,7 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
   return (
     <div
       className={clsx(
-        'transitionGeneral bg-blue-700 overflow-x-hidden p-5 bg-opacity-10 backdrop-blur-xl z-[40] fixed inset-0 m-auto rounded-md w-[500px] h-[500px] overflow-y-auto border-solid border-blue-500 border-2',
+        'transitionGeneral bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] fixed inset-0 m-auto rounded-md w-[600px] h-[500px] overflow-y-auto border-solid border-blue-500 border-2',
         activeForm === 'help' ? 'translate-x-0' : 'translate-x-[-100vw]',
       )}
     >

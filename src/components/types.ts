@@ -141,11 +141,12 @@ export interface IApplication {
   dispatcherComment?: string | null;
   employeeComment?: string | null;
   user: number;
+  possessionType: string;
 }
 
 export type IApplicationRequest = Omit<
   IApplication,
-  'complex' | 'building' | 'possession' | 'id' | 'employee' | 'user'
+  'complex' | 'building' | 'possession' | 'id' | 'employee' | 'user' | 'possessionType'
 > & {
   complex?: number;
   building?: number;
@@ -192,6 +193,24 @@ export interface ICitizen {
   building: IBuilding;
   possession: IPossession;
 }
+
+export type IApprovePossession = Omit<
+  ICitizen,
+  | 'id'
+  | 'personal_account'
+  | 'ownershipStatus'
+  | 'complex'
+  | 'building'
+  | 'possession'
+  | 'ownershipType'
+> & {
+  possession: Omit<IPossession, 'id'>;
+  complex: number;
+  type: number;
+  building: number;
+};
+
+export type IApprovePossessionRequest = Omit<IApprovePossession, 'complex'>;
 
 export type ICitizenRequest = Omit<ICitizen, 'id' | 'complex' | 'building' | 'possession'> & {
   complex: number;
