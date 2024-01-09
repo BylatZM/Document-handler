@@ -3,17 +3,22 @@ import { FC, useState } from 'react';
 import { IoDocuments } from 'react-icons/io5';
 import { RiLogoutBoxFill } from 'react-icons/ri';
 import { clsx } from 'clsx';
-import { Button, Popover } from 'antd';
+import { Popover } from 'antd';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, useLocation, Navigate } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
 import { HelpForm } from '../../help_form/HelpForm';
 import { MdSupportAgent } from 'react-icons/md';
 import { FaUserCheck } from 'react-icons/fa';
-import { FaBuildingUser } from 'react-icons/fa6';
 import { FaUserCog } from 'react-icons/fa';
 import { PiUsersFill } from 'react-icons/pi';
 import cat from '../../../assets/images/cat.png';
+import { MdOutlineClass } from 'react-icons/md';
+import { GrUserWorker } from 'react-icons/gr';
+import { BsFillBuildingsFill } from 'react-icons/bs';
+import { GrNext } from 'react-icons/gr';
+import { GoFileDirectoryFill } from 'react-icons/go';
+import { OwnershipCreateHandler } from '../content/personalAccount/OwnershipCreateHandler';
 
 interface IMenuProps {
   isOpened: boolean;
@@ -21,32 +26,38 @@ interface IMenuProps {
 
 export const Menu: FC<IMenuProps> = ({ isOpened }) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const logout = useLogout();
   const isApproved = useTypedSelector((state) => state.UserReducer.user?.isApproved);
   const role = useTypedSelector((state) => state.UserReducer.user?.role.role);
-  const [activeItem, changeActiveItem] = useState<number>(1);
   const citizen = useTypedSelector((state) => state.CitizenReducer.citizen);
 
   const [activeForm, changeActiveForm] = useState<null | 'help'>(null);
+  const [activeAccordion, changeActiveAccordion] = useState<string | null>(null);
+  const [isPossFormActive, changeIsPossFormActive] = useState(false);
 
   return (
     <>
       <HelpForm activeForm={activeForm} changeActiveForm={changeActiveForm} />
+      <OwnershipCreateHandler
+        isFormActive={isPossFormActive}
+        changeIsFormActive={changeIsPossFormActive}
+      />
       <div
         className={clsx(
           'transitionGeneral fixed inset-0 bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20]',
-          activeForm ? 'w-full' : 'w-0',
+          activeForm || isPossFormActive ? 'w-full' : 'w-0',
         )}
       ></div>
       <div
         className={clsx(
-          'transitionGeneral fixed z-[15] inset-0 w-[310px] flex flex-col bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg p-4',
-          isOpened ? 'translate-x-0' : 'translate-x-[-315px]',
+          'transitionGeneral fixed z-[15] inset-y-0 left-0 overflow-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
+          isOpened ? 'w-[310px] p-4' : 'w-0 mr-[-2px]',
         )}
       >
-        <div className='w-full'>
+        <div className='min-w-full'>
           <div className='h-min flex items-center gap-4 bg-orange-500'>
-            <img src={cat} className='h-auto ' width={'70px'} alt='' />
+            <img src={cat} className='h-auto' width={'70px'} alt='' />
             <div className='flex flex-col items-end overflow-hidden text-white'>
               <span className='text-xs w-max leading-4'>Управляющая компания</span>
               <span className='text-3xl leading-6'>Миллениум</span>
@@ -54,101 +65,167 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
           </div>
           <Logo />
         </div>
-        <div className='flex flex-col mt-10 text-lg gap-y-4'>
-          <Button
+        <div className='flex flex-col mt-10 text-lg'>
+          <Link
+            to={'/account/aboutMe'}
             className={clsx(
-              'flex items-center cursor-pointer rounded-md p-5 text-lg',
-              activeItem === 1 ? 'border-blue-700 text-blue-700' : 'border-black',
+              'flex items-center min-w-full rounded-md py-2 text-lg mb-4 h-[45px] overflow-hidden',
+              pathname.includes('/account/aboutMe') ? 'text-blue-700 bg-blue-300' : 'bg-gray-300',
             )}
-            onClick={() => {
-              changeActiveItem(1);
-              navigate('/account/aboutMe');
-            }}
           >
-            <FaUserCog className='mr-4' />
+            <FaUserCog className='mr-4 ml-4' />
             <span>Обо мне</span>
-          </Button>
+          </Link>
           <Popover
             content={
-              (!isApproved || !citizen[0].id) && role !== 'dispatcher' && role !== 'executor'
-                ? 'Сперва укажите собственность и получите подтверждение аккаунта от администратора'
-                : ''
+              (!isApproved || !citizen[0].id) && role !== 'dispatcher' && role !== 'executor' ? (
+                <>
+                  <div>Сперва создайте собственность</div>
+                  <div>Дождитесь подтверждения аккаунта от диспетчера</div>
+                </>
+              ) : (
+                ''
+              )
             }
           >
-            <Button
-              className={clsx(
-                'flex items-center cursor-pointer p-5 rounded-md text-lg',
-                activeItem === 2 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
-              )}
+            <button
+              onClick={() => navigate('/account/applications')}
               disabled={
                 (!isApproved || !citizen[0].id) && role !== 'dispatcher' && role !== 'executor'
                   ? true
                   : false
               }
-              onClick={() => {
-                changeActiveItem(2);
-                navigate('/account/applications');
-              }}
+              className={clsx(
+                'flex items-center py-2 rounded-md text-lg mb-4 h-[45px] overflow-hidden',
+                pathname.includes('/account/applications') && isApproved
+                  ? 'text-blue-700 bg-blue-300'
+                  : 'bg-gray-300',
+              )}
             >
-              <IoDocuments className='mr-4' />
+              <IoDocuments className='mr-4 ml-4' />
               <span>Заявки</span>
-            </Button>
+            </button>
           </Popover>
+          {role === 'dispatcher' && (
+            <>
+              <button
+                onClick={() => changeActiveAccordion((prev) => (!prev ? 'directories' : null))}
+                className='flex items-center justify-between py-2 rounded-md text-lg bg-gray-300 mb-4 h-[45px] overflow-hidden'
+              >
+                <div className='flex ml-6 items-center'>
+                  <GoFileDirectoryFill className='mr-4' />
+                  <span>Справочники</span>
+                </div>
+                <GrNext
+                  className={clsx(
+                    'transitionGeneral mr-6',
+                    activeAccordion === 'directories' && 'rotate-90',
+                  )}
+                />
+              </button>
+              <div
+                className={clsx(
+                  'transitionGeneral flex flex-col gap-y-4 overflow-hidden',
+                  activeAccordion === 'directories' ? 'h-[180px]' : 'h-0',
+                )}
+              >
+                <Link
+                  to={'/account/directory/applicationClasses'}
+                  className={clsx(
+                    'flex items-center py-2 rounded-md text-lg pointer-events-none',
+                    pathname.includes('/account/directory/applicationClasses')
+                      ? 'text-blue-700 bg-blue-300'
+                      : 'bg-gray-300',
+                  )}
+                >
+                  <MdOutlineClass className='mr-4 ml-6' />
+                  <span>Класс заявок</span>
+                </Link>
+                <button
+                  onClick={() => changeIsPossFormActive(true)}
+                  // to={'/account/directory/possession'}
+                  className={clsx(
+                    'flex items-center py-2 rounded-md text-lg bg-gray-300',
+                    // pathname.includes('/account/directory/possession')
+                    //   ? 'text-blue-700 bg-blue-300'
+                    //   : 'bg-gray-300',
+                    // (!isApproved || !citizen[0].id) &&
+                    //   role !== 'dispatcher' &&
+                    //   role !== 'executor' &&
+                    //   'pointer-events-none',
+                  )}
+                >
+                  <BsFillBuildingsFill className='mr-4 ml-6' />
+                  <span>Собственность</span>
+                </button>
+                <Link
+                  to={'/account/directory/employee'}
+                  className={clsx(
+                    'flex items-center py-2 rounded-md text-lg pointer-events-none',
+                    pathname.includes('/directory/applicationClasses')
+                      ? 'text-blue-700 bg-blue-300'
+                      : 'bg-gray-300',
+                    (!isApproved || !citizen[0].id) &&
+                      role !== 'dispatcher' &&
+                      role !== 'executor' &&
+                      'pointer-events-none',
+                  )}
+                >
+                  <GrUserWorker className='mr-4 ml-6' />
+                  <span>Работник</span>
+                </Link>
+              </div>
+            </>
+          )}
           {role === 'citizen' && (
             <Popover content={'В разработке'}>
-              <Button
+              <button
+                disabled
                 className={clsx(
-                  'flex items-center cursor-pointer p-5 rounded-md text-lg',
-                  activeItem === 3 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
+                  'flex items-center py-2 rounded-md text-lg mb-4 h-[45px] overflow-hidden',
+                  pathname.includes('/account/addLandlord') && isApproved
+                    ? 'text-blue-700 bg-blue-300'
+                    : 'bg-gray-300',
                 )}
-                disabled={true}
-                onClick={() => {
-                  changeActiveItem(3);
-                  navigate('/account/adding');
-                }}
               >
-                <PiUsersFill className='mr-4' />
+                <PiUsersFill className='mr-4 ml-4' />
                 <span>Добавить арендатора</span>
-              </Button>
+              </button>
             </Popover>
           )}
           {role === 'dispatcher' && (
-            <Button
+            <Link
+              to={'/account/citizen/approve'}
               className={clsx(
-                'flex items-center cursor-pointer p-5 rounded-md text-lg',
-                activeItem === 4 && isApproved ? 'border-blue-700 text-blue-700' : 'border-black',
+                'flex items-center py-2 rounded-md text-lg mb-4 h-[45px] overflow-hidden',
+                pathname.includes('/account/citizen/approve') && isApproved
+                  ? 'text-blue-700 blue-300 bg-blue-300'
+                  : 'bg-gray-300',
               )}
-              onClick={() => {
-                changeActiveItem(4);
-                navigate('/account/citizen/approve');
-              }}
             >
-              <FaUserCheck className='mr-4' />
-              <span>подтвердить жителя</span>
-            </Button>
+              <FaUserCheck className='mr-4 ml-4' />
+              <span>Подтвердить жителя</span>
+            </Link>
           )}
-          <Button
-            className={clsx(
-              'flex items-center cursor-pointer p-5 rounded-md text-lg',
-              activeItem === 5 ? 'border-blue-700 text-blue-700' : 'border-black',
-            )}
+          <button
+            className='flex items-center cursor-pointer py-2 rounded-md text-lg bg-gray-300 mb-4 h-[45px] overflow-hidden'
             onClick={() => {
               changeActiveForm('help');
             }}
           >
-            <MdSupportAgent className='mr-4' />
+            <MdSupportAgent className='mr-4 ml-4' />
             <span>Тех. поддержка</span>
-          </Button>
-          <Button
-            className='flex items-center cursor-pointer p-5 rounded-md text-lg border-black'
+          </button>
+          <button
+            className='flex items-center cursor-pointer py-2 rounded-md text-lg border-none bg-gray-300 h-[45px] overflow-hidden'
             onClick={() => {
               logout();
               navigate('/');
             }}
           >
-            <RiLogoutBoxFill className='mr-4' />
+            <RiLogoutBoxFill className='mr-4 ml-4' />
             <span>Выйти</span>
-          </Button>
+          </button>
         </div>
       </div>
     </>

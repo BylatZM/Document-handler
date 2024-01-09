@@ -22,6 +22,7 @@ const endpoints = {
     getBy: '/possession',
     getCurrent: '/possession/current',
     create: '/possession/create',
+    getByComplexes: '/possession/byComplexes',
   },
   citizen: {
     create: '/citizen/new',

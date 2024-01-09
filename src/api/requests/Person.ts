@@ -16,6 +16,7 @@ import {
   getUser,
   updateCitizen,
   updateUser,
+  getCitizenById,
 } from '..';
 import { refreshRequest } from './Main';
 import request from 'axios';
@@ -113,23 +114,37 @@ export const getCitizenRequest = async (logout: () => void): Promise<ICitizen[] 
   } else return response;
 };
 
-// export const getCitizenByUserIdRequest = async (
-//   id: number,
-//   logout: () => void,
-// ): Promise<ICitizen[] | void> => {
-//   try {
-//     return await getCitizenByUserId(id.toString()).then((response) => response.data);
-//   } catch (e) {
-//     if (request.isAxiosError(e) && e.response) {
-//       if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.statusText);
-//       if (e.response.status === 401) {
-//         const refresh_status = await refreshRequest();
-//         if (refresh_status === 200) getCitizenByUserIdRequest(id, logout);
-//         if (refresh_status === 403) logout();
-//       }
-//     }
-//   }
-// };
+export const getCitizenByIdRequest = async (
+  logout: () => void,
+  id: number,
+): Promise<ICitizen[] | void> => {
+  const citizenRequest = async (): Promise<ICitizen[] | 401 | void> => {
+    try {
+      const response = await getCitizenById(id.toString());
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401)
+          errorAlert(e.response.statusText);
+      }
+    }
+  };
+
+  const response = await citizenRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await citizenRequest();
+      if (!response) return;
+
+      if (response !== 401) return response;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
 
 export const createCitizenRequest = async (
   id: number,

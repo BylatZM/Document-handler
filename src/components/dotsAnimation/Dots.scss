@@ -4,11 +4,12 @@
   display: flex;
   justify-content: space-around;
 }
-.bubbles span {
+.component {
   position: relative;
   width: 20px;
   height: 20px;
-  background: #85d1eb;
+  background: none;
+  color: #85d1eb;
   border-radius: 100%;
   -webkit-box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
   -moz-box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
@@ -20,6 +21,6 @@
     transform: translateY(100vh) translateX(0) scale(0);
   }
   100% {
-    transform: translateY(-5vh) translateX(20vw) scale(1);
+    transform: translateY(-5vh) translateX(20vw) scale(1) rotate(360deg);
   }
 }

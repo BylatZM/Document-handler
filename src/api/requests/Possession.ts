@@ -5,7 +5,13 @@ import {
   IError,
   IPossession,
 } from '../../components/types';
-import { getComplexes, getBuildings, getPossessions, createPossession } from '..';
+import {
+  getComplexes,
+  getBuildings,
+  getPossessions,
+  createPossession,
+  getPossessionsByComplexes,
+} from '..';
 import { refreshRequest } from './Main';
 import request from 'axios';
 import { errorAlert } from './Main';
@@ -103,6 +109,37 @@ export const getPossessionsRequest = async (
     }
     if (refresh_status === 403) logout();
   } else return response;
+};
+
+export const getPossessionsByComplexesRequest = async (
+  logout: () => void,
+): Promise<IPossession[] | ICitizenError | void> => {
+  const makePossessionsRequest = async (): Promise<IPossession[] | 401 | ICitizenError | void> => {
+    try {
+      const response = await getPossessionsByComplexes();
+      if (!('type' in response.data)) return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) return { form_id: 0, error: e.response.data };
+          else errorAlert(e.response.statusText);
+        }
+      }
+    }
+
+    const response = await makePossessionsRequest();
+    if (!response) return;
+
+    if (response === 401) {
+      const refresh_status = await refreshRequest();
+      if (refresh_status === 200) {
+        const response = await makePossessionsRequest();
+        if (response && typeof response !== 'number') return response;
+      }
+      if (refresh_status === 403) logout();
+    } else return response;
+  };
 };
 
 export const createPossessionRequest = async (

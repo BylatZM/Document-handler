@@ -8,6 +8,7 @@ import { useActions } from '../hooks/useActions';
 import { Applications } from './content/applications/Applications';
 import { PersonalAccount } from './content/personalAccount/PersonalAccount';
 import { Header } from './header/Header';
+import { useTypedSelector } from '../hooks/useTypedSelector';
 import { Menu } from './menu/Menu';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -23,10 +24,12 @@ import {
   getTypesRequest,
 } from '../../api/requests/Application';
 import { ApproveCitizen } from './content/personalAccount/dispatcher/ApproveCitizen';
+import { ErrorPage } from '../ErrorPage';
 
 export const Account = () => {
   const logout = useLogout();
   const [isOpened, changeIsOpened] = useState(false);
+  const { user } = useTypedSelector((state) => state.UserReducer);
   const { pathname } = useLocation();
   const {
     userStart,
@@ -49,9 +52,6 @@ export const Account = () => {
     const profile_response = await getUserRequest(logout);
     if (profile_response) {
       userSuccess(profile_response);
-      if (['citizen', 'dispatcher'].some((el) => el === profile_response.role.role)) {
-        await get_citizen();
-      }
       if (profile_response.role.role === 'dispatcher') {
         const employs = await getEmploysRequest(logout);
         if (employs) employsSuccess(employs);
@@ -59,6 +59,8 @@ export const Account = () => {
         const notApprovedUsers = await getNotApprovedUsersRequest(logout);
         if (notApprovedUsers) notApprovedUsersSuccess(notApprovedUsers);
       }
+      if (profile_response.role.role in ['citizen', 'executor']) await get_applications();
+      if (profile_response.role.role) await get_citizen();
 
       await get_citizen_select_info();
       await get_dispatcher_select_info();
@@ -99,7 +101,6 @@ export const Account = () => {
   };
 
   const makeRequest = async () => {
-    await get_applications();
     await get_user_data();
     await get_complexes();
     changeIsRequested(false);
@@ -116,10 +117,15 @@ export const Account = () => {
       <Menu isOpened={isOpened} />
       <div className='min-h-screen bg-gray-100 relative inset-0'>
         <Header changeIsOpened={changeIsOpened} isOpened={isOpened} />
-        <div className='mt-[68px] '>
+        <div className='mt-[68px]'>
           {pathname.includes('/account/aboutMe') && <PersonalAccount />}
-          {pathname.includes('/account/applications') && <Applications />}
-          {pathname.includes('/account/citizen/approve') && <ApproveCitizen />}
+          {((user.isApproved && user.role.role === 'citizen') ||
+            user.role.role === 'dispatcher' ||
+            user.role.role === 'executor') &&
+            pathname.includes('/account/applications') && <Applications />}
+          {user.role.role === 'dispatcher' && pathname.includes('/account/citizen/approve') && (
+            <ApproveCitizen />
+          )}
         </div>
       </div>
     </>

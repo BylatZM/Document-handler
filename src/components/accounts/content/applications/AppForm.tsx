@@ -81,7 +81,6 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
 
   const getBuildings = async (complex_id: string) => {
     const response = await getBuildingsRequest(complex_id, logout);
-    console.log(response);
     if (response) buildingSuccess(response);
     citizenErrors(null);
   };

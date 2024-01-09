@@ -67,10 +67,16 @@ export const getPossessions = (
 ): AxiosPromise<IPossession[] | IError> =>
   axiosInstance.get(endpoints.possession.getBy + `?type=${type}&building=${building}`);
 
+export const getPossessionsByComplexes = (): AxiosPromise<IPossession[] | IError> =>
+  axiosInstance.get(endpoints.possession.getByComplexes);
+
 export const createPossession = (possession: IApprovePossessionRequest): AxiosPromise<void> =>
   axiosInstance.post(endpoints.possession.create, possession);
 
 export const getCitizen = (): AxiosPromise<ICitizen[]> => axiosInstance.get(endpoints.citizen.get);
+
+export const getCitizenById = (id: string): AxiosPromise<ICitizen[]> =>
+  axiosInstance.get(endpoints.citizen.get + `/${id}`);
 
 export const createCitizen = (citizen: ICitizenRequest): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.citizen.create, citizen);
