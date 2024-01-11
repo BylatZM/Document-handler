@@ -1,4 +1,3 @@
-import { Logo } from '../../../assets/svg';
 import { FC, useState } from 'react';
 import { IoDocuments } from 'react-icons/io5';
 import { RiLogoutBoxFill } from 'react-icons/ri';
@@ -19,6 +18,7 @@ import { BsFillBuildingsFill } from 'react-icons/bs';
 import { GrNext } from 'react-icons/gr';
 import { GoFileDirectoryFill } from 'react-icons/go';
 import { OwnershipCreateHandler } from '../content/personalAccount/OwnershipCreateHandler';
+import { Logo } from '../../../assets/svg';
 
 interface IMenuProps {
   isOpened: boolean;
@@ -56,14 +56,13 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
         )}
       >
         <div className='min-w-full'>
-          <div className='h-min flex items-center gap-4 bg-orange-500'>
+          <div className='h-min flex items-center gap-4 logoGrid'>
             <img src={cat} className='h-auto' width={'70px'} alt='' />
             <div className='flex flex-col items-end overflow-hidden text-white'>
               <span className='text-xs w-max leading-4'>Управляющая компания</span>
               <span className='text-3xl leading-6'>Миллениум</span>
             </div>
           </div>
-          <Logo />
         </div>
         <div className='flex flex-col mt-10 text-lg'>
           <Link
@@ -226,6 +225,9 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
             <RiLogoutBoxFill className='mr-4 ml-4' />
             <span>Выйти</span>
           </button>
+        </div>
+        <div className='absolute bottom-0 left-0 m-4'>
+          <Logo />
         </div>
       </div>
     </>

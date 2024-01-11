@@ -3,6 +3,7 @@ import { FC } from 'react';
 import { helpFormRequest } from '../../api/requests/Main';
 import { useActions } from '../hooks/useActions';
 import { useTypedSelector } from '../hooks/useTypedSelector';
+import { Logo } from '../../assets/svg';
 
 interface IButtonsProps {
   changeActiveForm: (activeForm: null | 'help') => void;
@@ -56,29 +57,32 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
   };
 
   return (
-    <div className='flex justify-end m-0 px-5 py-2'>
-      <Button
-        className='border-[1px] border-blue-700 text-blue-700 h-[40px] mr-4'
-        onClick={() => {
-          changeActiveForm(null);
-          helpFormClear();
-        }}
-      >
-        Закрыть
-      </Button>
-      <Popover content={'Ответ от тех.поддержки придет на почту, которую вы указали'}>
+    <div className='flex justify-between m-0 py-2 items-center'>
+      <Logo />
+      <div className='flex gap-x-4'>
         <Button
-          className='bg-blue-700 text-white h-[40px] border-blue-700'
-          disabled={isAgrChecked}
-          type='primary'
-          htmlType='submit'
+          className='border-[1px] border-blue-700 text-blue-700 h-[40px] mr-4'
           onClick={() => {
-            onFinish();
+            changeActiveForm(null);
+            helpFormClear();
           }}
         >
-          Отправить
+          Закрыть
         </Button>
-      </Popover>
+        <Popover content={'Ответ от тех.поддержки придет на почту, которую вы указали'}>
+          <Button
+            className='bg-blue-700 text-white h-[40px] border-blue-700'
+            disabled={isAgrChecked}
+            type='primary'
+            htmlType='submit'
+            onClick={() => {
+              onFinish();
+            }}
+          >
+            Отправить
+          </Button>
+        </Popover>
+      </div>
     </div>
   );
 };

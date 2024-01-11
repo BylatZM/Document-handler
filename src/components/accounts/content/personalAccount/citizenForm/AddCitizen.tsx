@@ -12,14 +12,15 @@ import { LoadingForm } from './LoadingForm';
 
 export const AddCitizen = () => {
   const logout = useLogout();
-  const role = useTypedSelector((state) => state.UserReducer.user.role.role);
+  const { user } = useTypedSelector((state) => state.UserReducer);
   const { addCitizenForm, citizenSuccess } = useActions();
   const [needUpdateCitizen, changeNeedUpdate] = useState(false);
   const [isFormActive, changeIsFormActive] = useState(false);
   const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
 
   useEffect(() => {
-    if (['citizen', 'dispatcher'].some((el) => el === role) && needUpdateCitizen) getCitizenData();
+    if (['citizen', 'dispatcher'].some((el) => el === user.role.role) && needUpdateCitizen)
+      getCitizenData();
   }, [needUpdateCitizen]);
 
   const getCitizenData = async () => {
@@ -45,6 +46,7 @@ export const AddCitizen = () => {
           className='bg-blue-700 text-white w-min'
           type='primary'
           onClick={() => addCitizenForm()}
+          disabled={!user.isApproved}
         >
           Добавить собственность
         </Button>

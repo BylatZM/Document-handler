@@ -15,12 +15,12 @@ interface IHelpFormProps {
 export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) => {
   const [isAgrChecked, changeIsAgr] = useState(true);
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
-  const { processed_possessions } = useTypedSelector((state) => state.HelpFormReducer);
+  const { processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { helpFormInit } = useActions();
+  const { helpFormName, helpFormEmail, helpFormPossessions } = useActions();
 
   useEffect(() => {
-    if (!activeForm && !processed_possessions && user.email) {
+    if (!processed_possessions && activeForm === 'help') {
       let poss_processed = null;
       if (possessions[0].id !== 0) {
         poss_processed = possessions.map((item) => {
@@ -38,7 +38,13 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
           );
         });
       }
-      helpFormInit({ email: user.email, name: user.first_name, posses: poss_processed });
+      helpFormPossessions(poss_processed);
+    }
+    if (!info.name && activeForm === 'help' && user.first_name) {
+      helpFormName(user.first_name);
+    }
+    if (!info.email && activeForm === 'help' && user.email) {
+      helpFormEmail(user.email);
     }
   }, [activeForm]);
 

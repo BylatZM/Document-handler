@@ -1,9 +1,7 @@
-import Photo from '../images/logo.png';
-
 export const Logo = () => {
   return (
     <div className='mt-2 w-min flex flex-col'>
-      <svg width='60px' height='47px' viewBox='0 0 60 47'>
+      <svg className='w-[50px] h-[37px]' viewBox='0 0 60 47'>
         <g id='surface1'>
           <path
             fill='#d00404'
@@ -11,7 +9,7 @@ export const Logo = () => {
           />
         </g>
       </svg>
-      <span className=' leading-3 text-[10px] uppercase font-extrabold'>дельтатех</span>
+      <span className=' leading-3 text-[6px] uppercase font-extrabold mx-auto'>дельтатех</span>
     </div>
   );
 };

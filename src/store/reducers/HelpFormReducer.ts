@@ -23,13 +23,14 @@ export const HelpFormReducer = createSlice({
     helpFormLoading: (state, { payload }: PayloadAction<boolean>) => {
       state.isLoading = payload;
     },
-    helpFormInit: (
-      state,
-      { payload }: PayloadAction<{ name: string; email: string; posses: string[] | null }>,
-    ) => {
-      state.info.name = payload.name;
-      state.info.email = payload.email;
-      state.processed_possessions = payload.posses;
+    helpFormEmail: (state, { payload }: PayloadAction<string>) => {
+      state.info.email = payload;
+    },
+    helpFormName: (state, { payload }: PayloadAction<string>) => {
+      state.info.name = payload;
+    },
+    helpFormPossessions: (state, { payload }: PayloadAction<string[] | null>) => {
+      state.processed_possessions = payload;
     },
     helpFormInfoSuccess: (state, { payload }: PayloadAction<IHelpFormRequest>): IHelpFormState => {
       return { ...state, info: { ...payload } };
@@ -43,7 +44,14 @@ export const HelpFormReducer = createSlice({
   },
 });
 
-export const { helpFormLoading, helpFormError, helpFormClear, helpFormInit, helpFormInfoSuccess } =
-  HelpFormReducer.actions;
+export const {
+  helpFormLoading,
+  helpFormError,
+  helpFormEmail,
+  helpFormClear,
+  helpFormName,
+  helpFormInfoSuccess,
+  helpFormPossessions,
+} = HelpFormReducer.actions;
 
 export default HelpFormReducer.reducer;

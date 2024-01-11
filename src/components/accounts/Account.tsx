@@ -10,7 +10,7 @@ import { PersonalAccount } from './content/personalAccount/PersonalAccount';
 import { Header } from './header/Header';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { Menu } from './menu/Menu';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
 import { getComplexesRequest } from '../../api/requests/Possession';
@@ -59,9 +59,9 @@ export const Account = () => {
         const notApprovedUsers = await getNotApprovedUsersRequest(logout);
         if (notApprovedUsers) notApprovedUsersSuccess(notApprovedUsers);
       }
-      if (profile_response.role.role in ['citizen', 'executor']) await get_applications();
+      if (profile_response.role.role !== 'executor') await get_complexes();
+      await get_applications();
       if (profile_response.role.role) await get_citizen();
-
       await get_citizen_select_info();
       await get_dispatcher_select_info();
     }
@@ -78,7 +78,10 @@ export const Account = () => {
     const grades = await getGradesRequest(logout);
     if (grades) gradesSuccess(grades);
     const statuses = await getStatusesRequest(logout);
-    if (statuses) statusesSuccess(statuses);
+    if (statuses)
+      statusesSuccess(
+        statuses.filter((el) => el.appStatus === 'Новая' || el.appStatus === 'Закрыта'),
+      );
     const priorities = await getPrioritiesRequest(logout);
     if (priorities) prioritySuccess(priorities);
   };
@@ -102,13 +105,27 @@ export const Account = () => {
 
   const makeRequest = async () => {
     await get_user_data();
-    await get_complexes();
     changeIsRequested(false);
   };
 
   useEffect(() => {
     if (IsRequested) makeRequest();
   }, [IsRequested]);
+
+  const GetCurrentFrame = (pathname: string): ReactNode => {
+    if (pathname === '/account/aboutMe') return <PersonalAccount />;
+    if (pathname === '/account/applications') {
+      if (!user.isApproved) return <ErrorPage message='Страница не найдена' />;
+      if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role.role))
+        return <ErrorPage message='Страница не найдена' />;
+
+      return <Applications />;
+    }
+    if (pathname === '/account/citizen/approve' && user.role.role === 'dispatcher')
+      return <ApproveCitizen />;
+
+    return <ErrorPage message='Страница не найдена' />;
+  };
 
   if (IsRequested) return <Loading />;
 
@@ -117,16 +134,7 @@ export const Account = () => {
       <Menu isOpened={isOpened} />
       <div className='min-h-screen bg-gray-100 relative inset-0'>
         <Header changeIsOpened={changeIsOpened} isOpened={isOpened} />
-        <div className='mt-[68px]'>
-          {pathname.includes('/account/aboutMe') && <PersonalAccount />}
-          {((user.isApproved && user.role.role === 'citizen') ||
-            user.role.role === 'dispatcher' ||
-            user.role.role === 'executor') &&
-            pathname.includes('/account/applications') && <Applications />}
-          {user.role.role === 'dispatcher' && pathname.includes('/account/citizen/approve') && (
-            <ApproveCitizen />
-          )}
-        </div>
+        <div className='mt-[68px]'>{GetCurrentFrame(pathname)}</div>
       </div>
     </>
   );

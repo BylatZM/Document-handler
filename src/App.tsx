@@ -14,7 +14,6 @@ export const App = () => {
   useEffect(() => {
     if (localStorage.getItem('access')) navigate('/account/aboutMe');
   }, []);
-
   return (
     <div className='w-full'>
       <Routes>

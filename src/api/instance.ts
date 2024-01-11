@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 export const API_URL =
-  //`http://91.201.40.39:8000/api`;
-  `http://localhost:8000/api`;
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8000/api'
+    : 'http://91.201.40.39:8000/api';
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {

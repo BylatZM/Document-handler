@@ -34,7 +34,7 @@ const initialApplication: IApplication = {
   dispatcherComment: null,
   dueDate: null,
   employee: null,
-  grade: 0,
+  grade: 1,
   id: 0,
   isAppeal: false,
   possession: {
@@ -189,17 +189,11 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
           <div className='w-[48%] gap-2 flex flex-col'>
             <span>Класс заявки</span>
             <Select
-              value={!FormData.grade ? undefined : FormData.grade}
-              onChange={(e: number) => changeFormData((prev) => ({ ...prev, grade: e }))}
-              disabled={
-                ['citizen', 'executor'].some((el) => el === role.role) ||
-                (formInfo.length > 0 && formInfo[0].status !== 1)
-                  ? true
-                  : false
-              }
+              value={!FormData.grade ? 1 : FormData.grade}
+              disabled
               options={
                 !grades
-                  ? []
+                  ? [{ value: 1, label: 'Клиентская' }]
                   : grades.map((el) => ({
                       value: el.id,
                       label: el.appClass,
@@ -705,6 +699,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
               onClick={() => {
                 exitFromForm();
                 create_application();
+                citizenErrors(null);
               }}
               className='text-white bg-blue-700 '
               disabled={
@@ -736,6 +731,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
               onClick={() => {
                 update_application();
                 exitFromForm();
+                citizenErrors(null);
               }}
               className=' text-white bg-blue-700 '
               disabled={
@@ -783,6 +779,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
                 changeFormData(initialApplication);
                 changeIsFormActive(false);
                 changeCarInfo(null);
+                citizenErrors(null);
               }}
             >
               Закрыть

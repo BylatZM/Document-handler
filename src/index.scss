@@ -41,3 +41,9 @@ body {
   content: '*';
   color: rgb(222, 40, 40);
 }
+
+.logoGrid {
+  background: -webkit-linear-gradient(45deg, rgb(253, 114, 48) 23%, rgb(0, 0, 0) 69%);
+  background: -moz-linear-gradient(45deg, rgb(253, 114, 48) 23%, rgb(0, 0, 0) 69%);
+  background: linear-gradient(45deg, rgb(253, 114, 48) 23%, rgb(0, 0, 0) 69%);
+}
