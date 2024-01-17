@@ -1,11 +1,9 @@
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { Popover } from 'antd';
-import { FaBell } from 'react-icons/fa';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { clsx } from 'clsx';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useLocation } from 'react-router-dom';
-import cat from '../../../assets/images/cat.png';
 
 interface IHeaderProps {
   changeIsOpened: (numb: boolean) => void;
@@ -14,7 +12,6 @@ interface IHeaderProps {
 
 export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
   const { pathname } = useLocation();
-  const user = useTypedSelector((state) => state.UserReducer.user);
   const user_email = useTypedSelector((state) => state.UserReducer.user?.email);
 
   return (
@@ -23,14 +20,9 @@ export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
         <div className='flex items-center'>
           <b className='mr-2 text-lg'>
             {pathname === '/account/aboutMe' && 'Личный кабинет'}
-            {pathname === '/account/settings' && 'Настройки'}
             {pathname === '/account/applications' && 'Заявки'}
-            {pathname === '/account/adding' &&
-              user?.isApproved &&
-              user.role.role === 'citizen' &&
-              'Добавить арендатора'}
-            {pathname === '/account/create/possession' && 'Собственность жителя'}
-            {pathname === '/account/citizen/approve' && 'Подтверждение аккаунтов жителей'}
+            {pathname === '/account/approve/citizen' && 'Подтверждение аккаунтов жителей'}
+            {pathname === '/account/approve/possession' && 'Подтверждение собственностей'}
           </b>
           <Popover content={'Информация'}>
             <IoIosInformationCircleOutline className='text-gray-400' />

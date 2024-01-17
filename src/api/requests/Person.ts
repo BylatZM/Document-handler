@@ -3,13 +3,13 @@ import {
   ICitizenError,
   ICitizenRequest,
   IError,
-  INotApprovedUsers,
+  INotApproved,
   IUser,
   IUserUpdate,
 } from '../../components/types';
 import {
-  approveUser,
-  getNotApprovedUsers,
+  approve,
+  getNotApproved,
   createCitizen,
   deleteCitizen,
   getCitizen,
@@ -17,6 +17,7 @@ import {
   updateCitizen,
   updateUser,
   getCitizenById,
+  rejectApprove,
 } from '..';
 import { refreshRequest } from './Main';
 import request from 'axios';
@@ -245,12 +246,10 @@ export const deleteCitizenRequest = async (id: number, logout: () => void): Prom
   } else return response;
 };
 
-export const getNotApprovedUsersRequest = async (
-  logout: () => void,
-): Promise<INotApprovedUsers[] | void> => {
-  const notApprovedUsersRequest = async (): Promise<INotApprovedUsers[] | 401 | void> => {
+export const getNotApprovedRequest = async (logout: () => void): Promise<INotApproved[] | void> => {
+  const notApprovedRequest = async (): Promise<INotApproved[] | 401 | void> => {
     try {
-      const response = await getNotApprovedUsers();
+      const response = await getNotApproved();
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -261,13 +260,13 @@ export const getNotApprovedUsersRequest = async (
     }
   };
 
-  const response = await notApprovedUsersRequest();
+  const response = await notApprovedRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await notApprovedUsersRequest();
+      const response = await notApprovedRequest();
       if (!response) return;
 
       if (response !== 401) return response;
@@ -276,10 +275,10 @@ export const getNotApprovedUsersRequest = async (
   } else return response;
 };
 
-export const approveUserRequest = async (id: number, logout: () => void): Promise<200 | void> => {
+export const approveRequest = async (id: number, logout: () => void): Promise<200 | void> => {
   const userRequest = async (): Promise<200 | 401 | void> => {
     try {
-      await approveUser(id.toString());
+      await approve(id.toString());
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -297,6 +296,35 @@ export const approveUserRequest = async (id: number, logout: () => void): Promis
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await userRequest();
+      if (!response) return;
+
+      if (response !== 401) return response;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const rejectApproveRequest = async (id: number, logout: () => void): Promise<200 | void> => {
+  const rejectRequest = async (): Promise<200 | 401 | void> => {
+    try {
+      await rejectApprove(id.toString());
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401)
+          errorAlert(e.response.statusText);
+      }
+    }
+  };
+
+  const response = await rejectRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await rejectRequest();
       if (!response) return;
 
       if (response !== 401) return response;

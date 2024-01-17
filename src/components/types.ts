@@ -49,7 +49,7 @@ export interface IPossessionState {
 
 export interface IUserState {
   user: IUser;
-  notApprovedUsers: INotApprovedUsers[] | null;
+  notApproved: INotApproved[] | null;
   isLoading: boolean;
   error: IError | null;
 }
@@ -68,7 +68,7 @@ export interface IApplicationState {
 
 export interface ICitizenState {
   citizen: ICitizen[];
-  isLoading: ICitizenLoading | null;
+  isLoading: ICitizenLoading;
   error: ICitizenError | null;
 }
 
@@ -95,12 +95,10 @@ export interface IAuthGoodResponse {
   refresh: string;
 }
 
-export interface INotApprovedUsers {
+export interface INotApproved {
   id: number;
-  first_name: string;
-  last_name: string;
-  patronymic: string | null;
-  email: string;
+  user: Omit<IUser, 'role' | 'isApproved'> & { id: number };
+  status: string;
 }
 
 export interface IRefreshGoodResponse {
@@ -125,34 +123,60 @@ export type IUserUpdate = Omit<IUser, 'role' | 'isApproved' | 'email'>;
 
 export interface IApplication {
   id: number;
-  status?: number | null;
-  priority?: number | null;
-  type?: number;
-  grade?: number | null;
-  creatingDate?: string | null;
-  dueDate?: string | null;
-  citizenComment?: string;
-  source?: number;
+  status: IStatus | null;
+  priority: IPriority | null;
+  type: IType;
+  grade: IGrade | null;
+  creatingDate: string | null;
+  dueDate: string | null;
+  citizenComment: string;
+  source: ISource;
   complex: IComplex;
   building: IBuilding;
   possession: IPossession;
-  employee?: IEmployee | null;
-  isAppeal?: boolean;
-  dispatcherComment?: string | null;
-  employeeComment?: string | null;
+  employee: IEmployee | null;
+  isAppeal: boolean;
+  dispatcherComment: string | null;
+  employeeComment: string | null;
   user: number;
   possessionType: string;
 }
 
-export type IApplicationRequest = Omit<
-  IApplication,
-  'complex' | 'building' | 'possession' | 'id' | 'employee' | 'user' | 'possessionType'
-> & {
-  complex?: number;
-  building?: number;
-  possession?: number;
-  employee?: number;
+export type IAppCreateByCitizen = Pick<IApplication, 'citizenComment' | 'isAppeal'> & {
+  complex: number;
+  building: number;
+  possession: number;
+  type: number;
+  source: number;
+  status: number;
+  grade: number;
 };
+
+export type IAppCreateByDispatcher = Pick<IApplication, 'dispatcherComment'> & {
+  complex: number;
+  building: number;
+  possession: number;
+  employee: number;
+  type: number;
+  source: number;
+  status: number;
+  grade: number;
+  priority: number;
+  dispatcherComment?: string | null;
+};
+
+export type IAppUpdateByDispatcher = {
+  isAppeal: boolean;
+  citizenComment: string;
+  employee: number;
+  status: number;
+  type: number;
+  source: number;
+  priority: number;
+  dispatcherComment?: string | null;
+};
+
+export type IAppUpdateByEmployee = Pick<IApplication, 'employeeComment'>;
 
 export interface IStatus {
   id: number;
@@ -177,6 +201,12 @@ export interface ISource {
 export interface IEmployee {
   id: number;
   user: Pick<IUser, 'first_name' | 'last_name' | 'patronymic'>;
+  competence: ICompetence;
+}
+
+export interface ICompetence {
+  id: number;
+  competence: string;
 }
 
 export interface IPriority {
@@ -187,7 +217,7 @@ export interface IPriority {
 export interface ICitizen {
   id: number;
   personal_account: string;
-  ownershipType: string;
+  possessionType: string;
   ownershipStatus: string;
   complex: IComplex;
   building: IBuilding;
@@ -202,7 +232,7 @@ export type IApprovePossession = Omit<
   | 'complex'
   | 'building'
   | 'possession'
-  | 'ownershipType'
+  | 'possessionType'
 > & {
   possession: Omit<IPossession, 'id'>;
   complex: number;

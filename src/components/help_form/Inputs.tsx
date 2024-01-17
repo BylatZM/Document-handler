@@ -67,7 +67,7 @@ export const Inputs = () => {
           value={info.description}
           required
           size='large'
-          placeholder='дайте описание вашей проблемы'
+          placeholder='Описание проблемы'
           className='rounded-md'
           style={{ resize: 'none' }}
         />
@@ -85,6 +85,7 @@ export const Inputs = () => {
             maxLength={200}
             type='text'
             size='large'
+            placeholder='Адрес собственности'
           />
           {error !== null && error.type === 'address' && (
             <div className='errorText  mt-2'>{error.error}</div>
@@ -98,6 +99,7 @@ export const Inputs = () => {
             className='rounded-md h-[40px] w-full'
             onChange={(e) => helpFormInfoSuccess({ ...info, address: e })}
             value={info.address}
+            placeholder='Адрес собственности'
             options={
               !processed_possessions
                 ? []

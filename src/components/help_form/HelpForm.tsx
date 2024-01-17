@@ -25,9 +25,9 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
       if (possessions[0].id !== 0) {
         poss_processed = possessions.map((item) => {
           let possessionType = 'парковка';
-          if (item.ownershipType === '1') possessionType = 'квартира';
-          if (item.ownershipType === '2') possessionType = 'офис';
-          if (item.ownershipType === '4') possessionType = 'кладовка';
+          if (item.possessionType === '1') possessionType = 'квартира';
+          if (item.possessionType === '2') possessionType = 'офис';
+          if (item.possessionType === '4') possessionType = 'кладовка';
           return (
             item.complex.name +
             ', ' +

@@ -30,6 +30,7 @@ const defaultPossessionInfo: IApprovePossession = {
 
 export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormActive }) => {
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
+  const { user } = useTypedSelector((state) => state.UserReducer);
   const [error, changeError] = useState<IError | null>(null);
   const { building, complex } = useTypedSelector((state) => state.PossessionReducer);
   const { buildingSuccess } = useActions();
@@ -56,6 +57,7 @@ export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormA
 
     if (response === 201) {
       changeFormData(defaultPossessionInfo);
+      changeError(null);
       changeIsFormActive(false);
     }
   };
@@ -211,12 +213,15 @@ export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormA
           className='text-blue-700 bg-none border-blue-700'
           onClick={() => {
             changeFormData(defaultPossessionInfo);
+            changeError(null);
             changeIsFormActive(false);
           }}
         >
           Закрыть
         </Button>
-        <Popover content={'Заявка будет рассмотрена диспетчером'}>
+        <Popover
+          content={user.role.role === 'citizen' ? 'Заявка будет рассмотрена диспетчером' : ''}
+        >
           <Button
             type='primary'
             className=' text-white bg-blue-700'

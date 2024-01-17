@@ -21,10 +21,13 @@ import {
   IPriority,
   ISource,
   IStatus,
-  IApplicationRequest,
+  IAppCreateByDispatcher,
+  IAppCreateByCitizen,
   IHelpFormRequest,
-  INotApprovedUsers,
+  INotApproved,
   IApprovePossessionRequest,
+  IAppUpdateByDispatcher,
+  IAppUpdateByEmployee,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -46,10 +49,13 @@ export const updatePassword = (params: {
 
 export const getUser = (): AxiosPromise<IUser> => axiosInstance.get(endpoints.user.get);
 
-export const approveUser = (id: string): AxiosPromise<void> =>
-  axiosInstance.put(endpoints.user.approveUser + `${id}`);
+export const approve = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.user.approve + `${id}`);
 
-export const getNotApprovedUsers = (): AxiosPromise<INotApprovedUsers[]> =>
+export const rejectApprove = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.user.rejectApproving + `${id}`);
+
+export const getNotApproved = (): AxiosPromise<INotApproved[]> =>
   axiosInstance.get(endpoints.user.getNotApproved);
 
 export const updateUser = (user: IUserUpdate): AxiosPromise<IError | void> =>
@@ -87,14 +93,21 @@ export const updateCitizen = (id: number, citizen: ICitizenRequest): AxiosPromis
 export const deleteCitizen = (id: number): AxiosPromise<void> =>
   axiosInstance.delete(endpoints.citizen.delete + `/${id}`);
 
-export const createApplication = (application: IApplicationRequest): AxiosPromise<IError | void> =>
-  axiosInstance.post(endpoints.application.create, application);
+export const createApplication = (
+  application: IAppCreateByCitizen | IAppCreateByDispatcher,
+): AxiosPromise<IError | void> => axiosInstance.post(endpoints.application.create, application);
+
+export const updateApplicationStatus = (
+  data: { status: number },
+  application_id: string,
+): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.application.updateStatus + `/${application_id}`, data);
 
 export const updateApplication = (
-  id: number,
-  application: IApplicationRequest,
-): AxiosPromise<IError | void> =>
-  axiosInstance.put(endpoints.application.update + `/${id}`, application);
+  application_id: string,
+  data: IAppUpdateByDispatcher | IAppUpdateByEmployee,
+): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.application.updateComment + `/${application_id}`, data);
 
 export const getApplication = (): AxiosPromise<IApplication[]> =>
   axiosInstance.get(endpoints.application.get);

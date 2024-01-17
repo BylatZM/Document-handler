@@ -6,8 +6,13 @@ import { useActions } from './hooks/useActions';
 export const RequireAuth = () => {
   const { addAccess } = useActions();
   const { pathname } = useLocation();
-  let access = useTypedSelector((state) => state.AuthReducer.access);
-  if (!access && localStorage.getItem('access')) addAccess(localStorage.getItem('access'));
+
+  let { access } = useTypedSelector((state) => state.AuthReducer);
+
+  if (!access && localStorage.getItem('access')) {
+    access = localStorage.getItem('access');
+    addAccess(localStorage.getItem('access'));
+  }
 
   return access && pathname.includes('/account') ? <Outlet /> : <Navigate to={'/'} />;
 };

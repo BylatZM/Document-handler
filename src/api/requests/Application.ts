@@ -1,11 +1,14 @@
 import {
-  IApplicationRequest,
+  IAppCreateByDispatcher,
+  IAppCreateByCitizen,
   IEmployee,
   IGrade,
   IPriority,
   ISource,
   IStatus,
   IType,
+  IAppUpdateByDispatcher,
+  IAppUpdateByEmployee,
 } from '../../components/types';
 import {
   createApplication,
@@ -17,6 +20,7 @@ import {
   getStatus,
   getType,
   updateApplication,
+  updateApplicationStatus,
 } from '..';
 import { IApplication, IError } from '../../components/types';
 import request from 'axios';
@@ -56,7 +60,7 @@ export const getApplicationsRequest = async (
 
 export const createApplicationsRequest = async (
   logout: () => void,
-  application: IApplicationRequest,
+  application: IAppCreateByDispatcher | IAppCreateByCitizen,
 ): Promise<IError | 201 | void> => {
   const applicationsRequest = async (): Promise<IError | 201 | 401 | void> => {
     try {
@@ -88,21 +92,54 @@ export const createApplicationsRequest = async (
   } else return response;
 };
 
-export const updateApplicationsRequest = async (
-  id: number,
+export const updateAppRequest = async (
+  id: string,
   logout: () => void,
-  application: IApplicationRequest,
+  data: IAppUpdateByDispatcher | IAppUpdateByEmployee,
 ): Promise<IError | 200 | void> => {
-  const applicationsRequest = async (): Promise<IError | 200 | 401 | void> => {
+  const applicationRequest = async (): Promise<IError | 200 | 401 | void> => {
     try {
-      await updateApplication(id, application);
+      await updateApplication(id, data);
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 401 && e.response.status !== 400)
+          errorAlert(e.response.statusText);
+      }
+    }
+  };
+
+  const response = await applicationRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await applicationRequest();
+      if (!response) return;
+
+      if (response !== 401) return response;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const updateAppStatusRequest = async (
+  id: string,
+  logout: () => void,
+  status: number,
+): Promise<200 | void> => {
+  const applicationsRequest = async (): Promise<200 | 401 | void> => {
+    try {
+      await updateApplicationStatus({ status: status }, id);
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
         else {
-          if (e.response.status === 400) return e.response.data;
-          else errorAlert(e.response.statusText);
+          if (e.response.status !== 401 && e.response.status !== 400)
+            errorAlert(e.response.statusText);
         }
       }
     }

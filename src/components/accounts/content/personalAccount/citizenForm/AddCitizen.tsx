@@ -1,5 +1,5 @@
 import { Button } from 'antd';
-import { CitizenForm } from './CitizenForm';
+import { CitizenForm } from './citizenForm/CitizenForm';
 import { useActions } from '../../../../hooks/useActions';
 import { useEffect, useState } from 'react';
 import { getCitizenRequest } from '../../../../../api/requests/Person';
@@ -16,6 +16,7 @@ export const AddCitizen = () => {
   const { addCitizenForm, citizenSuccess } = useActions();
   const [needUpdateCitizen, changeNeedUpdate] = useState(false);
   const [isFormActive, changeIsFormActive] = useState(false);
+  const [updatingFormId, changeUpdatingFormId] = useState<number | null>(null);
   const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
 
   useEffect(() => {
@@ -65,6 +66,8 @@ export const AddCitizen = () => {
             isNew: el.id < 1 ? true : false,
           }}
           changeNeedUpdate={changeNeedUpdate}
+          changeUpdatingFormId={changeUpdatingFormId}
+          updatingFormId={updatingFormId}
         />
       ))}
     </>

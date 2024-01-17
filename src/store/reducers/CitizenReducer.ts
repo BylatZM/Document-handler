@@ -6,7 +6,7 @@ import { ICitizenState, ICitizen } from '../../components/types';
 const defaultCitizen: ICitizen = {
   id: 0,
   personal_account: '',
-  ownershipType: '1',
+  possessionType: '1',
   ownershipStatus: '1',
   complex: {
     id: 0,
@@ -25,7 +25,7 @@ const defaultCitizen: ICitizen = {
 
 const initialState: ICitizenState = {
   citizen: [defaultCitizen],
-  isLoading: null,
+  isLoading: { form_id: 0, isLoading: false },
   error: null,
 };
 
@@ -33,7 +33,7 @@ export const CitizenReducer = createSlice({
   name: 'CitizenReducer',
   initialState,
   reducers: {
-    citizenLoading: (state, { payload }: PayloadAction<ICitizenLoading | null>) => {
+    citizenLoading: (state, { payload }: PayloadAction<ICitizenLoading>) => {
       state.isLoading = payload;
     },
     citizenSuccess: (state, { payload }: PayloadAction<ICitizen[]>) => {
@@ -50,7 +50,7 @@ export const CitizenReducer = createSlice({
       state,
       { payload }: PayloadAction<{ form_id: number; citizen: ICitizen }>,
     ) => {
-      state.isLoading = null;
+      state.isLoading = { form_id: 0, isLoading: false };
       state.citizen.filter((el) => el.id === payload.form_id)[0] = payload.citizen;
     },
     deleteCitizenForm: (state, { payload }: PayloadAction<{ form_id: number }>) => {

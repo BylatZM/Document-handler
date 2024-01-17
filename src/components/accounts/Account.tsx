@@ -1,6 +1,6 @@
 import {
   getCitizenRequest,
-  getNotApprovedUsersRequest,
+  getNotApprovedRequest,
   getUserRequest,
 } from '../../api/requests/Person';
 import { Loading } from '../Loading/Loading';
@@ -11,23 +11,23 @@ import { Header } from './header/Header';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { Menu } from './menu/Menu';
 import { ReactNode, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
 import { getComplexesRequest } from '../../api/requests/Possession';
 import {
   getApplicationsRequest,
   getEmploysRequest,
-  getGradesRequest,
   getPrioritiesRequest,
   getSourcesRequest,
   getStatusesRequest,
   getTypesRequest,
 } from '../../api/requests/Application';
-import { ApproveCitizen } from './content/personalAccount/dispatcher/ApproveCitizen';
+import { ApproveCitizen } from './content/personalAccount/dispatcher/approveCitizen/ApproveCitizen';
 import { ErrorPage } from '../ErrorPage';
 
 export const Account = () => {
   const logout = useLogout();
+  const navigate = useNavigate();
   const [isOpened, changeIsOpened] = useState(false);
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { pathname } = useLocation();
@@ -38,12 +38,11 @@ export const Account = () => {
     citizenSuccess,
     applicationSuccess,
     typesSuccess,
-    gradesSuccess,
     sourcesSuccess,
     statusesSuccess,
     prioritySuccess,
     employsSuccess,
-    notApprovedUsersSuccess,
+    notApprovedSuccess,
   } = useActions();
   const [IsRequested, changeIsRequested] = useState(true);
 
@@ -53,35 +52,31 @@ export const Account = () => {
     if (profile_response) {
       userSuccess(profile_response);
       if (profile_response.role.role === 'dispatcher') {
+        navigate('/account/applications');
         const employs = await getEmploysRequest(logout);
         if (employs) employsSuccess(employs);
 
-        const notApprovedUsers = await getNotApprovedUsersRequest(logout);
-        if (notApprovedUsers) notApprovedUsersSuccess(notApprovedUsers);
+        const notApprovedUsers = await getNotApprovedRequest(logout);
+        if (notApprovedUsers) notApprovedSuccess(notApprovedUsers);
       }
-      if (profile_response.role.role !== 'executor') await get_complexes();
+      if (profile_response.role.role !== 'executor') {
+        await get_complexes();
+      } else {
+        navigate('/account/applications');
+      }
       await get_applications();
       if (profile_response.role.role) await get_citizen();
-      await get_citizen_select_info();
-      await get_dispatcher_select_info();
+      if (profile_response.isApproved) await get_static_select_info();
     }
   };
 
-  const get_citizen_select_info = async () => {
+  const get_static_select_info = async () => {
     const types = await getTypesRequest(logout);
     if (types) typesSuccess(types);
     const sources = await getSourcesRequest(logout);
     if (sources) sourcesSuccess(sources);
-  };
-
-  const get_dispatcher_select_info = async () => {
-    const grades = await getGradesRequest(logout);
-    if (grades) gradesSuccess(grades);
     const statuses = await getStatusesRequest(logout);
-    if (statuses)
-      statusesSuccess(
-        statuses.filter((el) => el.appStatus === 'Новая' || el.appStatus === 'Закрыта'),
-      );
+    if (statuses) statusesSuccess(statuses);
     const priorities = await getPrioritiesRequest(logout);
     if (priorities) prioritySuccess(priorities);
   };
@@ -121,10 +116,11 @@ export const Account = () => {
 
       return <Applications />;
     }
-    if (pathname === '/account/citizen/approve' && user.role.role === 'dispatcher')
+    if (pathname === '/account/approve/citizen' && user.role.role === 'dispatcher')
       return <ApproveCitizen />;
 
-    return <ErrorPage message='Страница не найдена' />;
+    if (pathname === '/account/approve/possession' && user.role.role === 'dispatcher')
+      return <ApproveCitizen />;
   };
 
   if (IsRequested) return <Loading />;
