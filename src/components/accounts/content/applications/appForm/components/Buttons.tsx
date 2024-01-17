@@ -10,7 +10,7 @@ import {
   IStatus,
 } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
-import { Button } from 'antd';
+import { Button, ConfigProvider } from 'antd';
 import {
   createApplicationsRequest,
   getApplicationsRequest,
@@ -96,7 +96,8 @@ export const Buttons: FC<IProps> = ({
       },
     });
     exitFromForm();
-    if (status.appStatus === 'Закрыта') await get_applications();
+    if (status.appStatus === 'Закрыта' || status.appStatus === 'Возвращена')
+      await get_applications();
   };
 
   const update_application = async () => {
@@ -139,131 +140,190 @@ export const Buttons: FC<IProps> = ({
   return (
     <div className='gap-4 flex justify-center mt-4'>
       {form_id < 1 && ['citizen', 'dispatcher'].some((el) => el === role.role) && (
-        <Button
-          type='primary'
-          onClick={() => {
-            exitFromForm();
-            create_application();
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: '#1e3a8a',
+              },
+            },
           }}
-          className='text-white bg-blue-500 '
-          disabled={
-            data.building &&
-            data.complex &&
-            data.possession &&
-            data.source &&
-            data.type &&
-            data.citizenComment &&
-            data.citizenComment.length < 501 &&
-            ((role.role === 'dispatcher' &&
-              ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
-                !data.dispatcherComment) &&
-              data.employee &&
-              data.status &&
-              data.priority &&
-              data.grade) ||
-              role.role === 'citizen')
-              ? false
-              : true
-          }
         >
-          Создать
-        </Button>
-      )}
-      {form_id !== 0 && ['dispatcher', 'executor'].some((el) => el === role.role) && (
-        <>
           <Button
-            type='primary'
             onClick={() => {
-              update_application();
               exitFromForm();
-              if (carInfo) changeCarInfo(null);
-              if (error) citizenErrors(null);
+              create_application();
             }}
-            className=' text-white bg-blue-500 '
+            className='transition-colors text-white bg-blue-500'
             disabled={
-              data.status &&
-              data.status.appStatus !== 'Закрыта' &&
+              data.building &&
+              data.complex &&
+              data.possession &&
+              data.source &&
+              data.type &&
+              data.citizenComment &&
+              data.citizenComment.length < 501 &&
               ((role.role === 'dispatcher' &&
                 ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
                   !data.dispatcherComment) &&
-                data.type.id &&
-                data.source.id &&
-                data.priority &&
-                data.priority.id &&
                 data.employee &&
-                data.employee.id &&
-                data.citizenComment) ||
-                (role.role === 'executor' &&
-                  data.status.appStatus !== 'Назначена' &&
-                  data.status.appStatus !== 'Возвращена' &&
-                  data.employeeComment &&
-                  data.employeeComment.length < 501))
+                data.status &&
+                data.priority &&
+                data.grade) ||
+                role.role === 'citizen')
                 ? false
                 : true
             }
           >
-            Обновить
+            Создать
           </Button>
-          <Button
-            type='primary'
-            onClick={() => {
-              if (statuses) {
-                const new_status: IStatus = statuses.filter((el) => el.appStatus === 'Закрыта')[0];
-                update_application_status(new_status);
-              }
+        </ConfigProvider>
+      )}
+      {form_id !== 0 && ['dispatcher', 'executor'].some((el) => el === role.role) && (
+        <>
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: '#1e3a8a',
+                },
+              },
             }}
-            className=' text-white bg-green-500'
-            disabled={data.status && data.status.appStatus === 'В работе' ? false : true}
           >
-            Заявка выполнена
-          </Button>
+            <Button
+              onClick={() => {
+                update_application();
+                exitFromForm();
+                if (carInfo) changeCarInfo(null);
+                if (error) citizenErrors(null);
+              }}
+              className='transition-colors text-white bg-blue-500'
+              disabled={
+                data.status &&
+                data.status.appStatus !== 'Закрыта' &&
+                ((role.role === 'dispatcher' &&
+                  ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
+                    !data.dispatcherComment) &&
+                  data.type.id &&
+                  data.source.id &&
+                  data.priority &&
+                  data.priority.id &&
+                  data.employee &&
+                  data.employee.id &&
+                  data.citizenComment) ||
+                  (role.role === 'executor' &&
+                    data.status.appStatus !== 'Назначена' &&
+                    data.status.appStatus !== 'Возвращена' &&
+                    data.employeeComment &&
+                    data.employeeComment.length < 501))
+                  ? false
+                  : true
+              }
+            >
+              Обновить
+            </Button>
+          </ConfigProvider>
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: '#15803d',
+                },
+              },
+            }}
+          >
+            <Button
+              onClick={() => {
+                if (statuses) {
+                  const new_status: IStatus = statuses.filter(
+                    (el) => el.appStatus === 'Закрыта',
+                  )[0];
+                  update_application_status(new_status);
+                }
+              }}
+              className='transition-colors text-white bg-green-500'
+              disabled={data.status && data.status.appStatus === 'В работе' ? false : true}
+            >
+              Заявка выполнена
+            </Button>
+          </ConfigProvider>
         </>
       )}
       {form_id !== 0 && role.role === 'executor' && (
-        <Button
-          type='primary'
-          onClick={() => {
-            if (statuses) {
-              const new_status: IStatus = statuses.filter((el) => el.appStatus === 'В работе')[0];
-              update_application_status(new_status);
-            }
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: '#b45309',
+              },
+            },
           }}
-          className=' text-white bg-amber-500'
-          disabled={
-            data.status &&
-            (data.status.appStatus === 'Назначена' || data.status.appStatus === 'Возвращена')
-              ? false
-              : true
-          }
         >
-          Приступить к исполнению
-        </Button>
+          <Button
+            onClick={() => {
+              if (statuses) {
+                const new_status: IStatus = statuses.filter((el) => el.appStatus === 'В работе')[0];
+                update_application_status(new_status);
+              }
+            }}
+            className='transition-colors text-white bg-amber-500'
+            disabled={
+              data.status &&
+              (data.status.appStatus === 'Назначена' || data.status.appStatus === 'Возвращена')
+                ? false
+                : true
+            }
+          >
+            Приступить к исполнению
+          </Button>
+        </ConfigProvider>
       )}
       {form_id !== 0 && role.role === 'dispatcher' && (
-        <Button
-          type='primary'
-          disabled={data.status && data.status.appStatus === 'Закрыта' ? false : true}
-          onClick={() => {
-            if (statuses) {
-              const new_status: IStatus = statuses.filter((el) => el.appStatus === 'Возвращена')[0];
-              update_application_status(new_status);
-            }
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: '#b45309',
+              },
+            },
           }}
-          className=' text-white bg-amber-500'
         >
-          Вернуть на доработку
-        </Button>
+          <Button
+            disabled={data.status && data.status.appStatus === 'Закрыта' ? false : true}
+            onClick={() => {
+              if (statuses) {
+                const new_status: IStatus = statuses.filter(
+                  (el) => el.appStatus === 'Возвращена',
+                )[0];
+                update_application_status(new_status);
+              }
+            }}
+            className='transition-colors text-white bg-amber-500'
+          >
+            Вернуть на доработку
+          </Button>
+        </ConfigProvider>
       )}
-      <Button
-        className='border-[1px] border-blue-500 text-blue-500'
-        onClick={() => {
-          exitFromForm();
-          if (carInfo) changeCarInfo(null);
-          if (error) citizenErrors(null);
+      <ConfigProvider
+        theme={{
+          components: {
+            Button: {
+              colorPrimaryHover: '#1d4ed8',
+            },
+          },
         }}
       >
-        Закрыть
-      </Button>
+        <Button
+          className='transition-colors border-blue-500 text-blue-500'
+          onClick={() => {
+            exitFromForm();
+            if (carInfo) changeCarInfo(null);
+            if (error) citizenErrors(null);
+          }}
+        >
+          Закрыть
+        </Button>
+      </ConfigProvider>
     </div>
   );
 };
