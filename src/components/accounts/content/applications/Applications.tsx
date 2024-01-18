@@ -83,15 +83,12 @@ export const Applications = () => {
                     <span className='min-w-[160px] max-w-[160px]'>
                       <span
                         className={clsx(
-                          'p-1 rounded-lg',
-                          el.status && el.status.appStatus === 'Новая' && 'bg-green-400 text-white',
-                          el.status &&
-                            el.status.appStatus !== 'Новая' &&
-                            el.status.appStatus !== 'Закрыта' &&
-                            'bg-blue-700 text-white',
-                          el.status &&
-                            el.status.appStatus === 'Закрыта' &&
-                            'bg-gray-300 text-red-500',
+                          'p-1 rounded-lg text-white',
+                          el.status && el.status.appStatus === 'В работе' && 'bg-blue-700',
+                          el.status && el.status.appStatus === 'Новая' && 'bg-green-400',
+                          el.status && el.status.appStatus === 'Назначена' && 'bg-green-600',
+                          el.status && el.status.appStatus === 'Возвращена' && 'bg-amber-500',
+                          el.status && el.status.appStatus === 'Закрыта' && 'bg-red-500',
                         )}
                       >
                         {!el.status ? '' : el.status.appStatus}

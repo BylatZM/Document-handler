@@ -21,7 +21,7 @@ export const TimeSlot: FC<IProps> = ({ role, data, changeFormData }) => {
         <Input value={!data.dueDate ? '' : data.dueDate} disabled />
       </div>
       <div className='flex flex-col gap-2 w-full mt-6'>
-        <span>Комментарий управ. компании</span>
+        <span>Комментарий диспетчера</span>
         <TextArea
           value={!data.dispatcherComment ? '' : data.dispatcherComment}
           onChange={(e) =>

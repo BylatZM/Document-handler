@@ -156,20 +156,24 @@ export const Buttons: FC<IProps> = ({
             }}
             className='transition-colors text-white bg-blue-500'
             disabled={
-              data.building &&
-              data.complex &&
-              data.possession &&
-              data.source &&
-              data.type &&
+              data.building.id &&
+              data.complex.id &&
+              data.possession.id &&
+              data.source.id &&
+              data.type.id &&
               data.citizenComment &&
               data.citizenComment.length < 501 &&
               ((role.role === 'dispatcher' &&
                 ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
                   !data.dispatcherComment) &&
                 data.employee &&
+                data.employee.id &&
                 data.status &&
+                data.status.id &&
                 data.priority &&
-                data.grade) ||
+                data.priority.id &&
+                data.grade &&
+                data.grade.id) ||
                 role.role === 'citizen')
                 ? false
                 : true
@@ -206,6 +210,9 @@ export const Buttons: FC<IProps> = ({
                     !data.dispatcherComment) &&
                   data.type.id &&
                   data.source.id &&
+                  data.building.id &&
+                  data.complex.id &&
+                  data.possession.id &&
                   data.priority &&
                   data.priority.id &&
                   data.employee &&
