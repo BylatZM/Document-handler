@@ -33,9 +33,9 @@ export const HelpFormReducer = createSlice({
       state.processed_possessions = payload;
     },
     helpFormInfoSuccess: (state, { payload }: PayloadAction<IHelpFormRequest>): IHelpFormState => {
-      return { ...state, info: { ...payload } };
+      return { ...state, info: { ...payload }, isLoading: false };
     },
-    helpFormError: (state, { payload }: PayloadAction<IError>): IHelpFormState => {
+    helpFormError: (state, { payload }: PayloadAction<IError | null>): IHelpFormState => {
       return { ...state, isLoading: false, error: payload };
     },
     helpFormClear: (state): IHelpFormState => {

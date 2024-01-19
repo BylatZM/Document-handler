@@ -1,44 +1,62 @@
 import { FC, useState } from 'react';
-import { Button, Input, Checkbox } from 'antd';
+import { Button, Input, Checkbox, ConfigProvider } from 'antd';
 import { clsx } from 'clsx';
 import { updatePasswordRequest } from '../api/requests/Main';
 import { IError } from './types';
+import { ImCross, ImSpinner9 } from 'react-icons/im';
+import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IUpdatePassProps {
   activeForm: null | 'password' | 'help';
   changeActiveForm: (activeForm: null | 'password' | 'help') => void;
 }
 
+interface IRequest {
+  email: string;
+  phone: string;
+}
+
+const initialState: IRequest = {
+  email: '',
+  phone: '',
+};
+
 export const UpdatePassword: FC<IUpdatePassProps> = ({ activeForm, changeActiveForm }) => {
-  const [formData, changeFormData] = useState({
-    email: '',
-    phone: '',
-  });
+  const [formData, changeFormData] = useState<IRequest>(initialState);
   const [isApproved, changeIsApproved] = useState(false);
-  const [error, changeError] = useState<IError>({
-    type: '',
-    error: '',
-  });
+  const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
+  const [isLoading, changeIsLoading] = useState(false);
+
+  const [error, changeError] = useState<IError | null>(null);
 
   const onFinish = async () => {
+    if (!formData) return;
+
+    changeIsLoading((prev) => !prev);
     const response = await updatePasswordRequest(formData);
-    if (!response) return;
+    if (!response) {
+      changeIsLoading((prev) => !prev);
+      return;
+    }
 
     if (typeof response !== 'number' && 'type' in response) {
+      if (response.type === 'phone') changeIsApproved(true);
       changeError(response);
+      changeIsLoading((prev) => !prev);
     } else {
-      changeError({ type: '', error: '' });
-      changeActiveForm(null);
-      changeFormData({
-        email: '',
-        phone: '',
-      });
+      changeIsLoading((prev) => !prev);
+      changeIsRequestSuccess((prev) => !prev);
+      setTimeout(() => {
+        changeIsRequestSuccess((prev) => !prev);
+        changeActiveForm(null);
+        changeFormData(initialState);
+      }, 2000);
     }
   };
   return (
     <div
       className={clsx(
-        'transitionGeneral bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] fixed inset-0 m-auto rounded-md w-[500px] h-[500px] overflow-y-auto border-solid border-blue-500 border-2',
+        'transitionGeneral bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] fixed inset-0 m-auto rounded-md w-[500px] h-min overflow-y-auto border-solid border-blue-500 border-2',
         activeForm === 'password' ? 'translate-x-0' : 'translate-x-[-100vw]',
       )}
     >
@@ -47,77 +65,115 @@ export const UpdatePassword: FC<IUpdatePassProps> = ({ activeForm, changeActiveF
       </div>
 
       <div className='flex flex-col justify-between h-5/6 gap-2'>
-        <div className='my-5'>
-          <span className='primaryField mb-2'>Адресс электронной почты аккаунта</span>
-          <div style={{ marginBottom: 25 }}>
+        <div className='mt-5'>
+          <span className='primaryField'>Адресс электронной почты аккаунта</span>
+          <div className='mt-2' style={{ marginBottom: 25 }}>
             <Input
               className='rounded-md h-[40px]'
               maxLength={50}
-              onChange={(e) => changeFormData({ ...formData, email: e.target.value })}
-              value={formData.email}
+              onChange={(e) => {
+                if (error && error.type === 'email') changeError(null);
+                changeFormData((prev) => ({ ...prev, email: e.target.value }));
+              }}
+              value={formData ? formData.email : ''}
               type='text'
               required
               size='large'
               placeholder='applications@dltex.ru'
             />
-            {error.type === 'email' && <div className='errorText mt-2'>{error.error}</div>}
+            {error && error.type === 'email' && <div className='errorText mt-2'>{error.error}</div>}
           </div>
           <Checkbox
             className='text-left text-gray-600 text-sm'
             style={{ marginBottom: 25 }}
             onClick={() => {
               if (!isApproved) changeFormData((prev) => ({ ...prev, phone: '' }));
-              if (error.type === 'phone') changeError({ type: '', error: '' });
+
+              if (error && error.type === 'phone') changeError({ type: '', error: '' });
               changeIsApproved((prev) => !prev);
             }}
           >
-            Мой аккаунт подтвержден диспетчером
+            Мой аккаунт подтвержден диспетчером/администратором
           </Checkbox>
 
-          {(isApproved || error.type === 'phone') && (
-            <div>
+          {isApproved && (
+            <div className='mb-5'>
               <span className='mb-2'>Номер телефона заданный в аккаунте</span>
               <div style={{ marginBottom: 25 }}>
                 <Input
                   className='rounded-md h-[40px]'
                   maxLength={11}
-                  onChange={(e) => changeFormData({ ...formData, phone: e.target.value })}
-                  value={formData.phone}
+                  onChange={(e) => {
+                    if (error && error.type === 'phone') changeError(null);
+                    changeFormData((prev) => ({ ...prev, phone: e.target.value }));
+                  }}
+                  value={formData ? formData.phone : ''}
                   type='text'
                   required
                   size='large'
                   placeholder='89372833608'
                 />
-                {error.type === 'phone' && <div className='errorText mt-2'>{error.error}</div>}
+                {error && error.type === 'phone' && (
+                  <span className='errorText mt-2'>{error.error}</span>
+                )}
               </div>
             </div>
           )}
         </div>
-        <div className='flex justify-end m-0 px-5 py-2'>
+        <div className='text-end'>
           <Button
-            className='border-[1px] border-blue-700 text-blue-700 h-[40px] mr-4'
+            className='inline mr-4 border-[1px] border-blue-700 text-blue-700'
+            disabled={isLoading}
             onClick={() => {
               changeActiveForm(null);
-              changeError({ type: '', error: '' });
-              changeFormData({
-                email: '',
-                phone: '',
-              });
+              changeError(null);
+              changeFormData(initialState);
             }}
           >
-            Отмена
+            Закрыть
           </Button>
-          <Button
-            className='bg-blue-700 text-white h-[40px] border-blue-700'
-            disabled={formData.email === ''}
-            type='primary'
-            htmlType='submit'
-            onClick={() => {
-              onFinish();
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: undefined,
+                },
+              },
             }}
           >
-            Отправить
-          </Button>
+            <Button
+              className={clsx(
+                'inline text-white',
+                !error && !isRequestSuccess && 'bg-blue-700',
+                error && !isRequestSuccess && !isLoading && 'bg-red-500',
+                !error && isRequestSuccess && !isLoading && 'bg-green-500',
+              )}
+              disabled={formData ? !formData.email : true}
+              onClick={() => {
+                onFinish();
+              }}
+            >
+              {isLoading && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {error && !isLoading && !isRequestSuccess && (
+                <div>
+                  <ImCross className='mr-2 inline' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!isLoading && !error && isRequestSuccess && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {!isLoading && !error && !isRequestSuccess && <>Отправить</>}
+            </Button>
+          </ConfigProvider>
         </div>
       </div>
     </div>

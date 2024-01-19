@@ -24,8 +24,7 @@ export const getComplexesRequest = async (logout: () => void): Promise<IComplex[
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -56,8 +55,7 @@ export const getBuildingsRequest = async (
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -92,7 +90,7 @@ export const getPossessionsRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return { form_id: id, error: e.response.data };
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }
@@ -114,7 +112,7 @@ export const getPossessionsRequest = async (
 export const getPossessionsByComplexesRequest = async (
   logout: () => void,
 ): Promise<IPossession[] | ICitizenError | void> => {
-  const makePossessionsRequest = async (): Promise<IPossession[] | 401 | ICitizenError | void> => {
+  const possessionRequest = async (): Promise<IPossession[] | 401 | ICitizenError | void> => {
     try {
       const response = await getPossessionsByComplexes();
       if (!('type' in response.data)) return response.data;
@@ -123,18 +121,18 @@ export const getPossessionsByComplexesRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return { form_id: 0, error: e.response.data };
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }
 
-    const response = await makePossessionsRequest();
+    const response = await possessionRequest();
     if (!response) return;
 
     if (response === 401) {
       const refresh_status = await refreshRequest();
       if (refresh_status === 200) {
-        const response = await makePossessionsRequest();
+        const response = await possessionRequest();
         if (response && typeof response !== 'number') return response;
       }
       if (refresh_status === 403) logout();
@@ -155,7 +153,7 @@ export const createPossessionRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return e.response.data;
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }

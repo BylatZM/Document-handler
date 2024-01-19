@@ -6,7 +6,7 @@ export const Inputs = () => {
   const { error, processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
   const { TextArea } = Input;
-  const { helpFormInfoSuccess } = useActions();
+  const { helpFormInfoSuccess, helpFormError } = useActions();
 
   return (
     <>
@@ -15,7 +15,10 @@ export const Inputs = () => {
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
-          onChange={(e) => helpFormInfoSuccess({ ...info, name: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'name') helpFormError(null);
+            helpFormInfoSuccess({ ...info, name: e.target.value });
+          }}
           value={info.name}
           type='text'
           required
@@ -31,7 +34,10 @@ export const Inputs = () => {
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
-          onChange={(e) => helpFormInfoSuccess({ ...info, email: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'email') helpFormError(null);
+            helpFormInfoSuccess({ ...info, email: e.target.value });
+          }}
           value={info.email}
           type='text'
           required
@@ -47,7 +53,10 @@ export const Inputs = () => {
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
-          onChange={(e) => helpFormInfoSuccess({ ...info, title: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'title') helpFormError(null);
+            helpFormInfoSuccess({ ...info, title: e.target.value });
+          }}
           value={info.title}
           type='text'
           required
@@ -63,7 +72,10 @@ export const Inputs = () => {
         <TextArea
           rows={2}
           maxLength={200}
-          onChange={(e) => helpFormInfoSuccess({ ...info, description: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'description') helpFormError(null);
+            helpFormInfoSuccess({ ...info, description: e.target.value });
+          }}
           value={info.description}
           required
           size='large'
@@ -87,9 +99,6 @@ export const Inputs = () => {
             size='large'
             placeholder='Адрес собственности'
           />
-          {error !== null && error.type === 'address' && (
-            <div className='errorText  mt-2'>{error.error}</div>
-          )}
         </div>
       )}
       {possessions[0].id !== 0 && (

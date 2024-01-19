@@ -37,8 +37,7 @@ export const getApplicationsRequest = async (
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -71,7 +70,7 @@ export const createApplicationsRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return e.response.data;
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }
@@ -104,8 +103,7 @@ export const updateAppRequest = async (
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
@@ -138,8 +136,7 @@ export const updateAppStatusRequest = async (
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
         else {
-          if (e.response.status !== 401 && e.response.status !== 400)
-            errorAlert(e.response.statusText);
+          if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
         }
       }
     }
@@ -168,8 +165,7 @@ export const getEmploysRequest = async (logout: () => void): Promise<IEmployee[]
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
@@ -197,8 +193,7 @@ export const getGradesRequest = async (logout: () => void): Promise<IGrade[] | v
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
@@ -226,8 +221,7 @@ export const getTypesRequest = async (logout: () => void): Promise<IType[] | voi
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
@@ -255,8 +249,7 @@ export const getStatusesRequest = async (logout: () => void): Promise<IStatus[] 
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
@@ -284,8 +277,7 @@ export const getPrioritiesRequest = async (logout: () => void): Promise<IPriorit
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
@@ -313,8 +305,7 @@ export const getSourcesRequest = async (logout: () => void): Promise<ISource[] |
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };

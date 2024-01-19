@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import {
   IApplication,
   IAppCreateByDispatcher,
@@ -18,6 +18,9 @@ import {
   updateAppStatusRequest,
 } from '../../../../../../api/requests/Application';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
+import clsx from 'clsx';
+import { ImCross, ImSpinner9 } from 'react-icons/im';
+import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IProps {
   data: IApplication;
@@ -38,9 +41,32 @@ export const Buttons: FC<IProps> = ({
   changeCarInfo,
   logout,
 }) => {
-  const { citizenErrors, updateApplication, applicationSuccess } = useActions();
+  const { updateApplication, applicationSuccess } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
-  const { error } = useTypedSelector((state) => state.CitizenReducer);
+  const [errorButton, changeErrorButton] = useState<
+    | null
+    | 'create'
+    | 'update'
+    | 'close_application'
+    | 'proceed_to_execution'
+    | 'return_for_revision'
+  >(null);
+  const [successButton, changeSuccessButton] = useState<
+    | null
+    | 'create'
+    | 'update'
+    | 'close_application'
+    | 'proceed_to_execution'
+    | 'return_for_revision'
+  >(null);
+  const [loadingButton, changeLoadingButton] = useState<
+    | null
+    | 'create'
+    | 'update'
+    | 'close_application'
+    | 'proceed_to_execution'
+    | 'return_for_revision'
+  >(null);
 
   const get_applications = async () => {
     const applications = await getApplicationsRequest(logout);
@@ -49,7 +75,8 @@ export const Buttons: FC<IProps> = ({
 
   const create_application = async () => {
     if (!statuses) return;
-
+    changeLoadingButton('create');
+    if (errorButton) changeErrorButton(null);
     let info: IAppCreateByCitizen | IAppCreateByDispatcher = {
       source: data.source.id,
       grade: 1,
@@ -83,25 +110,59 @@ export const Buttons: FC<IProps> = ({
     }
 
     const response = await createApplicationsRequest(logout, info);
-    if (response === 201) await get_applications();
+    changeLoadingButton(null);
+    if (response === 201) {
+      changeSuccessButton((prev) => 'create');
+      setTimeout(async () => {
+        changeSuccessButton((prev) => null);
+        if (carInfo) changeCarInfo(null);
+        exitFromForm();
+        await get_applications();
+      }, 2000);
+    } else {
+      changeErrorButton('create');
+    }
   };
 
   const update_application_status = async (status: IStatus) => {
-    await updateAppStatusRequest(form_id.toString(), logout, status.id);
-    updateApplication({
-      app_id: form_id,
-      application: {
-        ...data,
-        status: { id: status.id, appStatus: status.appStatus },
-      },
-    });
-    exitFromForm();
-    if (status.appStatus === 'Закрыта' || status.appStatus === 'Возвращена')
-      await get_applications();
+    if (status.appStatus === 'Закрыта') changeLoadingButton('close_application');
+    if (status.appStatus === 'Возвращена') changeLoadingButton('return_for_revision');
+    if (status.appStatus === 'В работе') changeLoadingButton('proceed_to_execution');
+
+    if (errorButton) changeErrorButton(null);
+
+    const response = await updateAppStatusRequest(form_id.toString(), logout, status.id);
+    changeLoadingButton(null);
+    if (response === 200) {
+      if (status.appStatus === 'Закрыта') changeSuccessButton((prev) => 'close_application');
+      if (status.appStatus === 'Возвращена') changeSuccessButton((prev) => 'return_for_revision');
+      if (status.appStatus === 'В работе') changeSuccessButton((prev) => 'proceed_to_execution');
+      setTimeout(async () => {
+        changeSuccessButton((prev) => null);
+        updateApplication({
+          app_id: form_id,
+          application: {
+            ...data,
+            status: { id: status.id, appStatus: status.appStatus },
+          },
+        });
+        if (carInfo) changeCarInfo(null);
+        exitFromForm();
+        if (status.appStatus === 'Закрыта' || status.appStatus === 'Возвращена')
+          await get_applications();
+      }, 2000);
+    } else {
+      if (status.appStatus === 'Закрыта') changeErrorButton((prev) => 'close_application');
+      if (status.appStatus === 'Возвращена') changeErrorButton((prev) => 'return_for_revision');
+      if (status.appStatus === 'В работе') changeErrorButton((prev) => 'proceed_to_execution');
+    }
   };
 
   const update_application = async () => {
     if (!data.status || !data.employee || !statuses) return;
+
+    changeLoadingButton('update');
+    if (errorButton) changeErrorButton(null);
 
     let info: IAppUpdateByEmployee | IAppUpdateByDispatcher = {
       employeeComment: data.employeeComment,
@@ -126,6 +187,7 @@ export const Buttons: FC<IProps> = ({
       }
     }
     const response = await updateAppRequest(form_id.toString(), logout, info);
+    changeLoadingButton(null);
     if (response === 200) {
       updateApplication({
         app_id: form_id,
@@ -134,6 +196,14 @@ export const Buttons: FC<IProps> = ({
           status: data.status.appStatus === 'Новая' ? status : data.status,
         },
       });
+      changeSuccessButton((prev) => 'update');
+      setTimeout(() => {
+        if (carInfo) changeCarInfo(null);
+        changeSuccessButton((prev) => null);
+        exitFromForm();
+      }, 2000);
+    } else {
+      changeErrorButton('create');
     }
   };
 
@@ -144,18 +214,23 @@ export const Buttons: FC<IProps> = ({
           theme={{
             components: {
               Button: {
-                colorPrimaryHover: '#1e3a8a',
+                colorPrimaryHover: undefined,
               },
             },
           }}
         >
           <Button
             onClick={() => {
-              exitFromForm();
               create_application();
             }}
-            className='transition-colors text-white bg-blue-500'
+            className={clsx(
+              ' text-white',
+              errorButton !== 'create' && successButton !== 'create' && 'bg-blue-700',
+              errorButton === 'create' && !successButton && !loadingButton && 'bg-red-500',
+              !errorButton && successButton === 'create' && !loadingButton && 'bg-green-500',
+            )}
             disabled={
+              (!loadingButton || loadingButton === 'create') &&
               data.building.id &&
               data.complex.id &&
               data.possession.id &&
@@ -179,7 +254,27 @@ export const Buttons: FC<IProps> = ({
                 : true
             }
           >
-            Создать
+            {loadingButton === 'create' && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {errorButton === 'create' && !loadingButton && !successButton && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!loadingButton && !errorButton && successButton === 'create' && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {loadingButton !== 'create' &&
+              errorButton !== 'create' &&
+              successButton !== 'create' && <>Создать</>}
           </Button>
         </ConfigProvider>
       )}
@@ -189,7 +284,7 @@ export const Buttons: FC<IProps> = ({
             theme={{
               components: {
                 Button: {
-                  colorPrimaryHover: '#1e3a8a',
+                  colorPrimaryHover: undefined,
                 },
               },
             }}
@@ -197,12 +292,15 @@ export const Buttons: FC<IProps> = ({
             <Button
               onClick={() => {
                 update_application();
-                exitFromForm();
-                if (carInfo) changeCarInfo(null);
-                if (error) citizenErrors(null);
               }}
-              className='transition-colors text-white bg-blue-500'
+              className={clsx(
+                ' text-white',
+                errorButton !== 'update' && successButton !== 'update' && 'bg-blue-700',
+                errorButton === 'update' && !successButton && !loadingButton && 'bg-red-500',
+                !errorButton && successButton === 'update' && !loadingButton && 'bg-green-500',
+              )}
               disabled={
+                (!loadingButton || loadingButton === 'update') &&
                 data.status &&
                 data.status.appStatus !== 'Закрыта' &&
                 ((role.role === 'dispatcher' &&
@@ -227,14 +325,34 @@ export const Buttons: FC<IProps> = ({
                   : true
               }
             >
-              Обновить
+              {loadingButton === 'update' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {errorButton === 'update' && !loadingButton && !successButton && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!loadingButton && !errorButton && successButton === 'update' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {loadingButton !== 'update' &&
+                errorButton !== 'update' &&
+                successButton !== 'update' && <>Обновить</>}
             </Button>
           </ConfigProvider>
           <ConfigProvider
             theme={{
               components: {
                 Button: {
-                  colorPrimaryHover: '#15803d',
+                  colorPrimaryHover: undefined,
                 },
               },
             }}
@@ -248,10 +366,49 @@ export const Buttons: FC<IProps> = ({
                   update_application_status(new_status);
                 }
               }}
-              className='transition-colors text-white bg-green-500'
-              disabled={data.status && data.status.appStatus === 'В работе' ? false : true}
+              className={clsx(
+                ' text-white',
+                errorButton !== 'close_application' &&
+                  successButton !== 'close_application' &&
+                  'bg-green-700',
+                errorButton === 'close_application' &&
+                  !successButton &&
+                  !loadingButton &&
+                  'bg-red-500',
+                !errorButton &&
+                  successButton === 'close_application' &&
+                  !loadingButton &&
+                  'bg-green-500',
+              )}
+              disabled={
+                (!loadingButton || loadingButton === 'close_application') &&
+                data.status &&
+                data.status.appStatus === 'В работе'
+                  ? false
+                  : true
+              }
             >
-              Заявка выполнена
+              {loadingButton === 'close_application' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {errorButton === 'close_application' && !loadingButton && !successButton && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!loadingButton && !errorButton && successButton === 'close_application' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {loadingButton !== 'close_application' &&
+                errorButton !== 'close_application' &&
+                successButton !== 'close_application' && <>Заявка выполнена</>}
             </Button>
           </ConfigProvider>
         </>
@@ -261,7 +418,7 @@ export const Buttons: FC<IProps> = ({
           theme={{
             components: {
               Button: {
-                colorPrimaryHover: '#b45309',
+                colorPrimaryHover: undefined,
               },
             },
           }}
@@ -273,15 +430,49 @@ export const Buttons: FC<IProps> = ({
                 update_application_status(new_status);
               }
             }}
-            className='transition-colors text-white bg-amber-500'
+            className={clsx(
+              ' text-white',
+              errorButton !== 'proceed_to_execution' &&
+                successButton !== 'proceed_to_execution' &&
+                'bg-amber-500',
+              errorButton === 'proceed_to_execution' &&
+                !successButton &&
+                !loadingButton &&
+                'bg-red-500',
+              !errorButton &&
+                successButton === 'proceed_to_execution' &&
+                !loadingButton &&
+                'bg-green-500',
+            )}
             disabled={
+              (!loadingButton || loadingButton === 'proceed_to_execution') &&
               data.status &&
               (data.status.appStatus === 'Назначена' || data.status.appStatus === 'Возвращена')
                 ? false
                 : true
             }
           >
-            Приступить к исполнению
+            {loadingButton === 'proceed_to_execution' && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {errorButton === 'proceed_to_execution' && !loadingButton && !successButton && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!loadingButton && !errorButton && successButton === 'proceed_to_execution' && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {loadingButton !== 'proceed_to_execution' &&
+              errorButton !== 'proceed_to_execution' &&
+              successButton !== 'proceed_to_execution' && <>Приступить к исполнению</>}
           </Button>
         </ConfigProvider>
       )}
@@ -290,13 +481,19 @@ export const Buttons: FC<IProps> = ({
           theme={{
             components: {
               Button: {
-                colorPrimaryHover: '#b45309',
+                colorPrimaryHover: undefined,
               },
             },
           }}
         >
           <Button
-            disabled={data.status && data.status.appStatus === 'Закрыта' ? false : true}
+            disabled={
+              (!loadingButton || loadingButton === 'return_for_revision') &&
+              data.status &&
+              data.status.appStatus === 'Закрыта'
+                ? false
+                : true
+            }
             onClick={() => {
               if (statuses) {
                 const new_status: IStatus = statuses.filter(
@@ -305,9 +502,42 @@ export const Buttons: FC<IProps> = ({
                 update_application_status(new_status);
               }
             }}
-            className='transition-colors text-white bg-amber-500'
+            className={clsx(
+              ' text-white',
+              errorButton !== 'return_for_revision' &&
+                successButton !== 'return_for_revision' &&
+                'bg-amber-500',
+              errorButton === 'return_for_revision' &&
+                !successButton &&
+                !loadingButton &&
+                'bg-red-500',
+              !errorButton &&
+                successButton === 'return_for_revision' &&
+                !loadingButton &&
+                'bg-green-500',
+            )}
           >
-            Вернуть на доработку
+            {loadingButton === 'return_for_revision' && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {errorButton === 'return_for_revision' && !loadingButton && !successButton && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!loadingButton && !errorButton && successButton === 'return_for_revision' && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {loadingButton !== 'return_for_revision' &&
+              errorButton !== 'return_for_revision' &&
+              successButton !== 'return_for_revision' && <>Вернуть на доработку</>}
           </Button>
         </ConfigProvider>
       )}
@@ -322,10 +552,11 @@ export const Buttons: FC<IProps> = ({
       >
         <Button
           className='transition-colors border-blue-500 text-blue-500'
+          disabled={loadingButton ? true : false}
           onClick={() => {
             exitFromForm();
             if (carInfo) changeCarInfo(null);
-            if (error) citizenErrors(null);
+            if (errorButton) changeErrorButton(null);
           }}
         >
           Закрыть

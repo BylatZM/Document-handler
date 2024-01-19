@@ -32,7 +32,6 @@ export const Account = () => {
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { pathname } = useLocation();
   const {
-    userStart,
     userSuccess,
     complexSuccess,
     citizenSuccess,
@@ -47,7 +46,6 @@ export const Account = () => {
   const [IsRequested, changeIsRequested] = useState(true);
 
   const get_user_data = async () => {
-    userStart();
     const profile_response = await getUserRequest(logout);
     if (profile_response) {
       userSuccess(profile_response);

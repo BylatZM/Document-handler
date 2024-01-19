@@ -1,10 +1,13 @@
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
-import { Input, Form, Button } from 'antd';
+import { Input, Form, Button, ConfigProvider } from 'antd';
 import { useActions } from '../../../hooks/useActions';
-import { ImSpinner9 } from 'react-icons/im';
+import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { updateUserRequest } from '../../../../api/requests/Person';
 import { AddCitizen } from './citizenForm/AddCitizen';
 import { useLogout } from '../../../hooks/useLogout';
+import { useState } from 'react';
+import { HiOutlineCheck } from 'react-icons/hi';
+import clsx from 'clsx';
 
 interface IGenFormData {
   first_name: string | undefined;
@@ -15,29 +18,66 @@ interface IGenFormData {
 
 export const PersonalAccount = () => {
   const { user, isLoading, error } = useTypedSelector((state) => state.UserReducer);
-  const { userSuccess, userStart } = useActions();
+  const { userSuccess, userLoading, userError } = useActions();
+  const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
   const logout = useLogout();
 
   const onFinish = async ({ first_name, last_name, patronymic, phone }: IGenFormData) => {
-    userStart();
+    if ((first_name && !/^[А-Яа-я]+$/.test(first_name)) || !first_name) {
+      userError({
+        type: 'first_name',
+        error: 'Имя может состоять только из букв русского алфавита',
+      });
+      return;
+    }
+    if ((last_name && !/^[А-Яа-я]+$/.test(last_name)) || !last_name) {
+      userError({
+        type: 'last_name',
+        error: 'Фамилия может состоять только из букв русского алфавита',
+      });
+      return;
+    }
+    if (patronymic && !/^[А-Яа-я]+$/.test(patronymic)) {
+      userError({
+        type: 'patronymic',
+        error: 'Отчество может состоять только из букв русского алфавита или быть незаполненным',
+      });
+      return;
+    }
+    if (phone && (!/^\d+$/.test(phone) || phone.length !== 11)) {
+      userError({
+        type: 'phone',
+        error: 'Номер телефона может состоять только из 11 цифр',
+      });
+      return;
+    }
+
+    userLoading(true);
+    if (error) userError(null);
+
     const response = await updateUserRequest(
       {
-        first_name: !first_name ? '' : first_name,
-        last_name: !last_name ? '' : last_name,
+        first_name: first_name,
+        last_name: last_name,
         patronymic: !patronymic ? null : patronymic,
         phone: !phone ? null : phone,
       },
       logout,
     );
-    if (response === 200 && user) {
+    if (response === 200) {
+      changeIsRequestSuccess((prev) => !prev);
       userSuccess({
         ...user,
-        first_name: !first_name ? '' : first_name,
-        last_name: !last_name ? '' : last_name,
+        first_name: first_name,
+        last_name: last_name,
         patronymic: !patronymic ? null : patronymic,
         phone: !phone ? null : phone,
       });
+      setTimeout(() => {
+        changeIsRequestSuccess((prev) => !prev);
+      }, 2000);
     }
+    userLoading(false);
   };
 
   return (
@@ -115,15 +155,46 @@ export const PersonalAccount = () => {
               <Input maxLength={15} disabled={isLoading} />
             </Form.Item>
           </div>
-          <Button type='primary' className=' text-white bg-blue-700' htmlType='submit'>
-            {!isLoading && 'Сохранить'}
-            {isLoading && (
-              <div className='inline-flex items-center'>
-                <ImSpinner9 className='text-white animate-spin mr-4' />
-                <span>Обработка</span>
-              </div>
-            )}
-          </Button>
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: undefined,
+                },
+              },
+            }}
+          >
+            <Button
+              type='primary'
+              className={clsx(
+                'inline text-white',
+                !error && !isRequestSuccess && 'bg-blue-700',
+                error && !isRequestSuccess && !isLoading && 'bg-red-500',
+                !error && isRequestSuccess && !isLoading && 'bg-green-500',
+              )}
+              htmlType='submit'
+            >
+              {isLoading && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {error && !isLoading && !isRequestSuccess && (
+                <div>
+                  <ImCross className='mr-2 inline' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!isLoading && !error && isRequestSuccess && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {!isLoading && !error && !isRequestSuccess && <>Обновить</>}
+            </Button>
+          </ConfigProvider>
         </Form>
         {user.role.role === 'citizen' && <AddCitizen />}
       </div>

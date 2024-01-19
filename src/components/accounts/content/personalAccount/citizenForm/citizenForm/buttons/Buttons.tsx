@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { ICitizen, ICitizenLoading } from '../../../../../../types';
 import { Button, ConfigProvider } from 'antd';
-import { ImSpinner9 } from 'react-icons/im';
+import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { useActions } from '../../../../../../hooks/useActions';
 import {
   createCitizenRequest,
@@ -9,6 +9,9 @@ import {
   updateCitizenRequest,
 } from '../../../../../../../api/requests/Person';
 import { useLogout } from '../../../../../../hooks/useLogout';
+import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
+import clsx from 'clsx';
+import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IProp {
   data: ICitizen;
@@ -44,8 +47,11 @@ export const Buttons: FC<IProp> = ({
     possessionSuccess,
   } = useActions();
   const logout = useLogout();
+  const { error } = useTypedSelector((state) => state.CitizenReducer);
+  const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
 
   const createCitizen = async () => {
+    if (error && error.form_id === form_id) citizenErrors(null);
     citizenLoading({ form_id: form_id, isLoading: true });
 
     const response = await createCitizenRequest(form_id, logout, {
@@ -67,6 +73,7 @@ export const Buttons: FC<IProp> = ({
   };
 
   const updateCitizen = async () => {
+    if (error && error.form_id === form_id) citizenErrors(null);
     citizenLoading({ form_id: form_id, isLoading: true });
     const response = await updateCitizenRequest(form_id, logout, {
       personal_account: data.personal_account,
@@ -79,11 +86,15 @@ export const Buttons: FC<IProp> = ({
 
     if (response) {
       if (response === 200) {
+        changeIsRequestSuccess((prev) => !prev);
         updateCitizenForm({
           form_id: form_id,
           citizen: data,
         });
-        changeUpdatingFormId(null);
+        setTimeout(() => {
+          changeUpdatingFormId(null);
+          changeIsRequestSuccess((prev) => !prev);
+        }, 2000);
       } else citizenErrors(response);
     }
 
@@ -98,7 +109,12 @@ export const Buttons: FC<IProp> = ({
   return (
     <div className='flex gap-4'>
       <Button
-        className='text-white bg-blue-700'
+        className={clsx(
+          'text-white',
+          !error && !isRequestSuccess && 'bg-blue-700',
+          error && !isRequestSuccess && !loadingForm.form_id && 'bg-red-500',
+          !error && isRequestSuccess && !loadingForm.form_id && 'bg-green-500',
+        )}
         disabled={
           !data.building.id ||
           !data.complex.id ||
@@ -107,15 +123,44 @@ export const Buttons: FC<IProp> = ({
           (form_id !== -1 && updatingFormId !== form_id)
         }
         onClick={() => {
+          if (!/^\d+$/.test(data.personal_account) || data.personal_account.length < 10) {
+            citizenErrors({
+              form_id: form_id,
+              error: {
+                type: 'personal_account',
+                error:
+                  'Лицевой счет должен состоять только из цифр, количество символов от 10 до 15',
+              },
+            });
+            citizenLoading({ form_id: 0, isLoading: false });
+            return;
+          }
           form_id < 1 ? createCitizen() : updateCitizen();
         }}
         type='primary'
       >
-        {loadingForm.form_id !== form_id && 'Сохранить'}
+        {form_id < 1 && loadingForm.form_id !== form_id && !error && !isRequestSuccess && 'Создать'}
+        {form_id > 0 &&
+          loadingForm.form_id !== form_id &&
+          !error &&
+          !isRequestSuccess &&
+          'Обновить'}
         {loadingForm.form_id === form_id && (
-          <div className='inline-flex items-center'>
-            <ImSpinner9 className='text-white animate-spin mr-4' />
+          <div>
+            <ImSpinner9 className='inline text-white animate-spin mr-4' />
             <span>Обработка</span>
+          </div>
+        )}
+        {loadingForm.form_id !== form_id && error && error.form_id === form_id && (
+          <div>
+            <ImCross className='mr-2 inline' />
+            <span>Ошибка</span>
+          </div>
+        )}
+        {loadingForm.form_id !== form_id && !error && isRequestSuccess && (
+          <div>
+            <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+            <span>Успешно</span>
           </div>
         )}
       </Button>

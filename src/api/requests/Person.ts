@@ -31,8 +31,7 @@ export const getUserRequest = async (logout: () => void): Promise<IUser | void> 
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -65,7 +64,7 @@ export const updateUserRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return e.response.data as IError;
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }
@@ -94,8 +93,7 @@ export const getCitizenRequest = async (logout: () => void): Promise<ICitizen[] 
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -126,8 +124,7 @@ export const getCitizenByIdRequest = async (
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -161,7 +158,7 @@ export const createCitizenRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return { form_id: id, error: e.response.data };
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }
@@ -196,7 +193,7 @@ export const updateCitizenRequest = async (
         if (e.response.status === 401) return 401;
         else {
           if (e.response.status === 400) return { form_id: id, error: e.response.data };
-          else errorAlert(e.response.statusText);
+          else errorAlert(e.response.status);
         }
       }
     }
@@ -225,8 +222,7 @@ export const deleteCitizenRequest = async (id: number, logout: () => void): Prom
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -254,8 +250,7 @@ export const getNotApprovedRequest = async (logout: () => void): Promise<INotApp
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -283,8 +278,7 @@ export const approveRequest = async (id: number, logout: () => void): Promise<20
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };
@@ -312,8 +306,7 @@ export const rejectApproveRequest = async (id: number, logout: () => void): Prom
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401)
-          errorAlert(e.response.statusText);
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }
   };

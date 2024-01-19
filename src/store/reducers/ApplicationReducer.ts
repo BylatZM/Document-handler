@@ -28,8 +28,8 @@ export const ApplicationReducer = createSlice({
   name: 'ApplicationReducer',
   initialState,
   reducers: {
-    applicationStart: (state) => {
-      state.isLoading = true;
+    applicationLoading: (state, { payload }: PayloadAction<boolean>) => {
+      state.isLoading = payload;
     },
     applicationSuccess: (state, { payload }: PayloadAction<IApplication[]>) => {
       state.userApplication = payload;
@@ -62,7 +62,6 @@ export const ApplicationReducer = createSlice({
     },
     applicationError: (state, { payload }: PayloadAction<IError>) => {
       state.error = payload;
-      state.isLoading = false;
     },
     applicationClear: (state): IApplicationState => {
       return initialState;
@@ -71,7 +70,7 @@ export const ApplicationReducer = createSlice({
 });
 
 export const {
-  applicationStart,
+  applicationLoading,
   applicationSuccess,
   updateApplication,
   applicationError,

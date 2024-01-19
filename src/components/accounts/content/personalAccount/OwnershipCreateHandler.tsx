@@ -6,6 +6,8 @@ import { createPossessionRequest, getBuildingsRequest } from '../../../../api/re
 import { useLogout } from '../../../hooks/useLogout';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { useActions } from '../../../hooks/useActions';
+import { ImCross, ImSpinner9 } from 'react-icons/im';
+import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IProps {
   isFormActive: boolean;
@@ -30,10 +32,11 @@ const defaultPossessionInfo: IApprovePossession = {
 
 export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormActive }) => {
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
-  const { user } = useTypedSelector((state) => state.UserReducer);
+  const { user, isLoading } = useTypedSelector((state) => state.UserReducer);
   const [error, changeError] = useState<IError | null>(null);
   const { building, complex } = useTypedSelector((state) => state.PossessionReducer);
-  const { buildingSuccess } = useActions();
+  const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
+  const { buildingSuccess, userLoading } = useActions();
   const logout = useLogout();
 
   const getBuildings = async (complex_id: string) => {
@@ -48,24 +51,34 @@ export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormA
   };
 
   const makeRequest = async () => {
+    userLoading(true);
+    if (error) changeError(null);
     const { complex, ...info } = formData;
     const response = await createPossessionRequest(logout, info);
-
-    if (!response) return;
-
-    if (typeof response !== 'number' && 'type' in response) changeError(response);
-
+    userLoading(false);
+    if (response && typeof response !== 'number' && 'type' in response) {
+      changeError(response);
+      return;
+    }
     if (response === 201) {
-      changeFormData(defaultPossessionInfo);
-      changeError(null);
-      changeIsFormActive(false);
+      changeIsRequestSuccess((prev) => !prev);
+      setTimeout(() => {
+        changeIsRequestSuccess((prev) => !prev);
+        changeFormData(defaultPossessionInfo);
+        changeIsFormActive(false);
+      }, 2000);
+    } else {
+      changeError({
+        type: 'global',
+        error: '',
+      });
     }
   };
 
   return (
     <div
       className={clsx(
-        'transitionGeneral w-[500px] h-[600px] fixed inset-0 m-auto z-[21] bg-blue-700 bg-opacity-10 backdrop-blur-xl border-solid border-2 border-blue-500 rounded-md p-5',
+        'transitionGeneral w-[500px] h-min fixed inset-0 m-auto z-[21] bg-blue-700 bg-opacity-10 backdrop-blur-xl border-solid border-2 border-blue-500 rounded-md p-5',
         isFormActive ? 'translate-x-0' : 'translate-x-[-100vw]',
       )}
     >
@@ -208,12 +221,13 @@ export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormA
           </>
         )}
       </div>
-      <div className='absolute inset-x-0 bottom-0 flex justify-end gap-4 p-5'>
+      <div className='mt-5 text-end'>
         <Button
-          className='text-blue-700 bg-none border-blue-700'
+          className='text-blue-700 border-blue-700 mr-4'
+          disabled={isLoading}
           onClick={() => {
             changeFormData(defaultPossessionInfo);
-            changeError(null);
+            if (error) changeError(null);
             changeIsFormActive(false);
           }}
         >
@@ -224,7 +238,12 @@ export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormA
         >
           <Button
             type='primary'
-            className=' text-white bg-blue-700'
+            className={clsx(
+              ' text-white',
+              !error && !isRequestSuccess && 'bg-blue-700',
+              error && !isRequestSuccess && !isLoading && 'bg-red-500',
+              !error && isRequestSuccess && !isLoading && 'bg-green-500',
+            )}
             disabled={
               formData.building &&
               formData.complex &&
@@ -241,7 +260,25 @@ export const OwnershipCreateHandler: FC<IProps> = ({ isFormActive, changeIsFormA
               makeRequest();
             }}
           >
-            Отправить
+            {isLoading && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {error && !isLoading && !isRequestSuccess && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!isLoading && !error && isRequestSuccess && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {!isLoading && !error && !isRequestSuccess && <>Создать</>}
           </Button>
         </Popover>
       </div>

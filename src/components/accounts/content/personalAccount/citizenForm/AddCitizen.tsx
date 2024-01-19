@@ -42,9 +42,9 @@ export const AddCitizen = () => {
       ></div>
       <OwnershipCreateHandler isFormActive={isFormActive} changeIsFormActive={changeIsFormActive} />
       <span className='text-xl'>Собственность</span>
-      <div className='flex gap-4'>
+      <div>
         <Button
-          className='bg-blue-700 text-white w-min'
+          className='bg-blue-700 text-white w-min mr-4'
           type='primary'
           onClick={() => addCitizenForm()}
           disabled={!user.isApproved}

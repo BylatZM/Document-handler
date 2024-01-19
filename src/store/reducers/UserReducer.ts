@@ -22,12 +22,11 @@ export const UserReducer = createSlice({
   name: 'UserReducer',
   initialState,
   reducers: {
-    userStart: (state) => {
-      state.isLoading = true;
+    userLoading: (state, { payload }: PayloadAction<boolean>) => {
+      state.isLoading = payload;
     },
     userSuccess: (state, { payload }: PayloadAction<IUser>) => {
       state.user = payload;
-      state.isLoading = false;
     },
     notApprovedSuccess: (state, { payload }: PayloadAction<INotApproved[]>) => {
       state.notApproved = payload;
@@ -38,8 +37,7 @@ export const UserReducer = createSlice({
         state.notApproved = state.notApproved.filter((el) => el.id !== payload);
       }
     },
-    error: (state, { payload }: PayloadAction<IError | null>) => {
-      state.isLoading = false;
+    userError: (state, { payload }: PayloadAction<IError | null>) => {
       state.error = payload;
     },
     userClear: (state): IUserState => {
@@ -49,9 +47,9 @@ export const UserReducer = createSlice({
 });
 
 export const {
-  userStart,
+  userLoading,
   userSuccess,
-  error,
+  userError,
   userClear,
   notApprovedSuccess,
   deleteNotApprovedUsers,

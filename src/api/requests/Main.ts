@@ -8,7 +8,7 @@ import {
 import { login, refresh, registration, helpForm, updatePassword } from '..';
 import request from 'axios';
 
-export const errorAlert = (errorText: string) => {
+export const errorAlert = (errorText: number) => {
   alert(
     'Внутренняя ошибка приложения, статус ошибки: ' +
       errorText +
@@ -31,7 +31,7 @@ export const loginRequest = async (
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
       if (e.response.status === 400) return e.response?.data as IError;
-      else errorAlert(e.response.statusText);
+      else errorAlert(e.response.status);
     }
   }
 };
@@ -43,7 +43,7 @@ export const registrationRequest = async (data: IRegRequest): Promise<IError | 2
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
       if (e.response.status === 400) return e.response.data as IError;
-      else errorAlert(e.response.statusText);
+      else errorAlert(e.response.status);
     }
   }
 };
@@ -56,7 +56,7 @@ export const refreshRequest = async (): Promise<200 | 403 | void> => {
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
       if (e.response.status === 403) return 403;
-      else errorAlert(e.response.statusText);
+      else errorAlert(e.response.status);
     }
   }
 };
@@ -66,7 +66,7 @@ export const helpFormRequest = async (params: IHelpFormRequest): Promise<void> =
     await helpForm(params).then((response) => response.data);
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
-      errorAlert(e.response.statusText);
+      errorAlert(e.response.status);
     }
   }
 };
@@ -81,7 +81,7 @@ export const updatePasswordRequest = async (params: {
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
       if (e.response.status === 400) return e.response?.data as IError;
-      else errorAlert(e.response.statusText);
+      else errorAlert(e.response.status);
     }
   }
 };
