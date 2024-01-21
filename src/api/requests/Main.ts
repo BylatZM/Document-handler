@@ -24,7 +24,9 @@ export const loginRequest = async (
     const response = await login(data);
     if ('type' in response.data) return response.data;
     localStorage.setItem('access', response.data.access);
-    document.cookie = `refresh=${response.data.refresh}; path=/; domain=${
+    document.cookie = `refresh=${response.data.refresh}; path=/; expires=${new Date(
+      Date.now() + 31536000,
+    ).toUTCString()}; domain=${
       process.env.NODE_ENV === 'development' ? 'localhost' : '91.201.40.39'
     };`;
     return response.data;
@@ -55,8 +57,10 @@ export const refreshRequest = async (): Promise<200 | 403 | void> => {
     return 200;
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
-      if (e.response.status === 403) return 403;
-      else errorAlert(e.response.status);
+      if (e.response.status === 403) {
+        alert('Срок жизни сессии истек, пожалуйста, авторизуйтесь снова');
+        return 403;
+      } else errorAlert(e.response.status);
     }
   }
 };

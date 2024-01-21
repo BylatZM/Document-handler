@@ -47,3 +47,10 @@ body {
   background: -moz-linear-gradient(45deg, rgb(253, 114, 48) 23%, rgb(0, 0, 0) 69%);
   background: linear-gradient(45deg, rgb(253, 114, 48) 23%, rgb(0, 0, 0) 69%);
 }
+
+.table-row {
+  transition: color 1s ease-in-out;
+  cursor: pointer;
+  text-align: center;
+  background: #dddcdc;
+}

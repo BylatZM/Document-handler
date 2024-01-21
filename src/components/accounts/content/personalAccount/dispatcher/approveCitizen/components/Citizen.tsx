@@ -1,7 +1,6 @@
 import { Button, Carousel } from 'antd';
-import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import clsx from 'clsx';
-import { GrNext } from 'react-icons/gr';
+import { GrCaretNext } from 'react-icons/gr';
 import { FC, useRef } from 'react';
 import { INotApproved } from '../../../../../../types';
 import { CitizenBaseInfo } from './CitizenBaseInfo';
@@ -20,7 +19,6 @@ export const Citizen: FC<CitizenProps> = ({
   selectedUserInfo,
   changeUserInfo,
 }) => {
-  const { isLoading } = useTypedSelector((state) => state.CitizenReducer);
   const CarouselMethods = useRef<any>(null);
 
   return (
@@ -32,12 +30,11 @@ export const Citizen: FC<CitizenProps> = ({
     >
       <div className='flex inset-0 m-auto'>
         <button className='bg-none' onClick={() => CarouselMethods.current.prev()}>
-          <GrNext className='text-3xl rotate-180 hover:scale-150' />
+          <GrCaretNext className='text-3xl rotate-180 hover:scale-150' />
         </button>
         <div
           className={clsx(
-            'transitionGeneral flex flex-col justify-between rounded-md bg-blue-700 p-[20px] bg-opacity-10 backdrop-blur-xl w-[600px] h-[500px] border-solid border-blue-500 border-[1px]',
-            !isLoading.isLoading ? 'opacity-100' : 'opacity-0',
+            'flex flex-col justify-between rounded-md bg-blue-700 p-[20px] bg-opacity-10 backdrop-blur-xl w-[600px] h-[500px] border-solid border-blue-500 border-[1px]',
           )}
         >
           <span className='font-bold text-2xl mb-2'>Информация о жителе</span>
@@ -52,7 +49,7 @@ export const Citizen: FC<CitizenProps> = ({
           </Carousel>
           <div className='flex w-full justify-end'>
             <Button
-              className='border-[1px] border-blue-700 text-blue-700 h-[40px]'
+              className='border-[1px] border-black text-black h-[40px]'
               onClick={() => {
                 changeUserInfo(null);
                 changeIsFormActive(false);
@@ -63,7 +60,7 @@ export const Citizen: FC<CitizenProps> = ({
           </div>
         </div>
         <button className='bg-none' onClick={() => CarouselMethods.current.next()}>
-          <GrNext className='text-3xl hover:scale-150' />
+          <GrCaretNext className='text-3xl hover:scale-150' />
         </button>
       </div>
     </div>

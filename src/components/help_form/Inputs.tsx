@@ -5,6 +5,7 @@ import { useActions } from '../hooks/useActions';
 export const Inputs = () => {
   const { error, processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
+  const role = useTypedSelector((state) => state.UserReducer.user.role.role);
   const { TextArea } = Input;
   const { helpFormInfoSuccess, helpFormError } = useActions();
 
@@ -88,20 +89,7 @@ export const Inputs = () => {
         )}
       </div>
       <span>Адрес собственности</span>
-      {possessions[0].id === 0 && (
-        <div style={{ marginBottom: 25 }}>
-          <Input
-            className='rounded-md h-[40px]'
-            onChange={(e) => helpFormInfoSuccess({ ...info, address: e.target.value })}
-            value={info.address}
-            maxLength={200}
-            type='text'
-            size='large'
-            placeholder='Адрес собственности'
-          />
-        </div>
-      )}
-      {possessions[0].id !== 0 && (
+      {possessions[0].id !== 0 && role === 'citizen' ? (
         <div style={{ marginBottom: 25 }}>
           <Select
             style={{ fontSize: '0.4rem' }}
@@ -121,6 +109,18 @@ export const Inputs = () => {
           {error !== null && error.type === 'address' && (
             <div className='errorText  mt-2'>{error.error}</div>
           )}
+        </div>
+      ) : (
+        <div style={{ marginBottom: 25 }}>
+          <Input
+            className='rounded-md h-[40px]'
+            onChange={(e) => helpFormInfoSuccess({ ...info, address: e.target.value })}
+            value={info.address}
+            maxLength={200}
+            type='text'
+            size='large'
+            placeholder='Адрес собственности'
+          />
         </div>
       )}
     </>

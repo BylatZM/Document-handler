@@ -3,7 +3,8 @@ import { Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { Citizen } from './components/Citizen';
 import { INotApproved } from '../../../../../types';
-import { Buttons } from './Buttons';
+import clsx from 'clsx';
+import { ApplicationsTable } from './components/ApplicationsTable';
 
 export const ApproveCitizen = () => {
   const [isFormActive, changeIsFormActive] = useState(false);
@@ -51,44 +52,11 @@ export const ApproveCitizen = () => {
             </div>
           </div>
         </div>
-        <div className='flex flex-col text-sm'>
-          <div className='flex justify-between p-2 gap-x-2 bg-black text-white rounded-t-md'>
-            <span className='min-w-[20px] max-w-[20px]'>№</span>
-            <span className='min-w-[180px] max-w-[180px] overflow-hidden '>Фамилия</span>
-            <span className='min-w-[140px] max-w-[140px] overflow-hidden '>Имя</span>
-            <span className='min-w-[140px] max-w-[140px] overflow-hidden '>Статус заявки</span>
-            <span className='min-w-[130px] max-w-[130px] overflow-hidden '>Подтвердить</span>
-            <span className='min-w-[130px] max-w-[130px] overflow-hidden '>Информация</span>
-            <span className='min-w-[120px] max-w-[120px] overflow-hidden '>Отклонить заявку</span>
-          </div>
-          <hr className='w-full h-[0.1rem] border-none bg-black' />
-          <div className='flex flex-col text-sm'>
-            {filtratedItems &&
-              filtratedItems.map((el) => (
-                <div key={el.id} className='transition-colors flex flex-col'>
-                  <div className='transitionGeneral flex justify-between items-center p-2 gap-x-2'>
-                    <span className='min-w-[20px] overflow-hidden max-w-[20px]'>{el.id}</span>
-                    <span className='min-w-[180px] overflow-hidden max-w-[180px] '>
-                      {el.user.last_name}
-                    </span>
-                    <span className='min-w-[140px] overflow-hidden max-w-[140px]'>
-                      {el.user.first_name}
-                    </span>
-                    <span className='min-w-[140px] max-w-[140px] overflow-hidden '>
-                      {el.status}
-                    </span>
-                    <Buttons
-                      data={filtratedItems}
-                      item={el}
-                      changeUserInfo={changeUserInfo}
-                      changeIsFormActive={changeIsFormActive}
-                    />
-                  </div>
-                  <hr className='w-full h-[0.1rem] border-none bg-black' />
-                </div>
-              ))}
-          </div>
-        </div>
+        <ApplicationsTable
+          tableItems={filtratedItems}
+          changeIsFormActive={changeIsFormActive}
+          changeUserInfo={changeUserInfo}
+        />
       </div>
     </>
   );
