@@ -30,22 +30,21 @@ export const Inputs = () => {
           <div className='errorText mt-2'>{error.error}</div>
         )}
       </div>
-      <span className='primaryField'>Адрес электронной почты</span>
+      <span className='primaryField'>Контактные данные (номер телефона \ почта)</span>
       <div style={{ marginBottom: 25 }}>
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
           onChange={(e) => {
-            if (error && error.type === 'email') helpFormError(null);
-            helpFormInfoSuccess({ ...info, email: e.target.value });
+            if (error && error.type === 'contact') helpFormError(null);
+            helpFormInfoSuccess({ ...info, contact: e.target.value });
           }}
-          value={info.email}
+          value={info.contact}
           type='text'
-          required
           size='large'
           placeholder='applications@dltex.ru'
         />
-        {error !== null && error.type === 'email' && (
+        {error !== null && error.type === 'contact' && (
           <div className='errorText mt-2'>{error.error}</div>
         )}
       </div>
@@ -60,7 +59,6 @@ export const Inputs = () => {
           }}
           value={info.title}
           type='text'
-          required
           size='large'
           placeholder='Тема обращения'
         />
@@ -78,7 +76,6 @@ export const Inputs = () => {
             helpFormInfoSuccess({ ...info, description: e.target.value });
           }}
           value={info.description}
-          required
           size='large'
           placeholder='Описание проблемы'
           className='rounded-md'
@@ -101,7 +98,7 @@ export const Inputs = () => {
               !processed_possessions
                 ? []
                 : processed_possessions.map((item, index) => ({
-                    value: index.toString(),
+                    value: (index + 1).toString(),
                     label: item,
                   }))
             }

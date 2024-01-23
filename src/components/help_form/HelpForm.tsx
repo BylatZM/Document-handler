@@ -6,6 +6,7 @@ import { Inputs } from './Inputs';
 import { useEffect } from 'react';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useActions } from '../hooks/useActions';
+import { helpFormAddress } from '../../store/reducers/HelpFormReducer';
 
 interface IHelpFormProps {
   activeForm: null | 'password' | 'help';
@@ -17,35 +18,40 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
   const { processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { helpFormName, helpFormEmail, helpFormPossessions } = useActions();
+  const { helpFormName, helpFormContact, helpFormPossessions } = useActions();
 
   useEffect(() => {
-    if (!processed_possessions && activeForm === 'help') {
+    if (activeForm !== 'help') return;
+
+    if (!processed_possessions && possessions[0].id !== 0) {
+      console.log('here');
       let poss_processed = null;
-      if (possessions[0].id !== 0) {
-        poss_processed = possessions.map((item) => {
-          let possessionType = 'парковка';
-          if (item.possessionType === '1') possessionType = 'квартира';
-          if (item.possessionType === '2') possessionType = 'офис';
-          if (item.possessionType === '4') possessionType = 'кладовка';
-          return (
-            item.complex.name +
-            ', ' +
-            item.building.address +
-            ', собственность: ' +
-            item.possession.address +
-            ` [${possessionType}]`
-          );
-        });
-      }
+      poss_processed = possessions.map((item) => {
+        let possessionType = 'парковка';
+        if (item.possessionType === '1') possessionType = 'квартира';
+        if (item.possessionType === '2') possessionType = 'офис';
+        if (item.possessionType === '4') possessionType = 'кладовка';
+        return (
+          item.complex.name +
+          ', ' +
+          item.building.address +
+          ', собственность: ' +
+          item.possession.address +
+          ` [${possessionType}]`
+        );
+      });
+      helpFormAddress('1');
       helpFormPossessions(poss_processed);
     }
-    if (!info.name && activeForm === 'help' && user.first_name) {
+    if (user.first_name && info.name !== user.first_name) {
       helpFormName(user.first_name);
     }
-    if (!info.email && activeForm === 'help' && user.email) {
-      helpFormEmail(user.email);
+
+    if (user.phone && info.contact !== user.phone && user.phone.length === 11) {
+      helpFormContact(user.phone);
+      return;
     }
+    if (user.email && info.contact !== user.email) helpFormContact(user.email);
   }, [activeForm]);
 
   return (

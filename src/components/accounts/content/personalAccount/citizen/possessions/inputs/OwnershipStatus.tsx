@@ -16,7 +16,7 @@ export const OwnershipStatus: FC<IProps> = ({ data, form_id, updatingFormId, loa
       <Select
         className='w-full'
         options={[
-          { label: 'арендодатор', value: 1 },
+          { label: 'арендатор', value: 1 },
           { label: 'гражданин', value: 2 },
           { label: 'член семьи', value: 3 },
           { label: 'ребенок', value: 4 },

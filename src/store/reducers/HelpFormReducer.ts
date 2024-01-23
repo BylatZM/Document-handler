@@ -3,7 +3,7 @@ import { IHelpFormState, IHelpFormRequest, IError } from '../../components/types
 
 const initHelpFormInfo: IHelpFormRequest = {
   name: '',
-  email: '',
+  contact: '',
   title: '',
   description: '',
   address: '',
@@ -23,11 +23,14 @@ export const HelpFormReducer = createSlice({
     helpFormLoading: (state, { payload }: PayloadAction<boolean>) => {
       state.isLoading = payload;
     },
-    helpFormEmail: (state, { payload }: PayloadAction<string>) => {
-      state.info.email = payload;
+    helpFormContact: (state, { payload }: PayloadAction<string>) => {
+      state.info.contact = payload;
     },
     helpFormName: (state, { payload }: PayloadAction<string>) => {
       state.info.name = payload;
+    },
+    helpFormAddress: (state, { payload }: PayloadAction<string>) => {
+      state.info.address = payload;
     },
     helpFormPossessions: (state, { payload }: PayloadAction<string[] | null>) => {
       state.processed_possessions = payload;
@@ -47,9 +50,10 @@ export const HelpFormReducer = createSlice({
 export const {
   helpFormLoading,
   helpFormError,
-  helpFormEmail,
+  helpFormContact,
   helpFormClear,
   helpFormName,
+  helpFormAddress,
   helpFormInfoSuccess,
   helpFormPossessions,
 } = HelpFormReducer.actions;

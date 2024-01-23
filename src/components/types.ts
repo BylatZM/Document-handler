@@ -34,7 +34,7 @@ export type IPosLoading = 'complex' | 'building' | 'possession' | null;
 
 export interface IHelpFormRequest {
   name: string;
-  email: string;
+  contact: string;
   title: string;
   description: string;
   address: string | undefined;

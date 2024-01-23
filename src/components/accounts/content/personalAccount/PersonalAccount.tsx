@@ -3,7 +3,7 @@ import { Input, Form, Button, ConfigProvider } from 'antd';
 import { useActions } from '../../../hooks/useActions';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { updateUserRequest } from '../../../../api/requests/Person';
-import { AddCitizen } from './citizenForm/AddCitizen';
+import { Main } from './citizen/Main';
 import { useLogout } from '../../../hooks/useLogout';
 import { useState } from 'react';
 import { HiOutlineCheck } from 'react-icons/hi';
@@ -47,7 +47,8 @@ export const PersonalAccount = () => {
     if (phone && (!/^\d+$/.test(phone) || phone.length !== 11)) {
       userError({
         type: 'phone',
-        error: 'Номер телефона может состоять только из 11 цифр',
+        error:
+          'Номер телефона может состоять только из 11 цифр, пожалуйста, введите телефон исходя из примера: 89372833608',
       });
       return;
     }
@@ -152,7 +153,7 @@ export const PersonalAccount = () => {
                 error && error.type === 'phone' && <div className='errorText'>{error.error}</div>
               }
             >
-              <Input maxLength={15} disabled={isLoading} />
+              <Input maxLength={11} disabled={isLoading} placeholder='89372833608' />
             </Form.Item>
           </div>
           <ConfigProvider
@@ -196,7 +197,7 @@ export const PersonalAccount = () => {
             </Button>
           </ConfigProvider>
         </Form>
-        {user.role.role === 'citizen' && <AddCitizen />}
+        {user.role.role === 'citizen' && <Main />}
       </div>
     </>
   );

@@ -1,16 +1,16 @@
 import { Button } from 'antd';
-import { CitizenForm } from './citizenForm/CitizenForm';
+import { Possessions } from './possessions/Possessions';
 import { useActions } from '../../../../hooks/useActions';
 import { useEffect, useState } from 'react';
 import { getCitizenRequest } from '../../../../../api/requests/Person';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 
 import { clsx } from 'clsx';
-import { OwnershipCreateHandler } from '../OwnershipCreateHandler';
+import { CreatePossession } from '../../../../createPossession/CreatePossession';
 import { useLogout } from '../../../../hooks/useLogout';
-import { LoadingForm } from './LoadingForm';
+import { LoadingSkeleton } from './LoadingSkeleton';
 
-export const AddCitizen = () => {
+export const Main = () => {
   const logout = useLogout();
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { addCitizenForm, citizenSuccess } = useActions();
@@ -30,7 +30,7 @@ export const AddCitizen = () => {
     changeNeedUpdate(false);
   };
 
-  if (needUpdateCitizen) return <LoadingForm />;
+  if (needUpdateCitizen) return <LoadingSkeleton />;
 
   return (
     <>
@@ -40,7 +40,7 @@ export const AddCitizen = () => {
           isFormActive ? 'w-full' : 'w-0',
         )}
       ></div>
-      <OwnershipCreateHandler isFormActive={isFormActive} changeIsFormActive={changeIsFormActive} />
+      <CreatePossession isFormActive={isFormActive} changeIsFormActive={changeIsFormActive} />
       <span className='text-xl'>Собственность</span>
       <div>
         <Button
@@ -57,7 +57,7 @@ export const AddCitizen = () => {
       </div>
 
       {citizens.map((el, index) => (
-        <CitizenForm
+        <Possessions
           key={index}
           data={{
             key: !el.id ? -1 * citizens.length : el.id,

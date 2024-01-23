@@ -1,4 +1,4 @@
-export const LoadingForm = () => {
+export const LoadingSkeleton = () => {
   return (
     <div className='flex flex-col gap-y-8 animate-pulse'>
       <span className='text-xl'>Собственность</span>

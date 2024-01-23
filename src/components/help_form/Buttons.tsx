@@ -43,10 +43,10 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
       });
       return;
     }
-    if (info.email === '') {
+    if (info.contact === '') {
       helpFormError({
-        type: 'email',
-        error: 'Поле "адрес электронной почты" не может быть пустым',
+        type: 'contact',
+        error: 'Поле "Контактные данные" не может быть пустым',
       });
       return;
     }

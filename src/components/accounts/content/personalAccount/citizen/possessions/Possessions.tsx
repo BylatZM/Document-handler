@@ -28,7 +28,7 @@ interface ICitizenFormProps {
   updatingFormId: number | null;
 }
 
-export const CitizenForm: FC<ICitizenFormProps> = ({
+export const Possessions: FC<ICitizenFormProps> = ({
   data,
   changeNeedUpdate,
   changeUpdatingFormId,

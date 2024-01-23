@@ -50,8 +50,10 @@ export const CitizenReducer = createSlice({
       state,
       { payload }: PayloadAction<{ form_id: number; citizen: ICitizen }>,
     ) => {
-      state.isLoading = { form_id: 0, isLoading: false };
-      state.citizen.filter((el) => el.id === payload.form_id)[0] = payload.citizen;
+      state.citizen = state.citizen.map((el) => {
+        if (el.id === payload.form_id) return payload.citizen;
+        else return el;
+      });
     },
     deleteCitizenForm: (state, { payload }: PayloadAction<{ form_id: number }>) => {
       state.citizen = state.citizen.filter((el) => el.id !== payload.form_id);
