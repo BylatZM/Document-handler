@@ -127,17 +127,7 @@ export const ApplicationsTable: FC<IProps> = ({
       title: 'Статус заявки',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => (
-        <span
-          className={clsx(
-            'p-2 text-white rounded-md',
-            status === 'отклонена' && 'bg-red-500',
-            status === 'новая' && 'bg-blue-500',
-          )}
-        >
-          {status}
-        </span>
-      ),
+      render: (status: string) => <span>{status}</span>,
     },
     {
       title: 'Подтвердить жителя',

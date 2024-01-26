@@ -12,7 +12,7 @@ interface IProps {
 export const CitizenComment: FC<IProps> = ({ form_id, role, data, changeFormData }) => {
   return (
     <div className='mt-2 gap-2 flex flex-col'>
-      <span>Описание заявки</span>
+      <span>Описание заявки (по возможности укажите контактные данные)</span>
       <TextArea
         rows={5}
         maxLength={500}

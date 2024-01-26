@@ -8,6 +8,8 @@ import {
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
   IStatus,
+  IBuilding,
+  IPossession,
 } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
@@ -27,9 +29,9 @@ interface IProps {
   form_id: number;
   role: IRole;
   exitFromForm: () => void;
-  carInfo: ICar | null;
-  changeCarInfo: React.Dispatch<React.SetStateAction<ICar | null>>;
   logout: () => void;
+  buildings: IBuilding[] | null;
+  possessions: IPossession[] | null;
 }
 
 export const Buttons: FC<IProps> = ({
@@ -37,11 +39,12 @@ export const Buttons: FC<IProps> = ({
   form_id,
   role,
   exitFromForm,
-  carInfo,
-  changeCarInfo,
   logout,
+  buildings,
+  possessions,
 }) => {
-  const { updateApplication, applicationSuccess } = useActions();
+  const { updateApplication, applicationSuccess, buildingSuccess, possessionSuccess } =
+    useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<
     | null
@@ -115,7 +118,6 @@ export const Buttons: FC<IProps> = ({
       changeSuccessButton((prev) => 'create');
       setTimeout(async () => {
         changeSuccessButton((prev) => null);
-        if (carInfo) changeCarInfo(null);
         exitFromForm();
         await get_applications();
       }, 2000);
@@ -146,7 +148,6 @@ export const Buttons: FC<IProps> = ({
             status: { id: status.id, appStatus: status.appStatus },
           },
         });
-        if (carInfo) changeCarInfo(null);
         exitFromForm();
         if (status.appStatus === 'Закрыта' || status.appStatus === 'Возвращена')
           await get_applications();
@@ -198,7 +199,6 @@ export const Buttons: FC<IProps> = ({
       });
       changeSuccessButton((prev) => 'update');
       setTimeout(() => {
-        if (carInfo) changeCarInfo(null);
         changeSuccessButton((prev) => null);
         exitFromForm();
       }, 2000);
@@ -208,7 +208,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   return (
-    <div className='gap-4 flex justify-center mt-4'>
+    <div className='gap-4 flex justify-center'>
       {form_id < 1 && ['citizen', 'dispatcher'].some((el) => el === role.role) && (
         <ConfigProvider
           theme={{
@@ -345,7 +345,7 @@ export const Buttons: FC<IProps> = ({
               )}
               {loadingButton !== 'update' &&
                 errorButton !== 'update' &&
-                successButton !== 'update' && <>Обновить</>}
+                successButton !== 'update' && <>Записать</>}
             </Button>
           </ConfigProvider>
           <ConfigProvider
@@ -555,7 +555,8 @@ export const Buttons: FC<IProps> = ({
           disabled={loadingButton ? true : false}
           onClick={() => {
             exitFromForm();
-            if (carInfo) changeCarInfo(null);
+            if (buildings) buildingSuccess(null);
+            if (possessions) possessionSuccess(null);
             if (errorButton) changeErrorButton(null);
           }}
         >

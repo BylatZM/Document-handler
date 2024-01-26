@@ -23,17 +23,17 @@ export const PersonalAccount = () => {
   const logout = useLogout();
 
   const onFinish = async ({ first_name, last_name, patronymic, phone }: IGenFormData) => {
-    if ((first_name && !/^[А-Яа-я]+$/.test(first_name)) || !first_name) {
+    if (first_name && !/^[А-Яа-я]+$/.test(first_name)) {
       userError({
         type: 'first_name',
-        error: 'Имя может состоять только из букв русского алфавита',
+        error: 'Имя может состоять только из букв русского алфавита или быть незаполненным',
       });
       return;
     }
-    if ((last_name && !/^[А-Яа-я]+$/.test(last_name)) || !last_name) {
+    if (last_name && !/^[А-Яа-я]+$/.test(last_name)) {
       userError({
         type: 'last_name',
-        error: 'Фамилия может состоять только из букв русского алфавита',
+        error: 'Фамилия может состоять только из букв русского алфавита или быть незаполненным',
       });
       return;
     }
@@ -58,8 +58,8 @@ export const PersonalAccount = () => {
 
     const response = await updateUserRequest(
       {
-        first_name: first_name,
-        last_name: last_name,
+        first_name: !first_name ? '' : first_name,
+        last_name: !last_name ? '' : last_name,
         patronymic: !patronymic ? null : patronymic,
         phone: !phone ? null : phone,
       },
@@ -69,8 +69,8 @@ export const PersonalAccount = () => {
       changeIsRequestSuccess((prev) => !prev);
       userSuccess({
         ...user,
-        first_name: first_name,
-        last_name: last_name,
+        first_name: !first_name ? '' : first_name,
+        last_name: !last_name ? '' : last_name,
         patronymic: !patronymic ? null : patronymic,
         phone: !phone ? null : phone,
       });

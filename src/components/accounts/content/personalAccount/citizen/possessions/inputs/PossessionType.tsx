@@ -30,7 +30,6 @@ export const PossessionType: FC<IProps> = ({
           { label: 'квартира', value: 1 },
           { label: 'офис', value: 2 },
           { label: 'кладовка', value: 4 },
-          { label: 'парковка', value: 3 },
         ]}
         value={parseInt(data.possessionType)}
         disabled={

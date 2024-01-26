@@ -270,3 +270,13 @@ export interface IPossession {
 }
 
 export type IBuilding = Omit<IPossession, 'car'>;
+
+export interface IApplicationColumns {
+  number: number;
+  creating_date: string;
+  app_type: string;
+  status: string;
+  due_date: string;
+  citizen_comment: string;
+  possession: string;
+}

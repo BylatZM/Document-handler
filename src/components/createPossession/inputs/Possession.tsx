@@ -11,9 +11,9 @@ interface IProps {
 export const Possession: FC<IProps> = ({ data, changeData, error }) => {
   return (
     <div className='text-sm'>
-      <div>Номер квартиры (номер собственности)</div>
+      <div>Наименование квартиры (Наименование собственности)</div>
       <Input
-        maxLength={8}
+        maxLength={60}
         value={data.possession.address}
         disabled={!data.building}
         placeholder='34'

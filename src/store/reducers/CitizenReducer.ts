@@ -7,7 +7,7 @@ const defaultCitizen: ICitizen = {
   id: 0,
   personal_account: '',
   possessionType: '1',
-  ownershipStatus: '1',
+  ownershipStatus: '2',
   complex: {
     id: 0,
     name: '',

@@ -22,6 +22,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
 
   const onFinish = async () => {
     const { address } = info;
+
     if (info.description.length > 200 || info.description === '') {
       helpFormError({
         type: 'description',
@@ -54,6 +55,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
     if (processed_possessions && /^[0-9]$/.test(result_address)) {
       result_address = processed_possessions[parseInt(result_address)];
     }
+
     helpFormLoading(true);
     await helpFormRequest({
       ...info,

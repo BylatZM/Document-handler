@@ -4,22 +4,14 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { ColumnsType } from 'antd/es/table';
-
-type TypeColumn = {
-  number: number;
-  creating_date: string;
-  app_type: string;
-  complex: string;
-  status: string;
-};
+import { IApplicationColumns } from '../../../types';
 
 export const Applications = () => {
   const [IsFormActive, changeIsFormActive] = useState(false);
   const { userApplication } = useTypedSelector((state) => state.ApplicationReducer);
   const [selectedItem, changeSelectedItem] = useState(0);
   const role = useTypedSelector((state) => state.UserReducer.user.role.role);
-
-  const columns: ColumnsType<TypeColumn> = [
+  const columns: ColumnsType<IApplicationColumns> = [
     {
       title: '№',
       dataIndex: 'number',
@@ -34,11 +26,6 @@ export const Applications = () => {
       title: 'Тип заявки',
       dataIndex: 'app_type',
       key: 'app_type',
-    },
-    {
-      title: 'Жилищный комплекс',
-      dataIndex: 'complex',
-      key: 'complex',
     },
     {
       title: 'Статус',
@@ -57,6 +44,29 @@ export const Applications = () => {
         >
           {status}
         </span>
+      ),
+    },
+    {
+      title: 'Время закрытия',
+      dataIndex: 'due_date',
+      key: 'due_date',
+    },
+    {
+      title: 'Комментарий жильца',
+      dataIndex: 'citizen_comment',
+      key: 'citizen_comment',
+      render: (citizen_comment: string) => (
+        <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden'>{citizen_comment}</div>
+      ),
+    },
+    {
+      title: 'Собственность',
+      dataIndex: 'possession',
+      key: 'possession',
+      render: (possession: string) => (
+        <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-sm'>
+          {possession}
+        </div>
       ),
     },
   ];
@@ -94,26 +104,30 @@ export const Applications = () => {
               Найдено: {!userApplication ? 0 : userApplication.length}
             </span>
           </div>
-          {['citizen', 'dispatcher'].some((el) => el === role) && (
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimaryHover: '#fff',
-                  },
-                },
-              }}
-            >
-              <Popover content='Создать заявку'>
-                <Button
-                  className='w-[30px] h-[30px] rounded-full border-none bg-blue-700 text-white flex items-center justify-center'
-                  onClick={() => showForm(0)}
+          <div className='flex gap-x-6'>
+            {['citizen', 'dispatcher'].some((el) => el === role) && (
+              <>
+                <ConfigProvider
+                  theme={{
+                    components: {
+                      Button: {
+                        colorPrimaryHover: '#fff',
+                      },
+                    },
+                  }}
                 >
-                  +
-                </Button>
-              </Popover>
-            </ConfigProvider>
-          )}
+                  <Popover content='Создать заявку'>
+                    <Button
+                      className='w-[30px] h-[30px] rounded-full border-none bg-blue-700 text-white flex items-center justify-center'
+                      onClick={() => showForm(0)}
+                    >
+                      +
+                    </Button>
+                  </Popover>
+                </ConfigProvider>
+              </>
+            )}
+          </div>
         </div>
 
         <Table
@@ -121,8 +135,11 @@ export const Applications = () => {
             number: el.id,
             creating_date: !el.creatingDate ? '' : el.creatingDate,
             app_type: el.type.appType,
-            complex: el.complex.name,
             status: !el.status ? '' : el.status.appStatus,
+            due_date: !el.dueDate ? '' : el.dueDate,
+            citizen_comment: el.citizenComment,
+            possession:
+              el.complex.name + ' ' + el.building.address + ' собс. ' + el.possession.address,
           }))}
           columns={columns}
           components={components}
@@ -138,7 +155,7 @@ export const Applications = () => {
             },
           })}
           style={{
-            width: '800px',
+            width: 'fit-content',
           }}
         />
       </div>

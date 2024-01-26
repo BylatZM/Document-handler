@@ -6,7 +6,6 @@ import { Inputs } from './Inputs';
 import { useEffect } from 'react';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useActions } from '../hooks/useActions';
-import { helpFormAddress } from '../../store/reducers/HelpFormReducer';
 
 interface IHelpFormProps {
   activeForm: null | 'password' | 'help';
@@ -18,13 +17,12 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
   const { processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { helpFormName, helpFormContact, helpFormPossessions } = useActions();
+  const { helpFormName, helpFormContact, helpFormPossessions, helpFormAddress } = useActions();
 
   useEffect(() => {
     if (activeForm !== 'help') return;
 
     if (!processed_possessions && possessions[0].id !== 0) {
-      console.log('here');
       let poss_processed = null;
       poss_processed = possessions.map((item) => {
         let possessionType = 'парковка';
@@ -35,9 +33,8 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
           item.complex.name +
           ', ' +
           item.building.address +
-          ', собственность: ' +
-          item.possession.address +
-          ` [${possessionType}]`
+          `, ${possessionType}: ` +
+          item.possession.address
         );
       });
       helpFormAddress('1');

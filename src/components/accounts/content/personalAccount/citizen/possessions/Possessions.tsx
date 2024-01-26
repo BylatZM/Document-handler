@@ -80,6 +80,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         form_id={data.key}
         updatingFormId={updatingFormId}
         loadingForm={isLoading}
+        changeFormData={changeFormData}
       />
       <Complex
         data={formData}
@@ -115,9 +116,6 @@ export const Possessions: FC<ICitizenFormProps> = ({
         loadingPossession={isLoadingPossession}
         possessions={possession}
       />
-      {formData.possessionType === '3' && formData.possession.car && (
-        <Car car={formData.possession.car} />
-      )}
       <Buttons
         data={formData}
         changeData={changeFormData}

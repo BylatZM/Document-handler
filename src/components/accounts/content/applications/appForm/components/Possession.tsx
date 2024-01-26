@@ -1,7 +1,6 @@
 import { FC } from 'react';
-import { IApplication, ICar, ICitizen, IPossession, IRole } from '../../../../../types';
+import { IApplication, ICitizen, IError, IPossession, IRole } from '../../../../../types';
 import { Select } from 'antd';
-import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 
 interface IProps {
   form_id: number;
@@ -9,9 +8,8 @@ interface IProps {
   data: IApplication;
   possessions: IPossession[] | null;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  changeCarInfo: React.Dispatch<React.SetStateAction<ICar | null>>;
   citizenPossessions: ICitizen[];
-  getPossessions: (type: string, building_id: string) => Promise<void>;
+  error: IError | null;
 }
 
 export const Possession: FC<IProps> = ({
@@ -20,11 +18,9 @@ export const Possession: FC<IProps> = ({
   data,
   possessions,
   changeFormData,
-  changeCarInfo,
   citizenPossessions,
-  getPossessions,
+  error,
 }) => {
-  const { error } = useTypedSelector((state) => state.CitizenReducer);
   return (
     <div className='flex flex-col gap-2 w-[48%]'>
       <span>Собственность</span>
@@ -32,13 +28,9 @@ export const Possession: FC<IProps> = ({
         <Select
           value={!data.possession.id ? undefined : data.possession.id}
           onChange={(e: number) => {
-            if (citizenPossessions.filter((el) => el.possession.id === e)[0].possession.car)
-              changeCarInfo(
-                citizenPossessions.filter((el) => el.possession.id === e)[0].possession.car,
-              );
             changeFormData((prev) => ({
               ...prev,
-              possession: { ...prev.possession, id: e, address: '' },
+              possession: { id: e, address: '', car: null },
               complex: {
                 id: citizenPossessions.filter((el) => el.possession.id === e)[0].complex.id,
                 name: citizenPossessions.filter((el) => el.possession.id === e)[0].complex.name,
@@ -66,12 +58,6 @@ export const Possession: FC<IProps> = ({
           <Select
             value={!data.possession.id ? undefined : data.possession.id}
             onChange={(e: number) => {
-              if (
-                possessions &&
-                possessions.some((el) => el.id === e) &&
-                possessions.filter((el) => el.id === e)[0].car
-              )
-                changeCarInfo(possessions.filter((el) => el.id === e)[0].car);
               changeFormData((prev) => ({
                 ...prev,
                 possession: { ...prev.possession, id: e, address: '' },
@@ -89,7 +75,7 @@ export const Possession: FC<IProps> = ({
                 : []
             }
           />
-          {error && <span className='errorText'>{error.error.error}</span>}
+          {error && <span className='errorText'>{error.error}</span>}
         </>
       )}
       {role.role === 'executor' && (

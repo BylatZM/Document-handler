@@ -25,8 +25,8 @@ const defaultCar: ICar = {
 
 const defaultPossessionInfo: IApprovePossession = {
   type: 1,
-  complex: 1,
-  building: 1,
+  complex: 0,
+  building: 0,
   possession: {
     address: '',
     car: null,
@@ -40,6 +40,7 @@ export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive 
   const { building, complex } = useTypedSelector((state) => state.PossessionReducer);
   const { buildingSuccess } = useActions();
   const logout = useLogout();
+  const [needInitializeForm, changeNeedInitializeForm] = useState(true);
 
   const getBuildings = async (complex_id: string) => {
     const response = await getBuildingsRequest(complex_id, logout);
@@ -47,13 +48,24 @@ export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive 
   };
 
   useEffect(() => {
-    if (!complex) return;
+    if (!complex || !needInitializeForm || !isFormActive) return;
 
-    if (isFormActive) {
-      buildingSuccess(null);
+    if (!building) {
+      changeFormData((prev) => ({ ...prev, complex: complex[0].id }));
       getBuildings(complex[0].id.toString());
+    } else {
+      changeFormData((prev) => ({ ...prev, building: building[0].id }));
+      changeNeedInitializeForm(false);
     }
-  }, [isFormActive]);
+  }, [isFormActive, building]);
+
+  const exitFromForm = () => {
+    changeIsFormActive(false);
+    changeNeedInitializeForm(true);
+    if (error) changeError(null);
+    if (building) buildingSuccess(null);
+    changeFormData(defaultPossessionInfo);
+  };
 
   return (
     <div
@@ -73,20 +85,15 @@ export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive 
         <PossessionType data={formData} changeData={changeFormData} defaultCar={defaultCar} />
         <Building data={formData} changeData={changeFormData} buildings={building} />
         <Possession data={formData} changeData={changeFormData} error={error} />
-        {formData.possession.car && (
-          <Car data={formData} changeData={changeFormData} error={error} />
-        )}
       </div>
       <Buttons
         data={formData}
-        changeData={changeFormData}
         changeError={changeError}
-        changeIsFormActive={changeIsFormActive}
         error={error}
         isLoading={isLoading}
-        defaultPossessionInfo={defaultPossessionInfo}
         role={user.role.role}
         logout={logout}
+        exitFromForm={exitFromForm}
       />
     </div>
   );
