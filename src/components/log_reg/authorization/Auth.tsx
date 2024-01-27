@@ -2,18 +2,22 @@ import { Form } from 'antd';
 import { Inputs } from './Inputs';
 import { Buttons } from './Buttons';
 import { Link, useNavigate } from 'react-router-dom';
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { useActions } from '../../hooks/useActions';
 import { loginRequest } from '../../../api/requests/Main';
 import { IAuthRequest } from '../../types';
 
 interface IAuthProps {
   changeAnimState: (animState: boolean) => void;
-  isAgrChecked: boolean;
-  changeActiveForm: (activeForm: null | 'password' | 'help') => void;
+  isAgreementChecked: boolean;
+  changeNeedShowPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Auth: FC<IAuthProps> = ({ changeAnimState, isAgrChecked, changeActiveForm }) => {
+export const Auth: FC<IAuthProps> = ({
+  changeAnimState,
+  isAgreementChecked,
+  changeNeedShowPasswordForm,
+}) => {
   const navigate = useNavigate();
   const { loginLoading, loginSuccess, loginError } = useActions();
 
@@ -54,7 +58,10 @@ export const Auth: FC<IAuthProps> = ({ changeAnimState, isAgrChecked, changeActi
         autoComplete='off'
       >
         <Inputs />
-        <Buttons isAgrChecked={isAgrChecked} changeActiveForm={changeActiveForm} />
+        <Buttons
+          isAgreementChecked={isAgreementChecked}
+          changeNeedShowPasswordForm={changeNeedShowPasswordForm}
+        />
       </Form>
     </div>
   );

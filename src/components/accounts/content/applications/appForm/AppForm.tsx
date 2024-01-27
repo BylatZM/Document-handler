@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { FC, useEffect, useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import { IApplication, ICar, IError } from '../../../../types';
+import { IApplication, IError } from '../../../../types';
 import { useActions } from '../../../../hooks/useActions';
 import { useLogout } from '../../../../hooks/useLogout';
 import { getBuildingsRequest, getPossessionsRequest } from '../../../../../api/requests/Possession';
@@ -15,7 +15,6 @@ import { Complex } from './components/Complex';
 import { PossessionType } from './components/PossessionType';
 import { Building } from './components/Building';
 import { Possession } from './components/Possession';
-import { Car } from './components/Car';
 import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
@@ -216,109 +215,116 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
   return (
     <div
       className={clsx(
-        'transitionGeneral w-[700px] h-full fixed inset-0 m-auto z-[21] bg-blue-700 bg-opacity-10 backdrop-blur-xl border-solid border-2 border-blue-500 rounded-md p-5 overflow-y-auto',
-        IsFormActive ? 'translate-x-0' : 'translate-x-[-100vw]',
+        'transitionGeneral fixed w-full inset-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl overflow-hidden flex justify-center items-center',
+        IsFormActive ? 'h-full' : 'h-0',
       )}
     >
-      <div className='flex justify-center gap-4 flex-col'>
-        <span className='font-bold text-lg'>Сведения</span>
-        <div className='flex flex-wrap justify-between gap-4'>
-          <Grade />
-          <Status status={FormData.status} changeFormData={changeFormData} statuses={statuses} />
-          <Type
-            form_id={id}
-            role={role}
-            data={FormData}
-            types={types}
-            changeFormData={changeFormData}
-          />
-        </div>
-
-        <CitizenComment form_id={id} role={role} data={FormData} changeFormData={changeFormData} />
-        <Source
-          form_id={id}
-          role={role}
-          data={FormData}
-          sources={sources}
-          changeFormData={changeFormData}
-        />
-        <Priority
-          role={role}
-          form_id={id}
-          data={FormData}
-          priorities={priorities}
-          changeFormData={changeFormData}
-        />
-        <span className='font-bold text-lg mt-4'>Объект исполнения</span>
-        <div className='flex flex-wrap gap-2 justify-between mt-2'>
-          <Complex
-            form_id={id}
-            role={role}
-            data={FormData}
-            complexes={complex}
-            changeFormData={changeFormData}
-            citizenPossessions={citizen}
-            getBuildings={getBuildings}
-            buildings={building}
-            possessions={possession}
-            error={error}
-            changeError={changeError}
-          />
-          {role.role === 'dispatcher' && id === 0 && (
-            <PossessionType
+      <div className='min-w-[700px] max-w-[700px] h-full z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5 overflow-y-auto'>
+        <div className='flex justify-center gap-4 flex-col'>
+          <span className='font-bold text-lg'>Сведения</span>
+          <div className='flex flex-wrap justify-between gap-4'>
+            <Grade />
+            <Status status={FormData.status} changeFormData={changeFormData} statuses={statuses} />
+            <Type
               form_id={id}
-              data={FormData}
-              changeFormData={changeFormData}
-              getPossessions={getPossessions}
-            />
-          )}
-          <Building
-            form_id={id}
-            role={role}
-            data={FormData}
-            buildings={building}
-            changeFormData={changeFormData}
-            citizenPossessions={citizen}
-            getPossessions={getPossessions}
-            error={error}
-            possessions={possession}
-            changeError={changeError}
-          />
-          <Possession
-            form_id={id}
-            role={role}
-            data={FormData}
-            possessions={possession}
-            changeFormData={changeFormData}
-            citizenPossessions={citizen}
-            error={error}
-          />
-        </div>
-        {((role.role === 'citizen' && id !== 0) || role.role !== 'citizen') && (
-          <span className='font-bold text-lg mt-2'>Таймслот</span>
-        )}
-        <TimeSlot form_id={id} role={role} data={FormData} changeFormData={changeFormData} />
-        {role.role !== 'citizen' && (
-          <div className='bg-blue-300 p-5 mt-2 rounded-md backdrop-blur-md bg-opacity-50 flex flex-col gap-2'>
-            <span className='font-bold text-lg'>Исполнители</span>
-            <Employee
               role={role}
-              form_id={id}
               data={FormData}
-              workers={employs}
+              types={types}
               changeFormData={changeFormData}
             />
           </div>
-        )}
-        <Buttons
-          data={FormData}
-          form_id={id}
-          role={role}
-          exitFromForm={exitFromForm}
-          logout={logout}
-          buildings={building}
-          possessions={possession}
-        />
+
+          <CitizenComment
+            form_id={id}
+            role={role}
+            data={FormData}
+            changeFormData={changeFormData}
+          />
+          <Source
+            form_id={id}
+            role={role}
+            data={FormData}
+            sources={sources}
+            changeFormData={changeFormData}
+          />
+          <Priority
+            role={role}
+            form_id={id}
+            data={FormData}
+            priorities={priorities}
+            changeFormData={changeFormData}
+          />
+          <span className='font-bold text-lg mt-4'>Объект исполнения</span>
+          <div className='flex flex-wrap gap-2 justify-between mt-2'>
+            <Complex
+              form_id={id}
+              role={role}
+              data={FormData}
+              complexes={complex}
+              changeFormData={changeFormData}
+              citizenPossessions={citizen}
+              getBuildings={getBuildings}
+              buildings={building}
+              possessions={possession}
+              error={error}
+              changeError={changeError}
+            />
+            {role.role === 'dispatcher' && id === 0 && (
+              <PossessionType
+                form_id={id}
+                data={FormData}
+                changeFormData={changeFormData}
+                getPossessions={getPossessions}
+              />
+            )}
+            <Building
+              form_id={id}
+              role={role}
+              data={FormData}
+              buildings={building}
+              changeFormData={changeFormData}
+              citizenPossessions={citizen}
+              getPossessions={getPossessions}
+              error={error}
+              possessions={possession}
+              changeError={changeError}
+            />
+            <Possession
+              form_id={id}
+              role={role}
+              data={FormData}
+              possessions={possession}
+              changeFormData={changeFormData}
+              citizenPossessions={citizen}
+              error={error}
+            />
+          </div>
+          {((role.role === 'citizen' && id !== 0) || role.role !== 'citizen') && (
+            <span className='font-bold text-lg mt-2'>Таймслот</span>
+          )}
+          <TimeSlot form_id={id} role={role} data={FormData} changeFormData={changeFormData} />
+          {role.role !== 'citizen' && (
+            <div className='bg-blue-300 p-5 mt-2 rounded-md backdrop-blur-md bg-opacity-50 flex flex-col gap-2'>
+              <span className='font-bold text-lg'>Исполнители</span>
+              <Employee
+                role={role}
+                form_id={id}
+                data={FormData}
+                workers={employs}
+                changeFormData={changeFormData}
+              />
+            </div>
+          )}
+          <Buttons
+            data={FormData}
+            form_id={id}
+            role={role}
+            exitFromForm={exitFromForm}
+            logout={logout}
+            buildings={building}
+            possessions={possession}
+          />
+        </div>
       </div>
     </div>
   );

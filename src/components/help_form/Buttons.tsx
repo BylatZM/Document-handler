@@ -9,11 +9,11 @@ import { HiOutlineCheck } from 'react-icons/hi';
 import clsx from 'clsx';
 
 interface IButtonsProps {
-  changeActiveForm: (activeForm: null | 'help') => void;
-  isAgrChecked: boolean;
+  changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
+  isAgreementChecked: boolean;
 }
 
-export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) => {
+export const Buttons: FC<IButtonsProps> = ({ changeNeedShowForm, isAgreementChecked }) => {
   const { helpFormError, helpFormClear, helpFormLoading } = useActions();
   const { info, processed_possessions, isLoading, error } = useTypedSelector(
     (state) => state.HelpFormReducer,
@@ -65,7 +65,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
     changeIsRequestSuccess((prev) => !prev);
     setTimeout(() => {
       changeIsRequestSuccess((prev) => !prev);
-      changeActiveForm(null);
+      changeNeedShowForm(false);
       helpFormClear();
     }, 2000);
   };
@@ -78,7 +78,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
           className='border-[1px] border-blue-700 text-blue-700 h-[40px] mr-4'
           disabled={isLoading || isRequestSuccess}
           onClick={() => {
-            changeActiveForm(null);
+            changeNeedShowForm(false);
             helpFormClear();
           }}
         >
@@ -101,7 +101,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeActiveForm, isAgrChecked }) =
                 error && !isRequestSuccess && !isLoading && 'bg-red-500',
                 !error && isRequestSuccess && !isLoading && 'bg-green-500',
               )}
-              disabled={isAgrChecked}
+              disabled={isAgreementChecked}
               type='primary'
               htmlType='submit'
               onClick={() => {

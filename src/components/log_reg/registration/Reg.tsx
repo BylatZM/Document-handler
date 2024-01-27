@@ -9,10 +9,10 @@ import { ImSpinner9 } from 'react-icons/im';
 
 interface IRegProps {
   changeAnimState: (animState: boolean) => void;
-  isAgrChecked: boolean;
+  isAgreementChecked: boolean;
 }
 
-export const Reg: FC<IRegProps> = ({ changeAnimState, isAgrChecked }) => {
+export const Reg: FC<IRegProps> = ({ changeAnimState, isAgreementChecked }) => {
   const { regSuccess, regLoading, regError } = useActions();
   const error = useTypedSelector((state) => state.RegReducer.error);
   const isLoading = useTypedSelector((state) => state.RegReducer.isLoading);
@@ -66,7 +66,7 @@ export const Reg: FC<IRegProps> = ({ changeAnimState, isAgrChecked }) => {
         </Form.Item>
         <Form.Item>
           <Button
-            disabled={isAgrChecked}
+            disabled={isAgreementChecked}
             type='primary'
             htmlType='submit'
             className='text-white bg-blue-700 w-full h-[35px] text-lg flex items-center justify-center'

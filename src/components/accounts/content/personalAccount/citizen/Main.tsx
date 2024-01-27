@@ -15,7 +15,7 @@ export const Main = () => {
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { addCitizenForm, citizenSuccess } = useActions();
   const [needUpdateCitizen, changeNeedUpdate] = useState(false);
-  const [isFormActive, changeIsFormActive] = useState(false);
+  const [needShowPossessionCreateForm, changeNeedShowPossessionCreateForm] = useState(false);
   const [updatingFormId, changeUpdatingFormId] = useState<number | null>(null);
   const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
 
@@ -34,13 +34,10 @@ export const Main = () => {
 
   return (
     <>
-      <div
-        className={clsx(
-          'transitionGeneral fixed inset-0 bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20]',
-          isFormActive ? 'w-full' : 'w-0',
-        )}
-      ></div>
-      <CreatePossession isFormActive={isFormActive} changeIsFormActive={changeIsFormActive} />
+      <CreatePossession
+        needShowForm={needShowPossessionCreateForm}
+        changeNeedShowForm={changeNeedShowPossessionCreateForm}
+      />
       <span className='text-xl'>Собственность</span>
       <div>
         <Button
@@ -51,7 +48,7 @@ export const Main = () => {
         >
           Добавить собственность
         </Button>
-        <Button type='link' onClick={() => changeIsFormActive(true)}>
+        <Button type='link' onClick={() => changeNeedShowPossessionCreateForm(true)}>
           Не нашли свою собственность?
         </Button>
       </div>

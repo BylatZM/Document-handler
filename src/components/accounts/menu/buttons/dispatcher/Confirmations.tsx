@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 interface IProps {
   activeAccordion: string | null;
   changeActiveAccordion: React.Dispatch<React.SetStateAction<string | null>>;
-  changeIsPossFormActive: React.Dispatch<React.SetStateAction<boolean>>;
   pathname: string;
 }
 

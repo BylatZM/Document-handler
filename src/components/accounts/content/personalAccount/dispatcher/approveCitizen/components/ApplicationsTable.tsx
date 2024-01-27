@@ -313,7 +313,7 @@ export const ApplicationsTable: FC<IProps> = ({
       }}
       rowClassName='text-center'
       style={{
-        width: '800px',
+        width: 'min-content',
       }}
     />
   );

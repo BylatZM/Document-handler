@@ -8,19 +8,19 @@ import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useActions } from '../hooks/useActions';
 
 interface IHelpFormProps {
-  activeForm: null | 'password' | 'help';
-  changeActiveForm: (activeForm: null | 'help') => void;
+  needShowForm: boolean;
+  changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) => {
-  const [isAgrChecked, changeIsAgr] = useState(true);
+export const HelpForm: FC<IHelpFormProps> = ({ needShowForm, changeNeedShowForm }) => {
+  const [isAgreementChecked, changeIsAgreementCheckedChecked] = useState(true);
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
   const { processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { helpFormName, helpFormContact, helpFormPossessions, helpFormAddress } = useActions();
 
   useEffect(() => {
-    if (activeForm !== 'help') return;
+    if (!needShowForm) return;
 
     if (!processed_possessions && possessions[0].id !== 0) {
       let poss_processed = null;
@@ -49,44 +49,49 @@ export const HelpForm: FC<IHelpFormProps> = ({ activeForm, changeActiveForm }) =
       return;
     }
     if (user.email && info.contact !== user.email) helpFormContact(user.email);
-  }, [activeForm]);
+  }, [needShowForm]);
 
   return (
     <div
       className={clsx(
-        'transitionGeneral bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] fixed inset-0 m-auto rounded-md w-[600px] h-[500px] overflow-y-auto border-solid border-blue-500 border-2',
-        activeForm === 'help' ? 'translate-x-0' : 'translate-x-[-100vw]',
+        'transitionGeneral bg-blue-500 bg-opacity-10 backdrop-blur-xl z-[30] fixed inset-0 m-auto min-h-screen flex justify-center items-center overflow-hidden',
+        needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='text-center'>
-        <span className='text-xl font-bold'>Обратная связь</span>
-      </div>
+      <div className='bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md min-w-[600px] max-w-[600px] overflow-y-auto h-[600px]'>
+        <div className='text-center'>
+          <span className='text-xl font-bold'>Обратная связь</span>
+        </div>
 
-      <div className='flex flex-col justify-between h-5/6'>
-        <div className='my-5'>
-          <Inputs />
-        </div>
-        <div>
-          <ConfigProvider
-            theme={{
-              components: {
-                Checkbox: {
-                  colorBorder: '#9fa6b1',
+        <div className='flex flex-col justify-between h-5/6'>
+          <div className='my-5'>
+            <Inputs />
+          </div>
+          <div>
+            <ConfigProvider
+              theme={{
+                components: {
+                  Checkbox: {
+                    colorBorder: '#9fa6b1',
+                  },
                 },
-              },
-            }}
-          >
-            <Checkbox
-              className='text-left text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50 '
-              onClick={() => changeIsAgr(!isAgrChecked)}
+              }}
             >
-              Я принимаю пользовательское соглашение и даю разрешение порталу на обработку моих
-              персональных данных в соотвествии с Федеральным законом №152-ФЗ от 27.07.2006 года “О
-              персональных данных”"
-            </Checkbox>
-          </ConfigProvider>
+              <Checkbox
+                className='text-left text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50 '
+                onClick={() => changeIsAgreementCheckedChecked((prev) => !prev)}
+              >
+                Я принимаю пользовательское соглашение и даю разрешение порталу на обработку моих
+                персональных данных в соотвествии с Федеральным законом №152-ФЗ от 27.07.2006 года
+                “О персональных данных”"
+              </Checkbox>
+            </ConfigProvider>
+          </div>
+          <Buttons
+            changeNeedShowForm={changeNeedShowForm}
+            isAgreementChecked={isAgreementChecked}
+          />
         </div>
-        <Buttons changeActiveForm={changeActiveForm} isAgrChecked={isAgrChecked} />
       </div>
     </div>
   );

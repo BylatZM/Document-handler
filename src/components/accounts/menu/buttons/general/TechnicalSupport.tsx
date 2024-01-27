@@ -2,15 +2,15 @@ import { FC } from 'react';
 import { MdSupportAgent } from 'react-icons/md';
 
 interface IProps {
-  changeActiveForm: React.Dispatch<React.SetStateAction<null | 'help'>>;
+  changeNeedShowHelpForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const TechnicalSupport: FC<IProps> = ({ changeActiveForm }) => {
+export const TechnicalSupport: FC<IProps> = ({ changeNeedShowHelpForm }) => {
   return (
     <button
       className='flex items-center cursor-pointer py-2 rounded-md text-lg bg-gray-300 mb-4 h-[45px] overflow-hidden'
       onClick={() => {
-        changeActiveForm('help');
+        changeNeedShowHelpForm(true);
       }}
     >
       <MdSupportAgent className='mr-4 ml-4' />

@@ -34,7 +34,7 @@ export const Citizen: FC<CitizenProps> = ({
         </button>
         <div
           className={clsx(
-            'flex flex-col justify-between rounded-md bg-blue-700 p-[20px] bg-opacity-10 backdrop-blur-xl w-[600px] h-[500px] border-solid border-blue-500 border-[1px]',
+            'flex flex-col justify-between rounded-md bg-blue-700 p-[20px] bg-opacity-10 backdrop-blur-xl w-[600px] h-[500px]',
           )}
         >
           <span className='font-bold text-2xl mb-2'>Информация о жителе</span>

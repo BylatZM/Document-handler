@@ -9,12 +9,11 @@ import { Complex } from './inputs/Complex';
 import { PossessionType } from './inputs/PossessionType';
 import { Building } from './inputs/Building';
 import { Possession } from './inputs/Possession';
-import { Car } from './inputs/Car';
 import { Buttons } from './button/Buttons';
 
 interface IProps {
-  isFormActive: boolean;
-  changeIsFormActive: React.Dispatch<React.SetStateAction<boolean>>;
+  needShowForm: boolean;
+  changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const defaultCar: ICar = {
@@ -33,7 +32,7 @@ const defaultPossessionInfo: IApprovePossession = {
   },
 };
 
-export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive }) => {
+export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm }) => {
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
   const { user, isLoading } = useTypedSelector((state) => state.UserReducer);
   const [error, changeError] = useState<IError | null>(null);
@@ -48,7 +47,7 @@ export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive 
   };
 
   useEffect(() => {
-    if (!complex || !needInitializeForm || !isFormActive) return;
+    if (!complex || !needInitializeForm || !needShowForm) return;
 
     if (!building) {
       changeFormData((prev) => ({ ...prev, complex: complex[0].id }));
@@ -57,10 +56,10 @@ export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive 
       changeFormData((prev) => ({ ...prev, building: building[0].id }));
       changeNeedInitializeForm(false);
     }
-  }, [isFormActive, building]);
+  }, [needShowForm, building]);
 
   const exitFromForm = () => {
-    changeIsFormActive(false);
+    changeNeedShowForm(false);
     changeNeedInitializeForm(true);
     if (error) changeError(null);
     if (building) buildingSuccess(null);
@@ -70,31 +69,33 @@ export const CreatePossession: FC<IProps> = ({ isFormActive, changeIsFormActive 
   return (
     <div
       className={clsx(
-        'transitionGeneral w-[500px] h-min fixed inset-0 m-auto z-[21] bg-blue-700 bg-opacity-10 backdrop-blur-xl border-solid border-2 border-blue-500 rounded-md p-5',
-        isFormActive ? 'translate-x-0' : 'translate-x-[-100vw]',
+        'transitionGeneral min-h-screen fixed right-0 top-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
+        needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='text-xl font-bold text-center mb-4'>Добавить собственность</div>
-      <div className='flex flex-col gap-4'>
-        <Complex
-          complexes={complex}
-          getBuildings={getBuildings}
+      <div className='min-w-[500px] max-w-[500px] h-min z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5'>
+        <div className='text-xl font-bold text-center mb-4'>Добавить собственность</div>
+        <div className='flex flex-col gap-4'>
+          <Complex
+            complexes={complex}
+            getBuildings={getBuildings}
+            data={formData}
+            changeData={changeFormData}
+          />
+          <PossessionType data={formData} changeData={changeFormData} defaultCar={defaultCar} />
+          <Building data={formData} changeData={changeFormData} buildings={building} />
+          <Possession data={formData} changeData={changeFormData} error={error} />
+        </div>
+        <Buttons
           data={formData}
-          changeData={changeFormData}
+          changeError={changeError}
+          error={error}
+          isLoading={isLoading}
+          role={user.role.role}
+          logout={logout}
+          exitFromForm={exitFromForm}
         />
-        <PossessionType data={formData} changeData={changeFormData} defaultCar={defaultCar} />
-        <Building data={formData} changeData={changeFormData} buildings={building} />
-        <Possession data={formData} changeData={changeFormData} error={error} />
       </div>
-      <Buttons
-        data={formData}
-        changeError={changeError}
-        error={error}
-        isLoading={isLoading}
-        role={user.role.role}
-        logout={logout}
-        exitFromForm={exitFromForm}
-      />
     </div>
   );
 };

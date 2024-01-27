@@ -24,23 +24,17 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
   const { role, isApproved } = useTypedSelector((state) => state.UserReducer.user);
   const citizen = useTypedSelector((state) => state.CitizenReducer.citizen);
 
-  const [activeForm, changeActiveForm] = useState<null | 'help'>(null);
+  const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
   const [activeAccordion, changeActiveAccordion] = useState<string | null>(null);
-  const [isPossFormActive, changeIsPossFormActive] = useState(false);
+  const [needShowPossessionCreateForm, changeNeedShowPossessionCreateForm] = useState(false);
 
   return (
     <>
-      <HelpForm activeForm={activeForm} changeActiveForm={changeActiveForm} />
+      <HelpForm needShowForm={needShowHelpForm} changeNeedShowForm={changeNeedShowHelpForm} />
       <CreatePossession
-        isFormActive={isPossFormActive}
-        changeIsFormActive={changeIsPossFormActive}
+        needShowForm={needShowPossessionCreateForm}
+        changeNeedShowForm={changeNeedShowPossessionCreateForm}
       />
-      <div
-        className={clsx(
-          'transitionGeneral fixed inset-0 bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20]',
-          activeForm || isPossFormActive ? 'w-full' : 'w-0',
-        )}
-      ></div>
       <div
         className={clsx(
           'transitionGeneral fixed z-[15] inset-y-0 left-0 overflow-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
@@ -70,18 +64,16 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
                 <Directories
                   changeActiveAccordion={changeActiveAccordion}
                   activeAccordion={activeAccordion}
-                  pathname={pathname}
-                  changeIsPossFormActive={changeIsPossFormActive}
+                  changeNeedShowPossessionCreateForm={changeNeedShowPossessionCreateForm}
                 />
                 <Confirmations
                   changeActiveAccordion={changeActiveAccordion}
                   activeAccordion={activeAccordion}
                   pathname={pathname}
-                  changeIsPossFormActive={changeIsPossFormActive}
                 />
               </>
             )}
-            <TechnicalSupport changeActiveForm={changeActiveForm} />
+            <TechnicalSupport changeNeedShowHelpForm={changeNeedShowHelpForm} />
             <Logout logout={logout} />
           </div>
 

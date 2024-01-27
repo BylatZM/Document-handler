@@ -16,8 +16,9 @@ interface IMainProps {
 
 export const Main: FC<IMainProps> = ({ pageType }) => {
   const [isAnimActive, changeAnimState] = useState(false);
-  const [activeForm, changeActiveForm] = useState<null | 'password' | 'help'>(null);
-  const [isAgrChecked, ChangeAgrChecked] = useState(true);
+  const [needShowPasswordForm, changeNeedShowPasswordForm] = useState(false);
+  const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
+  const [isAgreementChecked, changeIsAgreementChecked] = useState(true);
 
   useEffect(() => {
     changeAnimState(true);
@@ -25,14 +26,11 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
 
   return (
     <div className={Styles.main}>
-      <div
-        className={clsx(
-          'transitionGeneral fixed inset-0 bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20]',
-          activeForm ? 'w-full' : 'w-0',
-        )}
-      ></div>
-      <HelpForm activeForm={activeForm} changeActiveForm={changeActiveForm} />
-      <UpdatePassword activeForm={activeForm} changeActiveForm={changeActiveForm} />
+      <HelpForm needShowForm={needShowHelpForm} changeNeedShowForm={changeNeedShowHelpForm} />
+      <UpdatePassword
+        needShowForm={needShowPasswordForm}
+        changeNeedShowForm={changeNeedShowPasswordForm}
+      />
       <div className={clsx(Styles.form, isAnimActive && Styles.form_active)}>
         <div className='absolute inset-x-0 top-0 w-11/12 mx-auto'>
           <div className='h-min flex items-center gap-4 logoGrid'>
@@ -47,12 +45,12 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
           {pageType === 'auth' && (
             <Auth
               changeAnimState={changeAnimState}
-              isAgrChecked={isAgrChecked}
-              changeActiveForm={changeActiveForm}
+              isAgreementChecked={isAgreementChecked}
+              changeNeedShowPasswordForm={changeNeedShowPasswordForm}
             />
           )}
           {pageType === 'reg' && (
-            <Reg changeAnimState={changeAnimState} isAgrChecked={isAgrChecked} />
+            <Reg changeAnimState={changeAnimState} isAgreementChecked={isAgreementChecked} />
           )}
 
           <ConfigProvider
@@ -66,8 +64,8 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
           >
             <Checkbox
               className='w-full text-left text-gray-400 text-xs'
-              onChange={() => ChangeAgrChecked(!isAgrChecked)}
-              checked={!isAgrChecked}
+              onChange={() => changeIsAgreementChecked((prev) => !prev)}
+              checked={!isAgreementChecked}
             >
               Я принимаю пользовательское соглашение и даю разрешение порталу на обработку моих
               персональных данных в соотвествии с Федеральным законом №152-ФЗ от 27.07.2006 года “О
@@ -77,7 +75,7 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
         </div>
         <span
           className='absolute inset-x-0 bottom-2 text-center text-blue-700 cursor-pointer'
-          onClick={() => changeActiveForm('help')}
+          onClick={() => changeNeedShowHelpForm(true)}
         >
           Написать в техподдержку
         </span>

@@ -4,24 +4,24 @@ import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { ImSpinner9 } from 'react-icons/im';
 
 interface IButtonsProps {
-  isAgrChecked: boolean;
-  changeActiveForm: (activeForm: null | 'password' | 'help') => void;
+  isAgreementChecked: boolean;
+  changeNeedShowPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Buttons: FC<IButtonsProps> = ({ isAgrChecked, changeActiveForm }) => {
+export const Buttons: FC<IButtonsProps> = ({ isAgreementChecked, changeNeedShowPasswordForm }) => {
   const { isLoading } = useTypedSelector((state) => state.AuthReducer);
   return (
     <>
       <button
         type='button'
         className='text-blue-700 text-base mb-2'
-        onClick={() => changeActiveForm('password')}
+        onClick={() => changeNeedShowPasswordForm(true)}
       >
         Забыл пароль?
       </button>
       <Form.Item>
         <Button
-          disabled={isAgrChecked}
+          disabled={isAgreementChecked}
           type='primary'
           htmlType='submit'
           className='text-white bg-blue-700 w-full h-[35px] text-lg'
