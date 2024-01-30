@@ -138,14 +138,14 @@ export const Applications = () => {
             </span>
           </div>
           <div className='flex gap-x-6'>
-            {['citizen', 'dispatcher'].some((el) => el === role) && (
-              <>
-                <button
-                  className='outline-none border-none bg-inherit'
-                  onClick={() => changeNeedShowColumnForm(true)}
-                >
-                  <BsFilterRight className='text-3xl' />
-                </button>
+            <button
+              className='outline-none border-none bg-inherit'
+              onClick={() => changeNeedShowColumnForm(true)}
+            >
+              <BsFilterRight className='text-3xl' />
+            </button>
+            <>
+              {['citizen', 'dispatcher'].some((el) => el === role) && (
                 <ConfigProvider
                   theme={{
                     components: {
@@ -164,8 +164,8 @@ export const Applications = () => {
                     </Button>
                   </Popover>
                 </ConfigProvider>
-              </>
-            )}
+              )}
+            </>
           </div>
         </div>
 
