@@ -20,12 +20,12 @@ export const PossessionType: FC<IProps> = ({ data, changeData, defaultCar }) => 
           role.role === 'citizen'
             ? [
                 { label: 'квартира', value: 1 },
-                { label: 'офис', value: 2 },
+                { label: 'коммерческое помещение', value: 2 },
                 { label: 'кладовка', value: 4 },
               ]
             : [
                 { label: 'квартира', value: 1 },
-                { label: 'офис', value: 2 },
+                { label: 'коммерческое помещение', value: 2 },
                 { label: 'кладовка', value: 4 },
                 { label: 'жилищный комплекс', value: 5 },
               ]

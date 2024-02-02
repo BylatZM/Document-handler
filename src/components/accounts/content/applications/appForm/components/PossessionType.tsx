@@ -19,7 +19,7 @@ export const PossessionType: FC<IProps> = ({ form_id, data, changeFormData, getP
         className='w-full'
         options={[
           { label: 'квартира', value: 1 },
-          { label: 'офис', value: 2 },
+          { label: 'коммерческое помещение', value: 2 },
           { label: 'кладовка', value: 4 },
           { label: 'жилищный комплекс', value: 5 },
         ]}

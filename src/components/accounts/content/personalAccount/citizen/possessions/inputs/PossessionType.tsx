@@ -28,7 +28,7 @@ export const PossessionType: FC<IProps> = ({
         className='w-full'
         options={[
           { label: 'квартира', value: 1 },
-          { label: 'офис', value: 2 },
+          { label: 'коммерческое помещение', value: 2 },
           { label: 'кладовка', value: 4 },
         ]}
         value={parseInt(data.possessionType)}
