@@ -3,7 +3,6 @@ import {
   ICitizenError,
   ICitizenRequest,
   IError,
-  INotApproved,
   IUser,
   IUserUpdate,
 } from '../../components/types';
@@ -242,8 +241,8 @@ export const deleteCitizenRequest = async (id: number, logout: () => void): Prom
   } else return response;
 };
 
-export const getNotApprovedRequest = async (logout: () => void): Promise<INotApproved[] | void> => {
-  const notApprovedRequest = async (): Promise<INotApproved[] | 401 | void> => {
+export const getNotApprovedRequest = async (logout: () => void): Promise<IUser[] | void> => {
+  const notApprovedRequest = async (): Promise<IUser[] | 401 | void> => {
     try {
       const response = await getNotApproved();
       return response.data;

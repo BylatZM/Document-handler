@@ -9,14 +9,14 @@ interface ICarouselProps {
 
 export const CarouselBlock: FC<ICarouselProps> = React.memo(({ showAnimation }) => {
   return (
-    <div className='flex self-center mx-auto w-[52rem] h-[30rem] justify-center border-none backdrop-blur-md bg-opacity-10 z-10'>
+    <div className='flex self-center mx-auto w-[52rem] h-[30rem] justify-center backdrop-blur-md bg-opacity-10 z-10'>
       <ConfigProvider
         theme={{
           components: {
             Carousel: {
               dotWidth: 64,
               dotActiveWidth: 64,
-              colorBgContainer: '#85d1eb',
+              colorBgContainer: '#2d5adb',
             },
           },
         }}
@@ -28,39 +28,38 @@ export const CarouselBlock: FC<ICarouselProps> = React.memo(({ showAnimation }) 
         >
           <div>
             <div className={Styles.carouselItem}>
-              <span>Тут просто и удобно:</span>
+              <span>Зарегистрируйтесь</span>
               <ul>
-                <li className={Styles.list_items}>Оплачивать услуги ЖКХ</li>
-                <li className={Styles.list_items}>Подавать показания приборов учета</li>
-                <li className={Styles.list_items}>Отслеживать начисления и платежи</li>
+                <li>Перейдите на форму регистрации</li>
+                <li>Укажите вашу действующую почту</li>
+                <li>Дайте согласие на обработку персональных данных</li>
+                <li>Нажмите на кнопку зарегистрироваться</li>
+                <li>Откройте электронную почту и посмотрите ваш логин и пароль</li>
               </ul>
             </div>
           </div>
           <div>
             <div className={Styles.carouselItem}>
-              <span>Оставляйте обращения по проблемам ЖКХ</span>
-              <p>
-                Оставляйте обращения по проблемам в сфере ЖКХ и отслеживайте ход выполнения работ по
-                ним в своем личном кабинете
-              </p>
+              <span>Войдите в личный кабинет</span>
+              <ul>
+                <li>Задайте собственность</li>
+                <li>Укажите номер телефона, фамилию, имя, отчество (при наличии)</li>
+                <li>Дождитесь подтверждения аккаунта от диспетчера</li>
+              </ul>
             </div>
           </div>
           <div>
             <div className={Styles.carouselItem}>
-              <span>Узнавайте об отключениях услуг ЖКХ</span>
-              <p>
-                Узнавайте о текущих и планируемых отключениях услуг ЖКХ в вашем доме с помощью
-                личного кабинета
-              </p>
-            </div>
-          </div>
-          <div>
-            <div className={Styles.carouselItem}>
-              <span>Подавайте показания приборов учета</span>
-              <p>
-                Передавайте показания приборов учета без совершения платежа быстро и вовремя. Мы
-                напомним о времени приема показаний и необходимости поверки счетчика
-              </p>
+              <span>Создайте заявку</span>
+              <ul>
+                <li>Убедитесь, что аккаунт был подтвержден диспетчером</li>
+                <li>Откройте меню</li>
+                <li>Нажмите на кнопку "Заявки"</li>
+                <li>Нажмите на кнопку "+"</li>
+                <li>Задайте данные</li>
+                <li>Создайте заявку</li>
+                <li>Отслеживайте ее движение</li>
+              </ul>
             </div>
           </div>
         </Carousel>

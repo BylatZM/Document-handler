@@ -10,20 +10,37 @@ import { ImSpinner9 } from 'react-icons/im';
 interface IRegProps {
   changeAnimState: (animState: boolean) => void;
   isAgreementChecked: boolean;
+  changeNeedShowSendEmailForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Reg: FC<IRegProps> = ({ changeAnimState, isAgreementChecked }) => {
+export const Reg: FC<IRegProps> = ({
+  changeAnimState,
+  isAgreementChecked,
+  changeNeedShowSendEmailForm,
+}) => {
   const { regSuccess, regLoading, regError } = useActions();
   const error = useTypedSelector((state) => state.RegReducer.error);
   const isLoading = useTypedSelector((state) => state.RegReducer.isLoading);
 
   const onFinish = async (props: IRegRequest) => {
+    if (error) regError(null);
+    const { email } = props;
+    if (!/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      regError({
+        type: 'email',
+        error:
+          'Адрес электронной почты задан некорректно, пожалуйста, укажите корректные данные исходя из примера: applications@dltex.ru',
+      });
+      return;
+    }
     regLoading(true);
     const response = await registrationRequest(props);
 
     if (response) {
-      if (response === 201) regSuccess(props);
-      else regError(response);
+      if (response === 201) {
+        regSuccess(props);
+        changeNeedShowSendEmailForm(true);
+      } else regError(response);
     }
 
     regLoading(false);

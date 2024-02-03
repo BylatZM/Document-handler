@@ -1,19 +1,20 @@
-import { IError, INotApproved } from '../../components/types';
+import { IError } from '../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { IUserState, IUser } from '../../components/types';
 
 const initialState: IUserState = {
   user: {
+    id: 0,
     first_name: '',
     role: { role: '' },
     last_name: '',
     patronymic: null,
     phone: null,
     email: '',
-    isApproved: false,
+    account_status: 'новый',
   },
-  notApproved: null,
+  notApprovedUsers: null,
   isLoading: false,
   error: null,
 };
@@ -28,13 +29,13 @@ export const UserReducer = createSlice({
     userSuccess: (state, { payload }: PayloadAction<IUser>) => {
       state.user = payload;
     },
-    notApprovedSuccess: (state, { payload }: PayloadAction<INotApproved[]>) => {
-      state.notApproved = payload;
+    notApprovedSuccess: (state, { payload }: PayloadAction<IUser[]>) => {
+      state.notApprovedUsers = payload;
       state.isLoading = false;
     },
     deleteNotApprovedUsers: (state, { payload }: PayloadAction<number>) => {
-      if (state.notApproved) {
-        state.notApproved = state.notApproved.filter((el) => el.id !== payload);
+      if (state.notApprovedUsers) {
+        state.notApprovedUsers = state.notApprovedUsers.filter((el) => el.id !== payload);
       }
     },
     userError: (state, { payload }: PayloadAction<IError | null>) => {

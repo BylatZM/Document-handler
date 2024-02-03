@@ -24,7 +24,6 @@ import {
   IAppCreateByDispatcher,
   IAppCreateByCitizen,
   IHelpFormRequest,
-  INotApproved,
   IApprovePossessionRequest,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
@@ -55,7 +54,7 @@ export const approve = (id: string): AxiosPromise<void> =>
 export const rejectApprove = (id: string): AxiosPromise<void> =>
   axiosInstance.put(endpoints.user.rejectApproving + `${id}`);
 
-export const getNotApproved = (): AxiosPromise<INotApproved[]> =>
+export const getNotApproved = (): AxiosPromise<IUser[]> =>
   axiosInstance.get(endpoints.user.getNotApproved);
 
 export const updateUser = (user: IUserUpdate): AxiosPromise<IError | void> =>

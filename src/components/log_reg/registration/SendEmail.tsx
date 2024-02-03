@@ -1,28 +1,24 @@
 import { DotsEffect } from '../../dotsAnimation/DotsEffect';
 import { FC, useState, useEffect } from 'react';
 import { Button, ConfigProvider } from 'antd';
-import { RxCross1 } from 'react-icons/rx';
-import { useActions } from '../../hooks/useActions';
 import { ImSpinner9, ImCross } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 import clsx from 'clsx';
+import { useActions } from '../../hooks/useActions';
 import { updatePasswordRequest } from '../../../api/requests/Main';
 
 interface IProps {
   email: string;
+  needShowForm: boolean;
+  changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const SendEmail: FC<IProps> = ({ email }) => {
-  const [showCard, changeShow] = useState(false);
-  const { regSuccess } = useActions();
+export const SendEmail: FC<IProps> = ({ email, needShowForm, changeNeedShowForm }) => {
   const [time, changeTime] = useState(30);
+  const { regSuccess } = useActions();
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
   const [isLoading, changeIsLoading] = useState(false);
   const [isError, changeIsError] = useState(false);
-
-  useEffect(() => {
-    if (!showCard) changeShow(true);
-  }, [showCard]);
 
   const onFinish = async () => {
     changeIsLoading((prev) => !prev);
@@ -39,25 +35,35 @@ export const SendEmail: FC<IProps> = ({ email }) => {
   };
 
   useEffect(() => {
-    if (time > 0 && email !== '') {
+    if (time > 0 && needShowForm && email) {
       setTimeout(() => {
         changeTime((prev) => prev - 1);
       }, 1000);
     }
-  }, [time]);
+  }, [time, needShowForm]);
 
   return (
-    <div className='w-full min-h-screen flex justify-center items-center'>
-      <DotsEffect dotsQuantity={10} />
+    <div
+      className={clsx(
+        'transitionGeneral fixed inset-0 flex justify-center items-center overflow-hidden bg-blue-500 bg-opacity-10 backdrop-blur-md z-[30]',
+        needShowForm ? 'w-full h-full' : 'w-0 h-0',
+      )}
+    >
       <div
         className={clsx(
-          'transitionGeneral border-blue-500 z-20 relative border-2 p-2 rounded-md flex w-[600px] h-[300px] flex-col justify-around bg-blue-700 bg-opacity-10 backdrop-blur-md',
-          showCard ? 'opacity-100' : 'opacity-0',
+          'transitionGeneral border-blue-500 relative border-2 p-2 rounded-md flex w-[600px] h-[300px] flex-col justify-around bg-blue-700 bg-opacity-10 backdrop-blur-md z-[30]',
+          email ? 'opacity-100' : 'opacity-0',
         )}
       >
         <Button
           className='absolute right-4 top-4 border-blue-700 text-blue-700'
-          onClick={() => regSuccess({ email: '' })}
+          onClick={() => {
+            regSuccess({
+              email: '',
+            });
+            changeNeedShowForm(false);
+            changeTime(30);
+          }}
           disabled={isLoading}
         >
           Закрыть

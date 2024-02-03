@@ -10,22 +10,19 @@
   .carouselSection {
     @apply w-full flex relative;
     .carousel {
-      @apply opacity-0 h-[25rem] w-[52rem] flex self-center;
+      @apply opacity-0 h-[25rem] w-[52rem] flex self-center justify-center items-center;
       .carouselItem {
-        @apply h-[20rem] flex flex-col justify-center items-center;
+        @apply h-[20rem] flex flex-col justify-center items-start;
         span {
-          @apply text-2xl font-bold text-center;
-        }
-        p {
-          @apply text-center text-[#44546B] w-1/2 text-lg;
+          @apply text-2xl font-bold;
         }
         ul {
-          @apply text-[#44546B] mx-auto text-lg;
+          @apply text-[#44546B] text-lg mt-8;
         }
-        ul > li {
+        li::before {
           content: '•';
           margin-right: 10px;
-          color: #44546b;
+          color: #2d5adb;
         }
       }
     }

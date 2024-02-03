@@ -2,25 +2,22 @@
   @apply inset-0;
   position: absolute;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 .component {
   position: relative;
-  width: 20px;
-  height: 20px;
-  background: rgba(113, 207, 238, 0.42);
-  color: #0d89b3;
-  border-radius: 100%;
-  -webkit-box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
-  -moz-box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
-  box-shadow: 4px 0px 19px 30px rgba(133, 209, 235, 0.42);
+  width: 5px;
+  border-radius: 20px;
+  background: #2d5adb;
   animation: animate linear infinite;
 }
 @keyframes animate {
   0% {
-    transform: translateY(-5vh) translateX(0) scale(0.2);
+    transform: translateY(-5vh) translateX(0) rotateZ(-25deg);
+    height: 5px;
   }
   100% {
-    transform: translateY(100vh) translateX(20vw) scale(1.2) rotate(360deg);
+    height: 100px;
+    transform: translateY(100vh) translateX(20vw) rotateZ(-25deg);
   }
 }

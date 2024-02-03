@@ -1,11 +1,11 @@
 import { FC, useState } from 'react';
 import { clsx } from 'clsx';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
-import { HelpForm } from '../../help_form/HelpForm';
+import { HelpForm } from '../content/helpForm/HelpForm';
 import cat from '../../../assets/images/cat.png';
-import { CreatePossession } from '../../createPossession/CreatePossession';
+import { CreatePossession } from '../content/createPossession/CreatePossession';
 import { Logo } from '../../../assets/svg';
 import { Directories } from './buttons/dispatcher/Directories';
 import { Confirmations } from './buttons/dispatcher/Confirmations';
@@ -21,7 +21,7 @@ interface IMenuProps {
 export const Menu: FC<IMenuProps> = ({ isOpened }) => {
   const { pathname } = useLocation();
   const logout = useLogout();
-  const { role, isApproved } = useTypedSelector((state) => state.UserReducer.user);
+  const { role, account_status } = useTypedSelector((state) => state.UserReducer.user);
   const citizen = useTypedSelector((state) => state.CitizenReducer.citizen);
 
   const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
@@ -54,7 +54,7 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
           <div className='flex flex-col mt-10 text-lg'>
             <AboutMe pathname={pathname} />
             <Applications
-              isApproved={isApproved}
+              account_status={account_status}
               role={role}
               citizen={citizen}
               pathname={pathname}

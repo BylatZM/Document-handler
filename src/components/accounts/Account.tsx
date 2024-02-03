@@ -5,8 +5,8 @@ import {
 } from '../../api/requests/Person';
 import { Loading } from '../Loading/Loading';
 import { useActions } from '../hooks/useActions';
-import { Applications } from './content/applications/Applications';
-import { PersonalAccount } from './content/personalAccount/PersonalAccount';
+import { Application } from './content/application/Application';
+import { AboutMe } from './content/aboutMe/AboutMe';
 import { Header } from './header/Header';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { Menu } from './menu/Menu';
@@ -22,7 +22,7 @@ import {
   getStatusesRequest,
   getTypesRequest,
 } from '../../api/requests/Application';
-import { ApproveCitizen } from './content/personalAccount/dispatcher/approveCitizen/ApproveCitizen';
+import { ApproveCitizen } from './content/approveCitizen/ApproveCitizen';
 import { ErrorPage } from '../ErrorPage';
 
 export const Account = () => {
@@ -50,7 +50,6 @@ export const Account = () => {
     if (profile_response) {
       userSuccess(profile_response);
       if (profile_response.role.role === 'dispatcher') {
-        navigate('/account/applications');
         const employs = await getEmploysRequest(logout);
         if (employs) employsSuccess(employs);
 
@@ -59,12 +58,13 @@ export const Account = () => {
       }
       if (profile_response.role.role !== 'executor') {
         await get_complexes();
-      } else {
-        navigate('/account/applications');
       }
       await get_applications();
       if (profile_response.role.role) await get_citizen();
-      if (profile_response.isApproved) await get_static_select_info();
+      if (profile_response.account_status === 'подтвержден') {
+        await get_static_select_info();
+        navigate('/account/applications');
+      }
     }
   };
 
@@ -106,13 +106,13 @@ export const Account = () => {
   }, [IsRequested]);
 
   const GetCurrentFrame = (pathname: string): ReactNode => {
-    if (pathname === '/account/aboutMe') return <PersonalAccount />;
+    if (pathname === '/account/aboutMe') return <AboutMe />;
     if (pathname === '/account/applications') {
-      if (!user.isApproved) return <ErrorPage message='Страница не найдена' />;
+      if (user.account_status !== 'подтвержден') return <ErrorPage message='Страница не найдена' />;
       if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role.role))
         return <ErrorPage message='Страница не найдена' />;
 
-      return <Applications />;
+      return <Application />;
     }
     if (pathname === '/account/approve/citizen' && user.role.role === 'dispatcher')
       return <ApproveCitizen />;

@@ -1,5 +1,3 @@
-import { ColumnsType } from 'antd/es/table';
-
 export interface IError {
   type: string;
   error: string;
@@ -51,7 +49,7 @@ export interface IPossessionState {
 
 export interface IUserState {
   user: IUser;
-  notApproved: INotApproved[] | null;
+  notApprovedUsers: IUser[] | null;
   isLoading: boolean;
   error: IError | null;
 }
@@ -97,12 +95,6 @@ export interface IAuthGoodResponse {
   refresh: string;
 }
 
-export interface INotApproved {
-  id: number;
-  user: Omit<IUser, 'role' | 'isApproved'> & { id: number };
-  status: string;
-}
-
 export interface IRefreshGoodResponse {
   access: string;
 }
@@ -111,17 +103,20 @@ export interface IRegRequest {
   email: string;
 }
 
+export type IAccStatus = 'новый' | 'подтвержден' | 'отклонен';
+
 export interface IUser {
+  id: number;
   role: IRole;
   first_name: string;
   last_name: string;
   patronymic: null | string;
   phone: null | string;
   email: string;
-  isApproved: boolean;
+  account_status: IAccStatus;
 }
 
-export type IUserUpdate = Omit<IUser, 'role' | 'isApproved' | 'email'>;
+export type IUserUpdate = Omit<IUser, 'id' | 'role' | 'account_status' | 'email'>;
 
 export interface IApplication {
   id: number;
@@ -281,4 +276,9 @@ export interface IApplicationColumns {
   due_date: string;
   citizen_comment: string;
   possession: string;
+}
+
+export interface IUpdatePassword {
+  email: string;
+  phone: string;
 }

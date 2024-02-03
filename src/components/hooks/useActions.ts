@@ -19,6 +19,8 @@ const rootActions = {
   ...ApplicationReducer.actions,
 };
 
+export type useActionType = typeof rootActions;
+
 export const useActions = () => {
   const dispatch = useDispatch();
   return useMemo(() => bindActionCreators(rootActions, dispatch), [dispatch]);

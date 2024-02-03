@@ -18,7 +18,7 @@ export const RegReducer = createSlice({
       state.email = payload.email;
       state.error = null;
     },
-    regError: (state, { payload }: PayloadAction<IError>) => {
+    regError: (state, { payload }: PayloadAction<IError | null>) => {
       state.error = payload;
     },
     regClear: (state): IRegState => {
