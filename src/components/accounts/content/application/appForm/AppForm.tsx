@@ -18,6 +18,8 @@ import { Possession } from './components/Possession';
 import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
+import { getSubTypesRequest } from '../../../../../api/requests/Application';
+import { SubType } from './components/SubType';
 
 interface IProps {
   IsFormActive: boolean;
@@ -44,11 +46,14 @@ const initialApplication: IApplication = {
     appClass: '',
   },
   id: 0,
-  isAppeal: false,
+  subType: {
+    id: 0,
+    subType: '',
+    normative: 0,
+  },
   possession: {
     id: 0,
     address: '',
-    car: null,
   },
   priority: null,
   source: {
@@ -72,13 +77,12 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
   const logout = useLogout();
   const role = useTypedSelector((state) => state.UserReducer.user.role);
   const { citizen } = useTypedSelector((state) => state.CitizenReducer);
-  const { employs, types, sources, statuses, priorities, userApplication } = useTypedSelector(
-    (state) => state.ApplicationReducer,
-  );
+  const { employs, types, sources, statuses, priorities, userApplication, subTypes } =
+    useTypedSelector((state) => state.ApplicationReducer);
   const [error, changeError] = useState<IError | null>(null);
   const [needInitializeForm, changeNeedInitializeForm] = useState(true);
   const { complex, possession, building } = useTypedSelector((state) => state.PossessionReducer);
-  const { buildingSuccess, possessionSuccess } = useActions();
+  const { buildingSuccess, possessionSuccess, subTypesSuccess } = useActions();
   const formInfo = !userApplication.filter((el) => el.id === id).length
     ? []
     : userApplication.filter((el) => el.id === id);
@@ -91,6 +95,11 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
     const response = await getBuildingsRequest(complex_id, logout);
     if (response) buildingSuccess(response);
     if (error) changeError(null);
+  };
+
+  const getSubTypes = async (id: string) => {
+    const response = await getSubTypesRequest(logout, id);
+    if (response) subTypesSuccess(response);
   };
 
   const getPossessions = async (type: string, building_id: string) => {
@@ -201,7 +210,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
           },
         };
       }
-
+      if (role.role !== 'executor') getSubTypes(application.type.id.toString());
       changeFormData(application);
     }
   }, [IsFormActive]);
@@ -231,6 +240,14 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
               data={FormData}
               types={types}
               changeFormData={changeFormData}
+              getSubTypes={getSubTypes}
+            />
+            <SubType
+              data={FormData}
+              changeData={changeFormData}
+              form_id={id}
+              role={role}
+              subTypes={subTypes}
             />
           </div>
 

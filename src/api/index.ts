@@ -27,6 +27,8 @@ import {
   IApprovePossessionRequest,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
+  INotApprovedPossessions,
+  ISubType,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -48,11 +50,11 @@ export const updatePassword = (params: {
 
 export const getUser = (): AxiosPromise<IUser> => axiosInstance.get(endpoints.user.get);
 
-export const approve = (id: string): AxiosPromise<void> =>
+export const approveUser = (id: string): AxiosPromise<void> =>
   axiosInstance.put(endpoints.user.approve + `${id}`);
 
-export const rejectApprove = (id: string): AxiosPromise<void> =>
-  axiosInstance.put(endpoints.user.rejectApproving + `${id}`);
+export const rejectUser = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.user.reject + `${id}`);
 
 export const getNotApproved = (): AxiosPromise<IUser[]> =>
   axiosInstance.get(endpoints.user.getNotApproved);
@@ -72,8 +74,14 @@ export const getPossessions = (
 ): AxiosPromise<IPossession[] | IError> =>
   axiosInstance.get(endpoints.possession.getBy + `?type=${type}&building=${building}`);
 
-export const getPossessionsByComplexes = (): AxiosPromise<IPossession[] | IError> =>
-  axiosInstance.get(endpoints.possession.getByComplexes);
+export const getNotApprovedPossessions = (): AxiosPromise<INotApprovedPossessions[] | void> =>
+  axiosInstance.get(endpoints.possession.getNotApproved);
+
+export const approvePossession = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.possession.approve + `${id}`);
+
+export const rejectPossession = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.possession.reject + `${id}`);
 
 export const createPossession = (possession: IApprovePossessionRequest): AxiosPromise<void> =>
   axiosInstance.post(endpoints.possession.create, possession);
@@ -117,6 +125,9 @@ export const getEmployee = (): AxiosPromise<IEmployee[] | void> =>
 export const getGrade = (): AxiosPromise<IGrade[] | void> => axiosInstance.get(endpoints.grade);
 
 export const getType = (): AxiosPromise<IType[] | void> => axiosInstance.get(endpoints.type);
+
+export const getSubTypes = (id: string): AxiosPromise<ISubType[] | void> =>
+  axiosInstance.get(endpoints.subType + `${id}`);
 
 export const getPriority = (): AxiosPromise<IPriority[] | void> =>
   axiosInstance.get(endpoints.priority);

@@ -1,21 +1,13 @@
 import { FC } from 'react';
 import { useActions } from '../../../../../hooks/useActions';
 import { Select } from 'antd';
-import {
-  IApplication,
-  IBuilding,
-  ICar,
-  ICitizen,
-  IError,
-  IPossession,
-  IRole,
-} from '../../../../../types';
+import { IApplication, ICitizen, IError, IPossession, IRole } from '../../../../../types';
 
 interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  buildings: IBuilding[] | null;
+  buildings: IPossession[] | null;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
   getPossessions: (type: string, building_id: string) => Promise<void>;

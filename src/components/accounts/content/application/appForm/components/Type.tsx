@@ -8,9 +8,10 @@ interface IProps {
   data: IApplication;
   types: IType[] | null;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
+  getSubTypes: (id: string) => Promise<void>;
 }
 
-export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData }) => {
+export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, getSubTypes }) => {
   return (
     <div className='w-[48%] gap-2 flex flex-col'>
       <span>Тип заявки</span>
@@ -28,12 +29,14 @@ export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData })
               ? true
               : false
           }
-          onChange={(e: number) =>
+          onChange={(e: number) => {
             changeFormData((prev) => ({
               ...prev,
               type: { id: e, appType: types.filter((el) => el.id === e)[0].appType },
-            }))
-          }
+              subType: { id: 0, subType: '', normative: 0 },
+            }));
+            getSubTypes(e.toString());
+          }}
           options={types.map((el) => ({
             value: el.id,
             label: el.appType,

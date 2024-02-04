@@ -29,7 +29,7 @@ export const UserReducer = createSlice({
     userSuccess: (state, { payload }: PayloadAction<IUser>) => {
       state.user = payload;
     },
-    notApprovedSuccess: (state, { payload }: PayloadAction<IUser[]>) => {
+    notApprovedUsersSuccess: (state, { payload }: PayloadAction<IUser[]>) => {
       state.notApprovedUsers = payload;
       state.isLoading = false;
     },
@@ -52,7 +52,7 @@ export const {
   userSuccess,
   userError,
   userClear,
-  notApprovedSuccess,
+  notApprovedUsersSuccess,
   deleteNotApprovedUsers,
 } = UserReducer.actions;
 

@@ -9,7 +9,7 @@ const endpoints = {
     update: '/user/update',
     getNotApproved: 'user/noApproved/all',
     approve: 'user/approve/',
-    rejectApproving: 'user/rejectApproving/',
+    reject: 'user/reject/',
   },
   complex: {
     getAll: '/complex/all',
@@ -21,9 +21,10 @@ const endpoints = {
   },
   possession: {
     getBy: '/possession',
-    getCurrent: '/possession/current',
     create: '/possession/create',
-    getByComplexes: '/possession/byComplexes',
+    getNotApproved: '/possession/noApproved/all',
+    approve: '/possession/approve/',
+    reject: '/possession/reject/',
   },
   citizen: {
     create: '/citizen/new',
@@ -40,6 +41,7 @@ const endpoints = {
   employee: 'employee/get',
   grade: 'appClass/all',
   type: 'appType/all',
+  subType: 'appSubType/byType/',
   status: 'appStatus/all',
   source: 'appSource/all',
   priority: 'appPriority/all',

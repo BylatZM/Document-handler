@@ -21,7 +21,7 @@ export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
           <b className='mr-2 text-lg'>
             {pathname === '/account/aboutMe' && 'Личный кабинет'}
             {pathname === '/account/applications' && 'Заявки'}
-            {pathname === '/account/approve/citizen' && 'Подтверждение аккаунтов жителей'}
+            {pathname === '/account/approve/user' && 'Подтверждение аккаунтов жителей'}
             {pathname === '/account/approve/possession' && 'Подтверждение собственностей'}
           </b>
           <Popover content={'Информация'}>

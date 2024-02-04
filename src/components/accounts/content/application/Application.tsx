@@ -25,6 +25,12 @@ const defaultColumns: ColumnsType<IApplicationColumns> = [
     key: 'app_type',
   },
   {
+    title: 'Подтип заявки',
+    dataIndex: 'app_subType',
+    key: 'app_subType',
+    render: (subType: string) => <div className='overflow-hidden max-w-[150px]'>{subType}</div>,
+  },
+  {
     title: 'Статус',
     dataIndex: 'status',
     key: 'status',
@@ -175,6 +181,7 @@ export const Application = () => {
               number: el.id,
               creating_date: !el.creatingDate ? '' : el.creatingDate,
               app_type: el.type.appType,
+              app_subType: !el.subType || (el.subType && !el.subType.id) ? '' : el.subType.subType,
               status: !el.status ? '' : el.status.appStatus,
               due_date: !el.dueDate ? '' : el.dueDate,
               citizen_comment: el.citizenComment,

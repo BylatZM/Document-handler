@@ -1,14 +1,6 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import {
-  IApplication,
-  IBuilding,
-  ICitizen,
-  IComplex,
-  IError,
-  IPossession,
-  IRole,
-} from '../../../../../types';
+import { IApplication, ICitizen, IComplex, IError, IPossession, IRole } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 
 interface IProps {
@@ -19,7 +11,7 @@ interface IProps {
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
   getBuildings: (complex_id: string) => Promise<void>;
-  buildings: IBuilding[] | null;
+  buildings: IPossession[] | null;
   possessions: IPossession[] | null;
   error: IError | null;
   changeError: React.Dispatch<React.SetStateAction<IError | null>>;
@@ -46,28 +38,20 @@ export const Complex: FC<IProps> = ({
         <Select
           value={!data.complex.id ? undefined : data.complex.id}
           onChange={(e: number) => {
-            if (
-              citizenPossessions.filter(
-                (el) =>
-                  el.possession.id ===
-                  citizenPossessions.filter((el) => el.complex.id === e)[0].possession.id,
-              )[0].possession.car
-            )
-              changeFormData((prev) => ({
-                ...prev,
-                complex: { id: e, name: '' },
-                building: {
-                  id: citizenPossessions.filter((el) => el.complex.id === e)[0].building.id,
-                  address: citizenPossessions.filter((el) => el.complex.id === e)[0].building
-                    .address,
-                },
-                possession: {
-                  ...prev.possession,
-                  id: citizenPossessions.filter((el) => el.complex.id === e)[0].possession.id,
-                  address: citizenPossessions.filter((el) => el.complex.id === e)[0].possession
-                    .address,
-                },
-              }));
+            changeFormData((prev) => ({
+              ...prev,
+              complex: { id: e, name: '' },
+              building: {
+                id: citizenPossessions.filter((el) => el.complex.id === e)[0].building.id,
+                address: citizenPossessions.filter((el) => el.complex.id === e)[0].building.address,
+              },
+              possession: {
+                ...prev.possession,
+                id: citizenPossessions.filter((el) => el.complex.id === e)[0].possession.id,
+                address: citizenPossessions.filter((el) => el.complex.id === e)[0].possession
+                  .address,
+              },
+            }));
           }}
           disabled={form_id !== 0 ? true : false}
           options={

@@ -1,6 +1,6 @@
 import {
   getCitizenRequest,
-  getNotApprovedRequest,
+  getNotApprovedUsersRequest,
   getUserRequest,
 } from '../../api/requests/Person';
 import { Loading } from '../Loading/Loading';
@@ -13,7 +13,10 @@ import { Menu } from './menu/Menu';
 import { ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
-import { getComplexesRequest } from '../../api/requests/Possession';
+import {
+  getComplexesRequest,
+  getNotApprovedPossessionsRequest,
+} from '../../api/requests/Possession';
 import {
   getApplicationsRequest,
   getEmploysRequest,
@@ -24,6 +27,7 @@ import {
 } from '../../api/requests/Application';
 import { ApproveCitizen } from './content/approveCitizen/ApproveCitizen';
 import { ErrorPage } from '../ErrorPage';
+import { ApprovePossession } from './content/approvePossession/ApprovePossession';
 
 export const Account = () => {
   const logout = useLogout();
@@ -41,7 +45,8 @@ export const Account = () => {
     statusesSuccess,
     prioritySuccess,
     employsSuccess,
-    notApprovedSuccess,
+    notApprovedUsersSuccess,
+    notApprovedPossessionSuccess,
   } = useActions();
   const [IsRequested, changeIsRequested] = useState(true);
 
@@ -52,9 +57,10 @@ export const Account = () => {
       if (profile_response.role.role === 'dispatcher') {
         const employs = await getEmploysRequest(logout);
         if (employs) employsSuccess(employs);
-
-        const notApprovedUsers = await getNotApprovedRequest(logout);
-        if (notApprovedUsers) notApprovedSuccess(notApprovedUsers);
+        const notApprovedUsers = await getNotApprovedUsersRequest(logout);
+        if (notApprovedUsers) notApprovedUsersSuccess(notApprovedUsers);
+        const notApprovedPossessions = await getNotApprovedPossessionsRequest(logout);
+        if (notApprovedPossessions) notApprovedPossessionSuccess(notApprovedPossessions);
       }
       if (profile_response.role.role !== 'executor') {
         await get_complexes();
@@ -114,8 +120,11 @@ export const Account = () => {
 
       return <Application />;
     }
-    if (pathname === '/account/approve/citizen' && user.role.role === 'dispatcher')
+    if (pathname === '/account/approve/user' && user.role.role === 'dispatcher')
       return <ApproveCitizen />;
+
+    if (pathname === '/account/approve/possession' && user.role.role === 'dispatcher')
+      return <ApprovePossession />;
 
     if (pathname === '/account/approve/possession' && user.role.role === 'dispatcher')
       return <ApproveCitizen />;

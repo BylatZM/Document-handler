@@ -19,7 +19,6 @@ const defaultCitizen: ICitizen = {
   possession: {
     id: 0,
     address: '',
-    car: null,
   },
 };
 

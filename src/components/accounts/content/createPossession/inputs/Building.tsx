@@ -1,11 +1,11 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IApprovePossession, IBuilding } from '../../../../types';
+import { IApprovePossession, IPossession } from '../../../../types';
 
 interface IProps {
   data: IApprovePossession;
   changeData: React.Dispatch<React.SetStateAction<IApprovePossession>>;
-  buildings: IBuilding[] | null;
+  buildings: IPossession[] | null;
 }
 
 export const Building: FC<IProps> = ({ data, changeData, buildings }) => {

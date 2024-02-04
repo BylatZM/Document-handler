@@ -28,7 +28,6 @@ const defaultPossessionInfo: IApprovePossession = {
   building: 0,
   possession: {
     address: '',
-    car: null,
   },
 };
 

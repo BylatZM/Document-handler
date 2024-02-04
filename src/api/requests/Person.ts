@@ -7,7 +7,7 @@ import {
   IUserUpdate,
 } from '../../components/types';
 import {
-  approve,
+  approveUser,
   getNotApproved,
   createCitizen,
   deleteCitizen,
@@ -16,7 +16,7 @@ import {
   updateCitizen,
   updateUser,
   getCitizenById,
-  rejectApprove,
+  rejectUser,
 } from '..';
 import { refreshRequest } from './Main';
 import request from 'axios';
@@ -241,7 +241,7 @@ export const deleteCitizenRequest = async (id: number, logout: () => void): Prom
   } else return response;
 };
 
-export const getNotApprovedRequest = async (logout: () => void): Promise<IUser[] | void> => {
+export const getNotApprovedUsersRequest = async (logout: () => void): Promise<IUser[] | void> => {
   const notApprovedRequest = async (): Promise<IUser[] | 401 | void> => {
     try {
       const response = await getNotApproved();
@@ -272,7 +272,7 @@ export const getNotApprovedRequest = async (logout: () => void): Promise<IUser[]
 export const approveRequest = async (id: number, logout: () => void): Promise<200 | void> => {
   const userRequest = async (): Promise<200 | 401 | void> => {
     try {
-      await approve(id.toString());
+      await approveUser(id.toString());
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -300,7 +300,7 @@ export const approveRequest = async (id: number, logout: () => void): Promise<20
 export const rejectApproveRequest = async (id: number, logout: () => void): Promise<200 | void> => {
   const rejectRequest = async (): Promise<200 | 401 | void> => {
     try {
-      await rejectApprove(id.toString());
+      await rejectUser(id.toString());
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

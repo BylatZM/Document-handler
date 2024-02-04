@@ -27,20 +27,17 @@ type TypeColumn = {
   status: string;
 };
 
-export const ApplicationsTable: FC<IProps> = ({
-  tableItems,
-  changeUserInfo,
-  changeIsFormActive,
-}) => {
+export const AppTable: FC<IProps> = ({ tableItems, changeUserInfo, changeIsFormActive }) => {
   const logout = useLogout();
   const [errorButton, changeErrorButton] = useState<null | 'approve' | 'info' | 'reject'>(null);
   const [loadingButton, changeLoadingButton] = useState<null | 'approve' | 'info' | 'reject'>(null);
   const [successButton, changeSuccessButton] = useState<null | 'approve' | 'info' | 'reject'>(null);
 
-  const { deleteNotApprovedUsers, notApprovedSuccess, citizenSuccess, citizenLoading } =
-    useActions();
+  const { notApprovedUsersSuccess, citizenSuccess, citizenLoading } = useActions();
 
-  const approve = async (user_id: number, application_id: number) => {
+  const approve = async (user_id: number) => {
+    if (!tableItems) return;
+
     if (errorButton) changeErrorButton((prev) => null);
     changeLoadingButton((prev) => 'approve');
     const response = await approveRequest(user_id, logout);
@@ -49,7 +46,7 @@ export const ApplicationsTable: FC<IProps> = ({
       changeSuccessButton((prev) => 'approve');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        deleteNotApprovedUsers(application_id);
+        notApprovedUsersSuccess(tableItems.filter((el) => el.id !== user_id));
       }, 2000);
     } else {
       changeErrorButton((prev) => 'approve');
@@ -67,7 +64,7 @@ export const ApplicationsTable: FC<IProps> = ({
       changeSuccessButton((prev) => 'reject');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        notApprovedSuccess(
+        notApprovedUsersSuccess(
           tableItems.map((el) => {
             if (el.id === id) return { ...el, account_status: 'отклонен' };
             else return el;
@@ -79,7 +76,7 @@ export const ApplicationsTable: FC<IProps> = ({
     }
   };
 
-  const getPossessions = async (id: number, approvingUser: IUser) => {
+  const getPossessions = async (id: number, approving_user: IUser) => {
     if (errorButton) changeErrorButton((prev) => null);
     changeLoadingButton((prev) => 'info');
     citizenLoading({ form_id: 0, isLoading: true });
@@ -90,7 +87,7 @@ export const ApplicationsTable: FC<IProps> = ({
       setTimeout(() => {
         changeSuccessButton((prev) => null);
         citizenSuccess(response);
-        changeUserInfo(approvingUser);
+        changeUserInfo(approving_user);
         changeIsFormActive(true);
       }, 2000);
     } else {
@@ -102,9 +99,7 @@ export const ApplicationsTable: FC<IProps> = ({
   const components = {
     header: {
       cell: (props: { children: React.ReactNode }) => (
-        <th key={1} style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
-          {props.children}
-        </th>
+        <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>{props.children}</th>
       ),
     },
   };
@@ -132,7 +127,7 @@ export const ApplicationsTable: FC<IProps> = ({
       render: (status: string) => <span>{status}</span>,
     },
     {
-      title: 'Подтвердить',
+      title: 'Подтвердить аккаунт',
       dataIndex: 'approve',
       key: 'approve',
       render: (item, rowData) => (
@@ -149,7 +144,7 @@ export const ApplicationsTable: FC<IProps> = ({
             type='primary'
             onClick={() => {
               if (!tableItems) return;
-              approve(tableItems.filter((el) => el.id === rowData.key)[0].id, rowData.key);
+              approve(rowData.key);
             }}
             disabled={loadingButton && loadingButton !== 'approve' ? true : false}
             className={clsx(
@@ -185,7 +180,7 @@ export const ApplicationsTable: FC<IProps> = ({
       ),
     },
     {
-      title: 'Информация  о жителе',
+      title: 'Информация  об аккаунте',
       dataIndex: 'information',
       key: 'information',
       render: (item, rowData) => (
@@ -239,7 +234,7 @@ export const ApplicationsTable: FC<IProps> = ({
       ),
     },
     {
-      title: 'Отклонить заявку',
+      title: 'Отклонить аккаунт',
       dataIndex: 'reject',
       key: 'reject',
       render: (item, rowData) => (

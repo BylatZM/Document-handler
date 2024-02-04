@@ -12,6 +12,7 @@ interface IProps {
 
 export const PossessionType: FC<IProps> = ({ form_id, data, changeFormData, getPossessions }) => {
   const { citizenErrors } = useActions();
+
   return (
     <div className='flex flex-col gap-2 w-[48%]'>
       <span>Тип имущества</span>
@@ -20,6 +21,7 @@ export const PossessionType: FC<IProps> = ({ form_id, data, changeFormData, getP
         options={[
           { label: 'квартира', value: 1 },
           { label: 'коммерческое помещение', value: 2 },
+          { label: 'парковка', value: 3 },
           { label: 'кладовка', value: 4 },
           { label: 'жилищный комплекс', value: 5 },
         ]}

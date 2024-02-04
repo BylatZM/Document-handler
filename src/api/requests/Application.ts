@@ -9,6 +9,7 @@ import {
   IType,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
+  ISubType,
 } from '../../components/types';
 import {
   createApplication,
@@ -21,6 +22,7 @@ import {
   getType,
   updateApplication,
   updateApplicationStatus,
+  getSubTypes,
 } from '..';
 import { IApplication, IError } from '../../components/types';
 import request from 'axios';
@@ -317,6 +319,37 @@ export const getSourcesRequest = async (logout: () => void): Promise<ISource[] |
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await sourcesRequest();
+      if (!response) return;
+
+      if (response !== 401) return response;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getSubTypesRequest = async (
+  logout: () => void,
+  id: string,
+): Promise<ISubType[] | void> => {
+  const makeRequest = async (): Promise<ISubType[] | 401 | void> => {
+    try {
+      const response = await getSubTypes(id);
+      if (response.data) return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
       if (!response) return;
 
       if (response !== 401) return response;

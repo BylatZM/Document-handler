@@ -3,7 +3,7 @@ import { Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { Citizen } from './components/Citizen';
 import { IUser } from '../../../types';
-import { ApplicationsTable } from './components/ApplicationsTable';
+import { AppTable } from './components/AppTable';
 
 export const ApproveCitizen = () => {
   const [isFormActive, changeIsFormActive] = useState(false);
@@ -52,7 +52,7 @@ export const ApproveCitizen = () => {
             </div>
           </div>
         </div>
-        <ApplicationsTable
+        <AppTable
           tableItems={filtratedItems}
           changeIsFormActive={changeIsFormActive}
           changeUserInfo={changeUserInfo}

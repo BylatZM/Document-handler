@@ -21,11 +21,13 @@ export const PossessionType: FC<IProps> = ({ data, changeData, defaultCar }) => 
             ? [
                 { label: 'квартира', value: 1 },
                 { label: 'коммерческое помещение', value: 2 },
+                { label: 'парковка', value: 3 },
                 { label: 'кладовка', value: 4 },
               ]
             : [
                 { label: 'квартира', value: 1 },
                 { label: 'коммерческое помещение', value: 2 },
+                { label: 'парковка', value: 3 },
                 { label: 'кладовка', value: 4 },
                 { label: 'жилищный комплекс', value: 5 },
               ]

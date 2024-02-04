@@ -68,28 +68,6 @@ export const CitizenPossessions = () => {
                   options={[{ value: el.possession.id, label: el.possession.address }]}
                 />
               </div>
-              {parseInt(el.possessionType) === 3 && el.possession.car && (
-                <>
-                  <div className='mt-2 mb-2 text-sm'>
-                    <span className='font-bold'>Марка автомобиля</span>
-                    <Input disabled value={el.possession.car.car_brand} />
-                  </div>
-                  <div className='mt-2 mb-2 text-sm'>
-                    <span className='font-bold'>Модель автомобиля</span>
-                    <Input
-                      disabled
-                      value={el.possession.car.car_model ? el.possession.car.car_model : ''}
-                    />
-                  </div>
-                  <div className='mt-2 text-sm'>
-                    <span className='font-bold'>Гос. номер</span>
-                    <Input
-                      disabled
-                      value={el.possession.car.state_number ? el.possession.car.state_number : ''}
-                    />
-                  </div>
-                </>
-              )}
             </div>
           );
         })}

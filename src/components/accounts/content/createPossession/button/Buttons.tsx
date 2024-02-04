@@ -82,18 +82,7 @@ export const Buttons: FC<IProps> = ({
               error && !isRequestSuccess && !isLoading && 'bg-red-500',
               !error && isRequestSuccess && !isLoading && 'bg-green-500',
             )}
-            disabled={
-              data.building &&
-              data.complex &&
-              data.possession.address &&
-              ((data.type === 3 &&
-                data.possession.car &&
-                data.possession.car.car_brand &&
-                data.possession.car.state_number) ||
-                data.type !== 3)
-                ? false
-                : true
-            }
+            disabled={data.building && data.complex && data.possession.address ? false : true}
             onClick={() => {
               makeRequest();
             }}

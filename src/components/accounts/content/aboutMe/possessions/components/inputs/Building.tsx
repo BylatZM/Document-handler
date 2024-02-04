@@ -1,7 +1,7 @@
 import { Select } from 'antd';
 import { FC } from 'react';
 import {
-  IBuilding,
+  IPossession,
   ICitizen,
   ICitizenError,
   ICitizenLoading,
@@ -17,7 +17,7 @@ interface IProps {
   getPossessions: (type: string, building_id: string) => void;
   loadingForm: ICitizenLoading;
   loadingPossession: IPosLoading;
-  buildings: IBuilding[] | null;
+  buildings: IPossession[] | null;
 }
 
 export const Building: FC<IProps> = ({

@@ -3,12 +3,10 @@ import {
   IApplication,
   IAppCreateByDispatcher,
   IAppCreateByCitizen,
-  ICar,
   IRole,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
   IStatus,
-  IBuilding,
   IPossession,
 } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
@@ -30,7 +28,7 @@ interface IProps {
   role: IRole;
   exitFromForm: () => void;
   logout: () => void;
-  buildings: IBuilding[] | null;
+  buildings: IPossession[] | null;
   possessions: IPossession[] | null;
 }
 
@@ -77,15 +75,15 @@ export const Buttons: FC<IProps> = ({
   };
 
   const create_application = async () => {
-    if (!statuses) return;
+    if (!statuses || !data.subType) return;
     changeLoadingButton('create');
     if (errorButton) changeErrorButton(null);
     let info: IAppCreateByCitizen | IAppCreateByDispatcher = {
       source: data.source.id,
       grade: 1,
+      subType: data.subType.id,
       type: data.type.id,
       citizenComment: data.citizenComment,
-      isAppeal: data.isAppeal,
       complex: data.complex.id,
       building: data.building.id,
       possession: data.possession.id,
@@ -97,9 +95,9 @@ export const Buttons: FC<IProps> = ({
         status: statuses.filter((el) => el.appStatus === 'Назначена')[0].id,
         priority: data.priority.id,
         source: data.source.id,
+        subType: data.subType.id,
         type: data.type.id,
         citizenComment: data.citizenComment,
-        isAppeal: data.isAppeal,
         complex: data.complex.id,
         building: data.building.id,
         possession: data.possession.id,
@@ -160,7 +158,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   const update_application = async () => {
-    if (!data.status || !data.employee || !statuses) return;
+    if (!data.status || !data.employee || !statuses || !data.subType) return;
 
     changeLoadingButton('update');
     if (errorButton) changeErrorButton(null);
@@ -172,10 +170,10 @@ export const Buttons: FC<IProps> = ({
     if (role.role === 'dispatcher') {
       if (!data.priority) return;
       info = {
-        isAppeal: data.isAppeal,
         citizenComment: data.citizenComment,
         employee: data.employee.id,
         type: data.type.id,
+        subType: data.subType.id,
         status: data.status.appStatus === 'Новая' ? status.id : data.status.id,
         source: data.source.id,
         priority: data.priority.id,
@@ -233,6 +231,8 @@ export const Buttons: FC<IProps> = ({
               (!loadingButton || loadingButton === 'create') &&
               data.building.id &&
               data.complex.id &&
+              data.subType &&
+              data.subType.id &&
               data.possession.id &&
               data.source.id &&
               data.type.id &&
@@ -302,6 +302,8 @@ export const Buttons: FC<IProps> = ({
               disabled={
                 (!loadingButton || loadingButton === 'update') &&
                 data.status &&
+                data.subType &&
+                data.subType.id &&
                 data.status.appStatus !== 'Закрыта' &&
                 ((role.role === 'dispatcher' &&
                   ((data.dispatcherComment && data.dispatcherComment.length < 501) ||

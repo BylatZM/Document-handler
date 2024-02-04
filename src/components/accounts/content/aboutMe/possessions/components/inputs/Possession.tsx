@@ -51,7 +51,6 @@ export const Possession: FC<IProps> = ({
               possession: {
                 id: e,
                 address: !possessions ? '' : possessions.filter((el) => el.id === e)[0].address,
-                car: possessions ? possessions.filter((el) => el.id === e)[0].car : null,
               },
             }));
           }}
