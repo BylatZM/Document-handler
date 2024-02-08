@@ -1,7 +1,7 @@
 import { Button } from 'antd';
 import { Possessions } from './components/Possessions';
 import { useActions } from '../../../../hooks/useActions';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { getCitizenRequest } from '../../../../../api/requests/Person';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 
@@ -9,7 +9,11 @@ import { CreatePossession } from '../../createPossession/CreatePossession';
 import { useLogout } from '../../../../hooks/useLogout';
 import { LoadingSkeleton } from './LoadingSkeleton';
 
-export const Main = () => {
+interface IProps {
+  changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const Main: FC<IProps> = ({ changeNeedShowNotification }) => {
   const logout = useLogout();
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { addCitizenForm, citizenSuccess } = useActions();
@@ -64,6 +68,7 @@ export const Main = () => {
           changeNeedUpdate={changeNeedUpdate}
           changeUpdatingFormId={changeUpdatingFormId}
           updatingFormId={updatingFormId}
+          changeNeedShowNotification={changeNeedShowNotification}
         />
       ))}
     </>

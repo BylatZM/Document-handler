@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { useActions } from '../../../../hooks/useActions';
 import { updateUserRequest } from '../../../../../api/requests/Person';
@@ -6,8 +6,13 @@ import { useLogout } from '../../../../hooks/useLogout';
 import { Inputs } from './Inputs';
 import { ButtonBlock } from './ButtonBlock';
 
-export const General = () => {
+interface IProps {
+  changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
   const { user, isLoading, error } = useTypedSelector((user) => user.UserReducer);
+  const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { userSuccess, userLoading, userError } = useActions();
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
   const logout = useLogout();
@@ -45,6 +50,8 @@ export const General = () => {
     userLoading(true);
     if (error) userError(null);
 
+    if (citizen[0].id > 0 && user.account_status === 'новый') changeNeedShowNotification(true);
+
     const response = await updateUserRequest(
       {
         first_name: user.first_name,
@@ -71,15 +78,17 @@ export const General = () => {
   };
 
   return (
-    <div className='flex flex-col gap-y-8'>
-      <span className='text-xl'>Основная информация</span>
-      <Inputs user={user} isLoading={isLoading} error={error} setUser={{ userSuccess }} />
-      <ButtonBlock
-        error={error}
-        isRequestSuccess={isRequestSuccess}
-        isLoading={isLoading}
-        onFinish={onFinish}
-      />
-    </div>
+    <>
+      <div className='flex flex-col gap-y-8'>
+        <span className='text-xl'>Основная информация</span>
+        <Inputs user={user} isLoading={isLoading} error={error} setUser={{ userSuccess }} />
+        <ButtonBlock
+          error={error}
+          isRequestSuccess={isRequestSuccess}
+          isLoading={isLoading}
+          onFinish={onFinish}
+        />
+      </div>
+    </>
   );
 };

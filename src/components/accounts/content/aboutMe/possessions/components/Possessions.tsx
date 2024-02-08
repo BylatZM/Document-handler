@@ -25,6 +25,7 @@ interface ICitizenFormProps {
   changeNeedUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   updatingFormId: number | null;
+  changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Possessions: FC<ICitizenFormProps> = ({
@@ -32,6 +33,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
   changeNeedUpdate,
   changeUpdatingFormId,
   updatingFormId,
+  changeNeedShowNotification,
 }) => {
   const { citizenErrors, possessionSuccess, buildingSuccess } = useActions();
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
@@ -117,7 +119,6 @@ export const Possessions: FC<ICitizenFormProps> = ({
       />
       <Buttons
         data={formData}
-        changeData={changeFormData}
         isFirstItem={data.isFirstItem}
         form_id={data.key}
         updatingFormId={updatingFormId}
@@ -126,6 +127,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         changeNeedUpdate={changeNeedUpdate}
         getPossessions={getPossessions}
         getBuildings={getBuildings}
+        changeNeedShowNotification={changeNeedShowNotification}
       />
     </>
   );

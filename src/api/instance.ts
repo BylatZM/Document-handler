@@ -12,11 +12,17 @@ export const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const array = document.cookie.split(';').filter((el) => el.includes('refresh'));
+  let refresh = '';
+  let access = '';
+  const cookie_array = document.cookie.split(';').filter((el) => el.includes('refresh'));
 
-  if (config.url === '/refresh')
-    config.headers['Authorization'] = `Bearer ${array.length === 0 ? '' : array[0].split('=')[1]}`;
-  else config.headers['Authorization'] = `Bearer ${localStorage.getItem('access')}`;
+  const store = localStorage.getItem('access');
+  if (store) access = store;
+
+  if (cookie_array.length) refresh = cookie_array[0].split('=')[1];
+
+  if (config.url === '/refresh') config.headers['Authorization'] = `Bearer ${refresh}`;
+  else config.headers['Authorization'] = `Bearer ${access}`;
 
   return config;
 });

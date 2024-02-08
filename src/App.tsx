@@ -9,7 +9,9 @@ export const App = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('access')) navigate('/account/aboutMe');
+    const cookie_array = document.cookie.split(';').filter((el) => el.includes('refresh'));
+    const local_store = localStorage.getItem('access');
+    if (local_store || cookie_array.length) navigate('/account/aboutMe');
   }, []);
 
   return (

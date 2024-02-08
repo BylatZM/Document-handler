@@ -16,55 +16,59 @@ interface IProps {
   tableItems: INotApprovedPossessions[] | null;
 }
 
+interface IProcessingRow {
+  row_id: number;
+  operation: 'success' | 'error' | 'loading';
+  button_type: 'approve' | 'reject';
+}
+
 type IColumnProps = Omit<INotApprovedPossessions, 'id'> & { key: number };
 
 export const AppTable: FC<IProps> = ({ tableItems }) => {
   const logout = useLogout();
-  const [errorButton, changeErrorButton] = useState<null | 'approve' | 'info' | 'reject'>(null);
-  const [loadingButton, changeLoadingButton] = useState<null | 'approve' | 'info' | 'reject'>(null);
-  const [successButton, changeSuccessButton] = useState<null | 'approve' | 'info' | 'reject'>(null);
+  const [processingRow, changeProcessingRow] = useState<null | IProcessingRow>(null);
 
   const { notApprovedPossessionSuccess } = useActions();
 
   const approve = async (possession_id: number) => {
     if (!tableItems) return;
 
-    if (errorButton) changeErrorButton((prev) => null);
-    changeLoadingButton((prev) => 'approve');
+    changeProcessingRow({
+      row_id: possession_id,
+      operation: 'loading',
+      button_type: 'approve',
+    });
     const response = await approvePossessionRequest(logout, possession_id.toString());
-    changeLoadingButton((prev) => null);
     if (response === 200) {
-      changeSuccessButton((prev) => 'approve');
+      changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
       setTimeout(() => {
         notApprovedPossessionSuccess(tableItems.filter((el) => el.id !== possession_id));
-        changeSuccessButton((prev) => null);
+        changeProcessingRow((prev) => null);
       }, 2000);
-    } else {
-      changeErrorButton((prev) => 'approve');
-    }
+    } else changeProcessingRow((prev) => (prev ? { ...prev, operation: 'error' } : null));
   };
 
   const rejectApprove = async (possession_id: number) => {
     if (!tableItems) return;
 
-    if (errorButton) changeErrorButton((prev) => null);
-    changeLoadingButton((prev) => 'reject');
+    changeProcessingRow({
+      row_id: possession_id,
+      operation: 'loading',
+      button_type: 'reject',
+    });
     const response = await rejectPossessionRequest(logout, possession_id.toString());
-    changeLoadingButton((prev) => null);
     if (response === 200 && tableItems) {
-      changeSuccessButton((prev) => 'reject');
+      changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
       setTimeout(() => {
-        changeSuccessButton((prev) => null);
         notApprovedPossessionSuccess(
           tableItems.map((el) => {
             if (el.id === possession_id) return { ...el, approving_status: 'отклонена' };
             else return el;
           }),
         );
+        changeProcessingRow((prev) => null);
       }, 2000);
-    } else {
-      changeErrorButton((prev) => 'reject');
-    }
+    } else changeProcessingRow((prev) => (prev ? { ...prev, operation: 'error' } : null));
   };
 
   const components = {
@@ -122,35 +126,66 @@ export const AppTable: FC<IProps> = ({ tableItems }) => {
               if (!tableItems) return;
               approve(rowData.key);
             }}
-            disabled={loadingButton && loadingButton !== 'approve' ? true : false}
+            disabled={
+              processingRow &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type !== 'approve'
+                ? true
+                : false
+            }
             className={clsx(
               'text-white h-[40px]',
-              errorButton !== 'approve' && successButton !== 'approve' && 'bg-green-700',
-              errorButton === 'approve' && !successButton && !loadingButton && 'bg-red-500',
-              !errorButton && successButton === 'approve' && !loadingButton && 'bg-green-500',
+              (!processingRow || (processingRow && processingRow.row_id !== rowData.key)) &&
+                'bg-green-700',
+              processingRow &&
+                processingRow.operation === 'error' &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type === 'approve' &&
+                'bg-red-500',
+              processingRow &&
+                processingRow.operation === 'success' &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type === 'approve' &&
+                'bg-green-500',
+              processingRow &&
+                processingRow.operation === 'loading' &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type === 'approve' &&
+                'bg-blue-500',
             )}
           >
-            {loadingButton === 'approve' && (
-              <div>
-                <ImSpinner9 className='inline animate-spin mr-2' />
-                <span>Обработка</span>
-              </div>
-            )}
-            {errorButton === 'approve' && !loadingButton && !successButton && (
-              <div>
-                <ImCross className='inline mr-2' />
-                <span>Отказано</span>
-              </div>
-            )}
-            {!loadingButton && !errorButton && successButton === 'approve' && (
-              <div>
-                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                <span>Успешно</span>
-              </div>
-            )}
-            {loadingButton !== 'approve' &&
-              errorButton !== 'approve' &&
-              successButton !== 'approve' && <>Подтвердить</>}
+            {processingRow &&
+              processingRow.operation === 'loading' &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type === 'approve' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+            {processingRow &&
+              processingRow.operation === 'error' &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type === 'approve' && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+            {processingRow &&
+              processingRow.operation === 'success' &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type === 'approve' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+            {(!processingRow ||
+              (processingRow &&
+                (processingRow.row_id !== rowData.key ||
+                  (processingRow.row_id === rowData.key &&
+                    processingRow.button_type !== 'approve')))) && <>Подтвердить</>}
           </Button>
         </ConfigProvider>
       ),
@@ -171,43 +206,70 @@ export const AppTable: FC<IProps> = ({ tableItems }) => {
         >
           <Button
             type='primary'
+            onClick={() => {
+              rejectApprove(rowData.key);
+            }}
             disabled={
-              (loadingButton && loadingButton !== 'reject') ||
-              rowData.approving_status === 'отклонена'
+              rowData.approving_status === 'отклонена' ||
+              (processingRow &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type !== 'reject')
                 ? true
                 : false
             }
             className={clsx(
               'text-white h-[40px]',
-              errorButton !== 'reject' && successButton !== 'reject' && 'bg-red-700',
-              errorButton === 'reject' && !successButton && !loadingButton && 'bg-red-500',
-              !errorButton && successButton === 'reject' && !loadingButton && 'bg-green-500',
+              (!processingRow || (processingRow && processingRow.row_id !== rowData.key)) &&
+                'bg-red-700',
+              processingRow &&
+                processingRow.operation === 'error' &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type === 'reject' &&
+                'bg-red-500',
+              processingRow &&
+                processingRow.operation === 'success' &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type === 'reject' &&
+                'bg-green-500',
+              processingRow &&
+                processingRow.operation === 'loading' &&
+                processingRow.row_id === rowData.key &&
+                processingRow.button_type === 'reject' &&
+                'bg-blue-500',
             )}
-            onClick={() => {
-              rejectApprove(rowData.key);
-            }}
           >
-            {loadingButton === 'reject' && (
-              <div>
-                <ImSpinner9 className='inline animate-spin mr-2' />
-                <span>Обработка</span>
-              </div>
-            )}
-            {errorButton === 'reject' && !loadingButton && !successButton && (
-              <div>
-                <ImCross className='inline mr-2' />
-                <span>Отказано</span>
-              </div>
-            )}
-            {!loadingButton && !errorButton && successButton === 'reject' && (
-              <div>
-                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                <span>Успешно</span>
-              </div>
-            )}
-            {loadingButton !== 'reject' &&
-              errorButton !== 'reject' &&
-              successButton !== 'reject' && <>Отклонить</>}
+            {processingRow &&
+              processingRow.operation === 'loading' &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type === 'reject' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+            {processingRow &&
+              processingRow.operation === 'error' &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type === 'reject' && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+            {processingRow &&
+              processingRow.operation === 'success' &&
+              processingRow.row_id === rowData.key &&
+              processingRow.button_type === 'reject' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+            {(!processingRow ||
+              (processingRow &&
+                (processingRow.row_id !== rowData.key ||
+                  (processingRow.row_id === rowData.key &&
+                    processingRow.button_type !== 'reject')))) && <>Отклонить</>}
           </Button>
         </ConfigProvider>
       ),

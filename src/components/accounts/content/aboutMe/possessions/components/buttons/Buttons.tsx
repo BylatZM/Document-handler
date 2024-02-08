@@ -15,7 +15,6 @@ import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IProp {
   data: ICitizen;
-  changeData: React.Dispatch<React.SetStateAction<ICitizen>>;
   isFirstItem: boolean;
   form_id: number;
   updatingFormId: number | null;
@@ -24,11 +23,11 @@ interface IProp {
   changeNeedUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   getPossessions: (type: string, building_id: string) => Promise<void>;
   getBuildings: (complex_id: string) => Promise<void>;
+  changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Buttons: FC<IProp> = ({
   data,
-  changeData,
   isFirstItem,
   form_id,
   updatingFormId,
@@ -37,6 +36,7 @@ export const Buttons: FC<IProp> = ({
   changeNeedUpdate,
   getPossessions,
   getBuildings,
+  changeNeedShowNotification,
 }) => {
   const {
     citizenLoading,
@@ -48,6 +48,7 @@ export const Buttons: FC<IProp> = ({
   } = useActions();
   const logout = useLogout();
   const { error } = useTypedSelector((state) => state.CitizenReducer);
+  const { user } = useTypedSelector((state) => state.UserReducer);
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
 
   const createCitizen = async () => {
@@ -64,6 +65,8 @@ export const Buttons: FC<IProp> = ({
     });
     if (response) {
       if (response === 201) {
+        if (user.account_status === 'новый' && user.first_name && user.last_name && user.phone)
+          changeNeedShowNotification(true);
         changeUpdatingFormId(null);
         changeNeedUpdate(true);
       } else citizenErrors(response);
