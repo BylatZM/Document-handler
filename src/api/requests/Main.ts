@@ -27,7 +27,7 @@ export const loginRequest = async (
     document.cookie = `refresh=${response.data.refresh}; path=/; expires=${new Date(
       Date.now() + 31536000,
     ).toUTCString()}; domain=${
-      process.env.NODE_ENV === 'development' ? 'localhost' : '91.201.40.39'
+      process.env.NODE_ENV === 'development' ? 'localhost' : 'uslugi.dltex.ru'
     };`;
     return response.data;
   } catch (e) {

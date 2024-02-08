@@ -32,10 +32,8 @@ export const CitizenPossessions = () => {
                 <Select
                   className='w-full'
                   options={[
-                    { label: 'арендодатор', value: 1 },
-                    { label: 'гражданин', value: 2 },
-                    { label: 'член семьи', value: 3 },
-                    { label: 'ребенок', value: 4 },
+                    { label: 'арендатор', value: 1 },
+                    { label: 'владелец', value: 2 },
                   ]}
                   disabled
                   value={parseInt(el.ownershipStatus)}

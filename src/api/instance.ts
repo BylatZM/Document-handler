@@ -3,7 +3,7 @@ import axios from 'axios';
 export const API_URL =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:8000/api'
-    : 'http://91.201.40.39:8000/api';
+    : 'http://uslugi.dltex.ru:8000/api';
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
