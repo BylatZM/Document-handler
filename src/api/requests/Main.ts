@@ -24,9 +24,12 @@ export const loginRequest = async (
     const response = await login(data);
     if ('type' in response.data) return response.data;
     localStorage.setItem('access', response.data.access);
-    document.cookie = `refresh=${response.data.refresh}; path=/; expires=${new Date(
-      Date.now() + 31536000,
-    ).toUTCString()}; domain=${
+    const currentDate = new Date();
+    const nextYear = currentDate.getFullYear() + 1;
+    currentDate.setFullYear(nextYear);
+    document.cookie = `refresh=${
+      response.data.refresh
+    }; path=/; expires=${currentDate.toUTCString()}; domain=${
       process.env.NODE_ENV === 'development' ? 'localhost' : 'uslugi.dltex.ru'
     };`;
     return response.data;
