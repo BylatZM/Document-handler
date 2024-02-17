@@ -13,6 +13,7 @@ import { AboutMe } from './buttons/general/AboutMe';
 import { Applications } from './buttons/general/Applications';
 import { TechnicalSupport } from './buttons/general/TechnicalSupport';
 import { Logout } from './buttons/general/Logout';
+import './media.css';
 
 interface IMenuProps {
   isOpened: boolean;
@@ -42,13 +43,11 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
         )}
       >
         <div className='relative w-[240px] sm:min-w-[274px] h-full'>
-          <div>
-            <div className='h-min flex items-center gap-4 logoGrid'>
-              <img src={cat} className='h-auto' width={'70px'} alt='' />
-              <div className='flex flex-col items-end overflow-hidden text-white'>
-                <span className='text-xs w-max leading-4'>Управляющая компания</span>
-                <span className='text-lg sm:text-3xl leading-6'>Миллениум</span>
-              </div>
+          <div className='h-min flex items-center gap-4 logoGrid'>
+            <img src={cat} className='h-auto' width={'70px'} alt='' />
+            <div className='flex flex-col items-end overflow-hidden text-white'>
+              <span className='text-xs w-max leading-4'>Управляющая компания</span>
+              <span className='text-lg sm:text-3xl leading-6'>Миллениум</span>
             </div>
           </div>
           <div className='flex flex-col mt-10 text-lg'>
@@ -79,7 +78,7 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
 
           <div
             className={clsx(
-              'transitionGeneral absolute bottom-0 left-0 overflow-hidden',
+              'transitionGeneral absolute bottom-0 left-0 overflow-hidden Logo',
               activeAccordion ? 'z-[-1] opacity-0' : 'opacity-100',
             )}
           >

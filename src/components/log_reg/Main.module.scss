@@ -1,7 +1,7 @@
 .main {
-  @apply flex w-full h-screen max-sm:justify-center max-sm:items-center overflow-hidden;
+  @apply flex w-full min-h-screen max-sm:justify-center max-sm:items-center overflow-x-hidden overflow-y-auto;
   .form {
-    @apply relative max-sm:h-3/5 max-sm:w-11/12 max-sm:mx-auto sm:min-w-[320px] sm:max-w-[320px] flex flex-col translate-x-[-500px] shadow-slate-600 shadow-xl justify-center bg-blue-700 backdrop-blur-md bg-opacity-10 border-blue-500 border-2;
+    @apply relative max-sm:h-fit max-sm:w-11/12 max-sm:mx-auto sm:min-w-[320px] sm:max-w-[320px] flex flex-col gap-2 translate-x-[-500px] shadow-slate-600 shadow-xl justify-between bg-blue-700 backdrop-blur-md bg-opacity-10 border-blue-500 border-2;
   }
   .form_active {
     @apply translate-x-0;

@@ -42,7 +42,7 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
         changeNeedShowForm={changeNeedShowPasswordForm}
       />
       <div className={clsx(Styles.form, isAnimActive && Styles.form_active)}>
-        <div className='flex items-center justify-between gap-2 logoGrid absolute inset-x-0 top-3 w-fit sm:w-11/12 mx-auto h-[70px]'>
+        <div className='flex items-center justify-between gap-2 logoGrid mt-3 w-fit sm:w-11/12 mx-auto h-[70px]'>
           <img src={cat} width={'70px'} alt='' />
           <div className='flex flex-col items-end overflow-hidden text-white mr-2 gap-y-2'>
             <span className='max-sm:text-xs text-base leading-4'>Управляющая компания</span>
@@ -85,12 +85,12 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
             </Checkbox>
           </ConfigProvider>
         </div>
-        <span
-          className='absolute inset-x-0 bottom-2 text-center text-blue-700 cursor-pointer'
+        <button
+          className='outline-none border-none mb-2 text-blue-700'
           onClick={() => changeNeedShowHelpForm(true)}
         >
           Написать в техподдержку
-        </span>
+        </button>
       </div>
       <div className={Styles.carouselSection}>
         <CarouselBlock showAnimation={isAnimActive} />

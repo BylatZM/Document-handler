@@ -158,6 +158,9 @@ export const Application = () => {
                       Button: {
                         colorPrimaryHover: '#fff',
                       },
+                      Popover: {
+                        zIndexPopup: 10,
+                      },
                     },
                   }}
                 >

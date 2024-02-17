@@ -53,11 +53,14 @@ export const HelpForm: FC<IHelpFormProps> = ({ needShowForm, changeNeedShowForm 
   return (
     <div
       className={clsx(
-        'transitionGeneral bg-blue-500 bg-opacity-10 backdrop-blur-xl z-[30] fixed inset-0 m-auto min-h-screen flex justify-center items-center overflow-hidden',
+        'transitionGeneral bg-blue-500 bg-opacity-10 backdrop-blur-xl z-[30] fixed inset-0 flex justify-center items-center overflow-hidden',
         needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md min-w-[280px] max-w-[280px] sm:min-w-[600px] sm:max-w-[600px] overflow-y-auto h-[600px]'>
+      <div
+        className='flex flex-col bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl rounded-md min-w-[280px] max-w-[280px] sm:min-w-[600px] sm:max-w-[600px] overflow-x-hidden overflow-y-auto'
+        style={{ maxHeight: 'calc(100vh - 20px)' }}
+      >
         <div className='text-center'>
           <span className='text-xl font-bold'>Обратная связь</span>
         </div>
