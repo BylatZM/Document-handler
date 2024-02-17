@@ -1,16 +1,16 @@
 .main {
-  @apply flex w-full h-screen overflow-hidden;
+  @apply flex w-full h-screen max-sm:justify-center max-sm:items-center overflow-hidden;
   .form {
-    @apply relative min-w-[300px] max-w-[300px] flex flex-col translate-x-[-500px] shadow-slate-600 shadow-xl justify-center bg-blue-700 backdrop-blur-md bg-opacity-10 border-blue-500 border-2;
+    @apply relative max-sm:h-3/5 max-sm:w-11/12 max-sm:mx-auto sm:min-w-[320px] sm:max-w-[320px] flex flex-col translate-x-[-500px] shadow-slate-600 shadow-xl justify-center bg-blue-700 backdrop-blur-md bg-opacity-10 border-blue-500 border-2;
   }
   .form_active {
     @apply translate-x-0;
     transition: transform 1s ease-in-out;
   }
   .carouselSection {
-    @apply w-full flex relative;
+    @apply w-full h-full max-lg:hidden lg:flex lg:items-center relative;
     .carousel {
-      @apply opacity-0 h-[25rem] w-[52rem] flex self-center justify-center items-center;
+      @apply opacity-0 h-[25rem] w-[50rem] lg:flex lg:justify-center lg:items-center;
       .carouselItem {
         @apply h-[20rem] flex flex-col justify-center items-start;
         span {

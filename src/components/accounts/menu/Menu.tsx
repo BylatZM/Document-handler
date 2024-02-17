@@ -38,16 +38,16 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
       <div
         className={clsx(
           'transitionGeneral fixed z-[15] inset-y-0 left-0 overflow-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
-          isOpened ? 'w-[310px] p-4' : 'w-0 mr-[-2px]',
+          isOpened ? 'w-[250px] p-1 sm:w-[310px] sm:p-4' : 'w-0 mr-[-2px]',
         )}
       >
-        <div className='relative min-w-[274px] h-full'>
+        <div className='relative w-[240px] sm:min-w-[274px] h-full'>
           <div>
             <div className='h-min flex items-center gap-4 logoGrid'>
               <img src={cat} className='h-auto' width={'70px'} alt='' />
               <div className='flex flex-col items-end overflow-hidden text-white'>
                 <span className='text-xs w-max leading-4'>Управляющая компания</span>
-                <span className='text-3xl leading-6'>Миллениум</span>
+                <span className='text-lg sm:text-3xl leading-6'>Миллениум</span>
               </div>
             </div>
           </div>

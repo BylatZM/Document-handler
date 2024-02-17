@@ -12,14 +12,14 @@ interface IProps {
 
 export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) => {
   return (
-    <div className='flex flex-wrap gap-y-2 justify-between'>
+    <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
       {form_id !== 0 && (
         <>
-          <div className='flex flex-col gap-2 w-[48%]'>
+          <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
             <span>Плановое время начала работ</span>
             <Input value={!data.creatingDate ? '' : data.creatingDate} disabled />
           </div>
-          <div className='flex flex-col gap-2 w-[48%]'>
+          <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
             <span>Плановое время окончания работ</span>
             <Input value={!data.dueDate ? '' : data.dueDate} disabled />
           </div>

@@ -15,8 +15,8 @@ export const Notification: FC<IProps> = ({ needShowForm, changeNeedShowForm }) =
         needShowForm ? 'w-full h-full' : 'w-0 h-0',
       )}
     >
-      <div className='min-w-[400px] max-w-[400px] aspect-square border-blue-500 border-2 p-5 rounded-md flex flex-col justify-between bg-blue-700 bg-opacity-10 backdrop-blur-md'>
-        <div className='text-center mt-20'>
+      <div className='relative min-w-[250px] max-w-[250px] sm:min-w-[500px] sm:max-w-[500px] aspect-square border-blue-500 border-2 max-sm:p-1 sm:p-5 rounded-md flex items-end bg-blue-700 bg-opacity-10 backdrop-blur-md'>
+        <div className='absolute w-fit h-fit text-center inset-0 m-auto'>
           Ваши данные были сохранены. Ожидайте подтверждения аккаунта от диспетчера. Уведомление о
           подтверждении аккаунта придет на вашу почту
         </div>

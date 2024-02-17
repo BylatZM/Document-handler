@@ -14,7 +14,7 @@ export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormDat
   return (
     <>
       {role.role !== 'citizen' && (
-        <div className='w-[48%] mt-2 gap-2 flex flex-col'>
+        <div className='w-full md:w-[48%] mt-2 gap-2 flex flex-col'>
           <span>Источник</span>
           <Select
             value={!data.source.id ? undefined : data.source.id}

@@ -1,8 +1,10 @@
 .bubbles {
-  @apply inset-0;
   position: absolute;
+  inset: 0;
   display: flex;
   justify-content: space-between;
+  z-index: -1;
+  overflow: hidden;
 }
 .component {
   position: relative;

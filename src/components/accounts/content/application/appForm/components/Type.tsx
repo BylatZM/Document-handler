@@ -13,7 +13,7 @@ interface IProps {
 
 export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, getSubTypes }) => {
   return (
-    <div className='w-[48%] gap-2 flex flex-col'>
+    <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Тип заявки</span>
       {types && (
         <Select

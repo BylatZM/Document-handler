@@ -51,7 +51,7 @@ export const SendEmail: FC<IProps> = ({ email, needShowForm, changeNeedShowForm 
     >
       <div
         className={clsx(
-          'transitionGeneral border-blue-500 relative border-2 p-2 rounded-md flex w-[600px] h-[300px] flex-col justify-around bg-blue-700 bg-opacity-10 backdrop-blur-md z-[30]',
+          'transitionGeneral border-blue-500 relative border-2 p-2 rounded-md flex max-sm:w-[250px] sm:w-[600px] max-md:h-[500px] h-[300px] flex-col justify-around bg-blue-700 bg-opacity-10 backdrop-blur-md z-[30]',
           email ? 'opacity-100' : 'opacity-0',
         )}
       >

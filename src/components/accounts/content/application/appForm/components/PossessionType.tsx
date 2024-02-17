@@ -14,7 +14,7 @@ export const PossessionType: FC<IProps> = ({ form_id, data, changeFormData, getP
   const { citizenErrors } = useActions();
 
   return (
-    <div className='flex flex-col gap-2 w-[48%]'>
+    <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Тип имущества</span>
       <Select
         className='w-full'

@@ -206,7 +206,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   return (
-    <div className='gap-4 flex justify-center'>
+    <div className='gap-4 flex max-md:flex-wrap max-md:justify-start justify-center'>
       {form_id < 1 && ['citizen', 'dispatcher'].some((el) => el === role.role) && (
         <ConfigProvider
           theme={{

@@ -224,14 +224,14 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed w-full inset-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl overflow-hidden flex justify-center items-center',
+        'transitionGeneral fixed w-full inset-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
         IsFormActive ? 'h-full' : 'h-0',
       )}
     >
-      <div className='min-w-[700px] max-w-[700px] h-full z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5 overflow-y-auto'>
+      <div className='w-full sm:min-w-[600px] sm:max-w-[600px] md:min-w-[700px] md:max-w-[700px] lg:min-w-[850px] lg:max-w-[850px] h-full z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5 overflow-y-auto'>
         <div className='flex justify-center gap-4 flex-col'>
           <span className='font-bold text-lg'>Сведения</span>
-          <div className='flex flex-wrap justify-between gap-4'>
+          <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
             <Grade />
             <Status status={FormData.status} changeFormData={changeFormData} statuses={statuses} />
             <Type
@@ -272,7 +272,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
             changeFormData={changeFormData}
           />
           <span className='font-bold text-lg mt-4'>Объект исполнения</span>
-          <div className='flex flex-wrap gap-2 justify-between mt-2'>
+          <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
             <Complex
               form_id={id}
               role={role}

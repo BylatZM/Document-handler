@@ -32,7 +32,7 @@ export const Complex: FC<IProps> = ({
 }) => {
   const { possessionSuccess, buildingSuccess } = useActions();
   return (
-    <div className='flex flex-col gap-2 w-[48%]'>
+    <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Жилой комплекс</span>
       {role.role === 'citizen' && (
         <Select

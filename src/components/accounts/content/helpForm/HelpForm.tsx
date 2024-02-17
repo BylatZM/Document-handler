@@ -57,7 +57,7 @@ export const HelpForm: FC<IHelpFormProps> = ({ needShowForm, changeNeedShowForm 
         needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md min-w-[600px] max-w-[600px] overflow-y-auto h-[600px]'>
+      <div className='bg-blue-700 p-5 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md min-w-[280px] max-w-[280px] sm:min-w-[600px] sm:max-w-[600px] overflow-y-auto h-[600px]'>
         <div className='text-center'>
           <span className='text-xl font-bold'>Обратная связь</span>
         </div>

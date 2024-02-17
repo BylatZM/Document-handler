@@ -12,7 +12,7 @@ interface IProps {
 
 export const SubType: FC<IProps> = ({ data, changeData, subTypes, form_id, role }) => {
   return (
-    <div className='w-[48%] gap-2 flex flex-col'>
+    <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Подтип заявки</span>
       {role.role === 'executor' && data.subType && (
         <Select

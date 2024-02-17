@@ -41,10 +41,10 @@ export const Main: FC<IProps> = ({ changeNeedShowNotification }) => {
         needShowForm={needShowPossessionCreateForm}
         changeNeedShowForm={changeNeedShowPossessionCreateForm}
       />
-      <span className='text-xl'>Собственность</span>
-      <div>
+      <span className='text-xl max-sm:mx-auto'>Собственность</span>
+      <div className='max-sm:text-center'>
         <Button
-          className='bg-blue-700 text-white w-min mr-4'
+          className='bg-blue-700 text-white w-min max-sm:mb-2 sm:mr-4'
           type='primary'
           onClick={() => addCitizenForm()}
           disabled={user.account_status !== 'подтвержден'}

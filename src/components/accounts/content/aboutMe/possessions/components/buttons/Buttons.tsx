@@ -110,7 +110,7 @@ export const Buttons: FC<IProp> = ({
   };
 
   return (
-    <div className='flex gap-4'>
+    <div className='flex max-sm:gap-y-2 max-sm:flex-col max-sm:gap-x-0 gap-4'>
       <Button
         className={clsx(
           'text-white',

@@ -10,7 +10,7 @@ interface IProps {
 
 export const Status: FC<IProps> = ({ status, changeFormData, statuses }) => {
   return (
-    <div className='w-[48%] gap-2 flex flex-col'>
+    <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Статус заявки</span>
       <Select
         value={!status ? undefined : status.id}

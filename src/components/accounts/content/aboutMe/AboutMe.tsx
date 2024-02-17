@@ -11,7 +11,7 @@ export const AboutMe = () => {
   return (
     <>
       <Notification needShowForm={showNotification} changeNeedShowForm={changeShowNotification} />
-      <div className='w-[500px] flex flex-col gap-4 m-auto p-2'>
+      <div className='w-[250px] mt-28 sm:mt-0 sm:w-[500px] flex flex-col gap-4 mx-auto p-2'>
         <General changeNeedShowNotification={changeShowNotification} />
         {user.role.role === 'citizen' && (
           <Main changeNeedShowNotification={changeShowNotification} />

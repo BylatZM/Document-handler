@@ -54,7 +54,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   return (
-    <div className='mt-5 text-end'>
+    <div className='mt-5 flex justify-center'>
       <Button
         className='text-blue-700 border-blue-700 mr-4'
         disabled={isLoading}

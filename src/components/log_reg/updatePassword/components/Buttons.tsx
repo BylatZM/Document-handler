@@ -35,7 +35,7 @@ export const Buttons: FC<IProps> = ({
   return (
     <div className='text-end'>
       <Button
-        className='inline mr-4 border-[1px] border-blue-700 text-blue-700'
+        className='inline mr-1 sm:mr-4 border-[1px] border-blue-700 text-blue-700'
         disabled={isLoading}
         onClick={() => {
           changeNeedShowForm(false);

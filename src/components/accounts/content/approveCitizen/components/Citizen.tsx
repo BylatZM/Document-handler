@@ -28,26 +28,26 @@ export const Citizen: FC<CitizenProps> = ({
         isFormActive ? 'w-full' : 'w-0',
       )}
     >
-      <div className='flex inset-0 m-auto'>
+      <div className='flex w-fit h-fit'>
         <button className='bg-none' onClick={() => CarouselMethods.current.prev()}>
           <GrCaretNext className='text-3xl rotate-180 hover:scale-150' />
         </button>
         <div
           className={clsx(
-            'flex flex-col justify-between rounded-md bg-blue-700 p-[20px] bg-opacity-10 backdrop-blur-xl w-[600px] h-[500px]',
+            'flex flex-col justify-between rounded-md bg-blue-700 p-[5px] sm:p-[20px] bg-opacity-10 backdrop-blur-xl w-[270px] h-[500px] sm:w-[600px] sm:h-[500px]',
           )}
         >
-          <span className='font-bold text-2xl mb-2'>Информация о жителе</span>
+          <span className='font-bold text-lg sm:text-2xl mb-2'>Информация о жителе</span>
           <Carousel
             autoplay={false}
             dots={false}
             ref={CarouselMethods}
-            className='overflow-hidden w-[558px] h-[370px]'
+            className='overflow-hidden w-[260px] h-[400px] sm:w-[560px] sm:h-[380px]'
           >
             <CitizenBaseInfo data={selectedUserInfo} />
             <CitizenPossessions />
           </Carousel>
-          <div className='flex w-full justify-end'>
+          <div className='text-end'>
             <Button
               className='border-[1px] border-black text-black h-[40px]'
               onClick={() => {
