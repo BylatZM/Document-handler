@@ -7,7 +7,7 @@ const initialState: IUserState = {
   user: {
     id: 0,
     first_name: '',
-    role: { role: '' },
+    role: '',
     last_name: '',
     patronymic: null,
     phone: null,

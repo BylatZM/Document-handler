@@ -7,12 +7,12 @@ interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  complexes: IComplex[] | null;
+  complexes: IComplex[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
   getBuildings: (complex_id: string) => Promise<void>;
-  buildings: IPossession[] | null;
-  possessions: IPossession[] | null;
+  buildings: IPossession[];
+  possessions: IPossession[];
   error: IError | null;
   changeError: React.Dispatch<React.SetStateAction<IError | null>>;
 }
@@ -34,7 +34,7 @@ export const Complex: FC<IProps> = ({
   return (
     <div className='flex flex-col gap-2 w-[48%]'>
       <span>Жилой комплекс</span>
-      {role.role === 'citizen' && (
+      {role === 'citizen' && (
         <Select
           value={!data.complex.id ? undefined : data.complex.id}
           onChange={(e: number) => {
@@ -72,19 +72,19 @@ export const Complex: FC<IProps> = ({
           }
         />
       )}
-      {role.role === 'dispatcher' && complexes && (
+      {role === 'dispatcher' && complexes.length && (
         <Select
           value={!data.complex.id ? undefined : data.complex.id}
           onChange={(e: number) => {
-            if (possessions) possessionSuccess(null);
-            if (buildings) buildingSuccess(null);
+            if (possessions.length) possessionSuccess([]);
+            if (buildings.length) buildingSuccess([]);
             if (error) changeError(null);
             getBuildings(e.toString());
             changeFormData((prev) => ({
               ...prev,
               complex: { id: e, name: '' },
               building: { id: 0, address: '' },
-              possession: { id: 0, address: '', car: null },
+              possession: { id: 0, address: '', type: 'квартира' },
             }));
           }}
           disabled={form_id !== 0 ? true : false}
@@ -98,7 +98,7 @@ export const Complex: FC<IProps> = ({
           }
         />
       )}
-      {role.role === 'executor' && (
+      {role === 'executor' && (
         <Select
           value={!data.complex.id ? undefined : data.complex.id}
           disabled

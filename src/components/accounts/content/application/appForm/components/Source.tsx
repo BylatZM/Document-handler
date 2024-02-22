@@ -6,20 +6,20 @@ interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  sources: ISource[] | null;
+  sources: ISource[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
 }
 
 export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormData }) => {
   return (
     <>
-      {role.role !== 'citizen' && (
+      {role !== 'citizen' && (
         <div className='w-[48%] mt-2 gap-2 flex flex-col'>
           <span>Источник</span>
           <Select
             value={!data.source.id ? undefined : data.source.id}
             disabled={
-              role.role === 'executor' ||
+              role === 'executor' ||
               (data.status &&
                 form_id > 0 &&
                 data.status.appStatus !== 'Новая' &&
@@ -31,14 +31,10 @@ export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormDat
             onChange={(e: number) =>
               changeFormData((prev) => ({ ...prev, source: { id: e, appSource: '' } }))
             }
-            options={
-              !sources
-                ? []
-                : sources.map((el) => ({
-                    value: el.id,
-                    label: el.appSource,
-                  }))
-            }
+            options={sources.map((el) => ({
+              value: el.id,
+              label: el.appSource,
+            }))}
           />
         </div>
       )}

@@ -38,7 +38,9 @@ export const Possessions: FC<ICitizenFormProps> = ({
   const { citizenErrors, possessionSuccess, buildingSuccess } = useActions();
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
   const isLoadingPossession = useTypedSelector((state) => state.PossessionReducer.isLoading);
-  const { complex, building, possession } = useTypedSelector((state) => state.PossessionReducer);
+  const { complexes, buildings, possessions } = useTypedSelector(
+    (state) => state.PossessionReducer,
+  );
   const logout = useLogout();
   const [formData, changeFormData] = useState<ICitizen>(data.info);
 
@@ -53,7 +55,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
     if (!response) return;
 
     if ('form_id' in response) {
-      possessionSuccess(null);
+      possessionSuccess([]);
       citizenErrors(response);
     } else possessionSuccess(response);
   };
@@ -93,7 +95,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         getBuildings={getBuildings}
         loadingForm={isLoading}
         loadingPossession={isLoadingPossession}
-        complexes={complex}
+        complexes={complexes}
       />
       <Building
         data={formData}
@@ -103,8 +105,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         citizenErrors={citizenErrors}
         getPossessions={getPossessions}
         loadingForm={isLoading}
-        loadingPossession={isLoadingPossession}
-        buildings={building}
+        buildings={buildings}
       />
       <Possession
         data={formData}
@@ -114,8 +115,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         changeFormData={changeFormData}
         citizenErrors={citizenErrors}
         loadingForm={isLoading}
-        loadingPossession={isLoadingPossession}
-        possessions={possession}
+        possessions={possessions}
       />
       <Buttons
         data={formData}

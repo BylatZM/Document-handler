@@ -6,7 +6,7 @@ interface IProps {
   role: IRole;
   form_id: number;
   data: IApplication;
-  workers: IEmployee[] | null;
+  workers: IEmployee[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
 }
 
@@ -14,7 +14,7 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
   return (
     <div className='flex flex-col gap-2 w-full'>
       <span>исполнитель</span>
-      {['executor'].some((el) => el === role.role) && (
+      {['executor'].some((el) => el === role) && (
         <Select
           value={!data.employee ? undefined : data.employee.id}
           disabled
@@ -33,7 +33,7 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
           ]}
         />
       )}
-      {role.role === 'dispatcher' && workers && (
+      {role === 'dispatcher' && workers.length && (
         <Select
           value={!data.employee ? undefined : data.employee.id}
           onChange={(e: number) =>

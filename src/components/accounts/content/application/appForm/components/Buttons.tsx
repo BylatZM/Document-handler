@@ -30,6 +30,8 @@ interface IProps {
   logout: () => void;
   buildings: IPossession[] | null;
   possessions: IPossession[] | null;
+  changeData: React.Dispatch<React.SetStateAction<IApplication>>;
+  refreshFormData: () => void;
 }
 
 export const Buttons: FC<IProps> = ({
@@ -40,6 +42,8 @@ export const Buttons: FC<IProps> = ({
   logout,
   buildings,
   possessions,
+  changeData,
+  refreshFormData,
 }) => {
   const { updateApplication, applicationSuccess, buildingSuccess, possessionSuccess } =
     useActions();
@@ -75,24 +79,21 @@ export const Buttons: FC<IProps> = ({
   };
 
   const create_application = async () => {
-    if (!statuses || !data.subType) return;
+    if (!statuses.length || !data.subType || !data.type) return;
     changeLoadingButton('create');
     if (errorButton) changeErrorButton(null);
     let info: IAppCreateByCitizen | IAppCreateByDispatcher = {
-      source: data.source.id,
-      grade: 1,
       subType: data.subType.id,
       type: data.type.id,
       citizenComment: data.citizenComment,
       complex: data.complex.id,
       building: data.building.id,
       possession: data.possession.id,
-      status: statuses.filter((el) => el.appStatus === 'Новая')[0].id,
+      contact: data.contact,
+      citizenFio: data.citizenFio,
     };
-    if (role.role === 'dispatcher' && data.priority && data.employee) {
+    if (role === 'dispatcher') {
       info = {
-        grade: 1,
-        status: statuses.filter((el) => el.appStatus === 'Назначена')[0].id,
         priority: data.priority.id,
         source: data.source.id,
         subType: data.subType.id,
@@ -102,12 +103,10 @@ export const Buttons: FC<IProps> = ({
         building: data.building.id,
         possession: data.possession.id,
         employee: data.employee.id,
+        contact: data.contact,
+        dispatcherComment: data.dispatcherComment,
+        citizenFio: data.citizenFio,
       };
-      if (data.dispatcherComment && role.role === 'dispatcher')
-        info = {
-          ...info,
-          dispatcherComment: data.dispatcherComment,
-        };
     }
 
     const response = await createApplicationsRequest(logout, info);
@@ -134,21 +133,22 @@ export const Buttons: FC<IProps> = ({
     const response = await updateAppStatusRequest(form_id.toString(), logout, status.id);
     changeLoadingButton(null);
     if (response === 200) {
-      if (status.appStatus === 'Закрыта') changeSuccessButton((prev) => 'close_application');
+      updateApplication({
+        app_id: form_id,
+        application: {
+          ...data,
+          status: { id: status.id, appStatus: status.appStatus },
+        },
+      });
+      if (status.appStatus === 'Закрыта') {
+        changeSuccessButton((prev) => 'close_application');
+        await get_applications();
+      }
       if (status.appStatus === 'Возвращена') changeSuccessButton((prev) => 'return_for_revision');
       if (status.appStatus === 'В работе') changeSuccessButton((prev) => 'proceed_to_execution');
       setTimeout(async () => {
         changeSuccessButton((prev) => null);
-        updateApplication({
-          app_id: form_id,
-          application: {
-            ...data,
-            status: { id: status.id, appStatus: status.appStatus },
-          },
-        });
         exitFromForm();
-        if (status.appStatus === 'Закрыта' || status.appStatus === 'Возвращена')
-          await get_applications();
       }, 2000);
     } else {
       if (status.appStatus === 'Закрыта') changeErrorButton((prev) => 'close_application');
@@ -158,7 +158,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   const update_application = async () => {
-    if (!data.status || !data.employee || !statuses || !data.subType) return;
+    if (!data.status || !data.employee || !statuses.length || !data.subType) return;
 
     changeLoadingButton('update');
     if (errorButton) changeErrorButton(null);
@@ -167,23 +167,16 @@ export const Buttons: FC<IProps> = ({
       employeeComment: data.employeeComment,
     };
     const status = statuses.filter((el) => el.appStatus === 'Назначена')[0];
-    if (role.role === 'dispatcher') {
-      if (!data.priority) return;
+    if (role === 'dispatcher') {
+      if (!data.type) return;
       info = {
-        citizenComment: data.citizenComment,
         employee: data.employee.id,
         type: data.type.id,
         subType: data.subType.id,
-        status: data.status.appStatus === 'Новая' ? status.id : data.status.id,
         source: data.source.id,
         priority: data.priority.id,
+        dispatcherComment: data.dispatcherComment,
       };
-      if (data.dispatcherComment) {
-        info = {
-          ...info,
-          dispatcherComment: data.dispatcherComment,
-        };
-      }
     }
     const response = await updateAppRequest(form_id.toString(), logout, info);
     changeLoadingButton(null);
@@ -207,7 +200,7 @@ export const Buttons: FC<IProps> = ({
 
   return (
     <div className='gap-4 flex justify-center'>
-      {form_id < 1 && ['citizen', 'dispatcher'].some((el) => el === role.role) && (
+      {form_id < 1 && ['citizen', 'dispatcher'].some((el) => el === role) && (
         <ConfigProvider
           theme={{
             components: {
@@ -234,22 +227,23 @@ export const Buttons: FC<IProps> = ({
               data.subType &&
               data.subType.id &&
               data.possession.id &&
-              data.source.id &&
-              data.type.id &&
+              data.type &&
               data.citizenComment &&
               data.citizenComment.length < 501 &&
-              ((role.role === 'dispatcher' &&
+              ((role === 'dispatcher' &&
                 ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
                   !data.dispatcherComment) &&
                 data.employee &&
+                /^\+\d{11}$/.test(data.contact) &&
                 data.employee.id &&
+                data.source.id &&
                 data.status &&
                 data.status.id &&
                 data.priority &&
                 data.priority.id &&
                 data.grade &&
                 data.grade.id) ||
-                role.role === 'citizen')
+                role === 'citizen')
                 ? false
                 : true
             }
@@ -278,7 +272,7 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {form_id !== 0 && ['dispatcher', 'executor'].some((el) => el === role.role) && (
+      {form_id !== 0 && ['dispatcher', 'executor'].some((el) => el === role) && (
         <>
           <ConfigProvider
             theme={{
@@ -305,10 +299,10 @@ export const Buttons: FC<IProps> = ({
                 data.subType &&
                 data.subType.id &&
                 data.status.appStatus !== 'Закрыта' &&
-                ((role.role === 'dispatcher' &&
+                ((role === 'dispatcher' &&
                   ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
                     !data.dispatcherComment) &&
-                  data.type.id &&
+                  data.type &&
                   data.source.id &&
                   data.building.id &&
                   data.complex.id &&
@@ -318,7 +312,7 @@ export const Buttons: FC<IProps> = ({
                   data.employee &&
                   data.employee.id &&
                   data.citizenComment) ||
-                  (role.role === 'executor' &&
+                  (role === 'executor' &&
                     data.status.appStatus !== 'Назначена' &&
                     data.status.appStatus !== 'Возвращена' &&
                     data.employeeComment &&
@@ -415,7 +409,7 @@ export const Buttons: FC<IProps> = ({
           </ConfigProvider>
         </>
       )}
-      {form_id !== 0 && role.role === 'executor' && (
+      {form_id !== 0 && role === 'executor' && (
         <ConfigProvider
           theme={{
             components: {
@@ -478,7 +472,7 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {form_id !== 0 && role.role === 'dispatcher' && (
+      {form_id !== 0 && role === 'dispatcher' && (
         <ConfigProvider
           theme={{
             components: {
@@ -557,8 +551,8 @@ export const Buttons: FC<IProps> = ({
           disabled={loadingButton ? true : false}
           onClick={() => {
             exitFromForm();
-            if (buildings) buildingSuccess(null);
-            if (possessions) possessionSuccess(null);
+            if (buildings) buildingSuccess([]);
+            if (possessions) possessionSuccess([]);
             if (errorButton) changeErrorButton(null);
           }}
         >

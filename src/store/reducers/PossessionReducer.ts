@@ -3,9 +3,9 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IPossession, IPossessionState, IComplex, IPosLoading } from '../../components/types';
 
 const initialState: IPossessionState = {
-  building: null,
-  complex: null,
-  possession: null,
+  buildings: [],
+  complexes: [],
+  possessions: [],
   isLoading: null,
   notApprovedPossessions: null,
 };
@@ -25,15 +25,15 @@ export const PossessionReducer = createSlice({
       state.isLoading = null;
     },
     complexSuccess: (state, { payload }: PayloadAction<IComplex[]>) => {
-      state.complex = payload;
+      state.complexes = payload;
       state.isLoading = null;
     },
-    buildingSuccess: (state, { payload }: PayloadAction<IPossession[] | null>) => {
-      state.building = payload;
+    buildingSuccess: (state, { payload }: PayloadAction<IPossession[]>) => {
+      state.buildings = payload;
       state.isLoading = null;
     },
-    possessionSuccess: (state, { payload }: PayloadAction<IPossession[] | null>) => {
-      state.possession = payload;
+    possessionSuccess: (state, { payload }: PayloadAction<IPossession[]>) => {
+      state.possessions = payload;
       state.isLoading = null;
     },
     possessionClear: (state): IPossessionState => {

@@ -171,8 +171,8 @@ export const Buttons: FC<IProp> = ({
         className='text-blue-700 bg-none border-blue-700'
         disabled={updatingFormId === form_id ? true : false}
         onClick={() => {
-          buildingSuccess(null);
-          possessionSuccess(null);
+          buildingSuccess([]);
+          possessionSuccess([]);
           if (data.complex.id) getBuildings(data.complex.id.toString());
           if (data.possessionType && data.building.id)
             getPossessions(data.possessionType, data.building.id.toString());

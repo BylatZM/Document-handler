@@ -6,20 +6,20 @@ interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  priorities: IPriority[] | null;
+  priorities: IPriority[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
 }
 
 export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, form_id }) => {
   return (
     <>
-      {role.role !== 'citizen' && (
+      {role !== 'citizen' && (
         <div className='w-[48%] mt-2 gap-2 flex flex-col'>
           <span>Приоритет исполнения</span>
           <Select
             value={!data.priority ? undefined : data.priority.id}
             disabled={
-              ['executor', 'citizen'].some((el) => el === role.role) ||
+              ['executor', 'citizen'].some((el) => el === role) ||
               (data.status &&
                 form_id > 0 &&
                 data.status.appStatus !== 'Новая' &&
@@ -31,14 +31,10 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
             onChange={(e: number) =>
               changeFormData((prev) => ({ ...prev, priority: { id: e, appPriority: '' } }))
             }
-            options={
-              !priorities
-                ? []
-                : priorities.map((el) => ({
-                    value: el.id,
-                    label: el.appPriority,
-                  }))
-            }
+            options={priorities.map((el) => ({
+              value: el.id,
+              label: el.appPriority,
+            }))}
           />
         </div>
       )}

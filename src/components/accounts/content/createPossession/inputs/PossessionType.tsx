@@ -1,15 +1,14 @@
 import { Select } from 'antd';
-import { IApprovePossession, ICar } from '../../../../types';
+import { IApprovePossession } from '../../../../types';
 import { FC } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 
 interface IProps {
   data: IApprovePossession;
   changeData: React.Dispatch<React.SetStateAction<IApprovePossession>>;
-  defaultCar: ICar;
 }
 
-export const PossessionType: FC<IProps> = ({ data, changeData, defaultCar }) => {
+export const PossessionType: FC<IProps> = ({ data, changeData }) => {
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   return (
     <div className='text-sm'>
@@ -17,7 +16,7 @@ export const PossessionType: FC<IProps> = ({ data, changeData, defaultCar }) => 
       <Select
         className='w-full'
         options={
-          role.role === 'citizen'
+          role === 'citizen'
             ? [
                 { label: 'квартира', value: 1 },
                 { label: 'коммерческое помещение', value: 2 },
@@ -39,7 +38,6 @@ export const PossessionType: FC<IProps> = ({ data, changeData, defaultCar }) => 
             type: e,
             possession: {
               ...prev.possession,
-              car: e === 3 ? defaultCar : null,
             },
           }))
         }

@@ -59,7 +59,7 @@ export const Menu: FC<IMenuProps> = ({ isOpened }) => {
               citizen={citizen}
               pathname={pathname}
             />
-            {role.role === 'dispatcher' && (
+            {role === 'dispatcher' && (
               <>
                 <Directories
                   changeActiveAccordion={changeActiveAccordion}

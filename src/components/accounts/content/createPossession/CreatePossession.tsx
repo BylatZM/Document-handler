@@ -1,6 +1,6 @@
 import { useState, FC, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { IApprovePossession, ICar, IError } from '../../../types';
+import { IApprovePossession, IError } from '../../../types';
 import { getBuildingsRequest } from '../../../../api/requests/Possession';
 import { useLogout } from '../../../hooks/useLogout';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
@@ -16,12 +16,6 @@ interface IProps {
   changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const defaultCar: ICar = {
-  car_brand: '',
-  car_model: null,
-  state_number: null,
-};
-
 const defaultPossessionInfo: IApprovePossession = {
   type: 1,
   complex: 0,
@@ -35,7 +29,7 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
   const { user, isLoading } = useTypedSelector((state) => state.UserReducer);
   const [error, changeError] = useState<IError | null>(null);
-  const { building, complex } = useTypedSelector((state) => state.PossessionReducer);
+  const { buildings, complexes } = useTypedSelector((state) => state.PossessionReducer);
   const { buildingSuccess } = useActions();
   const logout = useLogout();
   const [needInitializeForm, changeNeedInitializeForm] = useState(true);
@@ -46,22 +40,21 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
   };
 
   useEffect(() => {
-    if (!complex || !needInitializeForm || !needShowForm) return;
+    if (!complexes.length || !needInitializeForm || !needShowForm) return;
 
-    if (!building) {
-      changeFormData((prev) => ({ ...prev, complex: complex[0].id }));
-      getBuildings(complex[0].id.toString());
+    changeFormData((prev) => ({ ...prev, complex: complexes[0].id }));
+    if (!buildings.length) {
+      getBuildings(complexes[0].id.toString());
     } else {
-      changeFormData((prev) => ({ ...prev, building: building[0].id }));
+      changeFormData((prev) => ({ ...prev, building: buildings[0].id }));
       changeNeedInitializeForm(false);
     }
-  }, [needShowForm, building]);
+  }, [needShowForm, buildings]);
 
   const exitFromForm = () => {
     changeNeedShowForm(false);
     changeNeedInitializeForm(true);
     if (error) changeError(null);
-    if (building) buildingSuccess(null);
     changeFormData(defaultPossessionInfo);
   };
 
@@ -76,13 +69,13 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
         <div className='text-xl font-bold text-center mb-4'>Добавить собственность</div>
         <div className='flex flex-col gap-4'>
           <Complex
-            complexes={complex}
+            complexes={complexes}
             getBuildings={getBuildings}
             data={formData}
             changeData={changeFormData}
           />
-          <PossessionType data={formData} changeData={changeFormData} defaultCar={defaultCar} />
-          <Building data={formData} changeData={changeFormData} buildings={building} />
+          <PossessionType data={formData} changeData={changeFormData} />
+          <Building data={formData} changeData={changeFormData} buildings={buildings} />
           <Possession data={formData} changeData={changeFormData} error={error} />
         </div>
         <Buttons
@@ -90,7 +83,7 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
           changeError={changeError}
           error={error}
           isLoading={isLoading}
-          role={user.role.role}
+          role={user.role}
           logout={logout}
           exitFromForm={exitFromForm}
         />

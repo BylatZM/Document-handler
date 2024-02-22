@@ -18,7 +18,7 @@ interface IProps {
   getBuildings: (complex_id: string) => void;
   loadingForm: ICitizenLoading;
   loadingPossession: IPosLoading;
-  complexes: IComplex[] | null;
+  complexes: IComplex[];
 }
 
 export const Complex: FC<IProps> = ({
@@ -41,13 +41,13 @@ export const Complex: FC<IProps> = ({
           className='w-full'
           disabled={
             (loadingForm && loadingForm.form_id === form_id) ||
-            !complexes ||
+            !complexes.length ||
             loadingPossession === 'complex'
               ? true
               : false
           }
           value={!data.complex.name ? undefined : data.complex.id}
-          options={!complexes ? [] : complexes.map((el) => ({ value: el.id, label: el.name }))}
+          options={complexes.map((el) => ({ value: el.id, label: el.name }))}
           onChange={(e: number) => {
             if (error) citizenErrors(null);
             changeFormData((prev) => ({

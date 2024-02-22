@@ -7,12 +7,12 @@ interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  buildings: IPossession[] | null;
+  buildings: IPossession[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
   getPossessions: (type: string, building_id: string) => Promise<void>;
   error: IError | null;
-  possessions: IPossession[] | null;
+  possessions: IPossession[];
   changeError: React.Dispatch<React.SetStateAction<IError | null>>;
 }
 
@@ -33,7 +33,7 @@ export const Building: FC<IProps> = ({
   return (
     <div className='flex flex-col gap-2 w-[48%]'>
       <span>Здание</span>
-      {role.role === 'citizen' && (
+      {role === 'citizen' && (
         <Select
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
@@ -71,11 +71,11 @@ export const Building: FC<IProps> = ({
           }
         />
       )}
-      {role.role === 'dispatcher' && (
+      {role === 'dispatcher' && (
         <Select
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
-            if (possessions) possessionSuccess([]);
+            if (possessions.length) possessionSuccess([]);
             if (error) changeError(null);
             getPossessions(data.possessionType, e.toString());
             changeFormData((prev) => ({
@@ -84,7 +84,7 @@ export const Building: FC<IProps> = ({
               possession: {
                 id: 0,
                 address: '',
-                car: null,
+                type: 'квартира',
               },
             }));
           }}
@@ -92,7 +92,7 @@ export const Building: FC<IProps> = ({
           options={
             form_id !== 0
               ? [{ label: data.building.address, value: data.building.id }]
-              : buildings
+              : buildings.length
               ? buildings.map((el) => ({
                   value: el.id,
                   label: el.address,
@@ -101,7 +101,7 @@ export const Building: FC<IProps> = ({
           }
         />
       )}
-      {role.role === 'executor' && (
+      {role === 'executor' && (
         <Select
           value={!data.building.id ? undefined : data.building.id}
           disabled

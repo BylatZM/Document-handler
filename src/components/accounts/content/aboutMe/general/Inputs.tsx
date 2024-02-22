@@ -2,7 +2,6 @@ import { Input } from 'antd';
 import { IError, IUser } from '../../../../types';
 import { FC } from 'react';
 import { useActionType } from '../../../../hooks/useActions';
-import clsx from 'clsx';
 
 interface IProps {
   user: IUser;
@@ -13,9 +12,9 @@ interface IProps {
 
 export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
   const getRole = (): string => {
-    if (user.role.role === 'citizen') return 'житель';
-    if (user.role.role === 'dispatcher') return 'диспетчер';
-    if (user.role.role === 'executor') return 'исполнитель';
+    if (user.role === 'citizen') return 'житель';
+    if (user.role === 'dispatcher') return 'диспетчер';
+    if (user.role === 'executor') return 'исполнитель';
     return '';
   };
   return (

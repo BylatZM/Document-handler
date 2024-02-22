@@ -54,7 +54,11 @@ export const Account = () => {
     const profile_response = await getUserRequest(logout);
     if (profile_response) {
       userSuccess(profile_response);
-      if (profile_response.role.role === 'dispatcher') {
+      if (!['dispatcher', 'executor', 'citizen'].some((el) => el === profile_response.role)) {
+        logout();
+        return;
+      }
+      if (profile_response.role === 'dispatcher') {
         const employs = await getEmploysRequest(logout);
         if (employs) employsSuccess(employs);
         const notApprovedUsers = await getNotApprovedUsersRequest(logout);
@@ -62,11 +66,11 @@ export const Account = () => {
         const notApprovedPossessions = await getNotApprovedPossessionsRequest(logout);
         if (notApprovedPossessions) notApprovedPossessionSuccess(notApprovedPossessions);
       }
-      if (profile_response.role.role !== 'executor') {
+      if (profile_response.role !== 'executor') {
         await get_complexes();
       }
       await get_applications();
-      if (profile_response.role.role) await get_citizen();
+      if (profile_response.role) await get_citizen();
       if (profile_response.account_status === 'подтвержден') {
         await get_static_select_info();
         navigate('/account/applications');
@@ -115,18 +119,18 @@ export const Account = () => {
     if (pathname === '/account/aboutMe') return <AboutMe />;
     if (pathname === '/account/applications') {
       if (user.account_status !== 'подтвержден') return <ErrorPage message='Страница не найдена' />;
-      if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role.role))
+      if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role))
         return <ErrorPage message='Страница не найдена' />;
 
       return <Application />;
     }
-    if (pathname === '/account/approve/user' && user.role.role === 'dispatcher')
+    if (pathname === '/account/approve/user' && user.role === 'dispatcher')
       return <ApproveCitizen />;
 
-    if (pathname === '/account/approve/possession' && user.role.role === 'dispatcher')
+    if (pathname === '/account/approve/possession' && user.role === 'dispatcher')
       return <ApprovePossession />;
 
-    if (pathname === '/account/approve/possession' && user.role.role === 'dispatcher')
+    if (pathname === '/account/approve/possession' && user.role === 'dispatcher')
       return <ApproveCitizen />;
   };
 

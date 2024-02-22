@@ -18,8 +18,8 @@ export const Applications: FC<IProps> = ({ account_status, role, citizen, pathna
     <Popover
       content={
         (account_status !== 'подтвержден' || !citizen[0].id) &&
-        role.role !== 'dispatcher' &&
-        role.role !== 'executor' ? (
+        role !== 'dispatcher' &&
+        role !== 'executor' ? (
           <>
             <div>Сперва создайте собственность</div>
             <div>Укажите вашу фамилию, имя, номер телефона, отчество (при наличии)</div>
@@ -34,8 +34,8 @@ export const Applications: FC<IProps> = ({ account_status, role, citizen, pathna
         onClick={() => navigate('/account/applications')}
         disabled={
           (account_status !== 'подтвержден' || !citizen[0].id) &&
-          role.role !== 'dispatcher' &&
-          role.role !== 'executor'
+          role !== 'dispatcher' &&
+          role !== 'executor'
             ? true
             : false
         }

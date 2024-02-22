@@ -41,9 +41,9 @@ export interface IHelpFormRequest {
 }
 
 export interface IPossessionState {
-  building: IPossession[] | null;
-  complex: IComplex[] | null;
-  possession: IPossession[] | null;
+  buildings: IPossession[];
+  complexes: IComplex[];
+  possessions: IPossession[];
   notApprovedPossessions: INotApprovedPossessions[] | null;
   isLoading: IPosLoading;
 }
@@ -57,13 +57,13 @@ export interface IUserState {
 
 export interface IApplicationState {
   userApplication: IApplication[];
-  types: IType[] | null;
-  grades: IGrade[] | null;
-  employs: IEmployee[] | null;
-  sources: ISource[] | null;
-  priorities: IPriority[] | null;
-  statuses: IStatus[] | null;
-  subTypes: ISubType[] | null;
+  types: IType[];
+  grades: IGrade[];
+  employs: IEmployee[];
+  sources: ISource[];
+  priorities: IPriority[];
+  statuses: IStatus[];
+  subTypes: ISubType[];
   isLoading: boolean;
   error: IError | null;
 }
@@ -122,62 +122,65 @@ export type IUserUpdate = Omit<IUser, 'id' | 'role' | 'account_status' | 'email'
 
 export interface IApplication {
   id: number;
-  status: IStatus | null;
-  priority: IPriority | null;
-  type: IType;
-  grade: IGrade | null;
-  creatingDate: string | null;
+  status: IStatus;
+  type: IType | null;
+  subType: ISubType | null;
+  grade: IGrade;
+  creatingDate: string;
   dueDate: string | null;
   citizenComment: string;
+  priority: IPriority;
   source: ISource;
-  subType: ISubType | null;
   complex: IComplex;
   building: IPossession;
-  possession: IPossession;
-  employee: IEmployee | null;
-  dispatcherComment: string | null;
-  employeeComment: string | null;
+  possession: IApplicationPossession;
+  employee: IEmployee;
+  dispatcherComment: string;
+  employeeComment: string;
   user: number;
   possessionType: string;
+  contact: string;
+  citizenFio: string;
 }
 
-export type IAppCreateByCitizen = Pick<IApplication, 'citizenComment'> & {
+export type IAppCreateByCitizen = Pick<
+  IApplication,
+  'citizenComment' | 'contact' | 'citizenFio'
+> & {
   complex: number;
   building: number;
   possession: number;
   type: number;
-  source: number;
-  status: number;
-  grade: number;
   subType: number;
 };
 
-export type IAppCreateByDispatcher = {
+export type IAppCreateByDispatcher = Pick<
+  IApplication,
+  'citizenComment' | 'contact' | 'citizenFio'
+> & {
   complex: number;
   building: number;
   possession: number;
   employee: number;
   type: number;
   source: number;
-  status: number;
-  grade: number;
   priority: number;
-  dispatcherComment?: string | null;
+  dispatcherComment?: string;
   subType: number;
 };
 
 export type IAppUpdateByDispatcher = {
-  citizenComment: string;
-  employee: number;
-  status: number;
   type: number;
+  subType: number;
   source: number;
   priority: number;
-  dispatcherComment?: string | null;
-  subType: number;
+  dispatcherComment: string;
+  employee: number;
 };
 
 export type IAppUpdateByEmployee = Pick<IApplication, 'employeeComment'>;
+
+export type IAppUpdateStatus = Pick<IApplication, 'status'>;
 
 export interface IStatus {
   id: number;
@@ -255,9 +258,7 @@ export type ICitizenRequest = Omit<ICitizen, 'id' | 'complex' | 'building' | 'po
   possession: number;
 };
 
-export interface IRole {
-  role: string;
-}
+export type IRole = 'executor' | 'dispatcher' | 'citizen' | string;
 
 export interface IComplex {
   id: number;
@@ -273,6 +274,12 @@ export interface ICar {
 export interface IPossession {
   id: number;
   address: string;
+}
+
+export interface IApplicationPossession {
+  id: number;
+  address: string;
+  type: 'квартира' | 'коммерческое помещение' | 'парковка' | 'кладовка' | 'жилищный комплекс';
 }
 
 export type IPossessionStatus = 'отклонена' | 'новая' | 'подтверждена';
@@ -294,6 +301,7 @@ export interface IApplicationColumns {
   due_date: string;
   citizen_comment: string;
   possession: string;
+  contact: string;
 }
 
 export interface IUpdatePassword {

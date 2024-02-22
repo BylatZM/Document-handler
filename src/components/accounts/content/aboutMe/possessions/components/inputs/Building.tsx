@@ -1,12 +1,6 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import {
-  IPossession,
-  ICitizen,
-  ICitizenError,
-  ICitizenLoading,
-  IPosLoading,
-} from '../../../../../../types';
+import { IPossession, ICitizen, ICitizenError, ICitizenLoading } from '../../../../../../types';
 
 interface IProps {
   data: ICitizen;
@@ -16,8 +10,7 @@ interface IProps {
   citizenErrors: (error: ICitizenError | null) => void;
   getPossessions: (type: string, building_id: string) => void;
   loadingForm: ICitizenLoading;
-  loadingPossession: IPosLoading;
-  buildings: IPossession[] | null;
+  buildings: IPossession[];
 }
 
 export const Building: FC<IProps> = ({
@@ -28,7 +21,6 @@ export const Building: FC<IProps> = ({
   citizenErrors,
   getPossessions,
   loadingForm,
-  loadingPossession,
   buildings,
 }) => {
   return (
@@ -38,19 +30,17 @@ export const Building: FC<IProps> = ({
         <Select
           className='w-full'
           disabled={
-            loadingForm.form_id === form_id || !data.complex.id || loadingPossession === 'building'
-              ? true
-              : false
+            loadingForm.form_id === form_id || !data.complex.id || !buildings.length ? true : false
           }
-          value={!data.building.id || !buildings ? undefined : data.building.id}
-          options={!buildings ? [] : buildings.map((el) => ({ value: el.id, label: el.address }))}
+          value={!data.building.id || !buildings.length ? undefined : data.building.id}
+          options={buildings.map((el) => ({ value: el.id, label: el.address }))}
           onChange={(e: number) => {
             citizenErrors(null);
             changeFormData((prev) => ({
               ...prev,
               building: {
                 id: e,
-                address: !buildings ? '' : buildings.filter((el) => el.id === e)[0].address,
+                address: !buildings.length ? '' : buildings.filter((el) => el.id === e)[0].address,
               },
               possession: { id: 0, address: '', car: null },
             }));

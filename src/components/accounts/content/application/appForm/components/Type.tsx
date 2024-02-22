@@ -6,7 +6,7 @@ interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  types: IType[] | null;
+  types: IType[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   getSubTypes: (id: string) => Promise<void>;
 }
@@ -15,12 +15,12 @@ export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, g
   return (
     <div className='w-[48%] gap-2 flex flex-col'>
       <span>Тип заявки</span>
-      {types && (
+      {types.length && (
         <Select
-          value={!data.type.id ? undefined : data.type.id}
+          value={!data.type ? undefined : data.type.id}
           disabled={
-            role.role === 'executor' ||
-            (role.role === 'citizen' && form_id > 0) ||
+            role === 'executor' ||
+            (role === 'citizen' && form_id > 0) ||
             (data.status &&
               form_id > 0 &&
               data.status.appStatus !== 'Новая' &&
@@ -33,7 +33,7 @@ export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, g
             changeFormData((prev) => ({
               ...prev,
               type: { id: e, appType: types.filter((el) => el.id === e)[0].appType },
-              subType: { id: 0, subType: '', normative: 0 },
+              subType: null,
             }));
             getSubTypes(e.toString());
           }}

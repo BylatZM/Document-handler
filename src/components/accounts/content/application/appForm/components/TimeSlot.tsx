@@ -25,7 +25,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
           </div>
         </>
       )}
-      {((role.role === 'citizen' && form_id !== 0) || role.role !== 'citizen') && (
+      {((role === 'citizen' && form_id !== 0) || role !== 'citizen') && (
         <>
           <div className='flex flex-col gap-y-2 w-full'>
             <span>Комментарий диспетчера</span>
@@ -39,7 +39,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
               rows={5}
               style={{ resize: 'none' }}
               disabled={
-                ['citizen', 'executor'].some((el) => el === role.role) ||
+                ['citizen', 'executor'].some((el) => el === role) ||
                 (data.status && data.status.appStatus === 'Закрыта')
                   ? true
                   : false
@@ -58,7 +58,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
               rows={5}
               style={{ resize: 'none' }}
               disabled={
-                ['citizen', 'dispatcher'].some((el) => el === role.role) ||
+                ['citizen', 'dispatcher'].some((el) => el === role) ||
                 (data.status && data.status.appStatus !== 'В работе')
                   ? true
                   : false

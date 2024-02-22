@@ -23,7 +23,7 @@ export const Main: FC<IProps> = ({ changeNeedShowNotification }) => {
   const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
 
   useEffect(() => {
-    if (['citizen', 'dispatcher'].some((el) => el === user.role.role) && needUpdateCitizen)
+    if (['citizen', 'dispatcher'].some((el) => el === user.role) && needUpdateCitizen)
       getCitizenData();
   }, [needUpdateCitizen]);
 

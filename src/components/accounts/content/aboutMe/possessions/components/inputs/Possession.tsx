@@ -1,11 +1,5 @@
 import { FC } from 'react';
-import {
-  ICitizen,
-  ICitizenError,
-  ICitizenLoading,
-  IPosLoading,
-  IPossession,
-} from '../../../../../../types';
+import { ICitizen, ICitizenError, ICitizenLoading, IPossession } from '../../../../../../types';
 import { Select } from 'antd';
 
 interface IProps {
@@ -16,8 +10,7 @@ interface IProps {
   changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
   citizenErrors: (error: ICitizenError | null) => void;
   loadingForm: ICitizenLoading;
-  loadingPossession: IPosLoading;
-  possessions: IPossession[] | null;
+  possessions: IPossession[];
 }
 
 export const Possession: FC<IProps> = ({
@@ -28,7 +21,6 @@ export const Possession: FC<IProps> = ({
   changeFormData,
   citizenErrors,
   loadingForm,
-  loadingPossession,
   possessions,
 }) => {
   return (
@@ -38,19 +30,21 @@ export const Possession: FC<IProps> = ({
         <Select
           className='w-full'
           disabled={
-            loadingForm.form_id === form_id || !data.building.id || !possessions ? true : false
+            loadingForm.form_id === form_id || !data.building.id || !possessions.length
+              ? true
+              : false
           }
-          value={!possessions || !data.possession.id ? undefined : data.possession.id}
-          options={
-            !possessions ? [] : possessions.map((el) => ({ value: el.id, label: el.address }))
-          }
+          value={!possessions.length || !data.possession.id ? undefined : data.possession.id}
+          options={possessions.map((el) => ({ value: el.id, label: el.address }))}
           onChange={(e: number) => {
             if (error) citizenErrors(null);
             changeFormData((prev) => ({
               ...prev,
               possession: {
                 id: e,
-                address: !possessions ? '' : possessions.filter((el) => el.id === e)[0].address,
+                address: !possessions.length
+                  ? ''
+                  : possessions.filter((el) => el.id === e)[0].address,
               },
             }));
           }}

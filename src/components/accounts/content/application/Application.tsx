@@ -81,7 +81,7 @@ export const Application = () => {
   const [IsFormActive, changeIsFormActive] = useState(false);
   const { userApplication } = useTypedSelector((state) => state.ApplicationReducer);
   const [selectedItem, changeSelectedItem] = useState(0);
-  const role = useTypedSelector((state) => state.UserReducer.user.role.role);
+  const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
   const [checkboxValues, changeCheckboxValues] = useState<null | string[]>(null);
   const [tableColumns, changeTableColumns] = useState<null | ColumnsType<IApplicationColumns>>(
@@ -180,13 +180,14 @@ export const Application = () => {
             dataSource={userApplication.map((el) => ({
               number: el.id,
               creating_date: !el.creatingDate ? '' : el.creatingDate,
-              app_type: el.type.appType,
+              app_type: !el.type ? '' : el.type.appType,
               app_subType: !el.subType || (el.subType && !el.subType.id) ? '' : el.subType.subType,
               status: !el.status ? '' : el.status.appStatus,
               due_date: !el.dueDate ? '' : el.dueDate,
               citizen_comment: el.citizenComment,
               possession:
                 el.complex.name + ' ' + el.building.address + ' собс. ' + el.possession.address,
+              contact: el.contact,
             }))}
             columns={tableColumns}
             components={components}

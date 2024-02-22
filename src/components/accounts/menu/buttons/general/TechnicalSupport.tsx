@@ -14,7 +14,7 @@ export const TechnicalSupport: FC<IProps> = ({ changeNeedShowHelpForm }) => {
       }}
     >
       <MdSupportAgent className='mr-4 ml-4' />
-      <span>Тех. поддержка</span>
+      <span>Техподдержка</span>
     </button>
   );
 };

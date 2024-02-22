@@ -15,15 +15,15 @@ import {
 
 const initialState: IApplicationState = {
   userApplication: [],
-  types: null,
-  grades: null,
-  sources: null,
-  statuses: null,
-  employs: null,
-  priorities: null,
+  types: [],
+  grades: [],
+  sources: [],
+  statuses: [],
+  employs: [],
+  priorities: [],
   error: null,
   isLoading: false,
-  subTypes: null,
+  subTypes: [],
 };
 
 export const ApplicationReducer = createSlice({

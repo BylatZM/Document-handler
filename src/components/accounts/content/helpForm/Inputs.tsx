@@ -5,7 +5,7 @@ import { useActions } from '../../../hooks/useActions';
 export const Inputs = () => {
   const { error, processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
-  const role = useTypedSelector((state) => state.UserReducer.user.role.role);
+  const { role } = useTypedSelector((state) => state.UserReducer.user);
   const { TextArea } = Input;
   const { helpFormInfoSuccess, helpFormError } = useActions();
 

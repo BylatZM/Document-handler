@@ -5,7 +5,7 @@ import { IApprovePossession, IPossession } from '../../../../types';
 interface IProps {
   data: IApprovePossession;
   changeData: React.Dispatch<React.SetStateAction<IApprovePossession>>;
-  buildings: IPossession[] | null;
+  buildings: IPossession[];
 }
 
 export const Building: FC<IProps> = ({ data, changeData, buildings }) => {
@@ -17,7 +17,7 @@ export const Building: FC<IProps> = ({ data, changeData, buildings }) => {
         disabled={!data.complex}
         value={!data.building ? undefined : data.building}
         onChange={(e: number) => changeData((prev) => ({ ...prev, building: e }))}
-        options={!buildings ? [] : buildings.map((el) => ({ value: el.id, label: el.address }))}
+        options={buildings.map((el) => ({ value: el.id, label: el.address }))}
       />
     </div>
   );

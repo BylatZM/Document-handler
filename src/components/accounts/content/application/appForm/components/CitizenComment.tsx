@@ -12,24 +12,14 @@ interface IProps {
 export const CitizenComment: FC<IProps> = ({ form_id, role, data, changeFormData }) => {
   return (
     <div className='mt-2 gap-2 flex flex-col'>
-      <span>Описание заявки (по возможности укажите контактные данные)</span>
+      <span>Описание заявки</span>
       <TextArea
         rows={5}
         maxLength={500}
         value={data.citizenComment}
         onChange={(e) => changeFormData((prev) => ({ ...prev, citizenComment: e.target.value }))}
         className='rounded-md h-[60px]'
-        disabled={
-          role.role === 'executor' ||
-          (role.role === 'citizen' && form_id > 0) ||
-          (data.status &&
-            form_id > 0 &&
-            data.status.appStatus !== 'Новая' &&
-            data.status.appStatus !== 'Назначена' &&
-            data.status.appStatus !== 'Возвращена')
-            ? true
-            : false
-        }
+        disabled={role === 'executor' || form_id > 0 ? true : false}
         style={{ resize: 'none' }}
       />
     </div>
