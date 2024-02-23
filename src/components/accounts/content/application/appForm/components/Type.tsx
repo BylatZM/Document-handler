@@ -8,15 +8,16 @@ interface IProps {
   data: IApplication;
   types: IType[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  getSubTypes: (id: string) => Promise<void>;
+  getSubtypes: (id: string) => Promise<void>;
 }
 
-export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, getSubTypes }) => {
+export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, getSubtypes }) => {
   return (
-    <div className='w-[48%] gap-2 flex flex-col'>
+    <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Тип заявки</span>
       {types.length && (
         <Select
+          className='h-[50px]'
           value={!data.type ? undefined : data.type.id}
           disabled={
             role === 'executor' ||
@@ -33,9 +34,9 @@ export const Type: FC<IProps> = ({ form_id, role, data, types, changeFormData, g
             changeFormData((prev) => ({
               ...prev,
               type: { id: e, appType: types.filter((el) => el.id === e)[0].appType },
-              subType: null,
+              subtype: null,
             }));
-            getSubTypes(e.toString());
+            getSubtypes(e.toString());
           }}
           options={types.map((el) => ({
             value: el.id,

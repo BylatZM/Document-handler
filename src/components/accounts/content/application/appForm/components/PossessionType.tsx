@@ -21,11 +21,11 @@ export const PossessionType: FC<IProps> = ({
   const { citizenErrors } = useActions();
 
   return (
-    <div className='flex flex-col gap-2 w-[48%]'>
+    <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Тип имущества</span>
       {role === 'dispatcher' && form_id < 1 && (
         <Select
-          className='w-full'
+          className='w-full h-[50px]'
           options={[
             { label: 'квартира', value: 1 },
             { label: 'коммерческое помещение', value: 2 },
@@ -40,7 +40,7 @@ export const PossessionType: FC<IProps> = ({
             changeFormData((prev) => ({
               ...prev,
               possessionType: e.toString(),
-              possession: { id: 0, address: '', type: 'квартира' },
+              possession: { id: 0, address: '', type: '', building: '' },
             }));
             if (data.building.id) {
               getPossessions(e.toString(), data.building.id.toString());
@@ -48,7 +48,10 @@ export const PossessionType: FC<IProps> = ({
           }}
         />
       )}
-      {form_id > 0 && <Input disabled className='w-full' value={data.possession.type} />}
+      {role === 'citizen' && form_id < 1 && (
+        <Select className='w-full h-[50px]' value={data.possession.type} disabled />
+      )}
+      {form_id > 0 && <Input disabled className='w-full h-[50px]' value={data.possession.type} />}
     </div>
   );
 };

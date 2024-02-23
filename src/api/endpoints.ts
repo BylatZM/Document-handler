@@ -41,7 +41,7 @@ const endpoints = {
   employee: 'employee/get',
   grade: 'appClass/all',
   type: 'appType/all',
-  subType: 'appSubType/byType/',
+  subType: 'appSubtype/',
   status: 'appStatus/all',
   source: 'appSource/all',
   priority: 'appPriority/all',

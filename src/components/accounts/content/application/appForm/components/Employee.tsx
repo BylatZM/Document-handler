@@ -16,17 +16,13 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
       <span>исполнитель</span>
       {['executor'].some((el) => el === role) && (
         <Select
-          value={!data.employee ? undefined : data.employee.id}
+          className='h-[50px]'
+          value={!data.employee.id ? undefined : data.employee.id}
           disabled
           options={[
             data.employee
               ? {
-                  label:
-                    data.employee.user.last_name +
-                    ' ' +
-                    data.employee.user.first_name +
-                    ' ' +
-                    data.employee.user.patronymic,
+                  label: data.employee.employee,
                   value: data.employee.id,
                 }
               : [],
@@ -35,7 +31,8 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
       )}
       {role === 'dispatcher' && workers.length && (
         <Select
-          value={!data.employee ? undefined : data.employee.id}
+          className='h-[50px]'
+          value={!data.employee.id ? undefined : data.employee.id}
           onChange={(e: number) =>
             changeFormData((prev) => ({
               ...prev,
@@ -56,13 +53,23 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
               ? []
               : workers.map((el) => ({
                   value: el.id,
-                  label: el.user.last_name + ' ' + el.user.first_name + ' ' + el.user.patronymic,
+                  label: el.employee,
                 }))
           }
         />
       )}
       <span>специализация</span>
-      <Input value={!data.employee ? undefined : data.employee.competence.competence} disabled />
+      <Input
+        className='h-[50px]'
+        value={!data.employee ? undefined : data.employee.competence}
+        disabled
+      />
+      <span>компания</span>
+      <Input
+        className='h-[50px]'
+        value={!data.employee ? undefined : data.employee.company}
+        disabled
+      />
     </div>
   );
 };

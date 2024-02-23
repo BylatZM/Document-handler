@@ -1,11 +1,11 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IApprovePossession, IPossession } from '../../../../types';
+import { IApprovePossession, IBuilding } from '../../../../types';
 
 interface IProps {
   data: IApprovePossession;
   changeData: React.Dispatch<React.SetStateAction<IApprovePossession>>;
-  buildings: IPossession[];
+  buildings: IBuilding[];
 }
 
 export const Building: FC<IProps> = ({ data, changeData, buildings }) => {
@@ -13,11 +13,11 @@ export const Building: FC<IProps> = ({ data, changeData, buildings }) => {
     <div className='text-sm'>
       <div>Адресс здания</div>
       <Select
-        className='w-full'
+        className='w-full h-[80px] sm:h-[30px]'
         disabled={!data.complex}
         value={!data.building ? undefined : data.building}
         onChange={(e: number) => changeData((prev) => ({ ...prev, building: e }))}
-        options={buildings.map((el) => ({ value: el.id, label: el.address }))}
+        options={buildings.map((el) => ({ value: el.id, label: el.building }))}
       />
     </div>
   );

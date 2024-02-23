@@ -139,7 +139,7 @@ export const Account = () => {
   return (
     <>
       <Menu isOpened={isOpened} />
-      <div className='min-h-screen bg-gray-100 relative inset-0'>
+      <div className='min-h-screen bg-gray-100 relative inset-0 overflow-x-auto'>
         <Header changeIsOpened={changeIsOpened} isOpened={isOpened} />
         <div className='mt-[68px]'>{GetCurrentFrame(pathname)}</div>
       </div>

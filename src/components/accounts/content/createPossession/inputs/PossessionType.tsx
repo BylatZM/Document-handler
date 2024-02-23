@@ -14,7 +14,7 @@ export const PossessionType: FC<IProps> = ({ data, changeData }) => {
     <div className='text-sm'>
       <span>Тип имущества</span>
       <Select
-        className='w-full'
+        className='h-[50px] sm:h-[30px] w-full'
         options={
           role === 'citizen'
             ? [
@@ -36,9 +36,6 @@ export const PossessionType: FC<IProps> = ({ data, changeData }) => {
           changeData((prev) => ({
             ...prev,
             type: e,
-            possession: {
-              ...prev.possession,
-            },
           }))
         }
       />

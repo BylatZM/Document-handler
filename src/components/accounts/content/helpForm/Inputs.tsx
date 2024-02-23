@@ -94,7 +94,7 @@ export const Inputs = () => {
         <div style={{ marginBottom: 25 }}>
           <Select
             style={{ fontSize: '0.4rem' }}
-            className='rounded-md h-[40px] w-full'
+            className='rounded-md h-[80px] sm:h-[40px] w-full'
             onChange={(e) => helpFormInfoSuccess({ ...info, address: e })}
             value={info.address}
             placeholder='Адрес собственности'

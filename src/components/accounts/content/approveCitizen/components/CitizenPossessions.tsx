@@ -9,11 +9,11 @@ export const CitizenPossessions = () => {
         citizen.map((el) => {
           return (
             <div key={el.id} className='p-1'>
-              <div className='mt-2 mb-2 text-sm'>
+              <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Лицевой счет</span>
                 <Input value={el.personal_account} disabled />
               </div>
-              <div className='mt-2 mb-2 text-sm'>
+              <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Тип имущества</span>
                 <Select
                   className='w-full'
@@ -27,7 +27,7 @@ export const CitizenPossessions = () => {
                   disabled
                 />
               </div>
-              <div className='mt-2 mb-2 text-sm'>
+              <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Статус собственника</span>
                 <Select
                   className='w-full'
@@ -39,7 +39,7 @@ export const CitizenPossessions = () => {
                   value={parseInt(el.ownershipStatus)}
                 />
               </div>
-              <div className='mt-2 mb-2 text-sm'>
+              <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Название жилого комплекса</span>
                 <Select
                   className='w-full'
@@ -48,16 +48,16 @@ export const CitizenPossessions = () => {
                   options={[{ value: el.complex.id, label: el.complex.name }]}
                 />
               </div>
-              <div className='mt-2 mb-2 text-sm'>
+              <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Адрес здания</span>
                 <Select
                   className='w-full'
                   disabled
                   value={el.building.id}
-                  options={[{ value: el.building.id, label: el.building.address }]}
+                  options={[{ value: el.building.id, label: el.building.building }]}
                 />
               </div>
-              <div className='mt-2 mb-2 text-sm'>
+              <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Номер квартиры (номер собственности) </span>
                 <Select
                   className='w-full'

@@ -10,7 +10,6 @@ import {
   IRegRequest,
   IUser,
   IComplex,
-  IPossession,
   ICitizen,
   IUserUpdate,
   ICitizenRequest,
@@ -28,7 +27,9 @@ import {
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
   INotApprovedPossessions,
-  ISubType,
+  ISubtype,
+  IBuildingWithComplex,
+  IPossession,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -65,7 +66,7 @@ export const updateUser = (user: IUserUpdate): AxiosPromise<IError | void> =>
 export const getComplexes = (): AxiosPromise<IComplex[]> =>
   axiosInstance.get(endpoints.complex.getAll);
 
-export const getBuildings = (id: string): AxiosPromise<IPossession[]> =>
+export const getBuildings = (id: string): AxiosPromise<IBuildingWithComplex[]> =>
   axiosInstance.get(endpoints.building.getBy + `/${id}`);
 
 export const getPossessions = (
@@ -126,7 +127,7 @@ export const getGrade = (): AxiosPromise<IGrade[] | void> => axiosInstance.get(e
 
 export const getType = (): AxiosPromise<IType[] | void> => axiosInstance.get(endpoints.type);
 
-export const getSubTypes = (id: string): AxiosPromise<ISubType[] | void> =>
+export const getSubTypes = (id: string): AxiosPromise<ISubtype[] | void> =>
   axiosInstance.get(endpoints.subType + `${id}`);
 
 export const getPriority = (): AxiosPromise<IPriority[] | void> =>

@@ -1,5 +1,6 @@
 import {
   IApprovePossessionRequest,
+  IBuildingWithComplex,
   ICitizenError,
   IComplex,
   IError,
@@ -50,8 +51,8 @@ export const getComplexesRequest = async (logout: () => void): Promise<IComplex[
 export const getBuildingsRequest = async (
   id: string,
   logout: () => void,
-): Promise<IPossession[] | void> => {
-  const makeBuildingsRequest = async (): Promise<IPossession[] | 401 | void> => {
+): Promise<IBuildingWithComplex[] | void> => {
+  const makeBuildingsRequest = async (): Promise<IBuildingWithComplex[] | 401 | void> => {
     try {
       const response = await getBuildings(id);
       return response.data;

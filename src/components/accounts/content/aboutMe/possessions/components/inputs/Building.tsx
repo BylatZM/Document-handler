@@ -1,6 +1,12 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IPossession, ICitizen, ICitizenError, ICitizenLoading } from '../../../../../../types';
+import {
+  IPossession,
+  ICitizen,
+  ICitizenError,
+  ICitizenLoading,
+  IBuilding,
+} from '../../../../../../types';
 
 interface IProps {
   data: ICitizen;
@@ -10,7 +16,7 @@ interface IProps {
   citizenErrors: (error: ICitizenError | null) => void;
   getPossessions: (type: string, building_id: string) => void;
   loadingForm: ICitizenLoading;
-  buildings: IPossession[];
+  buildings: IBuilding[];
 }
 
 export const Building: FC<IProps> = ({
@@ -28,21 +34,23 @@ export const Building: FC<IProps> = ({
       <span>Адрес здания</span>
       {updatingFormId === form_id && (
         <Select
-          className='w-full'
+          className='h-[50px] sm:h-[32px] w-full'
           disabled={
             loadingForm.form_id === form_id || !data.complex.id || !buildings.length ? true : false
           }
           value={!data.building.id || !buildings.length ? undefined : data.building.id}
-          options={buildings.map((el) => ({ value: el.id, label: el.address }))}
+          options={buildings.map((el) => ({ value: el.id, label: el.building }))}
           onChange={(e: number) => {
             citizenErrors(null);
             changeFormData((prev) => ({
               ...prev,
               building: {
                 id: e,
-                address: !buildings.length ? '' : buildings.filter((el) => el.id === e)[0].address,
+                building: !buildings.length
+                  ? ''
+                  : buildings.filter((el) => el.id === e)[0].building,
               },
-              possession: { id: 0, address: '', car: null },
+              possession: { id: 0, address: '', type: '', building: '' },
             }));
             getPossessions(data.possessionType, e.toString());
           }}
@@ -50,10 +58,10 @@ export const Building: FC<IProps> = ({
       )}
       {updatingFormId !== form_id && (
         <Select
-          className='w-full'
+          className='h-[50px] sm:h-[32px] w-full'
           disabled
-          value={!data.building.address ? undefined : data.building.id}
-          options={[{ value: data.building.id, label: data.building.address }]}
+          value={!data.building.building ? undefined : data.building.id}
+          options={[{ value: data.building.id, label: data.building.building }]}
         />
       )}
     </div>

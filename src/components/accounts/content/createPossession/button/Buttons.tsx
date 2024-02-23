@@ -54,7 +54,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   return (
-    <div className='mt-5 text-end'>
+    <div className='mt-5 flex justify-center'>
       <Button
         className='text-blue-700 border-blue-700 mr-4'
         disabled={isLoading}
@@ -76,13 +76,12 @@ export const Buttons: FC<IProps> = ({
         >
           <Button
             type='primary'
-            className={clsx(
-              ' text-white',
-              !error && !isRequestSuccess && 'bg-blue-700',
-              error && !isRequestSuccess && !isLoading && 'bg-red-500',
-              !error && isRequestSuccess && !isLoading && 'bg-green-500',
-            )}
-            disabled={data.building && data.complex && data.possession.address ? false : true}
+            className='text-white bg-blue-700'
+            disabled={
+              data.building && data.complex && data.possession && !isLoading && !isRequestSuccess
+                ? false
+                : true
+            }
             onClick={() => {
               makeRequest();
             }}

@@ -71,7 +71,7 @@ export const UpdatePassword: FC<IUpdatePassProps> = ({ needShowForm, changeNeedS
         needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md min-w-[500px] max-w-[500px] h-min p-5'>
+      <div className='bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md max-sm:max-w-[250px] max-sm:min-w-[250px] max-sm:mx-auto sm:min-w-[500px] sm:max-w-[500px] h-fit p-2 sm:p-5'>
         <Title />
         <Inputs
           error={error}

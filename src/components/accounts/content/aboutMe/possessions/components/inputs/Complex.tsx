@@ -53,8 +53,8 @@ export const Complex: FC<IProps> = ({
             changeFormData((prev) => ({
               ...prev,
               complex: { id: e, name: '' },
-              building: { id: 0, address: '' },
-              possession: { id: 0, address: '', car: null },
+              building: { id: 0, building: '' },
+              possession: { id: 0, address: '', type: '', building: '' },
             }));
             getBuildings(e.toString());
           }}

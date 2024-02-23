@@ -14,11 +14,13 @@ const defaultCitizen: ICitizen = {
   },
   building: {
     id: 0,
-    address: '',
+    building: '',
   },
   possession: {
     id: 0,
     address: '',
+    type: '',
+    building: '',
   },
 };
 

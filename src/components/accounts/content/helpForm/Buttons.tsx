@@ -1,4 +1,4 @@
-import { Button, ConfigProvider, Popover } from 'antd';
+import { Button, ConfigProvider } from 'antd';
 import { FC, useState } from 'react';
 import { helpFormRequest } from '../../../../api/requests/Main';
 import { useActions } from '../../../hooks/useActions';
@@ -76,7 +76,7 @@ export const Buttons: FC<IButtonsProps> = ({ changeNeedShowForm, isAgreementChec
   };
 
   return (
-    <div className='flex justify-between m-0 py-2 items-center'>
+    <div className='flex justify-between m-0 py-2 sm:flex-row sm:items-center gap-y-2 items-start flex-col'>
       <Logo />
       <div className='flex gap-x-4'>
         <Button
@@ -98,42 +98,35 @@ export const Buttons: FC<IButtonsProps> = ({ changeNeedShowForm, isAgreementChec
             },
           }}
         >
-          <Popover content={'Если у вас нет почты, пожалуйста, укажите другие контактные данные'}>
-            <Button
-              className={clsx(
-                'text-white h-[40px]',
-                !error && !isRequestSuccess && 'bg-blue-700',
-                error && !isRequestSuccess && !isLoading && 'bg-red-500',
-                !error && isRequestSuccess && !isLoading && 'bg-green-500',
-              )}
-              disabled={isAgreementChecked}
-              type='primary'
-              htmlType='submit'
-              onClick={() => {
-                onFinish();
-              }}
-            >
-              {isLoading && (
-                <div className='inline-flex items-center'>
-                  <ImSpinner9 className='animate-spin mr-2' />
-                  <span>Обработка</span>
-                </div>
-              )}
-              {error && !isLoading && !isRequestSuccess && (
-                <div className='inline-flex items-center'>
-                  <ImCross className='mr-2' />
-                  <span>Ошибка</span>
-                </div>
-              )}
-              {!isLoading && !error && isRequestSuccess && (
-                <div className='inline-flex items-center'>
-                  <HiOutlineCheck className='mr-2 font-bold text-lg' />
-                  <span>Успешно</span>
-                </div>
-              )}
-              {!isLoading && !error && !isRequestSuccess && <>Отправить</>}
-            </Button>
-          </Popover>
+          <Button
+            className='text-white h-[40px] bg-blue-700'
+            disabled={!isAgreementChecked && !isRequestSuccess && !isLoading ? false : true}
+            type='primary'
+            htmlType='submit'
+            onClick={() => {
+              onFinish();
+            }}
+          >
+            {isLoading && (
+              <div className='inline-flex items-center'>
+                <ImSpinner9 className='animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {error && !isLoading && !isRequestSuccess && (
+              <div className='inline-flex items-center'>
+                <ImCross className='mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!isLoading && !error && isRequestSuccess && (
+              <div className='inline-flex items-center'>
+                <HiOutlineCheck className='mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {!isLoading && !error && !isRequestSuccess && <>Отправить</>}
+          </Button>
         </ConfigProvider>
       </div>
     </div>

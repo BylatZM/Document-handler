@@ -12,10 +12,10 @@ interface IProps {
 export const CitizenFio: FC<IProps> = ({ data, changeFormData, role, form_id }) => {
   return (
     <>
-      <div className='flex flex-col gap-2 w-[48%]'>
+      <div className='w-full md:w-[48%] gap-2 flex flex-col'>
         <span>Заявитель</span>
         <Input
-          className='w-full'
+          className='w-full h-[50px]'
           type='text'
           placeholder='Закиров Булат Маратович'
           maxLength={100}

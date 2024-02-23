@@ -110,20 +110,19 @@ export const Buttons: FC<IProp> = ({
   };
 
   return (
-    <div className='flex gap-4'>
+    <div className='flex max-sm:gap-y-2 max-sm:flex-col max-sm:gap-x-0 gap-4'>
       <Button
-        className={clsx(
-          'text-white',
-          !error && !isRequestSuccess && 'bg-blue-700',
-          error && !isRequestSuccess && !loadingForm.form_id && 'bg-red-500',
-          !error && isRequestSuccess && !loadingForm.form_id && 'bg-green-500',
-        )}
+        className='text-white bg-blue-700'
         disabled={
+          isRequestSuccess ||
+          loadingForm.form_id ||
           !data.building.id ||
           !data.complex.id ||
           data.personal_account === '' ||
           !data.possession.id ||
           (form_id !== -1 && updatingFormId !== form_id)
+            ? true
+            : false
         }
         onClick={() => {
           if (!/^\d+$/.test(data.personal_account) || data.personal_account.length < 10) {

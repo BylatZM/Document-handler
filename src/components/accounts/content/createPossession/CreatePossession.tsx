@@ -20,9 +20,7 @@ const defaultPossessionInfo: IApprovePossession = {
   type: 1,
   complex: 0,
   building: 0,
-  possession: {
-    address: '',
-  },
+  possession: '',
 };
 
 export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm }) => {
@@ -42,11 +40,15 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
   useEffect(() => {
     if (!complexes.length || !needInitializeForm || !needShowForm) return;
 
-    changeFormData((prev) => ({ ...prev, complex: complexes[0].id }));
     if (!buildings.length) {
       getBuildings(complexes[0].id.toString());
     } else {
-      changeFormData((prev) => ({ ...prev, building: buildings[0].id }));
+      const complex = complexes.filter((el) => el.name === buildings[0].complex)[0];
+      changeFormData((prev) => ({
+        ...prev,
+        building: buildings[0].id,
+        complex: complex.id,
+      }));
       changeNeedInitializeForm(false);
     }
   }, [needShowForm, buildings]);
@@ -61,11 +63,11 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
   return (
     <div
       className={clsx(
-        'transitionGeneral min-h-screen fixed right-0 top-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
+        'transitionGeneral h-screen fixed right-0 top-0 z-30 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
         needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='min-w-[500px] max-w-[500px] h-min z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5'>
+      <div className='sm:min-w-[500px] sm:max-w-[500px] min-w-[250px] max-w-[250px] h-fit bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5'>
         <div className='text-xl font-bold text-center mb-4'>Добавить собственность</div>
         <div className='flex flex-col gap-4'>
           <Complex

@@ -10,7 +10,7 @@ import {
   ISource,
   IStatus,
   IEmployee,
-  ISubType,
+  ISubtype,
 } from '../../components/types';
 
 const initialState: IApplicationState = {
@@ -23,7 +23,7 @@ const initialState: IApplicationState = {
   priorities: [],
   error: null,
   isLoading: false,
-  subTypes: [],
+  subtypes: [],
 };
 
 export const ApplicationReducer = createSlice({
@@ -43,8 +43,8 @@ export const ApplicationReducer = createSlice({
     gradesSuccess: (state, { payload }: PayloadAction<IGrade[]>) => {
       state.grades = payload;
     },
-    subTypesSuccess: (state, { payload }: PayloadAction<ISubType[]>) => {
-      state.subTypes = payload;
+    subTypesSuccess: (state, { payload }: PayloadAction<ISubtype[]>) => {
+      state.subtypes = payload;
     },
     prioritySuccess: (state, { payload }: PayloadAction<IPriority[]>) => {
       state.priorities = payload;

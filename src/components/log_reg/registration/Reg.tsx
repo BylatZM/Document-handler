@@ -83,7 +83,7 @@ export const Reg: FC<IRegProps> = ({
         </Form.Item>
         <Form.Item>
           <Button
-            disabled={isAgreementChecked}
+            disabled={!isAgreementChecked || isLoading ? false : true}
             type='primary'
             htmlType='submit'
             className='text-white bg-blue-700 w-full h-[35px] text-lg flex items-center justify-center'

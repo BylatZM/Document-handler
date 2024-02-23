@@ -1,6 +1,10 @@
-import { INotApprovedPossessions } from './../../components/types';
+import {
+  IBuildingWithComplex,
+  INotApprovedPossessions,
+  IPossession,
+} from './../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { IPossession, IPossessionState, IComplex, IPosLoading } from '../../components/types';
+import { IPossessionState, IComplex, IPosLoading } from '../../components/types';
 
 const initialState: IPossessionState = {
   buildings: [],
@@ -28,7 +32,7 @@ export const PossessionReducer = createSlice({
       state.complexes = payload;
       state.isLoading = null;
     },
-    buildingSuccess: (state, { payload }: PayloadAction<IPossession[]>) => {
+    buildingSuccess: (state, { payload }: PayloadAction<IBuildingWithComplex[]>) => {
       state.buildings = payload;
       state.isLoading = null;
     },

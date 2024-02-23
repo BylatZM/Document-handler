@@ -1,13 +1,20 @@
 import { FC } from 'react';
 import { useActions } from '../../../../../hooks/useActions';
 import { Select } from 'antd';
-import { IApplication, ICitizen, IError, IPossession, IRole } from '../../../../../types';
+import {
+  IApplication,
+  IBuilding,
+  ICitizen,
+  IError,
+  IPossession,
+  IRole,
+} from '../../../../../types';
 
 interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
-  buildings: IPossession[];
+  buildings: IBuilding[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
   getPossessions: (type: string, building_id: string) => Promise<void>;
@@ -31,15 +38,16 @@ export const Building: FC<IProps> = ({
   const { possessionSuccess } = useActions();
 
   return (
-    <div className='flex flex-col gap-2 w-[48%]'>
+    <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Здание</span>
       {role === 'citizen' && (
         <Select
+          className='h-[50px]'
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
             changeFormData((prev) => ({
               ...prev,
-              building: { id: e, address: '' },
+              building: { id: e, building: '' },
               complex: {
                 id: citizenPossessions.filter((el) => el.building.id === e)[0].complex.id,
                 name: citizenPossessions.filter((el) => el.building.id === e)[0].complex.name,
@@ -55,7 +63,7 @@ export const Building: FC<IProps> = ({
           disabled={form_id !== 0 ? true : false}
           options={
             form_id !== 0
-              ? [{ label: data.building.address, value: data.building.id }]
+              ? [{ label: data.building.building, value: data.building.id }]
               : citizenPossessions
                   .filter((el, index, array) => {
                     const prevIndex = array.findIndex((prevItem, prevIndex) => {
@@ -66,13 +74,14 @@ export const Building: FC<IProps> = ({
                   })
                   .map((el) => ({
                     value: el.building.id,
-                    label: el.building.address,
+                    label: el.building.building,
                   }))
           }
         />
       )}
       {role === 'dispatcher' && (
         <Select
+          className='h-[50px]'
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
             if (possessions.length) possessionSuccess([]);
@@ -80,22 +89,23 @@ export const Building: FC<IProps> = ({
             getPossessions(data.possessionType, e.toString());
             changeFormData((prev) => ({
               ...prev,
-              building: { id: e, address: '' },
+              building: { id: e, building: '' },
               possession: {
                 id: 0,
                 address: '',
-                type: 'квартира',
+                type: '',
+                building: '',
               },
             }));
           }}
           disabled={form_id !== 0 || data.complex.id === 0 ? true : false}
           options={
             form_id !== 0
-              ? [{ label: data.building.address, value: data.building.id }]
+              ? [{ label: data.building.building, value: data.building.id }]
               : buildings.length
               ? buildings.map((el) => ({
                   value: el.id,
-                  label: el.address,
+                  label: el.building,
                 }))
               : []
           }
@@ -103,9 +113,10 @@ export const Building: FC<IProps> = ({
       )}
       {role === 'executor' && (
         <Select
+          className='h-[50px]'
           value={!data.building.id ? undefined : data.building.id}
           disabled
-          options={[{ label: data.building.address, value: data.building.id }]}
+          options={[{ label: data.building.building, value: data.building.id }]}
         />
       )}
     </div>

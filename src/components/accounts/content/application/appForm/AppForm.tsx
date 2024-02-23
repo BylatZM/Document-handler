@@ -19,7 +19,7 @@ import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
 import { getSubTypesRequest } from '../../../../../api/requests/Application';
-import { SubType } from './components/SubType';
+import { Subtype } from './components/Subtype';
 import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
 
@@ -32,7 +32,7 @@ interface IProps {
 const initialApplication: IApplication = {
   building: {
     id: 0,
-    address: '',
+    building: '',
   },
   complex: {
     id: 0,
@@ -45,26 +45,21 @@ const initialApplication: IApplication = {
   dueDate: null,
   employee: {
     id: 0,
-    user: {
-      first_name: '',
-      last_name: '',
-      patronymic: null,
-    },
-    competence: {
-      id: 0,
-      competence: '',
-    },
+    employee: '',
+    competence: '',
+    company: '',
   },
   grade: {
     id: 1,
     appClass: '',
   },
   id: 0,
-  subType: null,
+  subtype: null,
   possession: {
     id: 0,
     address: '',
-    type: 'квартира',
+    type: '',
+    building: '',
   },
   priority: {
     id: 0,
@@ -90,7 +85,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { employs, types, sources, statuses, priorities, userApplication, subTypes } =
+  const { employs, types, sources, statuses, priorities, userApplication, subtypes } =
     useTypedSelector((state) => state.ApplicationReducer);
   const [error, changeError] = useState<IError | null>(null);
   const [needInitializeForm, changeNeedInitializeForm] = useState(true);
@@ -112,7 +107,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
     if (error) changeError(null);
   };
 
-  const getSubTypes = async (id: string) => {
+  const getSubtypes = async (id: string) => {
     const response = await getSubTypesRequest(logout, id);
     if (response) {
       subTypesSuccess(response);
@@ -142,11 +137,12 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
     changeFormData((prev) => ({
       ...prev,
       complex: { id: possession.complex.id, name: possession.complex.name },
-      building: { id: possession.building.id, address: possession.building.address },
+      building: { id: possession.building.id, building: possession.building.building },
       possession: {
-        ...prev.possession,
         id: possession.possession.id,
         address: possession.possession.address,
+        type: possession.possession.type,
+        building: possession.possession.building,
       },
       citizenFio: fio,
       contact: !user.phone ? '' : user.phone,
@@ -157,7 +153,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
   useEffect(() => {
     if (
       !needInitializeForm ||
-      id ||
+      id !== 0 ||
       !IsFormActive ||
       role !== 'dispatcher' ||
       !priorities.length ||
@@ -166,77 +162,128 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
       !types.length
     )
       return;
-
-    if (!FormData.type) {
-      const source = sources.filter((el) => el.appSource === 'Входящий звонок')[0];
-      const priority = priorities.filter((el) => el.appPriority === 'Обычный')[0];
-      getSubTypes(types[0].id.toString());
-
+    if (!subtypes.length) getSubtypes(types[0].id.toString());
+    if (subtypes.length) {
+      const type = types.filter((el) => el.appType === subtypes[0].type)[0];
       changeFormData((prev) => ({
         ...prev,
-        source: {
-          id: source.id,
-          appSource: source.appSource,
-        },
-        employee: {
-          id: employs[0].id,
-          user: employs[0].user,
-          competence: employs[0].competence,
-        },
-        priority: {
-          id: priority.id,
-          appPriority: priority.appPriority,
-        },
         type: {
-          id: types[0].id,
-          appType: types[0].appType,
+          id: type.id,
+          appType: type.appType,
         },
-      }));
-    } else if (subTypes.length) {
-      changeFormData((prev) => ({
-        ...prev,
-        subType: {
-          id: subTypes[0].id,
-          subType: subTypes[0].subType,
-          normative: subTypes[0].normative,
+        subtype: {
+          id: subtypes[0].id,
+          subtype: subtypes[0].subtype,
+          normative: subtypes[0].normative,
+          type: subtypes[0].type,
         },
       }));
     }
-  }, [IsFormActive, subTypes]);
+
+    const source = sources.filter((el) => el.appSource === 'Входящий звонок')[0];
+    const priority = priorities.filter((el) => el.appPriority === 'Обычный')[0];
+
+    changeFormData((prev) => ({
+      ...prev,
+      source: {
+        id: source.id,
+        appSource: source.appSource,
+      },
+      employee: {
+        id: employs[0].id,
+        employee: employs[0].employee,
+        competence: employs[0].competence,
+        company: employs[0].company,
+      },
+      priority: {
+        id: priority.id,
+        appPriority: priority.appPriority,
+      },
+    }));
+  }, [IsFormActive, subtypes]);
 
   useEffect(() => {
     if (
       !needInitializeForm ||
-      id !== 0 ||
+      id > 0 ||
       !IsFormActive ||
       !complexes.length ||
       role !== 'dispatcher' ||
-      !employs.length
+      !employs.length ||
+      !FormData.type
     )
       return;
 
-    if (!buildings.length) {
-      changeFormData((prev) => ({
-        ...prev,
-        complex: { id: complexes[0].id, name: complexes[0].name },
-      }));
-      getBuildings(complexes[0].id.toString());
-    } else {
+    if (!buildings.length) getBuildings(complexes[0].id.toString());
+
+    if (buildings.length) {
+      const current_complex = complexes.filter((el) => el.name === buildings[0].complex)[0];
       changeNeedInitializeForm(false);
       changeFormData((prev) => ({
         ...prev,
-        building: { ...buildings[0] },
+        building: {
+          id: buildings[0].id,
+          building: buildings[0].building,
+        },
+        complex: {
+          id: current_complex.id,
+          name: current_complex.name,
+        },
       }));
       getPossessions(FormData.possessionType, buildings[0].id.toString());
     }
-  }, [buildings, IsFormActive]);
+  }, [buildings, IsFormActive, FormData]);
+
+  useEffect(() => {
+    if (
+      subtypes.length ||
+      id < 1 ||
+      role !== 'dispatcher' ||
+      (FormData.status.appStatus !== 'Назначена' && FormData.status.appStatus !== 'Возвращена') ||
+      !FormData.type
+    )
+      return;
+
+    getSubtypes(FormData.type.id.toString());
+  }, [IsFormActive, FormData]);
+
+  useEffect(() => {
+    if (
+      role !== 'dispatcher' ||
+      id < 1 ||
+      FormData.status.appStatus !== 'Новая' ||
+      !types.length ||
+      !needInitializeForm ||
+      FormData.type ||
+      FormData.subtype
+    )
+      return;
+    if (!subtypes.length) getSubtypes(types[0].id.toString());
+
+    if (subtypes.length) {
+      changeFormData((prev) => ({
+        ...prev,
+        type: {
+          id: types[0].id,
+          appType: types[0].appType,
+        },
+        subtype: {
+          id: subtypes[0].id,
+          normative: subtypes[0].normative,
+          type: subtypes[0].type,
+          subtype: subtypes[0].subtype,
+        },
+      }));
+    }
+  }, [IsFormActive, subtypes, FormData]);
 
   const refreshFormData = () => {
-    changeFormData(userApplication.filter((el) => el.id === id)[0]);
+    const current_application = userApplication.filter((el) => el.id === id)[0];
+    changeFormData(current_application);
   };
 
   useEffect(() => {
-    if (userApplication.filter((el) => el.id === id).length && IsFormActive) {
+    if (id > 0 && userApplication.length && IsFormActive) {
       refreshFormData();
     }
   }, [IsFormActive]);
@@ -245,19 +292,20 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
     changeFormData(initialApplication);
     changeIsFormActive(false);
     changeNeedInitializeForm(true);
+    subTypesSuccess([]);
   };
 
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed w-full inset-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl overflow-hidden flex justify-center items-center',
+        'transitionGeneral fixed w-full inset-0 z-20 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
         IsFormActive ? 'h-full' : 'h-0',
       )}
     >
-      <div className='min-w-[700px] max-w-[700px] h-full z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5 overflow-y-auto'>
+      <div className='w-full sm:min-w-[600px] sm:max-w-[600px] md:min-w-[700px] md:max-w-[700px] lg:min-w-[850px] lg:max-w-[850px] h-full z-30 bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5 overflow-y-auto'>
         <div className='flex justify-center gap-4 flex-col'>
           <span className='font-bold text-lg'>Сведения</span>
-          <div className='flex flex-wrap justify-between gap-4'>
+          <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
             <Grade form_id={id} />
             <Status status={FormData.status} changeFormData={changeFormData} statuses={statuses} />
             <Type
@@ -266,14 +314,14 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
               data={FormData}
               types={types}
               changeFormData={changeFormData}
-              getSubTypes={getSubTypes}
+              getSubtypes={getSubtypes}
             />
-            <SubType
+            <Subtype
               data={FormData}
               changeData={changeFormData}
               form_id={id}
               role={role}
-              subTypes={subTypes}
+              subtypes={subtypes}
             />
           </div>
 
@@ -298,7 +346,7 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
             changeFormData={changeFormData}
           />
           <span className='font-bold text-lg mt-4'>Объект исполнения</span>
-          <div className='flex flex-wrap gap-2 justify-between mt-2'>
+          <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
             <Complex
               form_id={id}
               role={role}
@@ -312,15 +360,13 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
               error={error}
               changeError={changeError}
             />
-            {((role === 'citizen' && id > 0) || role !== 'citizen') && (
-              <PossessionType
-                form_id={id}
-                data={FormData}
-                changeFormData={changeFormData}
-                getPossessions={getPossessions}
-                role={role}
-              />
-            )}
+            <PossessionType
+              form_id={id}
+              data={FormData}
+              changeFormData={changeFormData}
+              getPossessions={getPossessions}
+              role={role}
+            />
             <Building
               form_id={id}
               role={role}

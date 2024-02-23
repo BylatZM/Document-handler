@@ -9,7 +9,7 @@ import {
   IType,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
-  ISubType,
+  ISubtype,
 } from '../../components/types';
 import {
   createApplication,
@@ -330,8 +330,8 @@ export const getSourcesRequest = async (logout: () => void): Promise<ISource[] |
 export const getSubTypesRequest = async (
   logout: () => void,
   id: string,
-): Promise<ISubType[] | void> => {
-  const makeRequest = async (): Promise<ISubType[] | 401 | void> => {
+): Promise<ISubtype[] | void> => {
+  const makeRequest = async (): Promise<ISubtype[] | 401 | void> => {
     try {
       const response = await getSubTypes(id);
       if (response.data) return response.data;

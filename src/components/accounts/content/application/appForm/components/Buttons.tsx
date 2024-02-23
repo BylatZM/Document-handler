@@ -8,6 +8,7 @@ import {
   IAppUpdateByEmployee,
   IStatus,
   IPossession,
+  IBuilding,
 } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
@@ -28,7 +29,7 @@ interface IProps {
   role: IRole;
   exitFromForm: () => void;
   logout: () => void;
-  buildings: IPossession[] | null;
+  buildings: IBuilding[] | null;
   possessions: IPossession[] | null;
   changeData: React.Dispatch<React.SetStateAction<IApplication>>;
   refreshFormData: () => void;
@@ -45,8 +46,7 @@ export const Buttons: FC<IProps> = ({
   changeData,
   refreshFormData,
 }) => {
-  const { updateApplication, applicationSuccess, buildingSuccess, possessionSuccess } =
-    useActions();
+  const { updateApplication, applicationSuccess } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<
     | null
@@ -79,11 +79,11 @@ export const Buttons: FC<IProps> = ({
   };
 
   const create_application = async () => {
-    if (!statuses.length || !data.subType || !data.type) return;
+    if (!statuses.length || !data.subtype || !data.type) return;
     changeLoadingButton('create');
     if (errorButton) changeErrorButton(null);
     let info: IAppCreateByCitizen | IAppCreateByDispatcher = {
-      subType: data.subType.id,
+      subtype: data.subtype.id,
       type: data.type.id,
       citizenComment: data.citizenComment,
       complex: data.complex.id,
@@ -96,7 +96,7 @@ export const Buttons: FC<IProps> = ({
       info = {
         priority: data.priority.id,
         source: data.source.id,
-        subType: data.subType.id,
+        subtype: data.subtype.id,
         type: data.type.id,
         citizenComment: data.citizenComment,
         complex: data.complex.id,
@@ -158,7 +158,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   const update_application = async () => {
-    if (!data.status || !data.employee || !statuses.length || !data.subType) return;
+    if (!data.status || !data.employee || !statuses.length || !data.subtype) return;
 
     changeLoadingButton('update');
     if (errorButton) changeErrorButton(null);
@@ -172,7 +172,7 @@ export const Buttons: FC<IProps> = ({
       info = {
         employee: data.employee.id,
         type: data.type.id,
-        subType: data.subType.id,
+        subtype: data.subtype.id,
         source: data.source.id,
         priority: data.priority.id,
         dispatcherComment: data.dispatcherComment,
@@ -199,7 +199,7 @@ export const Buttons: FC<IProps> = ({
   };
 
   return (
-    <div className='gap-4 flex justify-center'>
+    <div className='gap-4 flex max-md:flex-wrap max-md:justify-start justify-center'>
       {form_id < 1 && ['citizen', 'dispatcher'].some((el) => el === role) && (
         <ConfigProvider
           theme={{
@@ -214,18 +214,14 @@ export const Buttons: FC<IProps> = ({
             onClick={() => {
               create_application();
             }}
-            className={clsx(
-              ' text-white',
-              errorButton !== 'create' && successButton !== 'create' && 'bg-blue-700',
-              errorButton === 'create' && !successButton && !loadingButton && 'bg-red-500',
-              !errorButton && successButton === 'create' && !loadingButton && 'bg-green-500',
-            )}
+            className='text-white bg-blue-700'
             disabled={
-              (!loadingButton || loadingButton === 'create') &&
+              !loadingButton &&
+              !successButton &&
               data.building.id &&
               data.complex.id &&
-              data.subType &&
-              data.subType.id &&
+              data.subtype &&
+              data.subtype.id &&
               data.possession.id &&
               data.type &&
               data.citizenComment &&
@@ -287,17 +283,13 @@ export const Buttons: FC<IProps> = ({
               onClick={() => {
                 update_application();
               }}
-              className={clsx(
-                ' text-white',
-                errorButton !== 'update' && successButton !== 'update' && 'bg-blue-700',
-                errorButton === 'update' && !successButton && !loadingButton && 'bg-red-500',
-                !errorButton && successButton === 'update' && !loadingButton && 'bg-green-500',
-              )}
+              className='text-white bg-blue-700'
               disabled={
-                (!loadingButton || loadingButton === 'update') &&
+                !loadingButton &&
+                !successButton &&
                 data.status &&
-                data.subType &&
-                data.subType.id &&
+                data.subtype &&
+                data.subtype.id &&
                 data.status.appStatus !== 'Закрыта' &&
                 ((role === 'dispatcher' &&
                   ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
@@ -362,22 +354,10 @@ export const Buttons: FC<IProps> = ({
                   update_application_status(new_status);
                 }
               }}
-              className={clsx(
-                ' text-white',
-                errorButton !== 'close_application' &&
-                  successButton !== 'close_application' &&
-                  'bg-green-700',
-                errorButton === 'close_application' &&
-                  !successButton &&
-                  !loadingButton &&
-                  'bg-red-500',
-                !errorButton &&
-                  successButton === 'close_application' &&
-                  !loadingButton &&
-                  'bg-green-500',
-              )}
+              className='text-white bg-green-700'
               disabled={
-                (!loadingButton || loadingButton === 'close_application') &&
+                !loadingButton &&
+                !successButton &&
                 data.status &&
                 data.status.appStatus === 'В работе'
                   ? false
@@ -426,22 +406,10 @@ export const Buttons: FC<IProps> = ({
                 update_application_status(new_status);
               }
             }}
-            className={clsx(
-              ' text-white',
-              errorButton !== 'proceed_to_execution' &&
-                successButton !== 'proceed_to_execution' &&
-                'bg-amber-500',
-              errorButton === 'proceed_to_execution' &&
-                !successButton &&
-                !loadingButton &&
-                'bg-red-500',
-              !errorButton &&
-                successButton === 'proceed_to_execution' &&
-                !loadingButton &&
-                'bg-green-500',
-            )}
+            className='text-white bg-amber-500'
             disabled={
-              (!loadingButton || loadingButton === 'proceed_to_execution') &&
+              !loadingButton &&
+              !successButton &&
               data.status &&
               (data.status.appStatus === 'Назначена' || data.status.appStatus === 'Возвращена')
                 ? false
@@ -484,9 +452,7 @@ export const Buttons: FC<IProps> = ({
         >
           <Button
             disabled={
-              (!loadingButton || loadingButton === 'return_for_revision') &&
-              data.status &&
-              data.status.appStatus === 'Закрыта'
+              !loadingButton && !successButton && data.status && data.status.appStatus === 'Закрыта'
                 ? false
                 : true
             }
@@ -498,20 +464,7 @@ export const Buttons: FC<IProps> = ({
                 update_application_status(new_status);
               }
             }}
-            className={clsx(
-              ' text-white',
-              errorButton !== 'return_for_revision' &&
-                successButton !== 'return_for_revision' &&
-                'bg-amber-500',
-              errorButton === 'return_for_revision' &&
-                !successButton &&
-                !loadingButton &&
-                'bg-red-500',
-              !errorButton &&
-                successButton === 'return_for_revision' &&
-                !loadingButton &&
-                'bg-green-500',
-            )}
+            className='text-white bg-amber-500'
           >
             {loadingButton === 'return_for_revision' && (
               <div>
@@ -551,8 +504,6 @@ export const Buttons: FC<IProps> = ({
           disabled={loadingButton ? true : false}
           onClick={() => {
             exitFromForm();
-            if (buildings) buildingSuccess([]);
-            if (possessions) possessionSuccess([]);
             if (errorButton) changeErrorButton(null);
           }}
         >

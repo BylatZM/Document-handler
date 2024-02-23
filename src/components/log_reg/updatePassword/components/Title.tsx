@@ -7,7 +7,7 @@ export const Title = () => {
       <span className='text-xl font-bold'>Обновление пароля</span>
       <Popover
         content={
-          <div className='max-w-[400px]'>
+          <div className='max-w-[250px] sm:max-w-[400px]'>
             <span>
               Если ваш аккаунт подтвержен диспетером (то есть вы можете создавать заявки) укажите
               почту и номер телефона, заданные в аккаунте, чтобы обновить пароль.
@@ -24,7 +24,7 @@ export const Title = () => {
           </div>
         }
       >
-        <GoQuestion className='absolute right-0 text-gray-400 inline text-lg inset-y-0 my-auto' />
+        <GoQuestion className='absolute right-0 text-black inline text-lg top-10 sm:top-0 inset-y-0 my-auto' />
       </Popover>
     </div>
   );

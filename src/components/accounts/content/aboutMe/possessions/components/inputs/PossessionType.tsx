@@ -43,7 +43,7 @@ export const PossessionType: FC<IProps> = ({
           changeFormData((prev) => ({
             ...prev,
             possessionType: e.toString(),
-            possession: { id: 0, address: '', car: null },
+            possession: { id: 0, address: '', type: '', building: '' },
           }));
           if (data.building.id) {
             getPossessions(e.toString(), data.building.id.toString());

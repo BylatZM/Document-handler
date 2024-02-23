@@ -22,23 +22,29 @@ export const Possession: FC<IProps> = ({
   error,
 }) => {
   return (
-    <div className='flex flex-col gap-2 w-[48%]'>
+    <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Собственность</span>
       {role === 'citizen' && (
         <Select
+          className='h-[50px]'
           value={!data.possession.id ? undefined : data.possession.id}
           onChange={(e: number) => {
+            const citizen = citizenPossessions.filter((el) => el.possession.id === e)[0];
             changeFormData((prev) => ({
               ...prev,
-              possession: { id: e, address: '', type: 'квартира' },
+              possession: {
+                id: e,
+                address: citizen.possession.address,
+                type: citizen.possession.type,
+                building: citizen.possession.building,
+              },
               complex: {
-                id: citizenPossessions.filter((el) => el.possession.id === e)[0].complex.id,
-                name: citizenPossessions.filter((el) => el.possession.id === e)[0].complex.name,
+                id: citizen.complex.id,
+                name: citizen.complex.name,
               },
               building: {
-                id: citizenPossessions.filter((el) => el.possession.id === e)[0].building.id,
-                address: citizenPossessions.filter((el) => el.possession.id === e)[0].building
-                  .address,
+                id: citizen.building.id,
+                building: citizen.building.building,
               },
             }));
           }}
@@ -56,6 +62,7 @@ export const Possession: FC<IProps> = ({
       {role === 'dispatcher' && (
         <>
           <Select
+            className='h-[50px]'
             value={!data.possession.id ? undefined : data.possession.id}
             onChange={(e: number) => {
               changeFormData((prev) => ({
@@ -80,6 +87,7 @@ export const Possession: FC<IProps> = ({
       )}
       {role === 'executor' && (
         <Select
+          className='h-[50px]'
           value={!data.possession.id ? undefined : data.possession.id}
           disabled
           options={[{ label: data.possession.address, value: data.possession.id }]}

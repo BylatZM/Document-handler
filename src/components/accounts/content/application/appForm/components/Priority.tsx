@@ -14,9 +14,10 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
   return (
     <>
       {role !== 'citizen' && (
-        <div className='w-[48%] mt-2 gap-2 flex flex-col'>
+        <div className='w-full md:w-[48%] mt-2 gap-2 flex flex-col'>
           <span>Приоритет исполнения</span>
           <Select
+            className='h-[50px]'
             value={!data.priority ? undefined : data.priority.id}
             disabled={
               ['executor', 'citizen'].some((el) => el === role) ||

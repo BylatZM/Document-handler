@@ -35,7 +35,7 @@ export const Buttons: FC<IProps> = ({
   return (
     <div className='text-end'>
       <Button
-        className='inline mr-4 border-[1px] border-blue-700 text-blue-700'
+        className='inline mr-1 sm:mr-4 border-[1px] border-blue-700 text-blue-700'
         disabled={isLoading}
         onClick={() => {
           changeNeedShowForm(false);
@@ -56,13 +56,8 @@ export const Buttons: FC<IProps> = ({
         }}
       >
         <Button
-          className={clsx(
-            'inline text-white',
-            !error && !isRequestSuccess && 'bg-blue-700',
-            error && !isRequestSuccess && !isLoading && 'bg-red-500',
-            !error && isRequestSuccess && !isLoading && 'bg-green-500',
-          )}
-          disabled={data ? !data.email : true}
+          className={clsx('inline text-white bg-blue-700')}
+          disabled={data.email && !isRequestSuccess && !isLoading ? false : true}
           onClick={() => {
             onFinish();
           }}

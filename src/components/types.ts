@@ -41,7 +41,7 @@ export interface IHelpFormRequest {
 }
 
 export interface IPossessionState {
-  buildings: IPossession[];
+  buildings: IBuildingWithComplex[];
   complexes: IComplex[];
   possessions: IPossession[];
   notApprovedPossessions: INotApprovedPossessions[] | null;
@@ -63,7 +63,7 @@ export interface IApplicationState {
   sources: ISource[];
   priorities: IPriority[];
   statuses: IStatus[];
-  subTypes: ISubType[];
+  subtypes: ISubtype[];
   isLoading: boolean;
   error: IError | null;
 }
@@ -124,7 +124,7 @@ export interface IApplication {
   id: number;
   status: IStatus;
   type: IType | null;
-  subType: ISubType | null;
+  subtype: ISubtype | null;
   grade: IGrade;
   creatingDate: string;
   dueDate: string | null;
@@ -132,8 +132,8 @@ export interface IApplication {
   priority: IPriority;
   source: ISource;
   complex: IComplex;
-  building: IPossession;
-  possession: IApplicationPossession;
+  building: IBuilding;
+  possession: IPossession;
   employee: IEmployee;
   dispatcherComment: string;
   employeeComment: string;
@@ -151,7 +151,7 @@ export type IAppCreateByCitizen = Pick<
   building: number;
   possession: number;
   type: number;
-  subType: number;
+  subtype: number;
 };
 
 export type IAppCreateByDispatcher = Pick<
@@ -166,12 +166,12 @@ export type IAppCreateByDispatcher = Pick<
   source: number;
   priority: number;
   dispatcherComment?: string;
-  subType: number;
+  subtype: number;
 };
 
 export type IAppUpdateByDispatcher = {
   type: number;
-  subType: number;
+  subtype: number;
   source: number;
   priority: number;
   dispatcherComment: string;
@@ -192,9 +192,10 @@ export interface IType {
   appType: string;
 }
 
-export interface ISubType {
+export interface ISubtype {
   id: number;
-  subType: string;
+  type: string;
+  subtype: string;
   normative: number;
 }
 
@@ -210,8 +211,9 @@ export interface ISource {
 
 export interface IEmployee {
   id: number;
-  user: Pick<IUser, 'first_name' | 'last_name' | 'patronymic'>;
-  competence: ICompetence;
+  employee: string;
+  competence: string;
+  company: string;
 }
 
 export interface ICompetence {
@@ -230,7 +232,7 @@ export interface ICitizen {
   possessionType: string;
   ownershipStatus: string;
   complex: IComplex;
-  building: IPossession;
+  building: IBuilding;
   possession: IPossession;
 }
 
@@ -244,10 +246,10 @@ export type IApprovePossession = Omit<
   | 'possession'
   | 'possessionType'
 > & {
-  possession: Omit<IPossession, 'id'>;
   complex: number;
   type: number;
   building: number;
+  possession: string;
 };
 
 export type IApprovePossessionRequest = Omit<IApprovePossession, 'complex'>;
@@ -271,15 +273,22 @@ export interface ICar {
   state_number: string | null;
 }
 
+export interface IBuildingWithComplex {
+  id: number;
+  building: string;
+  complex: string;
+}
+
 export interface IPossession {
   id: number;
   address: string;
+  building: string;
+  type: 'квартира' | 'коммерческое помещение' | 'парковка' | 'кладовка' | 'жилищный комплекс' | '';
 }
 
-export interface IApplicationPossession {
+export interface IBuilding {
   id: number;
-  address: string;
-  type: 'квартира' | 'коммерческое помещение' | 'парковка' | 'кладовка' | 'жилищный комплекс';
+  building: string;
 }
 
 export type IPossessionStatus = 'отклонена' | 'новая' | 'подтверждена';
@@ -296,12 +305,13 @@ export interface IApplicationColumns {
   number: number;
   creating_date: string;
   app_type: string;
-  app_subType: string;
+  app_subtype: string;
   status: string;
   due_date: string;
   citizen_comment: string;
   possession: string;
   contact: string;
+  employee: string;
 }
 
 export interface IUpdatePassword {

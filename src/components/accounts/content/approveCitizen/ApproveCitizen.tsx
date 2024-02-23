@@ -30,7 +30,7 @@ export const ApproveCitizen = () => {
         selectedUserInfo={selectedUserInfo}
         changeUserInfo={changeUserInfo}
       />
-      <div className='w-max p-2 flex flex-col m-auto gap-4'>
+      <div className='w-max p-2 flex flex-col mx-auto gap-4 mt-32 sm:mt-0'>
         <div className='flex justify-between'>
           <div className='flex items-center gap-4'>
             <span className='text-gray-400 text-sm'>

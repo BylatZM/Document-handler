@@ -1,7 +1,6 @@
 import { ConfigProvider, Button } from 'antd';
 import { IError } from '../../../../types';
 import { FC } from 'react';
-import clsx from 'clsx';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 
@@ -26,13 +25,9 @@ export const ButtonBlock: FC<IProps> = ({ error, isRequestSuccess, isLoading, on
       <Button
         type='primary'
         onClick={() => onFinish()}
-        className={clsx(
-          'text-white w-min',
-          !error && !isRequestSuccess && 'bg-blue-700',
-          error && !isRequestSuccess && !isLoading && 'bg-red-500',
-          !error && isRequestSuccess && !isLoading && 'bg-green-500',
-        )}
+        className='text-white w-min bg-blue-700'
         htmlType='submit'
+        disabled={!isRequestSuccess && !isLoading ? false : true}
       >
         {isLoading && (
           <div>

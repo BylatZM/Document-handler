@@ -26,12 +26,12 @@ export const ChangeShowingColumns: FC<IProps> = ({
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed z-20 bottom-0 inset-x-0 m-auto bg-blue-500 backdrop-blur-md bg-opacity-10 flex items-center justify-center overflow-hidden',
+        'transitionGeneral fixed z-20 bottom-0 inset-x-0 m-auto bg-blue-500 backdrop-blur-md bg-opacity-10 flex items-center justify-center overflow-auto',
         needShow ? 'h-full' : 'h-0',
       )}
     >
-      <div className='z-30 bg-blue-700 h-min min-w-[500px] backdrop-blur-md bg-opacity-20 rounded-md p-5'>
-        <span className='text-2xl'>Выберите столбцы в таблице</span>
+      <div className='z-30 bg-blue-700 h-min min-w-[250px] max-w-[250px] sm:min-w-[500px] sm:max-w-[500px] backdrop-blur-md bg-opacity-20 rounded-md p-1 sm:p-5'>
+        <span className='text-1xl sm:text-2xl'>Выберите столбцы в таблице</span>
         <div className='mb-4 mt-4'>
           <hr />
           <Checkbox.Group
@@ -52,9 +52,9 @@ export const ChangeShowingColumns: FC<IProps> = ({
           />
           <hr />
         </div>
-        <div className='text-center'>
+        <div className='flex gap-2 justify-center'>
           <Button
-            className='bg-none border-blue-700 border-[1px] text-blue-700 inline mr-4'
+            className='bg-none border-blue-700 border-[1px] text-blue-700 inline sm:mr-4'
             onClick={() => changeNeedShow(false)}
           >
             Закрыть
