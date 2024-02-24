@@ -7,8 +7,6 @@ import {
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
   IStatus,
-  IPossession,
-  IBuilding,
 } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
@@ -19,7 +17,6 @@ import {
   updateAppStatusRequest,
 } from '../../../../../../api/requests/Application';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
-import clsx from 'clsx';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 
@@ -29,23 +26,9 @@ interface IProps {
   role: IRole;
   exitFromForm: () => void;
   logout: () => void;
-  buildings: IBuilding[] | null;
-  possessions: IPossession[] | null;
-  changeData: React.Dispatch<React.SetStateAction<IApplication>>;
-  refreshFormData: () => void;
 }
 
-export const Buttons: FC<IProps> = ({
-  data,
-  form_id,
-  role,
-  exitFromForm,
-  logout,
-  buildings,
-  possessions,
-  changeData,
-  refreshFormData,
-}) => {
+export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout }) => {
   const { updateApplication, applicationSuccess } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<

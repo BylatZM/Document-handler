@@ -10,7 +10,6 @@ import {
 } from '../../../../../../../api/requests/Person';
 import { useLogout } from '../../../../../../hooks/useLogout';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
-import clsx from 'clsx';
 import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IProp {

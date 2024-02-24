@@ -1,12 +1,6 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import {
-  IPossession,
-  ICitizen,
-  ICitizenError,
-  ICitizenLoading,
-  IBuilding,
-} from '../../../../../../types';
+import { ICitizen, ICitizenError, ICitizenLoading, IBuilding } from '../../../../../../types';
 
 interface IProps {
   data: ICitizen;

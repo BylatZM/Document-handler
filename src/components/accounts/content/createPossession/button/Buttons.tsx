@@ -3,7 +3,6 @@ import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { FC, useState } from 'react';
 import { Button, ConfigProvider, Popover } from 'antd';
 import { IApprovePossession, IError } from '../../../../types';
-import clsx from 'clsx';
 import { useActions } from '../../../../hooks/useActions';
 import { createPossessionRequest } from '../../../../../api/requests/Possession';
 

@@ -422,10 +422,6 @@ export const AppForm: FC<IProps> = ({ IsFormActive, changeIsFormActive, id }) =>
             role={role}
             exitFromForm={exitFromForm}
             logout={logout}
-            buildings={buildings}
-            possessions={possessions}
-            changeData={changeFormData}
-            refreshFormData={refreshFormData}
           />
         </div>
       </div>
