@@ -19,7 +19,7 @@ import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
 import { getSubTypesRequest } from '../../../../../api/requests/Application';
-import { Subtype } from './components/Subtype';
+import { SubType } from './components/SubType';
 import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
 import { defaultAppForm } from './defaultAppForm';
@@ -248,7 +248,7 @@ export const AppForm: FC<IProps> = ({
               getSubtypes={getSubtypes}
               error={error}
             />
-            <Subtype
+            <SubType
               data={FormData}
               changeData={changeFormData}
               form_id={FormData.id}
