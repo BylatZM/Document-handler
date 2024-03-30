@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { FC } from 'react';
-import { BsBuildingFill } from 'react-icons/bs';
+import { BsBuildingFill, BsFillBuildingsFill } from 'react-icons/bs';
 import { FaUserCheck } from 'react-icons/fa6';
 import { GrNext, GrStatusGood } from 'react-icons/gr';
 import { Link } from 'react-router-dom';
@@ -32,7 +32,7 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
       <div
         className={clsx(
           'transitionGeneral flex flex-col overflow-hidden',
-          activeAccordion === 'confirmations' ? 'h-[120px]' : 'h-0',
+          activeAccordion === 'confirmations' ? 'h-[180px]' : 'h-0',
         )}
       >
         <Link
@@ -48,16 +48,28 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
           <span>Житель</span>
         </Link>
         <Link
-          to={'/account/approve/possession'}
+          to={'/account/approve/citizen_possession'}
           className={clsx(
             'flex items-center py-2 rounded-md text-lg mb-4',
-            pathname.includes('/account/approve/possession')
+            pathname.includes('/account/approve/citizen_possession')
               ? 'text-blue-700 blue-300 bg-blue-300'
               : 'bg-gray-300',
           )}
         >
           <BsBuildingFill className='mr-4 ml-4' />
-          <span>Собственность</span>
+          <span>Имущество жителя</span>
+        </Link>
+        <Link
+          to={'/account/approve/living_space'}
+          className={clsx(
+            'flex items-center py-2 rounded-md text-lg mb-4',
+            pathname.includes('/account/approve/living_space')
+              ? 'text-blue-700 blue-300 bg-blue-300'
+              : 'bg-gray-300',
+          )}
+        >
+          <BsFillBuildingsFill className='mr-4 ml-4' />
+          <span>Адрес жилплощади</span>
         </Link>
       </div>
     </>

@@ -17,10 +17,9 @@ interface IProps {
   buildings: IBuilding[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
-  getPossessions: (type: string, building_id: string) => Promise<void>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IError | IPossession[]>;
   error: IError | null;
   possessions: IPossession[];
-  changeError: React.Dispatch<React.SetStateAction<IError | null>>;
 }
 
 export const Building: FC<IProps> = ({
@@ -33,9 +32,8 @@ export const Building: FC<IProps> = ({
   getPossessions,
   error,
   possessions,
-  changeError,
 }) => {
-  const { possessionSuccess } = useActions();
+  const { possessionSuccess, applicationError } = useActions();
 
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
@@ -45,18 +43,20 @@ export const Building: FC<IProps> = ({
           className='h-[50px]'
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
+            const new_possession = citizenPossessions.filter((el) => el.building.id === e);
+            if (!new_possession.length) return;
             changeFormData((prev) => ({
               ...prev,
               building: { id: e, building: '' },
               complex: {
-                id: citizenPossessions.filter((el) => el.building.id === e)[0].complex.id,
-                name: citizenPossessions.filter((el) => el.building.id === e)[0].complex.name,
+                id: new_possession[0].complex.id,
+                name: new_possession[0].complex.name,
               },
               possession: {
-                ...prev.possession,
-                id: citizenPossessions.filter((el) => el.building.id === e)[0].possession.id,
-                address: citizenPossessions.filter((el) => el.building.id === e)[0].possession
-                  .address,
+                id: new_possession[0].possession.id,
+                address: new_possession[0].possession.address,
+                building: new_possession[0].possession.building,
+                type: new_possession[0].possession.type,
               },
             }));
           }}
@@ -72,6 +72,7 @@ export const Building: FC<IProps> = ({
 
                     return prevIndex === -1;
                   })
+                  .filter((el) => el.approving_status === 'Подтверждена')
                   .map((el) => ({
                     value: el.building.id,
                     label: el.building.building,
@@ -85,7 +86,7 @@ export const Building: FC<IProps> = ({
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
             if (possessions.length) possessionSuccess([]);
-            if (error) changeError(null);
+            if (error) applicationError(null);
             getPossessions(data.possessionType, e.toString());
             changeFormData((prev) => ({
               ...prev,

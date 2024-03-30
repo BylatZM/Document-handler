@@ -1,6 +1,7 @@
 import { FC } from 'react';
-import { IApplication, IEmployee, IRole } from '../../../../../types';
+import { IApplication, IEmployee, IError, IRole } from '../../../../../types';
 import { Input, Select } from 'antd';
+import { useActions } from '../../../../../hooks/useActions';
 
 interface IProps {
   role: IRole;
@@ -8,9 +9,11 @@ interface IProps {
   data: IApplication;
   workers: IEmployee[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
+  error: IError | null;
 }
 
-export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form_id }) => {
+export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form_id, error }) => {
+  const { applicationError } = useActions();
   return (
     <div className='flex flex-col gap-2 w-full'>
       <span>исполнитель</span>
@@ -30,33 +33,37 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
         />
       )}
       {role === 'dispatcher' && workers.length && (
-        <Select
-          className='h-[50px]'
-          value={!data.employee.id ? undefined : data.employee.id}
-          onChange={(e: number) =>
-            changeFormData((prev) => ({
-              ...prev,
-              employee: workers.filter((el) => el.id === e)[0],
-            }))
-          }
-          disabled={
-            data.status &&
-            form_id > 0 &&
-            data.status.appStatus !== 'Новая' &&
-            data.status.appStatus !== 'Назначена' &&
-            data.status.appStatus !== 'Возвращена'
-              ? true
-              : false
-          }
-          options={
-            !workers
-              ? []
-              : workers.map((el) => ({
-                  value: el.id,
-                  label: el.employee,
-                }))
-          }
-        />
+        <>
+          <Select
+            className='h-[50px]'
+            value={!data.employee.id ? undefined : data.employee.id}
+            onChange={(e: number) => {
+              if (error) applicationError(null);
+              changeFormData((prev) => ({
+                ...prev,
+                employee: workers.filter((el) => el.id === e)[0],
+              }));
+            }}
+            disabled={
+              data.status &&
+              form_id > 0 &&
+              data.status.appStatus !== 'Новая' &&
+              data.status.appStatus !== 'Назначена' &&
+              data.status.appStatus !== 'Возвращена'
+                ? true
+                : false
+            }
+            options={
+              !workers
+                ? []
+                : workers.map((el) => ({
+                    value: el.id,
+                    label: el.employee,
+                  }))
+            }
+          />
+          {error && error.type === 'employee' && <span className='errorText'>{error.error}</span>}
+        </>
       )}
       <span>специализация</span>
       <Input

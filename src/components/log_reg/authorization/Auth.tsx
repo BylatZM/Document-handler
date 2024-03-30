@@ -19,7 +19,7 @@ export const Auth: FC<IAuthProps> = ({
   changeNeedShowPasswordForm,
 }) => {
   const navigate = useNavigate();
-  const { loginLoading, loginSuccess, loginError } = useActions();
+  const { loginLoading, loginSuccess, loginError, authClear } = useActions();
 
   const onFinish = async (Props: IAuthRequest) => {
     loginLoading(true);
@@ -44,6 +44,7 @@ export const Auth: FC<IAuthProps> = ({
           to={'/registration'}
           className='text-blue-700'
           onClick={() => {
+            authClear();
             changeAnimState(false);
           }}
         >

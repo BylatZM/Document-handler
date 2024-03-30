@@ -14,7 +14,7 @@ import {
 } from '../../components/types';
 
 const initialState: IApplicationState = {
-  userApplication: [],
+  applications: [],
   types: [],
   grades: [],
   sources: [],
@@ -34,7 +34,7 @@ export const ApplicationReducer = createSlice({
       state.isLoading = payload;
     },
     applicationSuccess: (state, { payload }: PayloadAction<IApplication[]>) => {
-      state.userApplication = payload;
+      state.applications = payload;
       state.isLoading = false;
     },
     typesSuccess: (state, { payload }: PayloadAction<IType[]>) => {
@@ -58,14 +58,7 @@ export const ApplicationReducer = createSlice({
     employsSuccess: (state, { payload }: PayloadAction<IEmployee[]>) => {
       state.employs = payload;
     },
-    updateApplication: (
-      state,
-      { payload }: PayloadAction<{ app_id: number; application: IApplication }>,
-    ) => {
-      state.userApplication = state.userApplication.filter((el) => el.id !== payload.app_id);
-      state.userApplication.push(payload.application);
-    },
-    applicationError: (state, { payload }: PayloadAction<IError>) => {
+    applicationError: (state, { payload }: PayloadAction<IError | null>) => {
       state.error = payload;
     },
     applicationClear: (state): IApplicationState => {
@@ -77,7 +70,6 @@ export const ApplicationReducer = createSlice({
 export const {
   applicationLoading,
   applicationSuccess,
-  updateApplication,
   applicationError,
   applicationClear,
   employsSuccess,

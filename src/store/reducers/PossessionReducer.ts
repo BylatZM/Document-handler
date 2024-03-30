@@ -1,8 +1,4 @@
-import {
-  IBuildingWithComplex,
-  INotApprovedPossessions,
-  IPossession,
-} from './../../components/types';
+import { IBuildingWithComplex, IPossession } from './../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IPossessionState, IComplex, IPosLoading } from '../../components/types';
 
@@ -11,7 +7,6 @@ const initialState: IPossessionState = {
   complexes: [],
   possessions: [],
   isLoading: null,
-  notApprovedPossessions: null,
 };
 
 export const PossessionReducer = createSlice({
@@ -20,13 +15,6 @@ export const PossessionReducer = createSlice({
   reducers: {
     possessionStart: (state, { payload }: PayloadAction<IPosLoading>) => {
       state.isLoading = payload;
-    },
-    notApprovedPossessionSuccess: (
-      state,
-      { payload }: PayloadAction<INotApprovedPossessions[]>,
-    ) => {
-      state.notApprovedPossessions = payload;
-      state.isLoading = null;
     },
     complexSuccess: (state, { payload }: PayloadAction<IComplex[]>) => {
       state.complexes = payload;
@@ -52,7 +40,6 @@ export const {
   buildingSuccess,
   possessionSuccess,
   possessionClear,
-  notApprovedPossessionSuccess,
 } = PossessionReducer.actions;
 
 export default PossessionReducer.reducer;

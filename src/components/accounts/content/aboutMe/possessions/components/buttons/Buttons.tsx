@@ -54,7 +54,7 @@ export const Buttons: FC<IProp> = ({
     if (error && error.form_id === form_id) citizenErrors(null);
     citizenLoading({ form_id: form_id, isLoading: true });
 
-    const response = await createCitizenRequest(form_id, logout, {
+    const response = await createCitizenRequest(logout, {
       personal_account: data.personal_account,
       ownershipStatus: data.ownershipStatus,
       possessionType: data.possessionType,
@@ -62,13 +62,21 @@ export const Buttons: FC<IProp> = ({
       building: data.building.id,
       possession: data.possession.id,
     });
-    if (response) {
-      if (response === 201) {
-        if (user.account_status === 'новый' && user.first_name && user.last_name && user.phone)
-          changeNeedShowNotification(true);
-        changeUpdatingFormId(null);
-        changeNeedUpdate(true);
-      } else citizenErrors(response);
+    if (!response) return;
+
+    if (response === 201) {
+      if (
+        user.account_status === 'На подтверждении' &&
+        user.first_name &&
+        user.last_name &&
+        user.phone
+      )
+        changeNeedShowNotification(true);
+      changeUpdatingFormId(null);
+      changeNeedUpdate(true);
+    } else {
+      if (response.type === 'user') alert(response.error);
+      citizenErrors({ form_id: form_id, error: response });
     }
 
     citizenLoading({ form_id: 0, isLoading: false });
@@ -95,6 +103,7 @@ export const Buttons: FC<IProp> = ({
         });
         setTimeout(() => {
           changeUpdatingFormId(null);
+          changeNeedUpdate(true);
           changeIsRequestSuccess((prev) => !prev);
         }, 2000);
       } else citizenErrors(response);

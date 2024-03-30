@@ -17,14 +17,13 @@ export const Main: FC<IProps> = ({ changeNeedShowNotification }) => {
   const logout = useLogout();
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { addCitizenForm, citizenSuccess } = useActions();
-  const [needUpdateCitizen, changeNeedUpdate] = useState(false);
+  const [needUpdateCitizen, changeNeedUpdate] = useState(true);
   const [needShowPossessionCreateForm, changeNeedShowPossessionCreateForm] = useState(false);
   const [updatingFormId, changeUpdatingFormId] = useState<number | null>(null);
   const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
 
   useEffect(() => {
-    if (['citizen', 'dispatcher'].some((el) => el === user.role) && needUpdateCitizen)
-      getCitizenData();
+    if (needUpdateCitizen) getCitizenData();
   }, [needUpdateCitizen]);
 
   const getCitizenData = async () => {
@@ -42,17 +41,20 @@ export const Main: FC<IProps> = ({ changeNeedShowNotification }) => {
         changeNeedShowForm={changeNeedShowPossessionCreateForm}
       />
       <span className='text-xl max-sm:mx-auto'>Собственность</span>
-      <div className='max-sm:text-center'>
+      <div className='flex max-sm:flex-col max-sm:gap-y-2 sm:flex-row sm:justify-between'>
         <Button
-          className='bg-blue-700 text-white w-min max-sm:mb-2 sm:mr-4'
+          className='bg-blue-700 text-white'
           type='primary'
           onClick={() => addCitizenForm()}
-          disabled={user.account_status !== 'подтвержден'}
+          disabled={user.account_status !== 'Подтвержден'}
         >
           Добавить собственность
         </Button>
-        <Button type='link' onClick={() => changeNeedShowPossessionCreateForm(true)}>
-          Не нашли свою собственность?
+        <Button
+          className='border-blue-700 text-blue-700'
+          onClick={() => changeNeedShowPossessionCreateForm(true)}
+        >
+          Не нашли собственность?
         </Button>
       </div>
 

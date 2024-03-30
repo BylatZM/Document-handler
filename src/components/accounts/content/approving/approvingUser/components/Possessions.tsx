@@ -1,12 +1,16 @@
-import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { Input, Select } from 'antd';
+import { IUserDetailsInfo } from '../../../../../types';
+import { FC } from 'react';
 
-export const CitizenPossessions = () => {
-  const { citizen } = useTypedSelector((state) => state.CitizenReducer);
+interface IProps {
+  selectedUserInfo: IUserDetailsInfo | null;
+}
+
+export const Possessions: FC<IProps> = ({ selectedUserInfo }) => {
   return (
     <>
-      {citizen &&
-        citizen.map((el) => {
+      {selectedUserInfo &&
+        selectedUserInfo.possessions.map((el) => {
           return (
             <div key={el.id} className='p-1'>
               <div className='mt-2 mb-2 max-sm:text-xs text-sm'>

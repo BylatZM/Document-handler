@@ -30,6 +30,11 @@ import {
   ISubtype,
   IBuildingWithComplex,
   IPossession,
+  INotApprovedCitizens,
+  INotApprovedUsers,
+  IUserDetailsInfo,
+  IApproveUserByLink,
+  IApplicationPagination,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -52,13 +57,19 @@ export const updatePassword = (params: {
 export const getUser = (): AxiosPromise<IUser> => axiosInstance.get(endpoints.user.get);
 
 export const approveUser = (id: string): AxiosPromise<void> =>
-  axiosInstance.put(endpoints.user.approve + `${id}`);
+  axiosInstance.put(endpoints.user.approve + `/${id}`);
+
+export const approveUserByLink = (data: IApproveUserByLink): AxiosPromise<IError | void> =>
+  axiosInstance.put(endpoints.user.approve, data);
 
 export const rejectUser = (id: string): AxiosPromise<void> =>
   axiosInstance.put(endpoints.user.reject + `${id}`);
 
-export const getNotApproved = (): AxiosPromise<IUser[]> =>
+export const getNotApprovedUsers = (): AxiosPromise<INotApprovedUsers[]> =>
   axiosInstance.get(endpoints.user.getNotApproved);
+
+export const getUserDetailsInfo = (id: string): AxiosPromise<IUserDetailsInfo> =>
+  axiosInstance.get(endpoints.user.detailsInfo + `${id}`);
 
 export const updateUser = (user: IUserUpdate): AxiosPromise<IError | void> =>
   axiosInstance.put(endpoints.user.update, user);
@@ -89,8 +100,14 @@ export const createPossession = (possession: IApprovePossessionRequest): AxiosPr
 
 export const getCitizen = (): AxiosPromise<ICitizen[]> => axiosInstance.get(endpoints.citizen.get);
 
-export const getCitizenById = (id: string): AxiosPromise<ICitizen[]> =>
-  axiosInstance.get(endpoints.citizen.get + `/${id}`);
+export const getNotApprovedCitizen = (): AxiosPromise<INotApprovedCitizens[] | void> =>
+  axiosInstance.get(endpoints.citizen.getNotApproved);
+
+export const rejectCitizen = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.citizen.reject + `${id}`);
+
+export const approveCitizen = (id: string): AxiosPromise<void> =>
+  axiosInstance.put(endpoints.citizen.approve + `${id}`);
 
 export const createCitizen = (citizen: ICitizenRequest): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.citizen.create, citizen);
@@ -114,11 +131,14 @@ export const updateApplicationStatus = (
 export const updateApplication = (
   application_id: string,
   data: IAppUpdateByDispatcher | IAppUpdateByEmployee,
-): AxiosPromise<void> =>
+): AxiosPromise<void | IError> =>
   axiosInstance.put(endpoints.application.updateComment + `/${application_id}`, data);
 
-export const getApplication = (): AxiosPromise<IApplication[]> =>
-  axiosInstance.get(endpoints.application.get);
+export const getApplication = (
+  page: string,
+  page_size: string,
+): AxiosPromise<IApplicationPagination> =>
+  axiosInstance.get(endpoints.application.get + `?page=${page}&page_size=${page_size}`);
 
 export const getEmployee = (): AxiosPromise<IEmployee[] | void> =>
   axiosInstance.get(endpoints.employee);

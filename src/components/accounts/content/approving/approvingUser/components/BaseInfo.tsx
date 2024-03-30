@@ -1,8 +1,8 @@
 import { Input } from 'antd';
 import { FC } from 'react';
-import { IUser } from '../../../../types';
+import { IUserDetailsInfo } from '../../../../../types';
 
-export const CitizenBaseInfo: FC<{ data: IUser | null }> = ({ data }) => {
+export const BaseInfo: FC<{ data: IUserDetailsInfo | null }> = ({ data }) => {
   return (
     <div className='p-1'>
       <div className='mt-2 mb-2 text-sm'>

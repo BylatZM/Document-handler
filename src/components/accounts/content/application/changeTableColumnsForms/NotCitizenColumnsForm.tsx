@@ -1,24 +1,25 @@
 import { Button, Checkbox, CheckboxOptionType, ConfigProvider, Popover } from 'antd';
 import clsx from 'clsx';
 import { FC } from 'react';
-import { IApplicationColumns } from '../../../types';
+import { IApplicationNotCitizenColumns } from '../../../../types';
 import { ColumnsType } from 'antd/es/table';
+import { defaultNotCitizenColumns } from '../ApplicationTableArgs';
 
 interface IProps {
   needShow: boolean;
   changeNeedShow: React.Dispatch<React.SetStateAction<boolean>>;
-  baseColumns: ColumnsType<IApplicationColumns>;
-  changeColumns: React.Dispatch<React.SetStateAction<ColumnsType<IApplicationColumns> | null>>;
+  changeNotCitizenTable: React.Dispatch<
+    React.SetStateAction<ColumnsType<IApplicationNotCitizenColumns> | null>
+  >;
   checkboxValues: null | string[];
   changeCheckboxValues: React.Dispatch<React.SetStateAction<null | string[]>>;
   options: CheckboxOptionType[];
 }
 
-export const ChangeShowingColumns: FC<IProps> = ({
+export const NotCitizenColumnsForm: FC<IProps> = ({
   needShow,
   changeNeedShow,
-  baseColumns,
-  changeColumns,
+  changeNotCitizenTable,
   checkboxValues,
   changeCheckboxValues,
   options,
@@ -41,13 +42,14 @@ export const ChangeShowingColumns: FC<IProps> = ({
             onChange={(value) => {
               const filter_array = value as string[];
               changeCheckboxValues(filter_array);
-              let array: ColumnsType<IApplicationColumns> = [];
-              baseColumns.forEach((el) => {
+
+              let array: ColumnsType<IApplicationNotCitizenColumns> = [];
+              defaultNotCitizenColumns.forEach((el) => {
                 if (el.key && filter_array.some((item) => item === el.key)) {
                   array.push(el);
                 }
               });
-              changeColumns(array);
+              changeNotCitizenTable(array);
             }}
           />
           <hr />

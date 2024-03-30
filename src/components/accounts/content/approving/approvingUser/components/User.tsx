@@ -2,18 +2,18 @@ import { Button, Carousel } from 'antd';
 import clsx from 'clsx';
 import { GrCaretNext } from 'react-icons/gr';
 import { FC, useRef } from 'react';
-import { CitizenBaseInfo } from './CitizenBaseInfo';
-import { CitizenPossessions } from './CitizenPossessions';
-import { IUser } from '../../../../types';
+import { BaseInfo } from './BaseInfo';
+import { Possessions } from './Possessions';
+import { IUserDetailsInfo } from '../../../../../types';
 
-interface CitizenProps {
+interface IProps {
   isFormActive: boolean;
   changeIsFormActive: (isFormActive: boolean) => void;
-  selectedUserInfo: IUser | null;
-  changeUserInfo: React.Dispatch<React.SetStateAction<IUser | null>>;
+  selectedUserInfo: IUserDetailsInfo | null;
+  changeUserInfo: React.Dispatch<React.SetStateAction<IUserDetailsInfo | null>>;
 }
 
-export const Citizen: FC<CitizenProps> = ({
+export const User: FC<IProps> = ({
   isFormActive,
   changeIsFormActive,
   selectedUserInfo,
@@ -44,8 +44,8 @@ export const Citizen: FC<CitizenProps> = ({
             ref={CarouselMethods}
             className='overflow-hidden w-[260px] h-[400px] sm:w-[560px] sm:h-[380px]'
           >
-            <CitizenBaseInfo data={selectedUserInfo} />
-            <CitizenPossessions />
+            <BaseInfo data={selectedUserInfo} />
+            <Possessions selectedUserInfo={selectedUserInfo} />
           </Carousel>
           <div className='text-end'>
             <Button

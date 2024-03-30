@@ -14,6 +14,7 @@ import { Complex } from './inputs/Complex';
 import { Building } from './inputs/Building';
 import { Possession } from './inputs/Possession';
 import { Buttons } from './buttons/Buttons';
+import { PossessionStatus } from './inputs/PossessionStatus';
 
 interface ICitizenFormProps {
   data: {
@@ -50,17 +51,18 @@ export const Possessions: FC<ICitizenFormProps> = ({
   };
 
   const getPossessions = async (type: string, building_id: string) => {
-    const response = await getPossessionsRequest(data.key, type, building_id, logout);
+    const response = await getPossessionsRequest(type, building_id, logout);
 
     if (!response) return;
 
-    if ('form_id' in response) {
+    if ('type' in response) {
       possessionSuccess([]);
-      citizenErrors(response);
+      citizenErrors({ form_id: data.key, error: response });
     } else possessionSuccess(response);
   };
   return (
     <>
+      <PossessionStatus data={formData} form_id={data.key} />
       <FrontScore
         data={formData}
         form_id={data.key}

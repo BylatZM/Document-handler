@@ -18,7 +18,7 @@ export const Reg: FC<IRegProps> = ({
   isAgreementChecked,
   changeNeedShowSendEmailForm,
 }) => {
-  const { regSuccess, regLoading, regError } = useActions();
+  const { regSuccess, regLoading, regError, regClear } = useActions();
   const error = useTypedSelector((state) => state.RegReducer.error);
   const isLoading = useTypedSelector((state) => state.RegReducer.isLoading);
 
@@ -51,7 +51,14 @@ export const Reg: FC<IRegProps> = ({
       <h1 className='text-2xl font-semibold mb-2'>Регистрация</h1>
       <p className='mb-4'>
         <span className='mr-2'>Уже есть аккаунта?</span>
-        <Link to={'/'} className='text-blue-700' onClick={() => changeAnimState(false)}>
+        <Link
+          to={'/'}
+          className='text-blue-700'
+          onClick={() => {
+            regClear();
+            changeAnimState(false);
+          }}
+        >
           Войти
         </Link>
       </p>

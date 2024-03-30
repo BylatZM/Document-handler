@@ -10,6 +10,7 @@ import {
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
   ISubtype,
+  IApplicationPagination,
 } from '../../components/types';
 import {
   createApplication,
@@ -24,17 +25,19 @@ import {
   updateApplicationStatus,
   getSubTypes,
 } from '..';
-import { IApplication, IError } from '../../components/types';
+import { IError } from '../../components/types';
 import request from 'axios';
 import { refreshRequest } from './Main';
 import { errorAlert } from './Main';
 
 export const getApplicationsRequest = async (
   logout: () => void,
-): Promise<IApplication[] | void> => {
-  const applicationsRequest = async (): Promise<IApplication[] | 401 | void> => {
+  page: string,
+  page_size: string,
+): Promise<IApplicationPagination | void> => {
+  const applicationsRequest = async (): Promise<IApplicationPagination | 401 | void> => {
     try {
-      const response = await getApplication();
+      const response = await getApplication(page, page_size);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -51,9 +54,8 @@ export const getApplicationsRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await applicationsRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -85,9 +87,8 @@ export const createApplicationsRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await applicationsRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -105,7 +106,10 @@ export const updateAppRequest = async (
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
+        else {
+          if (e.response.status === 400) return e.response.data;
+          else errorAlert(e.response.status);
+        }
       }
     }
   };
@@ -117,9 +121,8 @@ export const updateAppRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await applicationRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -151,9 +154,8 @@ export const updateAppStatusRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await applicationsRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -179,9 +181,8 @@ export const getEmploysRequest = async (logout: () => void): Promise<IEmployee[]
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await employsRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -207,9 +208,8 @@ export const getGradesRequest = async (logout: () => void): Promise<IGrade[] | v
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await gradesRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -235,9 +235,8 @@ export const getTypesRequest = async (logout: () => void): Promise<IType[] | voi
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await typesRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -263,9 +262,8 @@ export const getStatusesRequest = async (logout: () => void): Promise<IStatus[] 
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await statusesRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -291,9 +289,8 @@ export const getPrioritiesRequest = async (logout: () => void): Promise<IPriorit
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await prioritiesRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -319,9 +316,8 @@ export const getSourcesRequest = async (logout: () => void): Promise<ISource[] |
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await sourcesRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -350,9 +346,8 @@ export const getSubTypesRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await makeRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;

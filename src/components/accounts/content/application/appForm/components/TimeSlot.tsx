@@ -11,12 +11,29 @@ interface IProps {
 }
 
 export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) => {
+  const dateCalculator = (days: number, creatingDate: string): string => {
+    const [dmy, hms] = creatingDate.split(' ');
+    const currentDate = new Date(`${dmy.split('.').reverse().join('-')}T${hms}`);
+    const futureDate = new Date(currentDate.getTime() + days * 24 * 60 * 60 * 1000);
+
+    const newDateStr = `
+    ${futureDate.getDate() < 10 ? `0${futureDate.getDate()}` : futureDate.getDate()}.${
+      futureDate.getMonth() + 1 < 10 ? `0${futureDate.getMonth() + 1}` : futureDate.getMonth() + 1
+    }.${futureDate.getFullYear()} ${
+      futureDate.getHours() < 10 ? `0${futureDate.getHours()}` : futureDate.getHours()
+    }:${
+      futureDate.getMinutes() < 10 ? `0${futureDate.getMinutes()}` : futureDate.getMinutes()
+    }:${futureDate.getSeconds()}`.trim();
+
+    return newDateStr;
+  };
+
   return (
     <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
       {form_id !== 0 && (
         <>
           <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
-            <span>Плановое время начала работ</span>
+            <span>Плановое время поступления заявки</span>
             <Input
               className='h-[50px]'
               value={!data.creatingDate ? '' : data.creatingDate}
@@ -24,9 +41,45 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
             />
           </div>
           <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
-            <span>Плановое время окончания работ</span>
+            <span>Фактическое время исполнения</span>
             <Input className='h-[50px]' value={!data.dueDate ? '' : data.dueDate} disabled />
           </div>
+        </>
+      )}
+      {form_id !== 0 && role !== 'citizen' && (
+        <>
+          <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
+            <span>Заявка была создана</span>
+            <Input
+              className='h-[50px]'
+              value={data.user.role === 'citizen' ? 'Жителем' : 'Диспетчером'}
+              disabled
+            />
+          </div>
+          <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
+            <span>Плановое время исполнения</span>
+            <Input
+              className='h-[50px]'
+              value={
+                data.subtype ? dateCalculator(data.subtype.normative / 24, data.creatingDate) : ''
+              }
+              disabled
+            />
+          </div>
+        </>
+      )}
+      {form_id !== 0 && role === 'citizen' && (
+        <>
+          <>
+            <span>Плановое время выполнения</span>
+            <Input
+              className='h-[50px]'
+              value={
+                data.subtype ? dateCalculator(data.subtype.normative / 24, data.creatingDate) : ''
+              }
+              disabled
+            />
+          </>
         </>
       )}
       {((role === 'citizen' && form_id !== 0) || role !== 'citizen') && (

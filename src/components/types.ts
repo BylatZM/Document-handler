@@ -1,3 +1,5 @@
+import { TablePaginationConfig } from 'antd';
+
 export interface IError {
   type: string;
   error: string;
@@ -44,19 +46,17 @@ export interface IPossessionState {
   buildings: IBuildingWithComplex[];
   complexes: IComplex[];
   possessions: IPossession[];
-  notApprovedPossessions: INotApprovedPossessions[] | null;
   isLoading: IPosLoading;
 }
 
 export interface IUserState {
   user: IUser;
-  notApprovedUsers: IUser[] | null;
   isLoading: boolean;
   error: IError | null;
 }
 
 export interface IApplicationState {
-  userApplication: IApplication[];
+  applications: IApplication[];
   types: IType[];
   grades: IGrade[];
   employs: IEmployee[];
@@ -105,7 +105,7 @@ export interface IRegRequest {
   email: string;
 }
 
-export type IAccStatus = 'новый' | 'подтвержден' | 'отклонен';
+export type IUserAccountStatus = 'На подтверждении' | 'Подтвержден' | 'Отклонен';
 
 export interface IUser {
   id: number;
@@ -115,10 +115,24 @@ export interface IUser {
   patronymic: null | string;
   phone: null | string;
   email: string;
-  account_status: IAccStatus;
+  account_status: IUserAccountStatus;
+}
+
+export interface IUserDetailsInfo {
+  first_name: string;
+  last_name: string;
+  email: string;
+  patronymic: string | null;
+  phone: string;
+  possessions: ICitizen[];
 }
 
 export type IUserUpdate = Omit<IUser, 'id' | 'role' | 'account_status' | 'email'>;
+
+export interface IApplicationPagination {
+  result: IApplication[];
+  total: number;
+}
 
 export interface IApplication {
   id: number;
@@ -137,7 +151,9 @@ export interface IApplication {
   employee: IEmployee;
   dispatcherComment: string;
   employeeComment: string;
-  user: number;
+  user: {
+    role: string;
+  };
   possessionType: string;
   contact: string;
   citizenFio: string;
@@ -226,6 +242,8 @@ export interface IPriority {
   appPriority: string;
 }
 
+export type IPossessionStatus = 'Отклонена' | 'На подтверждении' | 'Подтверждена';
+
 export interface ICitizen {
   id: number;
   personal_account: string;
@@ -234,6 +252,7 @@ export interface ICitizen {
   complex: IComplex;
   building: IBuilding;
   possession: IPossession;
+  approving_status: IPossessionStatus;
 }
 
 export type IApprovePossession = Omit<
@@ -245,6 +264,7 @@ export type IApprovePossession = Omit<
   | 'building'
   | 'possession'
   | 'possessionType'
+  | 'approving_status'
 > & {
   complex: number;
   type: number;
@@ -254,7 +274,10 @@ export type IApprovePossession = Omit<
 
 export type IApprovePossessionRequest = Omit<IApprovePossession, 'complex'>;
 
-export type ICitizenRequest = Omit<ICitizen, 'id' | 'complex' | 'building' | 'possession'> & {
+export type ICitizenRequest = Omit<
+  ICitizen,
+  'id' | 'complex' | 'building' | 'possession' | 'approving_status'
+> & {
   complex: number;
   building: number;
   possession: number;
@@ -291,7 +314,12 @@ export interface IBuilding {
   building: string;
 }
 
-export type IPossessionStatus = 'отклонена' | 'новая' | 'подтверждена';
+export interface INotApprovedUsers {
+  id: number;
+  first_name: string;
+  last_name: string;
+  account_status: IUserAccountStatus;
+}
 
 export interface INotApprovedPossessions {
   id: number;
@@ -301,7 +329,18 @@ export interface INotApprovedPossessions {
   address: string;
 }
 
-export interface IApplicationColumns {
+export interface INotApprovedCitizens {
+  id: number;
+  complex: string;
+  building: string;
+  possession: string;
+  approving_status: string;
+  ownershipStatus: string;
+  possessionType: string;
+  personal_account: string;
+}
+
+export interface IApplicationCitizenColumns {
   number: number;
   creating_date: string;
   app_type: string;
@@ -310,11 +349,48 @@ export interface IApplicationColumns {
   due_date: string;
   citizen_comment: string;
   possession: string;
+  building: string;
+  complex: string;
+  contact: string;
+}
+
+export interface IApplicationNotCitizenColumns {
+  number: number;
+  creating_date: string;
+  app_type: string;
+  app_subtype: {
+    name: string;
+    normative: number;
+  };
+  status: string;
+  due_date: string;
+  citizen_comment: string;
+  possession: string;
+  building: string;
+  complex: string;
   contact: string;
   employee: string;
+  creator: string;
 }
 
 export interface IUpdatePassword {
   email: string;
   phone: string;
 }
+
+export interface IApproveUserByLink {
+  id: string | null;
+  key: string | null;
+  operation: string | null;
+}
+
+export interface ITableParams {
+  pagination?: TablePaginationConfig;
+}
+
+export type ISortingOption =
+  | 'status_increasing'
+  | 'status_decreasing'
+  | 'creatingDate_increasing'
+  | 'creatingDate_decreasing'
+  | null;

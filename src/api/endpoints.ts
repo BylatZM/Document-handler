@@ -8,8 +8,9 @@ const endpoints = {
     get: '/user',
     update: '/user/update',
     getNotApproved: 'user/noApproved/all',
-    approve: 'user/approve/',
+    approve: 'user/approve',
     reject: 'user/reject/',
+    detailsInfo: 'user/details/',
   },
   complex: {
     getAll: '/complex/all',
@@ -31,6 +32,9 @@ const endpoints = {
     get: '/citizen',
     update: '/citizen/update',
     delete: '/citizen/delete',
+    approve: '/citizen/approve/',
+    reject: '/citizen/reject/',
+    getNotApproved: 'citizen/noApproved/all',
   },
   application: {
     create: 'application/new',

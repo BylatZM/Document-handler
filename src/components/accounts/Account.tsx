@@ -1,8 +1,4 @@
-import {
-  getCitizenRequest,
-  getNotApprovedUsersRequest,
-  getUserRequest,
-} from '../../api/requests/Person';
+import { getCitizenRequest, getUserRequest } from '../../api/requests/Person';
 import { Loading } from '../Loading/Loading';
 import { useActions } from '../hooks/useActions';
 import { Application } from './content/application/Application';
@@ -13,40 +9,35 @@ import { Menu } from './menu/Menu';
 import { ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
+import { getComplexesRequest } from '../../api/requests/Possession';
 import {
-  getComplexesRequest,
-  getNotApprovedPossessionsRequest,
-} from '../../api/requests/Possession';
-import {
-  getApplicationsRequest,
   getEmploysRequest,
   getPrioritiesRequest,
   getSourcesRequest,
   getStatusesRequest,
   getTypesRequest,
 } from '../../api/requests/Application';
-import { ApproveCitizen } from './content/approveCitizen/ApproveCitizen';
+import { ApprovingUser } from './content/approving/approvingUser/ApprovingUser';
+import { ApprovingUserPossession } from './content/approving/approvingUserPossession/ApprovingUserPossession';
 import { ErrorPage } from '../ErrorPage';
-import { ApprovePossession } from './content/approvePossession/ApprovePossession';
+import { ApprovingLivingSpace } from './content/approving/approvingLivingSpace/ApprovingLivingSpace';
 
 export const Account = () => {
   const logout = useLogout();
   const navigate = useNavigate();
   const [isOpened, changeIsOpened] = useState(false);
   const { user } = useTypedSelector((state) => state.UserReducer);
+  const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { pathname } = useLocation();
   const {
     userSuccess,
     complexSuccess,
     citizenSuccess,
-    applicationSuccess,
     typesSuccess,
     sourcesSuccess,
     statusesSuccess,
     prioritySuccess,
     employsSuccess,
-    notApprovedUsersSuccess,
-    notApprovedPossessionSuccess,
   } = useActions();
   const [IsRequested, changeIsRequested] = useState(true);
 
@@ -61,19 +52,14 @@ export const Account = () => {
       if (profile_response.role === 'dispatcher') {
         const employs = await getEmploysRequest(logout);
         if (employs) employsSuccess(employs);
-        const notApprovedUsers = await getNotApprovedUsersRequest(logout);
-        if (notApprovedUsers) notApprovedUsersSuccess(notApprovedUsers);
-        const notApprovedPossessions = await getNotApprovedPossessionsRequest(logout);
-        if (notApprovedPossessions) notApprovedPossessionSuccess(notApprovedPossessions);
       }
       if (profile_response.role !== 'executor') {
         await get_complexes();
       }
-      await get_applications();
-      if (profile_response.role) await get_citizen();
-      if (profile_response.account_status === 'подтвержден') {
+      if (profile_response.account_status === 'Подтвержден') {
         await get_static_select_info();
         navigate('/account/applications');
+        if (profile_response.role === 'citizen') await get_citizen();
       }
     }
   };
@@ -94,13 +80,6 @@ export const Account = () => {
     if (response) citizenSuccess(response);
   };
 
-  const get_applications = async () => {
-    const response = await getApplicationsRequest(logout);
-    if (response && response.length > 0) {
-      applicationSuccess(response);
-    }
-  };
-
   const get_complexes = async () => {
     const complexes = await getComplexesRequest(logout);
     if (complexes) complexSuccess(complexes);
@@ -118,20 +97,31 @@ export const Account = () => {
   const GetCurrentFrame = (pathname: string): ReactNode => {
     if (pathname === '/account/aboutMe') return <AboutMe />;
     if (pathname === '/account/applications') {
-      if (user.account_status !== 'подтвержден') return <ErrorPage message='Страница не найдена' />;
       if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role))
         return <ErrorPage message='Страница не найдена' />;
+      if (user.role !== 'citizen' && user.account_status !== 'Подтвержден')
+        return <ErrorPage message='Ваш аккаунт не подтвержден' />;
+      if (user.role === 'citizen' && user.account_status !== 'Подтвержден')
+        return (
+          <ErrorPage
+            message={`Ваш аккаунт еще не подтвержден. Для того чтобы иметь возможность подавать заявки Вам нужно в разделе "Обо мне" указать фамилию, имя, отчество (при наличии), номер телефона, а также собственность, после чего дождаться уведомления (на почту ${user.email}) о подтверждении аккаунта диспетчером`}
+          />
+        );
+      if (user.role === 'citizen' && !citizen.some((el) => el.approving_status === 'Подтверждена'))
+        return (
+          <ErrorPage message='У Вас нет ни одной собственности со статусом "Подтверждена", возможно вам стоит дождаться их подтверждения со стороны диспетчера или обратиться в техподдержку' />
+        );
 
       return <Application />;
     }
     if (pathname === '/account/approve/user' && user.role === 'dispatcher')
-      return <ApproveCitizen />;
+      return <ApprovingUser />;
 
-    if (pathname === '/account/approve/possession' && user.role === 'dispatcher')
-      return <ApprovePossession />;
+    if (pathname === '/account/approve/living_space' && user.role === 'dispatcher')
+      return <ApprovingLivingSpace />;
 
-    if (pathname === '/account/approve/possession' && user.role === 'dispatcher')
-      return <ApproveCitizen />;
+    if (pathname === '/account/approve/citizen_possession' && user.role === 'dispatcher')
+      return <ApprovingUserPossession />;
   };
 
   if (IsRequested) return <Loading />;

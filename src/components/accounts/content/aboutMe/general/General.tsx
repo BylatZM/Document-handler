@@ -18,17 +18,17 @@ export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
   const logout = useLogout();
 
   const onFinish = async () => {
-    if (user.first_name && !/^[А-Яа-я]+$/.test(user.first_name)) {
+    if ((user.first_name && !/^[А-Яа-я]+$/.test(user.first_name)) || !user.first_name) {
       userError({
         type: 'first_name',
-        error: 'Имя может состоять только из букв русского алфавита или быть незаполненным',
+        error: 'Имя может состоять только из букв русского алфавита',
       });
       return;
     }
-    if (user.last_name && !/^[А-Яа-я]+$/.test(user.last_name)) {
+    if ((user.last_name && !/^[А-Яа-я]+$/.test(user.last_name)) || !user.last_name) {
       userError({
         type: 'last_name',
-        error: 'Фамилия может состоять только из букв русского алфавита или быть незаполненным',
+        error: 'Фамилия может состоять только из букв русского алфавита',
       });
       return;
     }
@@ -50,7 +50,8 @@ export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
     userLoading(true);
     if (error) userError(null);
 
-    if (citizen[0].id > 0 && user.account_status === 'новый') changeNeedShowNotification(true);
+    if (citizen[0].id > 0 && user.account_status === 'На подтверждении')
+      changeNeedShowNotification(true);
 
     const response = await updateUserRequest(
       {

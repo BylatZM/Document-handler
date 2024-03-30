@@ -25,7 +25,7 @@ export const Possession: FC<IProps> = ({
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Номер квартиры (номер собственности) </span>
+      <span>Номер собственности</span>
       {updatingFormId === form_id && (
         <Select
           className='w-full'

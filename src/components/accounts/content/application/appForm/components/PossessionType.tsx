@@ -1,13 +1,13 @@
 import { FC } from 'react';
 import { useActions } from '../../../../../hooks/useActions';
 import { Input, Select } from 'antd';
-import { IApplication, IRole } from '../../../../../types';
+import { IApplication, IError, IPossession, IRole } from '../../../../../types';
 
 interface IProps {
   form_id: number;
   data: IApplication;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  getPossessions: (type: string, building_id: string) => Promise<void>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IError | IPossession[]>;
   role: IRole;
 }
 
@@ -19,7 +19,6 @@ export const PossessionType: FC<IProps> = ({
   role,
 }) => {
   const { citizenErrors } = useActions();
-
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Тип имущества</span>
@@ -42,9 +41,7 @@ export const PossessionType: FC<IProps> = ({
               possessionType: e.toString(),
               possession: { id: 0, address: '', type: '', building: '' },
             }));
-            if (data.building.id) {
-              getPossessions(e.toString(), data.building.id.toString());
-            }
+            if (data.building.id) getPossessions(e.toString(), data.building.id.toString());
           }}
         />
       )}

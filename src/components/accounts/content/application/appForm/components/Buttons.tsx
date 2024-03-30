@@ -12,7 +12,6 @@ import { useActions } from '../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
 import {
   createApplicationsRequest,
-  getApplicationsRequest,
   updateAppRequest,
   updateAppStatusRequest,
 } from '../../../../../../api/requests/Application';
@@ -26,10 +25,18 @@ interface IProps {
   role: IRole;
   exitFromForm: () => void;
   logout: () => void;
+  getApplications: () => Promise<void>;
 }
 
-export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout }) => {
-  const { updateApplication, applicationSuccess } = useActions();
+export const Buttons: FC<IProps> = ({
+  data,
+  form_id,
+  role,
+  exitFromForm,
+  logout,
+  getApplications,
+}) => {
+  const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<
     | null
@@ -55,11 +62,6 @@ export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout 
     | 'proceed_to_execution'
     | 'return_for_revision'
   >(null);
-
-  const get_applications = async () => {
-    const applications = await getApplicationsRequest(logout);
-    if (applications) applicationSuccess(applications);
-  };
 
   const create_application = async () => {
     if (!statuses.length || !data.subtype || !data.type) return;
@@ -99,10 +101,12 @@ export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout 
       setTimeout(async () => {
         changeSuccessButton((prev) => null);
         exitFromForm();
-        await get_applications();
+        getApplications();
       }, 2000);
     } else {
+      if (response && 'type' in response) applicationError(response);
       changeErrorButton('create');
+      setTimeout(() => changeErrorButton(null), 2000);
     }
   };
 
@@ -116,27 +120,19 @@ export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout 
     const response = await updateAppStatusRequest(form_id.toString(), logout, status.id);
     changeLoadingButton(null);
     if (response === 200) {
-      updateApplication({
-        app_id: form_id,
-        application: {
-          ...data,
-          status: { id: status.id, appStatus: status.appStatus },
-        },
-      });
-      if (status.appStatus === 'Закрыта') {
-        changeSuccessButton((prev) => 'close_application');
-        await get_applications();
-      }
+      if (status.appStatus === 'Закрыта') changeSuccessButton((prev) => 'close_application');
       if (status.appStatus === 'Возвращена') changeSuccessButton((prev) => 'return_for_revision');
       if (status.appStatus === 'В работе') changeSuccessButton((prev) => 'proceed_to_execution');
       setTimeout(async () => {
         changeSuccessButton((prev) => null);
+        getApplications();
         exitFromForm();
       }, 2000);
     } else {
       if (status.appStatus === 'Закрыта') changeErrorButton((prev) => 'close_application');
       if (status.appStatus === 'Возвращена') changeErrorButton((prev) => 'return_for_revision');
       if (status.appStatus === 'В работе') changeErrorButton((prev) => 'proceed_to_execution');
+      setTimeout(() => changeErrorButton(null), 2000);
     }
   };
 
@@ -149,7 +145,6 @@ export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout 
     let info: IAppUpdateByEmployee | IAppUpdateByDispatcher = {
       employeeComment: data.employeeComment,
     };
-    const status = statuses.filter((el) => el.appStatus === 'Назначена')[0];
     if (role === 'dispatcher') {
       if (!data.type) return;
       info = {
@@ -164,20 +159,16 @@ export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout 
     const response = await updateAppRequest(form_id.toString(), logout, info);
     changeLoadingButton(null);
     if (response === 200) {
-      updateApplication({
-        app_id: form_id,
-        application: {
-          ...data,
-          status: data.status.appStatus === 'Новая' ? status : data.status,
-        },
-      });
       changeSuccessButton((prev) => 'update');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
+        getApplications();
         exitFromForm();
       }, 2000);
     } else {
-      changeErrorButton('create');
+      if (response && 'type' in response) applicationError(response);
+      changeErrorButton('update');
+      setTimeout(() => changeErrorButton(null), 2000);
     }
   };
 
@@ -341,8 +332,11 @@ export const Buttons: FC<IProps> = ({ data, form_id, role, exitFromForm, logout 
               disabled={
                 !loadingButton &&
                 !successButton &&
-                data.status &&
-                data.status.appStatus === 'В работе'
+                ((data.status && data.status.appStatus === 'В работе') ||
+                  (data.status &&
+                    (data.status.appStatus === 'Назначена' ||
+                      data.status.appStatus === 'Возвращена') &&
+                    role === 'dispatcher'))
                   ? false
                   : true
               }

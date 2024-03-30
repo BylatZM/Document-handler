@@ -1,139 +1,78 @@
-import { Button, CheckboxOptionType, ConfigProvider, Popover, Table } from 'antd';
+import { Button, CheckboxOptionType, ConfigProvider, Popover } from 'antd';
 import { AppForm } from './appForm/AppForm';
-import clsx from 'clsx';
-import { useEffect, useState } from 'react';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
-import { ColumnsType } from 'antd/es/table';
-import { IApplicationColumns } from '../../../types';
-import { ChangeShowingColumns } from './ChangeShowingColumns';
+import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import {
+  IApplication,
+  IApplicationCitizenColumns,
+  IApplicationNotCitizenColumns,
+  ITableParams,
+  ISortingOption,
+} from '../../../types';
 import { BsFilterRight } from 'react-icons/bs';
-import { IoFunnel } from 'react-icons/io5';
+import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
+import { useEffect, useState } from 'react';
+import { CitizenTable } from './appTable/CitizenTable';
+import { NotCitizenTable } from './appTable/NotCitizenTable';
+import { CitizenColumnsForm } from './changeTableColumnsForms/CitizenColumnsForm';
+import { NotCitizenColumnsForm } from './changeTableColumnsForms/NotCitizenColumnsForm';
 import { useActions } from '../../../hooks/useActions';
-import { FaArrowDownShortWide } from 'react-icons/fa6';
-
-const defaultColumns: ColumnsType<IApplicationColumns> = [
-  {
-    title: '№',
-    dataIndex: 'number',
-    key: 'number',
-  },
-  {
-    title: 'Дата создания',
-    dataIndex: 'creating_date',
-    key: 'creating_date',
-  },
-  {
-    title: 'Тип заявки',
-    dataIndex: 'app_type',
-    key: 'app_type',
-  },
-  {
-    title: 'Подтип заявки',
-    dataIndex: 'app_subtype',
-    key: 'app_subType',
-    render: (subtype: string) => (
-      <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype}</div>
-    ),
-  },
-  {
-    title: 'Статус',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status: string) => (
-      <span
-        className={clsx(
-          'text-white p-2 rounded-lg',
-          status === 'В работе' && 'bg-blue-700',
-          status === 'Новая' && 'bg-green-400',
-          status === 'Назначена' && 'bg-green-600',
-          status === 'Возвращена' && 'bg-amber-500',
-          status === 'Закрыта' && 'bg-red-500',
-        )}
-      >
-        {status}
-      </span>
-    ),
-  },
-  {
-    title: 'Время закрытия',
-    dataIndex: 'due_date',
-    key: 'due_date',
-  },
-  {
-    title: 'Комментарий жильца',
-    dataIndex: 'citizen_comment',
-    key: 'citizen_comment',
-    render: (citizen_comment: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {citizen_comment}
-      </div>
-    ),
-  },
-  {
-    title: 'Собственность',
-    dataIndex: 'possession',
-    key: 'possession',
-    render: (possession: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {possession}
-      </div>
-    ),
-  },
-  {
-    title: 'Исполнитель',
-    dataIndex: 'employee',
-    key: 'employee',
-    render: (employee: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {employee}
-      </div>
-    ),
-  },
-];
-
-const options = defaultColumns.map(({ key, title }) => ({
-  label: title,
-  value: key,
-})) as CheckboxOptionType[];
+import { getApplicationsRequest } from '../../../../api/requests/Application';
+import { useLogout } from '../../../hooks/useLogout';
+import { defaultAppForm } from './appForm/defaultAppForm';
 
 export const Application = () => {
-  const [IsFormActive, changeIsFormActive] = useState(false);
-  const { userApplication } = useTypedSelector((state) => state.ApplicationReducer);
-  const [selectedItem, changeSelectedItem] = useState(0);
+  const { applications } = useTypedSelector((state) => state.ApplicationReducer);
+  const [selectedItem, changeSelectedItem] = useState<IApplication | null>(null);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
   const [checkboxValues, changeCheckboxValues] = useState<null | string[]>(null);
-  const [tableColumns, changeTableColumns] = useState<null | ColumnsType<IApplicationColumns>>(
-    null,
-  );
-  const { applicationSuccess } = useActions();
-  const [sortedBy, changeSortedBy] = useState<
-    | null
-    | 'status_increasing'
-    | 'status_decreasing'
-    | 'creatingDate_increasing'
-    | 'creatingDate_decreasing'
-  >(null);
+  const [citizenTable, changeCitizenTable] =
+    useState<null | ColumnsType<IApplicationCitizenColumns>>(null);
+  const [notCitizenTable, changeNotCitizenTable] =
+    useState<null | ColumnsType<IApplicationNotCitizenColumns>>(null);
+  const { applicationLoading, applicationSuccess } = useActions();
+  const [sortOption, setSortOption] = useState<ISortingOption>(null);
+  const [tableParams, setTableParams] = useState<ITableParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      pageSizeOptions: undefined,
+    },
+  });
+  const logout = useLogout();
 
-  const makeSorting = (
-    sortingFieldName:
-      | 'status_increasing'
-      | 'status_decreasing'
-      | 'creatingDate_increasing'
-      | 'creatingDate_decreasing',
-  ) => {
-    changeSortedBy(sortingFieldName);
+  const isApplicationExpired = (application: IApplication): boolean => {
+    if (!application.subtype) return false;
+    if (
+      isDateExpired(application.creatingDate, application.subtype.normative / 24) &&
+      application.status.appStatus !== 'Закрыта'
+    )
+      return true;
+    return false;
+  };
+
+  const isDateExpired = (creatingDate: string, normative_in_days: number): boolean => {
+    const nowDate = new Date();
+    const [dmy, hms] = creatingDate.split(' ');
+    const currentDate = new Date(`${dmy.split('.').reverse().join('-')}T${hms}`);
+    const futureDate = new Date(currentDate.getTime() + normative_in_days * 24 * 60 * 60 * 1000);
+    return futureDate < nowDate;
+  };
+
+  const makeSorting = (sortingFieldName: ISortingOption) => {
+    setSortOption(sortingFieldName);
 
     if (sortingFieldName === 'status_decreasing') {
-      applicationSuccess([...userApplication].sort((a, b) => a.status.id - b.status.id));
+      applicationSuccess([...applications].sort((a, b) => a.status.id - b.status.id));
     }
     if (sortingFieldName === 'status_increasing') {
-      applicationSuccess([...userApplication].sort((a, b) => b.status.id - a.status.id));
+      applicationSuccess([...applications].sort((a, b) => b.status.id - a.status.id));
     }
 
     if (sortingFieldName === 'creatingDate_decreasing') {
       applicationSuccess(
-        [...userApplication].sort((a, b) => {
+        [...applications].sort((a, b) => {
           const dateA = new Date(
             a.creatingDate.replace(
               /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
@@ -153,7 +92,7 @@ export const Application = () => {
 
     if (sortingFieldName === 'creatingDate_increasing') {
       applicationSuccess(
-        [...userApplication].sort((a, b) => {
+        [...applications].sort((a, b) => {
           const dateA = new Date(
             a.creatingDate.replace(
               /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
@@ -172,127 +111,133 @@ export const Application = () => {
     }
   };
 
+  const showForm = (app_id: number) => {
+    const app = applications.filter((el) => el.id === app_id);
+    if (app.length) changeSelectedItem(app[0]);
+    else changeSelectedItem(defaultAppForm);
+  };
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    setTableParams({
+      pagination,
+    });
+  };
+
+  const getApplications = async () => {
+    applicationLoading(true);
+    let page = '1';
+    let page_size = '10';
+    if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
+    if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
+    const response = await getApplicationsRequest(logout, page, page_size);
+    if (response) {
+      if (
+        (tableParams.pagination && !tableParams.pagination.total) ||
+        (tableParams.pagination &&
+          !tableParams.pagination.total &&
+          tableParams.pagination.total !== response.total)
+      ) {
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: response.total,
+          },
+        });
+      }
+      applicationSuccess(response.result);
+      setSortOption(null);
+    } else applicationLoading(false);
+  };
+
+  const options =
+    role === 'citizen'
+      ? (defaultCitizenColumns.map(({ key, title }) => ({
+          label: title,
+          value: key,
+        })) as CheckboxOptionType[])
+      : (defaultNotCitizenColumns.map(({ key, title }) => ({
+          label: title,
+          value: key,
+        })) as CheckboxOptionType[]);
+
   useEffect(() => {
     let json_array = localStorage.getItem('application_table_columns');
+    let filter_array: string[] = [];
 
-    if (json_array) {
-      const filter_array: string[] = json_array ? JSON.parse(json_array) : [];
-      let array: ColumnsType<IApplicationColumns> = [];
+    try {
+      filter_array = JSON.parse(json_array || '[]');
+    } catch (e) {
+      filter_array = [];
+    }
 
-      defaultColumns.forEach((el) => {
-        if (el.key && filter_array.some((item) => item === el.key)) {
-          array.push(el);
-        }
-      });
-      changeTableColumns(array);
-      changeCheckboxValues(array.map(({ key }) => key as string));
+    if (filter_array.length > 0) {
+      if (role === 'citizen') {
+        let array: ColumnsType<IApplicationCitizenColumns> = [];
+        defaultCitizenColumns.forEach((el) => {
+          if (el.key && filter_array.some((item) => item === el.key)) {
+            array.push(el);
+          }
+        });
+        changeCitizenTable(array);
+        changeCheckboxValues(array.map(({ key }) => key as string));
+      } else {
+        let array: ColumnsType<IApplicationNotCitizenColumns> = [];
+        defaultNotCitizenColumns.forEach((el) => {
+          if (el.key && filter_array.some((item) => item === el.key)) {
+            array.push(el);
+          }
+        });
+        changeNotCitizenTable(array);
+        changeCheckboxValues(array.map(({ key }) => key as string));
+      }
     } else {
-      changeTableColumns(defaultColumns);
-      changeCheckboxValues(defaultColumns.map(({ key }) => key as string));
+      if (role === 'citizen') {
+        changeCitizenTable(defaultCitizenColumns);
+        changeCheckboxValues(defaultCitizenColumns.map(({ key }) => key as string));
+      } else {
+        changeNotCitizenTable(defaultNotCitizenColumns);
+        changeCheckboxValues(defaultNotCitizenColumns.map(({ key }) => key as string));
+      }
     }
   }, []);
 
-  const components = {
-    header: {
-      cell: (props: { children: React.ReactNode }) => {
-        if (
-          props.children &&
-          Array.isArray(props.children) &&
-          props.children[1] === 'Дата создания'
-        ) {
-          return (
-            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  className='outline-none border-none'
-                  onClick={() =>
-                    makeSorting(
-                      sortedBy === 'creatingDate_decreasing'
-                        ? 'creatingDate_increasing'
-                        : 'creatingDate_decreasing',
-                    )
-                  }
-                >
-                  <IoFunnel className='text-lg text-white' />
-                </button>
-                <FaArrowDownShortWide
-                  className={clsx(
-                    sortedBy === 'creatingDate_decreasing' && 'block',
-                    !['creatingDate_increasing', 'creatingDate_decreasing'].some(
-                      (el) => sortedBy === el,
-                    ) && 'hidden',
-                    sortedBy === 'creatingDate_increasing' && 'rotate-180',
-                  )}
-                />
-              </div>
-            </th>
-          );
-        }
-        if (props.children && Array.isArray(props.children) && props.children[1] === 'Статус') {
-          return (
-            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  className='outline-none border-none'
-                  onClick={() =>
-                    makeSorting(
-                      sortedBy === 'status_decreasing' ? 'status_increasing' : 'status_decreasing',
-                    )
-                  }
-                >
-                  <IoFunnel className='text-lg text-white' />
-                </button>
-                <FaArrowDownShortWide
-                  className={clsx(
-                    'transitionGeneral',
-                    sortedBy === 'status_decreasing' && 'block',
-                    !['status_increasing', 'status_decreasing'].some((el) => sortedBy === el) &&
-                      'hidden',
-                    sortedBy === 'status_increasing' && 'rotate-180',
-                  )}
-                />
-              </div>
-            </th>
-          );
-        }
-        return (
-          <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
-            {props.children}
-          </th>
-        );
-      },
-    },
-  };
-
-  const showForm = async (application_id: number) => {
-    changeSelectedItem(application_id);
-    changeIsFormActive(true);
-  };
+  useEffect(() => {
+    getApplications();
+  }, [JSON.stringify(tableParams)]);
 
   return (
     <>
-      <ChangeShowingColumns
-        needShow={needShowColumnForm}
-        changeNeedShow={changeNeedShowColumnForm}
-        baseColumns={defaultColumns}
-        changeColumns={changeTableColumns}
-        checkboxValues={checkboxValues}
-        changeCheckboxValues={changeCheckboxValues}
-        options={options}
-      />
+      {role === 'citizen' && citizenTable && (
+        <CitizenColumnsForm
+          needShow={needShowColumnForm}
+          changeNeedShow={changeNeedShowColumnForm}
+          changeCitizenTable={changeCitizenTable}
+          checkboxValues={checkboxValues}
+          changeCheckboxValues={changeCheckboxValues}
+          options={options}
+        />
+      )}
+      {role !== 'citizen' && notCitizenTable && (
+        <NotCitizenColumnsForm
+          needShow={needShowColumnForm}
+          changeNeedShow={changeNeedShowColumnForm}
+          changeNotCitizenTable={changeNotCitizenTable}
+          checkboxValues={checkboxValues}
+          changeCheckboxValues={changeCheckboxValues}
+          options={options}
+        />
+      )}
       <AppForm
-        IsFormActive={IsFormActive}
-        changeIsFormActive={changeIsFormActive}
-        id={selectedItem}
+        application={selectedItem}
+        getApplications={getApplications}
+        changeSelectedItem={changeSelectedItem}
+        isExpired={!selectedItem || role === 'citizen' ? false : isApplicationExpired(selectedItem)}
       />
       <div className='w-max p-2 flex flex-col m-auto gap-4'>
         <div className='flex justify-between'>
           <div className='flex items-center gap-4'>
-            <span className='text-gray-400 min-w-max text-sm'>
-              Найдено: {!userApplication ? 0 : userApplication.length}
-            </span>
+            <span className='text-gray-400 min-w-max text-sm'>Найдено: {applications.length}</span>
           </div>
           <div className='flex gap-x-6'>
             <button
@@ -328,45 +273,26 @@ export const Application = () => {
             </>
           </div>
         </div>
-
-        {tableColumns && (
-          <Table
-            dataSource={userApplication.map((el) => ({
-              number: el.id,
-              creating_date: !el.creatingDate ? '' : el.creatingDate,
-              app_type: !el.type ? '' : el.type.appType,
-              app_subtype: !el.subtype || (el.subtype && !el.subtype.id) ? '' : el.subtype.subtype,
-              status: !el.status ? '' : el.status.appStatus,
-              due_date: !el.dueDate ? '' : el.dueDate,
-              citizen_comment: el.citizenComment,
-              possession:
-                el.complex.name +
-                ' ' +
-                el.building.building +
-                ' ' +
-                el.possession.type +
-                ' ' +
-                el.possession.address,
-              contact: el.contact,
-              employee:
-                role !== 'citizen' ? el.employee.employee + ' ' + el.employee.competence : 'скрыт',
-            }))}
-            columns={tableColumns}
-            components={components}
-            bordered
-            pagination={false}
-            locale={{
-              emptyText: <span className='font-bold text-lg'>Нет данных</span>,
-            }}
-            rowClassName='table-row'
-            onRow={(record) => ({
-              onClick: () => {
-                showForm(record.number);
-              },
-            })}
-            style={{
-              width: 'fit-content',
-            }}
+        {!citizenTable && !notCitizenTable && <div className='w-[1024px]'></div>}
+        {role === 'citizen' && citizenTable && (
+          <CitizenTable
+            showForm={showForm}
+            citizenTable={citizenTable}
+            handleTableChange={handleTableChange}
+            tableParams={tableParams}
+            makeSorting={makeSorting}
+            sortOption={sortOption}
+          />
+        )}
+        {role !== 'citizen' && notCitizenTable && (
+          <NotCitizenTable
+            showForm={showForm}
+            notCitizenTable={notCitizenTable}
+            handleTableChange={handleTableChange}
+            tableParams={tableParams}
+            makeSorting={makeSorting}
+            sortOption={sortOption}
+            isDateExpired={isDateExpired}
           />
         )}
       </div>

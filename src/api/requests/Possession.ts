@@ -1,7 +1,6 @@
 import {
   IApprovePossessionRequest,
   IBuildingWithComplex,
-  ICitizenError,
   IComplex,
   IError,
   INotApprovedPossessions,
@@ -40,9 +39,8 @@ export const getComplexesRequest = async (logout: () => void): Promise<IComplex[
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await makeComplexesRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -71,21 +69,19 @@ export const getBuildingsRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await makeBuildingsRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
 };
 
 export const getPossessionsRequest = async (
-  id: number,
   type: string,
   building: string,
   logout: () => void,
-): Promise<IPossession[] | ICitizenError | void> => {
-  const makePossessionsRequest = async (): Promise<IPossession[] | 401 | ICitizenError | void> => {
+): Promise<IPossession[] | IError | void> => {
+  const makePossessionsRequest = async (): Promise<IPossession[] | 401 | IError | void> => {
     try {
       const response = await getPossessions(type, building);
       if (!('type' in response.data)) return response.data;
@@ -93,7 +89,7 @@ export const getPossessionsRequest = async (
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
         else {
-          if (e.response.status === 400) return { form_id: id, error: e.response.data };
+          if (e.response.status === 400) return e.response.data;
           else errorAlert(e.response.status);
         }
       }
@@ -107,7 +103,8 @@ export const getPossessionsRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await makePossessionsRequest();
-      if (response && typeof response !== 'number') return response;
+      if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -135,7 +132,8 @@ export const getNotApprovedPossessionsRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await makeRequest();
-      if (response && typeof response !== 'number') return response;
+      if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -164,7 +162,8 @@ export const approvePossessionRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await possessionRequest();
-      if (response && typeof response !== 'number') return response;
+      if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -193,7 +192,8 @@ export const rejectPossessionRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await possessionRequest();
-      if (response && typeof response !== 'number') return response;
+      if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;
@@ -225,9 +225,8 @@ export const createPossessionRequest = async (
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
       const response = await possessionRequest();
-      if (!response) return;
-
       if (response !== 401) return response;
+      else return;
     }
     if (refresh_status === 403) logout();
   } else return response;

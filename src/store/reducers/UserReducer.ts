@@ -12,9 +12,8 @@ const initialState: IUserState = {
     patronymic: null,
     phone: null,
     email: '',
-    account_status: 'новый',
+    account_status: 'На подтверждении',
   },
-  notApprovedUsers: null,
   isLoading: false,
   error: null,
 };
@@ -29,15 +28,6 @@ export const UserReducer = createSlice({
     userSuccess: (state, { payload }: PayloadAction<IUser>) => {
       state.user = payload;
     },
-    notApprovedUsersSuccess: (state, { payload }: PayloadAction<IUser[]>) => {
-      state.notApprovedUsers = payload;
-      state.isLoading = false;
-    },
-    deleteNotApprovedUsers: (state, { payload }: PayloadAction<number>) => {
-      if (state.notApprovedUsers) {
-        state.notApprovedUsers = state.notApprovedUsers.filter((el) => el.id !== payload);
-      }
-    },
     userError: (state, { payload }: PayloadAction<IError | null>) => {
       state.error = payload;
     },
@@ -47,13 +37,6 @@ export const UserReducer = createSlice({
   },
 });
 
-export const {
-  userLoading,
-  userSuccess,
-  userError,
-  userClear,
-  notApprovedUsersSuccess,
-  deleteNotApprovedUsers,
-} = UserReducer.actions;
+export const { userLoading, userSuccess, userError, userClear } = UserReducer.actions;
 
 export default UserReducer.reducer;

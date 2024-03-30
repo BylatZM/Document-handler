@@ -22,6 +22,7 @@ const defaultCitizen: ICitizen = {
     type: '',
     building: '',
   },
+  approving_status: 'На подтверждении',
 };
 
 const initialState: ICitizenState = {

@@ -53,7 +53,9 @@ body {
   transition: color 1s ease-in-out;
   cursor: pointer;
   text-align: center;
-  background: #dddcdc;
+}
+.ant-table-cell-row-hover {
+  background-color: inherit !important;
 }
 
 .ant-select-selection-item {
@@ -64,8 +66,10 @@ body {
 }
 
 .ant-select-item-option-content {
+  display: flex;
   white-space: normal !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   line-height: 15px !important;
+  align-items: center;
 }
