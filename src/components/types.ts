@@ -57,6 +57,7 @@ export interface IUserState {
 
 export interface IApplicationState {
   applications: IApplication[];
+  gisApplications: IGisApplication[];
   types: IType[];
   grades: IGrade[];
   employs: IEmployee[];
@@ -132,6 +133,68 @@ export type IUserUpdate = Omit<IUser, 'id' | 'role' | 'account_status' | 'email'
 export interface IApplicationPagination {
   result: IApplication[];
   total: number;
+}
+
+export interface IGisApplicationPagination {
+  result: IGisApplication[];
+  total: number;
+}
+
+export interface IGisApplication {
+  id: number;
+  employee: IEmployee | null;
+  status: IStatus;
+  priority: IPriority;
+  normative_in_hours: INormative | null;
+  phone: string | null;
+  email: string | null;
+  applicant_fio: string;
+  type: string;
+  applicant_сomment: string;
+  dispatcher_comment: string | null;
+  employee_comment: string | null;
+  creating_date: string;
+  due_date: string | null;
+  possession_address: string;
+}
+
+export type IGisTableColumns = Omit<
+  IGisApplication,
+  | 'employee'
+  | 'status'
+  | 'priority'
+  | 'normative_in_hours'
+  | 'dispatcher_comment'
+  | 'phone'
+  | 'email'
+  | 'due_date'
+  | 'employee_comment'
+  | 'id'
+> & {
+  employee: string;
+  status: string;
+  phone: string;
+  email: string;
+  due_date: string;
+  normative_in_hours: number;
+  key: number;
+};
+
+export interface INormative {
+  normative_in_hours: number;
+  management_company: string;
+}
+
+export interface IUpdateGisAppByDispatcher {
+  status: number;
+  dispatcher_comment: string | null;
+  priority: number;
+  employee: number;
+}
+
+export interface IUpdateGisAppByEmployee {
+  status: number;
+  employee_comment: string | null;
 }
 
 export interface IApplication {
@@ -341,7 +404,7 @@ export interface INotApprovedCitizens {
 }
 
 export interface IApplicationCitizenColumns {
-  number: number;
+  key: number;
   creating_date: string;
   app_type: string;
   app_subtype: string;
@@ -355,7 +418,7 @@ export interface IApplicationCitizenColumns {
 }
 
 export interface IApplicationNotCitizenColumns {
-  number: number;
+  key: number;
   creating_date: string;
   app_type: string;
   app_subtype: {

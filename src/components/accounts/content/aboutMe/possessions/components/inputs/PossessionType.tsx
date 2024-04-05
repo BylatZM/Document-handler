@@ -1,6 +1,6 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { ICitizen, ICitizenError, ICitizenLoading } from '../../../../../../types';
+import { ICitizen, ICitizenError, ICitizenLoading, IPossession } from '../../../../../../types';
 
 interface IProps {
   data: ICitizen;
@@ -10,6 +10,8 @@ interface IProps {
   citizenErrors: (error: ICitizenError | null) => void;
   getPossessions: (type: string, building_id: string) => void;
   loadingForm: ICitizenLoading | null;
+  emptyPossession: IPossession;
+  error: ICitizenError | null;
 }
 
 export const PossessionType: FC<IProps> = ({
@@ -20,6 +22,8 @@ export const PossessionType: FC<IProps> = ({
   loadingForm,
   getPossessions,
   citizenErrors,
+  emptyPossession,
+  error,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
@@ -39,11 +43,11 @@ export const PossessionType: FC<IProps> = ({
             : false
         }
         onChange={(e: number) => {
-          citizenErrors(null);
+          if (error && error.error.type === 'possession') citizenErrors(null);
           changeFormData((prev) => ({
             ...prev,
             possessionType: e.toString(),
-            possession: { id: 0, address: '', type: '', building: '' },
+            possession: { ...emptyPossession },
           }));
           if (data.building.id) {
             getPossessions(e.toString(), data.building.id.toString());

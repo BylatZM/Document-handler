@@ -12,7 +12,7 @@ export const Possessions: FC<IProps> = ({ selectedUserInfo }) => {
       {selectedUserInfo &&
         selectedUserInfo.possessions.map((el) => {
           return (
-            <div key={el.id} className='p-1'>
+            <div key={el.id} className='p-1 disable'>
               <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Лицевой счет</span>
                 <Input value={el.personal_account} disabled />
@@ -62,7 +62,7 @@ export const Possessions: FC<IProps> = ({ selectedUserInfo }) => {
                 />
               </div>
               <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
-                <span className='font-bold'>Номер квартиры (номер собственности) </span>
+                <span className='font-bold'>Номер собственности</span>
                 <Select
                   className='w-full'
                   disabled

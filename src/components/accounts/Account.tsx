@@ -1,7 +1,7 @@
 import { getCitizenRequest, getUserRequest } from '../../api/requests/Person';
 import { Loading } from '../Loading/Loading';
 import { useActions } from '../hooks/useActions';
-import { Application } from './content/application/Application';
+import { Application } from './content/application/system/Application';
 import { AboutMe } from './content/aboutMe/AboutMe';
 import { Header } from './header/Header';
 import { useTypedSelector } from '../hooks/useTypedSelector';
@@ -21,6 +21,9 @@ import { ApprovingUser } from './content/approving/approvingUser/ApprovingUser';
 import { ApprovingUserPossession } from './content/approving/approvingUserPossession/ApprovingUserPossession';
 import { ErrorPage } from '../ErrorPage';
 import { ApprovingLivingSpace } from './content/approving/approvingLivingSpace/ApprovingLivingSpace';
+import { GisApplication } from './content/application/gis/GisApplication';
+import { CreatePossession } from './content/createPossession/CreatePossession';
+import { HelpForm } from './content/helpForm/HelpForm';
 
 export const Account = () => {
   const logout = useLogout();
@@ -29,6 +32,8 @@ export const Account = () => {
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { pathname } = useLocation();
+  const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
+  const [needShowCreatePossessionForm, changeNeedShowCreatePossessionForm] = useState(false);
   const {
     userSuccess,
     complexSuccess,
@@ -95,7 +100,8 @@ export const Account = () => {
   }, [IsRequested]);
 
   const GetCurrentFrame = (pathname: string): ReactNode => {
-    if (pathname === '/account/aboutMe') return <AboutMe />;
+    if (pathname === '/account/aboutMe')
+      return <AboutMe changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm} />;
     if (pathname === '/account/applications') {
       if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role))
         return <ErrorPage message='Страница не найдена' />;
@@ -114,6 +120,11 @@ export const Account = () => {
 
       return <Application />;
     }
+    if (pathname === '/account/applications/gis') {
+      if (!['dispatcher', 'executor'].some((el) => el === user.role))
+        return <ErrorPage message='Страница не найдена' />;
+      return <GisApplication />;
+    }
     if (pathname === '/account/approve/user' && user.role === 'dispatcher')
       return <ApprovingUser />;
 
@@ -128,10 +139,19 @@ export const Account = () => {
 
   return (
     <>
-      <Menu isOpened={isOpened} />
-      <div className='min-h-screen bg-gray-100 relative inset-0 overflow-x-auto'>
+      <div className='flex w-full h-full bg-gray-100'>
         <Header changeIsOpened={changeIsOpened} isOpened={isOpened} />
-        <div className='mt-[68px]'>{GetCurrentFrame(pathname)}</div>
+        <Menu
+          isOpened={isOpened}
+          changeNeedShowHelpForm={changeNeedShowHelpForm}
+          changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
+        />
+        <HelpForm needShowForm={needShowHelpForm} changeNeedShowForm={changeNeedShowHelpForm} />
+        <CreatePossession
+          needShowForm={needShowCreatePossessionForm}
+          changeNeedShowForm={changeNeedShowCreatePossessionForm}
+        />
+        {GetCurrentFrame(pathname)}
       </div>
     </>
   );

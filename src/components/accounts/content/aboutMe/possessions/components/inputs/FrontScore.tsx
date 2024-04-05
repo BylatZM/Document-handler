@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { Input } from 'antd';
 import { ICitizen, ICitizenError, ICitizenLoading } from '../../../../../../types';
+import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
   data: ICitizen;
@@ -19,6 +20,7 @@ export const FrontScore: FC<IProps> = ({
   changeFormData,
   loadingForm,
 }) => {
+  const { citizenErrors } = useActions();
   return (
     <div className='mt-2 mb-2 text-sm'>
       <span>Лицевой счет</span>
@@ -30,7 +32,10 @@ export const FrontScore: FC<IProps> = ({
             ? true
             : false
         }
-        onChange={(e) => changeFormData((prev) => ({ ...prev, personal_account: e.target.value }))}
+        onChange={(e) => {
+          if (error && error.error.type === 'personal_account') citizenErrors(null);
+          changeFormData((prev) => ({ ...prev, personal_account: e.target.value }));
+        }}
       />
       {error && error.form_id === form_id && error.error.type === 'personal_account' && (
         <div className='errorText'>{error.error.error}</div>

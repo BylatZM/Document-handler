@@ -7,13 +7,13 @@ import { GrNext } from 'react-icons/gr';
 interface IProps {
   activeAccordion: string | null;
   changeActiveAccordion: React.Dispatch<React.SetStateAction<string | null>>;
-  changeNeedShowPossessionCreateForm: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Directories: FC<IProps> = ({
   changeActiveAccordion,
   activeAccordion,
-  changeNeedShowPossessionCreateForm,
+  changeNeedShowCreatePossessionForm,
 }) => {
   return (
     <>
@@ -39,7 +39,7 @@ export const Directories: FC<IProps> = ({
         )}
       >
         <button
-          onClick={() => changeNeedShowPossessionCreateForm(true)}
+          onClick={() => changeNeedShowCreatePossessionForm(true)}
           className={clsx('flex items-center py-2 rounded-md text-lg bg-gray-300')}
         >
           <BsBuildingFill className='mr-4 ml-5' />

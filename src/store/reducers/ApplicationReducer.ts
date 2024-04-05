@@ -11,10 +11,12 @@ import {
   IStatus,
   IEmployee,
   ISubtype,
+  IGisApplication,
 } from '../../components/types';
 
 const initialState: IApplicationState = {
   applications: [],
+  gisApplications: [],
   types: [],
   grades: [],
   sources: [],
@@ -35,6 +37,10 @@ export const ApplicationReducer = createSlice({
     },
     applicationSuccess: (state, { payload }: PayloadAction<IApplication[]>) => {
       state.applications = payload;
+      state.isLoading = false;
+    },
+    gisApplicationSuccess: (state, { payload }: PayloadAction<IGisApplication[]>) => {
+      state.gisApplications = payload;
       state.isLoading = false;
     },
     typesSuccess: (state, { payload }: PayloadAction<IType[]>) => {

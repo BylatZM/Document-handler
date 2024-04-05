@@ -1,7 +1,8 @@
 import { Input } from 'antd';
 import { IError, IUser } from '../../../../types';
 import { FC } from 'react';
-import { useActionType } from '../../../../hooks/useActions';
+import { useActionType, useActions } from '../../../../hooks/useActions';
+import clsx from 'clsx';
 
 interface IProps {
   user: IUser;
@@ -17,15 +18,32 @@ export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
     if (user.role === 'executor') return 'исполнитель';
     return '';
   };
+  const { userError } = useActions();
   return (
     <>
+      <div className='text-sm flex justify-between'>
+        <span>Статус аккаунта</span>
+        {!user.email && <span className=' underline text-sm font-bold text-blue-500'>Новый</span>}
+        {user.email && (
+          <span
+            className={clsx(
+              'underline text-sm font-bold',
+              user.account_status === 'На подтверждении' && ' text-amber-500',
+              user.account_status === 'Отклонен' && ' text-red-500',
+              user.account_status === 'Подтвержден' && ' text-green-500',
+            )}
+          >
+            {user.account_status}
+          </span>
+        )}
+      </div>
       <div className='text-sm'>
         <span>Почта</span>
-        <Input disabled={true} value={user.email} />
+        <Input disabled value={user.email} />
       </div>
       <div className='text-sm'>
         <span>Роль</span>
-        <Input value={getRole()} disabled={true} />
+        <Input value={getRole()} disabled />
       </div>
       <div className='text-sm'>
         <span>Имя</span>
@@ -34,7 +52,10 @@ export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
           disabled={isLoading}
           status={error && error.type === 'first_name' ? 'error' : undefined}
           value={user.first_name}
-          onChange={(e) => setUser.userSuccess({ ...user, first_name: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'first_name') userError(null);
+            setUser.userSuccess({ ...user, first_name: e.target.value });
+          }}
         />
         {error && error.type === 'first_name' && <div className='errorText'>{error.error}</div>}
       </div>
@@ -45,7 +66,10 @@ export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
           disabled={isLoading}
           status={error && error.type === 'last_name' ? 'error' : undefined}
           value={user.last_name}
-          onChange={(e) => setUser.userSuccess({ ...user, last_name: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'last_name') userError(null);
+            setUser.userSuccess({ ...user, last_name: e.target.value });
+          }}
         />
         {error && error.type === 'last_name' && <div className='errorText'>{error.error}</div>}
       </div>
@@ -56,7 +80,10 @@ export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
           disabled={isLoading}
           status={error && error.type === 'patronymic' ? 'error' : undefined}
           value={!user.patronymic ? '' : user.patronymic}
-          onChange={(e) => setUser.userSuccess({ ...user, patronymic: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'patronymic') userError(null);
+            setUser.userSuccess({ ...user, patronymic: e.target.value });
+          }}
         />
         {error && error.type === 'patronymic' && <div className='errorText'>{error.error}</div>}
       </div>
@@ -72,7 +99,10 @@ export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
               ? '+7'
               : user.phone
           }
-          onChange={(e) => setUser.userSuccess({ ...user, phone: e.target.value })}
+          onChange={(e) => {
+            if (error && error.type === 'phone') userError(null);
+            setUser.userSuccess({ ...user, phone: e.target.value });
+          }}
         />
         {error && error.type === 'phone' && <div className='errorText'>{error.error}</div>}
       </div>

@@ -13,20 +13,24 @@
 
 @layer utilities {
   *::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 10px;
+    height: 10px;
   }
 
   *::-webkit-scrollbar-thumb {
-    background: #898989;
+    background: #5e5e5e;
   }
 }
 
 html,
 body {
-  min-width: 100vw;
+  width: 100vw;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
+}
+
+div[id='root'] {
+  @apply flex w-full h-screen;
 }
 
 .errorText {
@@ -63,6 +67,24 @@ body {
   line-height: 15px !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+
+.disable .ant-input-disabled {
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+.disable input[disabled]::placeholder {
+  color: #fff !important;
+}
+
+.disable .ant-select-disabled .ant-select-selection-item {
+  color: #fff !important;
+}
+
+.disable .ant-select-disabled .ant-select-selector {
+  border-color: #fff !important;
+  font-weight: normal !important;
 }
 
 .ant-select-item-option-content {

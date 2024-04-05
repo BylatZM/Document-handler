@@ -68,7 +68,7 @@ export const SendEmail: FC<IProps> = ({ email, needShowForm, changeNeedShowForm 
           Закрыть
         </Button>
         <span className='my-auto text-center'>
-          Ваш пароль и логин были высланы вам на почту: <b>{email}</b>. Пожалуйста, проверьте вашу
+          Ваш пароль и логин были высланы Вам на почту: <b>{email}</b>. Пожалуйста, проверьте Вашу
           почту
         </span>
         {time > 0 && (

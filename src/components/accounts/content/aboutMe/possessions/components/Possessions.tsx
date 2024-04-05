@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { ICitizen } from '../../../../../types';
+import { IBuilding, ICitizen, IPossession } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 import {
@@ -23,7 +23,7 @@ interface ICitizenFormProps {
     isFirstItem: boolean;
     isNew: boolean;
   };
-  changeNeedUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   updatingFormId: number | null;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,7 +31,7 @@ interface ICitizenFormProps {
 
 export const Possessions: FC<ICitizenFormProps> = ({
   data,
-  changeNeedUpdate,
+  changeNeedUpdateAccountInfo,
   changeUpdatingFormId,
   updatingFormId,
   changeNeedShowNotification,
@@ -44,21 +44,37 @@ export const Possessions: FC<ICitizenFormProps> = ({
   );
   const logout = useLogout();
   const [formData, changeFormData] = useState<ICitizen>(data.info);
+  const emptyPossession: IPossession = {
+    id: 0,
+    address: '',
+    type: '',
+    building: '',
+  };
+  const emptyBuilding: IBuilding = {
+    id: 0,
+    building: '',
+  };
 
   const getBuildings = async (complex_id: string) => {
+    buildingSuccess([]);
     const response = await getBuildingsRequest(complex_id, logout);
-    if (response) buildingSuccess(response);
+
+    if (!response) return;
+
+    buildingSuccess(response);
   };
 
   const getPossessions = async (type: string, building_id: string) => {
+    possessionSuccess([]);
     const response = await getPossessionsRequest(type, building_id, logout);
 
     if (!response) return;
 
     if ('type' in response) {
-      possessionSuccess([]);
       citizenErrors({ form_id: data.key, error: response });
-    } else possessionSuccess(response);
+      return;
+    }
+    possessionSuccess(response);
   };
   return (
     <>
@@ -79,6 +95,8 @@ export const Possessions: FC<ICitizenFormProps> = ({
         loadingForm={isLoading}
         getPossessions={getPossessions}
         citizenErrors={citizenErrors}
+        emptyPossession={emptyPossession}
+        error={error}
       />
       <OwnershipStatus
         data={formData}
@@ -98,6 +116,8 @@ export const Possessions: FC<ICitizenFormProps> = ({
         loadingForm={isLoading}
         loadingPossession={isLoadingPossession}
         complexes={complexes}
+        emptyPossession={emptyPossession}
+        emptyBuilding={emptyBuilding}
       />
       <Building
         data={formData}
@@ -108,6 +128,8 @@ export const Possessions: FC<ICitizenFormProps> = ({
         getPossessions={getPossessions}
         loadingForm={isLoading}
         buildings={buildings}
+        error={error}
+        emptyPossession={emptyPossession}
       />
       <Possession
         data={formData}
@@ -126,7 +148,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         updatingFormId={updatingFormId}
         loadingForm={isLoading}
         changeUpdatingFormId={changeUpdatingFormId}
-        changeNeedUpdate={changeNeedUpdate}
+        changeNeedUpdateAccountInfo={changeNeedUpdateAccountInfo}
         getPossessions={getPossessions}
         getBuildings={getBuildings}
         changeNeedShowNotification={changeNeedShowNotification}

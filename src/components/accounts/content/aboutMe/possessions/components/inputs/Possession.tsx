@@ -37,16 +37,12 @@ export const Possession: FC<IProps> = ({
           value={!possessions.length || !data.possession.id ? undefined : data.possession.id}
           options={possessions.map((el) => ({ value: el.id, label: el.address }))}
           onChange={(e: number) => {
-            if (error) citizenErrors(null);
-            const possession = possessions.filter((el) => el.id === e)[0];
+            if (error && error.error.type === 'possession') citizenErrors(null);
+            const new_possession = possessions.filter((el) => el.id === e);
+            if (!new_possession.length) return;
             changeFormData((prev) => ({
               ...prev,
-              possession: {
-                id: possession.id,
-                address: possession.address,
-                type: possession.type,
-                building: possession.building,
-              },
+              possession: { ...new_possession[0] },
             }));
           }}
         />

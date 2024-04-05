@@ -19,7 +19,7 @@ interface IProp {
   updatingFormId: number | null;
   loadingForm: ICitizenLoading;
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
-  changeNeedUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
   getPossessions: (type: string, building_id: string) => Promise<void>;
   getBuildings: (complex_id: string) => Promise<void>;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,7 +32,7 @@ export const Buttons: FC<IProp> = ({
   updatingFormId,
   loadingForm,
   changeUpdatingFormId,
-  changeNeedUpdate,
+  changeNeedUpdateAccountInfo,
   getPossessions,
   getBuildings,
   changeNeedShowNotification,
@@ -73,7 +73,7 @@ export const Buttons: FC<IProp> = ({
       )
         changeNeedShowNotification(true);
       changeUpdatingFormId(null);
-      changeNeedUpdate(true);
+      changeNeedUpdateAccountInfo(true);
     } else {
       if (response.type === 'user') alert(response.error);
       citizenErrors({ form_id: form_id, error: response });
@@ -103,7 +103,7 @@ export const Buttons: FC<IProp> = ({
         });
         setTimeout(() => {
           changeUpdatingFormId(null);
-          changeNeedUpdate(true);
+          changeNeedUpdateAccountInfo(true);
           changeIsRequestSuccess((prev) => !prev);
         }, 2000);
       } else citizenErrors(response);
@@ -116,7 +116,6 @@ export const Buttons: FC<IProp> = ({
     deleteCitizenForm({ form_id: form_id });
     if (form_id > 0) await deleteCitizenRequest(form_id, logout);
   };
-
   return (
     <div className='flex max-sm:gap-y-2 max-sm:flex-col max-sm:gap-x-0 gap-4'>
       <Button
@@ -149,11 +148,15 @@ export const Buttons: FC<IProp> = ({
         }}
         type='primary'
       >
-        {form_id < 1 && loadingForm.form_id !== form_id && !error && !isRequestSuccess && 'Создать'}
+        {form_id < 1 &&
+          loadingForm.form_id !== form_id &&
+          (!error || (error && updatingFormId !== form_id)) &&
+          (!isRequestSuccess || (isRequestSuccess && updatingFormId !== form_id)) &&
+          'Создать'}
         {form_id > 0 &&
           loadingForm.form_id !== form_id &&
-          !error &&
-          !isRequestSuccess &&
+          (!error || (error && updatingFormId !== form_id)) &&
+          (!isRequestSuccess || (isRequestSuccess && updatingFormId !== form_id)) &&
           'Сохранить'}
         {loadingForm.form_id === form_id && (
           <div>
@@ -180,6 +183,7 @@ export const Buttons: FC<IProp> = ({
         onClick={() => {
           buildingSuccess([]);
           possessionSuccess([]);
+          if (error) citizenErrors(null);
           if (data.complex.id) getBuildings(data.complex.id.toString());
           if (data.possessionType && data.building.id)
             getPossessions(data.possessionType, data.building.id.toString());

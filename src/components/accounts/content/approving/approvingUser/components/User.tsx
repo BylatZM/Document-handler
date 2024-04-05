@@ -24,7 +24,7 @@ export const User: FC<IProps> = ({
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed inset-0 overflow-hidden min-h-screen bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[20] flex justify-center items-center',
+        'transitionGeneral fixed inset-0 overflow-hidden min-h-screen bg-blue-700 bg-opacity-10 backdrop-blur-xl z-50 flex justify-center items-center',
         isFormActive ? 'w-full' : 'w-0',
       )}
     >

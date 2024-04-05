@@ -21,13 +21,15 @@ export const ApprovingUserPossession = () => {
   }, []);
 
   return (
-    <div className='w-max p-2 flex flex-col mx-auto gap-4 mt-28 sm:mt-0'>
-      <span className='text-gray-400 text-sm'>Найдено: {notApprovedCitizens.length}</span>
-      <AppTable
-        tableInfo={notApprovedCitizens}
-        changeTableInfo={changeNotApprovedCitizens}
-        isInfoLoading={isInfoLoading}
-      />
+    <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
+      <div className='w-max p-2 flex flex-col mx-auto gap-4 mt-[22px] sm:mt-0'>
+        <span className='text-gray-400 text-sm'>Найдено: {notApprovedCitizens.length}</span>
+        <AppTable
+          tableInfo={notApprovedCitizens}
+          changeTableInfo={changeNotApprovedCitizens}
+          isInfoLoading={isInfoLoading}
+        />
+      </div>
     </div>
   );
 };

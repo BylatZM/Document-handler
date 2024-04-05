@@ -13,7 +13,6 @@ import {
   ICitizen,
   IUserUpdate,
   ICitizenRequest,
-  IApplication,
   IEmployee,
   IGrade,
   IType,
@@ -35,6 +34,9 @@ import {
   IUserDetailsInfo,
   IApproveUserByLink,
   IApplicationPagination,
+  IGisApplicationPagination,
+  IUpdateGisAppByEmployee,
+  IUpdateGisAppByDispatcher,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -134,11 +136,23 @@ export const updateApplication = (
 ): AxiosPromise<void | IError> =>
   axiosInstance.put(endpoints.application.updateComment + `/${application_id}`, data);
 
+export const updateGisApplication = (
+  application_id: string,
+  data: IUpdateGisAppByDispatcher | IUpdateGisAppByEmployee,
+): AxiosPromise<void | IError> =>
+  axiosInstance.put(endpoints.gisApplication.update + `/${application_id}`, data);
+
 export const getApplication = (
   page: string,
   page_size: string,
 ): AxiosPromise<IApplicationPagination> =>
   axiosInstance.get(endpoints.application.get + `?page=${page}&page_size=${page_size}`);
+
+export const getGisApplication = (
+  page: string,
+  page_size: string,
+): AxiosPromise<IGisApplicationPagination> =>
+  axiosInstance.get(endpoints.gisApplication.get + `?page=${page}&page_size=${page_size}`);
 
 export const getEmployee = (): AxiosPromise<IEmployee[] | void> =>
   axiosInstance.get(endpoints.employee);

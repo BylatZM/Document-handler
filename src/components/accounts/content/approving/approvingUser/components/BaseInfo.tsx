@@ -4,7 +4,7 @@ import { IUserDetailsInfo } from '../../../../../types';
 
 export const BaseInfo: FC<{ data: IUserDetailsInfo | null }> = ({ data }) => {
   return (
-    <div className='p-1'>
+    <div className='p-1 disable'>
       <div className='mt-2 mb-2 text-sm'>
         <span className='font-bold'>Фамилия</span>
         <Input value={data ? data.last_name : ''} disabled />

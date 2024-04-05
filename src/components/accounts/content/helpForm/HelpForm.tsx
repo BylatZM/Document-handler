@@ -53,7 +53,7 @@ export const HelpForm: FC<IHelpFormProps> = ({ needShowForm, changeNeedShowForm 
   return (
     <div
       className={clsx(
-        'transitionGeneral bg-blue-500 bg-opacity-10 backdrop-blur-xl z-[30] fixed inset-0 mx-auto flex justify-center items-center overflow-hidden',
+        'transitionGeneral bg-blue-500 bg-opacity-10 backdrop-blur-xl z-50 fixed inset-0 mx-auto flex justify-center items-center overflow-hidden',
         needShowForm ? 'w-full' : 'w-0',
       )}
     >

@@ -63,7 +63,7 @@ export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm 
   return (
     <div
       className={clsx(
-        'transitionGeneral h-screen fixed right-0 top-0 z-30 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
+        'transitionGeneral h-screen fixed right-0 top-0 z-50 bg-blue-500 bg-opacity-10 backdrop-blur-xl flex justify-center items-center overflow-hidden',
         needShowForm ? 'w-full' : 'w-0',
       )}
     >

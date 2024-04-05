@@ -11,6 +11,9 @@ import {
   IAppUpdateByEmployee,
   ISubtype,
   IApplicationPagination,
+  IGisApplicationPagination,
+  IUpdateGisAppByDispatcher,
+  IUpdateGisAppByEmployee,
 } from '../../components/types';
 import {
   createApplication,
@@ -24,6 +27,8 @@ import {
   updateApplication,
   updateApplicationStatus,
   getSubTypes,
+  getGisApplication,
+  updateGisApplication,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -38,6 +43,37 @@ export const getApplicationsRequest = async (
   const applicationsRequest = async (): Promise<IApplicationPagination | 401 | void> => {
     try {
       const response = await getApplication(page, page_size);
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await applicationsRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await applicationsRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getGisApplicationsRequest = async (
+  logout: () => void,
+  page: string,
+  page_size: string,
+): Promise<IGisApplicationPagination | void> => {
+  const applicationsRequest = async (): Promise<IGisApplicationPagination | 401 | void> => {
+    try {
+      const response = await getGisApplication(page, page_size);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -102,6 +138,40 @@ export const updateAppRequest = async (
   const applicationRequest = async (): Promise<IError | 200 | 401 | void> => {
     try {
       await updateApplication(id, data);
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) return e.response.data;
+          else errorAlert(e.response.status);
+        }
+      }
+    }
+  };
+
+  const response = await applicationRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await applicationRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const updateGisAppRequest = async (
+  id: string,
+  logout: () => void,
+  data: IUpdateGisAppByDispatcher | IUpdateGisAppByEmployee,
+): Promise<IError | 200 | void> => {
+  const applicationRequest = async (): Promise<IError | 200 | 401 | void> => {
+    try {
+      await updateGisApplication(id, data);
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

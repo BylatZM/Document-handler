@@ -18,7 +18,7 @@ export const App = () => {
   }, []);
 
   return (
-    <div className='w-full'>
+    <>
       <Routes>
         <Route path='/' element={<Main pageType='auth' />} />
         <Route path='/registration' element={<Main pageType='reg' />} />
@@ -28,6 +28,6 @@ export const App = () => {
         </Route>
         <Route path='*' element={<ErrorPage message='Страница не найдена' />} />
       </Routes>
-    </div>
+    </>
   );
 };

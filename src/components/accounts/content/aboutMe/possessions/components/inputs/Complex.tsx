@@ -1,11 +1,13 @@
 import { FC } from 'react';
 import { Select } from 'antd';
 import {
+  IBuilding,
   ICitizen,
   ICitizenError,
   ICitizenLoading,
   IComplex,
   IPosLoading,
+  IPossession,
 } from '../../../../../../types';
 
 interface IProps {
@@ -19,6 +21,8 @@ interface IProps {
   loadingForm: ICitizenLoading;
   loadingPossession: IPosLoading;
   complexes: IComplex[];
+  emptyPossession: IPossession;
+  emptyBuilding: IBuilding;
 }
 
 export const Complex: FC<IProps> = ({
@@ -32,6 +36,8 @@ export const Complex: FC<IProps> = ({
   loadingForm,
   loadingPossession,
   complexes,
+  emptyPossession,
+  emptyBuilding,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
@@ -49,12 +55,14 @@ export const Complex: FC<IProps> = ({
           value={!data.complex.name ? undefined : data.complex.id}
           options={complexes.map((el) => ({ value: el.id, label: el.name }))}
           onChange={(e: number) => {
-            if (error) citizenErrors(null);
+            if (error && error.error.type === 'possession') citizenErrors(null);
+            const new_complex = complexes.filter((el) => el.id === e);
+            if (!new_complex.length) return;
             changeFormData((prev) => ({
               ...prev,
-              complex: { id: e, name: '' },
-              building: { id: 0, building: '' },
-              possession: { id: 0, address: '', type: '', building: '' },
+              complex: { ...new_complex[0] },
+              building: { ...emptyBuilding },
+              possession: { ...emptyPossession },
             }));
             getBuildings(e.toString());
           }}

@@ -21,13 +21,15 @@ export const ApprovingLivingSpace = () => {
   }, []);
 
   return (
-    <div className='w-max p-2 flex flex-col mx-auto gap-4 mt-28 sm:mt-0'>
-      <span className='text-gray-400 text-sm'>Найдено: {tableInfo.length}</span>
-      <AppTable
-        tableInfo={tableInfo}
-        changeTableInfo={changeTableInfo}
-        isInfoLoading={isInfoLoading}
-      />
+    <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
+      <div className='w-max p-2 flex flex-col mx-auto gap-4 mt-[22px]'>
+        <span className='text-gray-400 text-sm'>Найдено: {tableInfo.length}</span>
+        <AppTable
+          tableInfo={tableInfo}
+          changeTableInfo={changeTableInfo}
+          isInfoLoading={isInfoLoading}
+        />
+      </div>
     </div>
   );
 };

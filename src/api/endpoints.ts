@@ -42,6 +42,10 @@ const endpoints = {
     get: 'application/all',
     updateStatus: 'application/updateStatus',
   },
+  gisApplication: {
+    get: 'gis_application/all',
+    update: 'gis_application/update',
+  },
   employee: 'employee/get',
   grade: 'appClass/all',
   type: 'appType/all',

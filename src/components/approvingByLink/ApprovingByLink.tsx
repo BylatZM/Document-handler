@@ -24,7 +24,7 @@ export const ApprovingByLink = () => {
   };
   useEffect(() => {
     if (!searchParams.has('id') || !searchParams.has('key') || !searchParams.has('operation'))
-      changeError({ type: 'error', error: 'Не задан ключ или номер или тип операции' });
+      changeError({ type: 'error', error: 'Неверно указаны параметры' });
     else {
       makeRequest({
         id: searchParams.get('id'),

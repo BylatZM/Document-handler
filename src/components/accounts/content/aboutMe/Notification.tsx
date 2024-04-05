@@ -13,7 +13,7 @@ export const Notification: FC<IProps> = ({ needShowForm, changeNeedShowForm }) =
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed left-0 bottom-0 bg-opacity-10 h-full backdrop-blur-md bg-blue-500 overflow-hidden z-30 flex items-center justify-center',
+        'transitionGeneral fixed left-0 bottom-0 bg-opacity-10 h-full backdrop-blur-md bg-blue-500 overflow-hidden z-50 flex items-center justify-center',
         needShowForm ? 'w-full' : 'w-0',
       )}
     >

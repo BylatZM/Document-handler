@@ -4,13 +4,17 @@ import { useActions } from '../../../../hooks/useActions';
 import { updateUserRequest } from '../../../../../api/requests/Person';
 import { useLogout } from '../../../../hooks/useLogout';
 import { Inputs } from './Inputs';
-import { ButtonBlock } from './ButtonBlock';
+import { Buttons } from './Buttons';
 
 interface IProps {
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
+export const General: FC<IProps> = ({
+  changeNeedShowNotification,
+  changeNeedUpdateAccountInfo,
+}) => {
   const { user, isLoading, error } = useTypedSelector((user) => user.UserReducer);
   const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { userSuccess, userLoading, userError } = useActions();
@@ -49,10 +53,6 @@ export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
     }
     userLoading(true);
     if (error) userError(null);
-
-    if (citizen[0].id > 0 && user.account_status === 'На подтверждении')
-      changeNeedShowNotification(true);
-
     const response = await updateUserRequest(
       {
         first_name: user.first_name,
@@ -71,6 +71,9 @@ export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
         patronymic: user.patronymic,
         phone: user.phone,
       });
+      if (citizen[0].id > 0 && user.account_status === 'На подтверждении')
+        changeNeedShowNotification(true);
+      changeNeedUpdateAccountInfo(true);
       setTimeout(() => {
         changeIsRequestSuccess((prev) => !prev);
       }, 2000);
@@ -83,7 +86,7 @@ export const General: FC<IProps> = ({ changeNeedShowNotification }) => {
       <div className='flex flex-col gap-y-8'>
         <span className='text-xl'>Основная информация</span>
         <Inputs user={user} isLoading={isLoading} error={error} setUser={{ userSuccess }} />
-        <ButtonBlock
+        <Buttons
           error={error}
           isRequestSuccess={isRequestSuccess}
           isLoading={isLoading}

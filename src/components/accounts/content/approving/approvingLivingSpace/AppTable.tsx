@@ -306,14 +306,6 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
                 </div>
               )}
             {processingRow &&
-              processingRow.row_id === rowData.key &&
-              processingRow.button_type === 'reject' && (
-                <div>
-                  <ImCross className='inline mr-2' />
-                  <span>Ошибка</span>
-                </div>
-              )}
-            {processingRow &&
               processingRow.operation === 'success' &&
               processingRow.row_id === rowData.key &&
               processingRow.button_type === 'reject' && (

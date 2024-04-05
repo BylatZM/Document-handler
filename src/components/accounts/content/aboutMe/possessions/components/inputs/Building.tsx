@@ -1,6 +1,12 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { ICitizen, ICitizenError, ICitizenLoading, IBuilding } from '../../../../../../types';
+import {
+  ICitizen,
+  ICitizenError,
+  ICitizenLoading,
+  IBuilding,
+  IPossession,
+} from '../../../../../../types';
 
 interface IProps {
   data: ICitizen;
@@ -11,6 +17,8 @@ interface IProps {
   getPossessions: (type: string, building_id: string) => void;
   loadingForm: ICitizenLoading;
   buildings: IBuilding[];
+  error: ICitizenError | null;
+  emptyPossession: IPossession;
 }
 
 export const Building: FC<IProps> = ({
@@ -22,6 +30,8 @@ export const Building: FC<IProps> = ({
   getPossessions,
   loadingForm,
   buildings,
+  error,
+  emptyPossession,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
@@ -35,16 +45,13 @@ export const Building: FC<IProps> = ({
           value={!data.building.id || !buildings.length ? undefined : data.building.id}
           options={buildings.map((el) => ({ value: el.id, label: el.building }))}
           onChange={(e: number) => {
-            citizenErrors(null);
+            if (error && error.error.type === 'possession') citizenErrors(null);
+            const new_building = buildings.filter((el) => el.id === e);
+            if (!new_building.length) return;
             changeFormData((prev) => ({
               ...prev,
-              building: {
-                id: e,
-                building: !buildings.length
-                  ? ''
-                  : buildings.filter((el) => el.id === e)[0].building,
-              },
-              possession: { id: 0, address: '', type: '', building: '' },
+              building: { ...new_building[0] },
+              possession: { ...emptyPossession },
             }));
             getPossessions(data.possessionType, e.toString());
           }}
