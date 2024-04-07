@@ -39,10 +39,11 @@ export const getApplicationsRequest = async (
   logout: () => void,
   page: string,
   page_size: string,
+  extra: string,
 ): Promise<IApplicationPagination | void> => {
   const applicationsRequest = async (): Promise<IApplicationPagination | 401 | void> => {
     try {
-      const response = await getApplication(page, page_size);
+      const response = await getApplication(page, page_size, extra);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

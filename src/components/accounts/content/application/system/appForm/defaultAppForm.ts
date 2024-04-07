@@ -41,7 +41,7 @@ export const defaultAppForm: IApplication = {
     appSource: '',
   },
   status: {
-    id: 2,
+    id: 1,
     appStatus: '',
   },
   type: null,

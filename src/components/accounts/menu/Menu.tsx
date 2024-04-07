@@ -34,7 +34,7 @@ export const Menu: FC<IMenuProps> = ({
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed z-40 inset-y-0 left-0 overflow-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
+        'transitionGeneral fixed z-40 inset-y-0 left-0 overflow-x-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
         isOpened ? 'w-[250px] p-1 sm:w-[310px] sm:p-4' : 'w-0 mr-[-2px]',
       )}
     >
@@ -48,7 +48,7 @@ export const Menu: FC<IMenuProps> = ({
         </div>
         <div className='flex flex-col mt-10 text-lg'>
           <AboutMe pathname={pathname} />
-          <Applications account_status={account_status} role={role} pathname={pathname} />
+          <Applications role={role} pathname={pathname} />
           {(role === 'executor' ||
             (role === 'dispatcher' && email === 'SuperDispatcher2@yandex.ru')) && (
             <GisApplications pathname={pathname} />

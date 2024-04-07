@@ -7,7 +7,7 @@ import {
   IApplicationCitizenColumns,
   IApplicationNotCitizenColumns,
   ITableParams,
-  ISortingOption,
+  ISortOptions,
 } from '../../../../types';
 import { BsFilterRight } from 'react-icons/bs';
 import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
@@ -22,7 +22,7 @@ import { useLogout } from '../../../../hooks/useLogout';
 import { defaultAppForm } from './appForm/defaultAppForm';
 
 export const Application = () => {
-  const { applications } = useTypedSelector((state) => state.ApplicationReducer);
+  const { applications, types, statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [selectedItem, changeSelectedItem] = useState<IApplication | null>(null);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
@@ -32,7 +32,12 @@ export const Application = () => {
   const [notCitizenTable, changeNotCitizenTable] =
     useState<null | ColumnsType<IApplicationNotCitizenColumns>>(null);
   const { applicationLoading, applicationSuccess } = useActions();
-  const [sortOption, setSortOption] = useState<ISortingOption>(null);
+  const [sortOptions, setSortOptions] = useState<ISortOptions>({
+    status_inc: false,
+    status_dec: true,
+    creating_date_inc: false,
+    creating_date_dec: true,
+  });
   const page_size = localStorage.getItem('application_size');
   const [tableParams, setTableParams] = useState<ITableParams>({
     pagination: {
@@ -49,8 +54,42 @@ export const Application = () => {
       position: ['topLeft'],
     },
   });
-  const [isTotalUpdated, changeIsTotalUpdated] = useState(false);
+  const [isNeedToGet, changeIsNeedToGet] = useState(false);
   const logout = useLogout();
+
+  const getApplications = async () => {
+    applicationLoading(true);
+    localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+    let extra = '';
+    if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
+      extra += '&creating_date=dec';
+    if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
+      extra += '&creating_date=inc';
+    if (sortOptions.status_dec && !sortOptions.status_inc) extra += '&status=dec';
+    if (!sortOptions.status_dec && sortOptions.status_inc) extra += '&status=inc';
+    let page = '1';
+    let page_size = '2';
+    if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
+    if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
+    const response = await getApplicationsRequest(logout, page, page_size, extra);
+    if (response) {
+      if (
+        (tableParams.pagination && !tableParams.pagination.total) ||
+        (tableParams.pagination &&
+          tableParams.pagination.total &&
+          tableParams.pagination.total !== response.total)
+      ) {
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: response.total,
+          },
+        });
+      }
+      applicationSuccess(response.result);
+    } else applicationLoading(false);
+  };
 
   const applicationFreshnessStatus = (
     creatingDate: string,
@@ -75,57 +114,6 @@ export const Application = () => {
     return (futureDate.getTime() - nowDate.getTime()) / (24 * 60 * 60 * 1000);
   };
 
-  const makeSorting = (sortingFieldName: ISortingOption) => {
-    setSortOption(sortingFieldName);
-
-    if (sortingFieldName === 'status_decreasing') {
-      applicationSuccess([...applications].sort((a, b) => a.status.id - b.status.id));
-    }
-    if (sortingFieldName === 'status_increasing') {
-      applicationSuccess([...applications].sort((a, b) => b.status.id - a.status.id));
-    }
-
-    if (sortingFieldName === 'creatingDate_decreasing') {
-      applicationSuccess(
-        [...applications].sort((a, b) => {
-          const dateA = new Date(
-            a.creatingDate.replace(
-              /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
-              '$3-$2-$1T$4:$5:$6',
-            ),
-          );
-          const dateB = new Date(
-            b.creatingDate.replace(
-              /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
-              '$3-$2-$1T$4:$5:$6',
-            ),
-          );
-          return dateA.getTime() - dateB.getTime();
-        }),
-      );
-    }
-
-    if (sortingFieldName === 'creatingDate_increasing') {
-      applicationSuccess(
-        [...applications].sort((a, b) => {
-          const dateA = new Date(
-            a.creatingDate.replace(
-              /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
-              '$3-$2-$1T$4:$5:$6',
-            ),
-          );
-          const dateB = new Date(
-            b.creatingDate.replace(
-              /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
-              '$3-$2-$1T$4:$5:$6',
-            ),
-          );
-          return dateB.getTime() - dateA.getTime();
-        }),
-      );
-    }
-  };
-
   const showForm = (app_id: number) => {
     const app = applications.filter((el) => el.id === app_id);
     if (app.length) changeSelectedItem(app[0]);
@@ -133,51 +121,24 @@ export const Application = () => {
   };
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    changeIsTotalUpdated(false);
+    changeIsNeedToGet(true);
     setTableParams({
       pagination,
     });
   };
-  const getApplications = async () => {
-    applicationLoading(true);
-    let page = '1';
-    let page_size = '2';
-    if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
-    if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
-    const response = await getApplicationsRequest(logout, page, page_size);
-    if (response) {
-      if (
-        (tableParams.pagination && !tableParams.pagination.total) ||
-        (tableParams.pagination &&
-          tableParams.pagination.total &&
-          tableParams.pagination.total !== response.total)
-      ) {
-        changeIsTotalUpdated(true);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: response.total,
-          },
-        });
-      }
-      applicationSuccess(response.result);
-      setSortOption(null);
-    } else applicationLoading(false);
-  };
-
-  const options =
-    role === 'citizen'
-      ? (defaultCitizenColumns.map(({ key, title }) => ({
-          label: title,
-          value: key,
-        })) as CheckboxOptionType[])
-      : (defaultNotCitizenColumns.map(({ key, title }) => ({
-          label: title,
-          value: key,
-        })) as CheckboxOptionType[]);
 
   useEffect(() => {
+    let sort_params = localStorage.getItem('application_sort_options');
+    let parsed_object: ISortOptions = sortOptions;
+    if (sort_params) {
+      try {
+        parsed_object = JSON.parse(sort_params);
+        setSortOptions(parsed_object);
+      } catch (e) {
+        localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+      }
+    } else localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+
     let json_array = localStorage.getItem('application_table_columns');
     let filter_array: string[] = [];
 
@@ -216,10 +177,11 @@ export const Application = () => {
         changeCheckboxValues(defaultNotCitizenColumns.map(({ key }) => key as string));
       }
     }
+    changeIsNeedToGet(true);
   }, []);
 
   useEffect(() => {
-    if (!isTotalUpdated && tableParams.pagination) {
+    if (isNeedToGet && tableParams.pagination) {
       let application_size: string | null = localStorage.getItem('application_size');
       if (!application_size) {
         localStorage.setItem('application_size', '10');
@@ -234,16 +196,10 @@ export const Application = () => {
         size = tableParams.pagination.pageSize;
         localStorage.setItem('application_size', tableParams.pagination.pageSize.toString());
       }
-      setTableParams((prev) => ({
-        ...prev,
-        pagination: {
-          ...prev.pagination,
-          pageSize: size,
-        },
-      }));
-      if (tableParams.pagination.pageSize === size) getApplications();
-    } else changeIsTotalUpdated(false);
-  }, [JSON.stringify(tableParams)]);
+      getApplications();
+      changeIsNeedToGet(false);
+    }
+  }, [isNeedToGet]);
 
   return (
     <>
@@ -254,7 +210,6 @@ export const Application = () => {
           changeCitizenTable={changeCitizenTable}
           checkboxValues={checkboxValues}
           changeCheckboxValues={changeCheckboxValues}
-          options={options}
         />
       )}
       {role !== 'citizen' && notCitizenTable && (
@@ -264,7 +219,6 @@ export const Application = () => {
           changeNotCitizenTable={changeNotCitizenTable}
           checkboxValues={checkboxValues}
           changeCheckboxValues={changeCheckboxValues}
-          options={options}
         />
       )}
       <AppForm
@@ -330,8 +284,9 @@ export const Application = () => {
               citizenTable={citizenTable}
               handleTableChange={handleTableChange}
               tableParams={tableParams}
-              makeSorting={makeSorting}
-              sortOption={sortOption}
+              sortOptions={sortOptions}
+              setSortOptions={setSortOptions}
+              changeIsNeedToGet={changeIsNeedToGet}
             />
           )}
           {role !== 'citizen' && notCitizenTable && (
@@ -340,9 +295,10 @@ export const Application = () => {
               notCitizenTable={notCitizenTable}
               handleTableChange={handleTableChange}
               tableParams={tableParams}
-              makeSorting={makeSorting}
-              sortOption={sortOption}
               applicationFreshnessStatus={applicationFreshnessStatus}
+              sortOptions={sortOptions}
+              setSortOptions={setSortOptions}
+              changeIsNeedToGet={changeIsNeedToGet}
             />
           )}
         </div>

@@ -1,9 +1,10 @@
-import { Button, Checkbox, CheckboxOptionType, ConfigProvider, Popover } from 'antd';
+import { Button, Checkbox, ConfigProvider, Popover } from 'antd';
 import clsx from 'clsx';
 import { FC } from 'react';
 import { IApplicationCitizenColumns } from '../../../../../types';
 import { ColumnsType } from 'antd/es/table';
 import { defaultCitizenColumns } from '../ApplicationTableArgs';
+import { defaultCitizenOptions } from '../ApplicationTableArgs';
 
 interface IProps {
   needShow: boolean;
@@ -13,7 +14,6 @@ interface IProps {
   >;
   checkboxValues: null | string[];
   changeCheckboxValues: React.Dispatch<React.SetStateAction<null | string[]>>;
-  options: CheckboxOptionType[];
 }
 
 export const CitizenColumnsForm: FC<IProps> = ({
@@ -22,7 +22,6 @@ export const CitizenColumnsForm: FC<IProps> = ({
   changeCitizenTable,
   checkboxValues,
   changeCheckboxValues,
-  options,
 }) => {
   return (
     <div
@@ -38,7 +37,7 @@ export const CitizenColumnsForm: FC<IProps> = ({
           <Checkbox.Group
             value={!checkboxValues ? undefined : checkboxValues}
             className='flex flex-col justify-start mt-1 mb-1'
-            options={options}
+            options={defaultCitizenOptions}
             onChange={(value) => {
               const filter_array = value as string[];
               changeCheckboxValues(filter_array);

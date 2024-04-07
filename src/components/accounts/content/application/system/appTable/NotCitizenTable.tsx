@@ -1,10 +1,10 @@
 import { FC } from 'react';
 import { Table } from 'antd';
 import { IoFunnel } from 'react-icons/io5';
-import { FaArrowDownShortWide } from 'react-icons/fa6';
+import { FaLongArrowAltUp } from 'react-icons/fa';
 import clsx from 'clsx';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import { IApplicationNotCitizenColumns, ISortingOption, ITableParams } from '../../../../../types';
+import { IApplicationNotCitizenColumns, ISortOptions, ITableParams } from '../../../../../types';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 
 interface IProps {
@@ -12,12 +12,13 @@ interface IProps {
   notCitizenTable: ColumnsType<IApplicationNotCitizenColumns>;
   handleTableChange: (pagination: TablePaginationConfig) => void;
   tableParams: ITableParams;
-  makeSorting: (sortingFieldName: ISortingOption) => void;
-  sortOption: ISortingOption;
   applicationFreshnessStatus: (
     creatingDate: string,
     normative_in_days: number,
   ) => 'fresh' | 'warning' | 'expired';
+  sortOptions: ISortOptions;
+  setSortOptions: React.Dispatch<React.SetStateAction<ISortOptions>>;
+  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const default_subtype = {
@@ -30,9 +31,10 @@ export const NotCitizenTable: FC<IProps> = ({
   notCitizenTable,
   handleTableChange,
   tableParams,
-  makeSorting,
-  sortOption,
   applicationFreshnessStatus,
+  sortOptions,
+  setSortOptions,
+  changeIsNeedToGet,
 }) => {
   const { applications } = useTypedSelector((state) => state.ApplicationReducer);
   const { isLoading } = useTypedSelector((state) => state.ApplicationReducer);
@@ -51,23 +53,39 @@ export const NotCitizenTable: FC<IProps> = ({
                 <span>{props.children}</span>
                 <button
                   className='outline-none border-none'
-                  onClick={() =>
-                    makeSorting(
-                      sortOption === 'creatingDate_decreasing'
-                        ? 'creatingDate_increasing'
-                        : 'creatingDate_decreasing',
-                    )
-                  }
+                  onClick={() => {
+                    if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc) {
+                      setSortOptions((prev) => ({
+                        ...prev,
+                        creating_date_dec: false,
+                        creating_date_inc: true,
+                      }));
+                    }
+                    if (!sortOptions.creating_date_dec && !sortOptions.creating_date_inc) {
+                      setSortOptions((prev) => ({
+                        ...prev,
+                        creating_date_dec: true,
+                        creating_date_inc: false,
+                      }));
+                    }
+                    if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc) {
+                      setSortOptions((prev) => ({
+                        ...prev,
+                        creating_date_dec: false,
+                        creating_date_inc: false,
+                      }));
+                    }
+                    changeIsNeedToGet(true);
+                  }}
                 >
                   <IoFunnel className='text-lg text-white' />
                 </button>
-                <FaArrowDownShortWide
+                <FaLongArrowAltUp
                   className={clsx(
-                    sortOption === 'creatingDate_decreasing' && 'block',
-                    !['creatingDate_increasing', 'creatingDate_decreasing'].some(
-                      (el) => sortOption === el,
-                    ) && 'hidden',
-                    sortOption === 'creatingDate_increasing' && 'rotate-180',
+                    'text-lg font-bold',
+                    sortOptions.creating_date_dec && 'block rotate-[145deg]',
+                    !sortOptions.creating_date_dec && !sortOptions.creating_date_inc && 'hidden',
+                    sortOptions.creating_date_inc && 'block rotate-45',
                   )}
                 />
               </div>
@@ -81,23 +99,27 @@ export const NotCitizenTable: FC<IProps> = ({
                 <span>{props.children}</span>
                 <button
                   className='outline-none border-none'
-                  onClick={() =>
-                    makeSorting(
-                      sortOption === 'status_decreasing'
-                        ? 'status_increasing'
-                        : 'status_decreasing',
-                    )
-                  }
+                  onClick={() => {
+                    if (sortOptions.status_dec && !sortOptions.status_inc) {
+                      setSortOptions((prev) => ({ ...prev, status_dec: false, status_inc: true }));
+                    }
+                    if (!sortOptions.status_dec && !sortOptions.status_inc) {
+                      setSortOptions((prev) => ({ ...prev, status_dec: true, status_inc: false }));
+                    }
+                    if (!sortOptions.status_dec && sortOptions.status_inc) {
+                      setSortOptions((prev) => ({ ...prev, status_dec: false, status_inc: false }));
+                    }
+                    changeIsNeedToGet(true);
+                  }}
                 >
                   <IoFunnel className='text-lg text-white' />
                 </button>
-                <FaArrowDownShortWide
+                <FaLongArrowAltUp
                   className={clsx(
-                    'transitionGeneral',
-                    sortOption === 'status_decreasing' && 'block',
-                    !['status_increasing', 'status_decreasing'].some((el) => sortOption === el) &&
-                      'hidden',
-                    sortOption === 'status_increasing' && 'rotate-180',
+                    'text-lg font-bold',
+                    sortOptions.status_dec && 'block rotate-[145deg]',
+                    !sortOptions.status_dec && !sortOptions.status_inc && 'hidden',
+                    sortOptions.status_inc && 'block rotate-45',
                   )}
                 />
               </div>

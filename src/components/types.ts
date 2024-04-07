@@ -457,3 +457,10 @@ export type ISortingOption =
   | 'creatingDate_increasing'
   | 'creatingDate_decreasing'
   | null;
+
+export interface ISortOptions {
+  status_inc: boolean;
+  status_dec: boolean;
+  creating_date_inc: boolean;
+  creating_date_dec: boolean;
+}

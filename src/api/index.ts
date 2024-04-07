@@ -145,8 +145,9 @@ export const updateGisApplication = (
 export const getApplication = (
   page: string,
   page_size: string,
+  extra: string,
 ): AxiosPromise<IApplicationPagination> =>
-  axiosInstance.get(endpoints.application.get + `?page=${page}&page_size=${page_size}`);
+  axiosInstance.get(endpoints.application.get + `?page=${page}&page_size=${page_size}${extra}`);
 
 export const getGisApplication = (
   page: string,

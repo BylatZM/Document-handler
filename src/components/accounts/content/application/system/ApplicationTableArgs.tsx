@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { IApplicationCitizenColumns, IApplicationNotCitizenColumns } from '../../../../types';
 import { ColumnsType } from 'antd/es/table';
+import { CheckboxOptionType } from 'antd';
 
 export const defaultCitizenColumns: ColumnsType<IApplicationCitizenColumns> = [
   {
@@ -91,6 +92,11 @@ export const defaultCitizenColumns: ColumnsType<IApplicationCitizenColumns> = [
     ),
   },
 ];
+
+export const defaultCitizenOptions = defaultCitizenColumns.map(({ key, title }) => ({
+  label: title,
+  value: key,
+})) as CheckboxOptionType[];
 
 export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns> = [
   {
@@ -196,3 +202,8 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     ),
   },
 ];
+
+export const defaultNotCitizenOptions = defaultNotCitizenColumns.map(({ key, title }) => ({
+  label: title,
+  value: key,
+})) as CheckboxOptionType[];
