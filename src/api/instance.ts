@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ICache } from '../components/types';
 
 export const API_URL =
   process.env.NODE_ENV === 'development'
@@ -10,6 +11,10 @@ export const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+export let cache: ICache = {
+  subtype: [],
+};
 
 axiosInstance.interceptors.request.use((config) => {
   let refresh = '';
@@ -25,4 +30,15 @@ axiosInstance.interceptors.request.use((config) => {
   else config.headers['Authorization'] = `Bearer ${access}`;
 
   return config;
+});
+
+axiosInstance.interceptors.response.use((response) => {
+  if (response.config.url?.includes('appSubtype/')) {
+    if (!cache.subtype.some((el) => el.url === response.config.url))
+      cache.subtype.push({
+        url: response.config.url,
+        data: response.data,
+      });
+  }
+  return response;
 });

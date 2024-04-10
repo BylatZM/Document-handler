@@ -14,9 +14,10 @@ interface IProps {
 
 export const AboutMe: FC<IProps> = ({ changeNeedShowCreatePossessionForm }) => {
   const { user } = useTypedSelector((state) => state.UserReducer);
+  const { error } = useTypedSelector((state) => state.CitizenReducer);
   const [showNotification, changeShowNotification] = useState(false);
   const [needUpdateAccountInfo, changeNeedUpdateAccountInfo] = useState(true);
-  const { userSuccess, citizenSuccess } = useActions();
+  const { userSuccess, citizenSuccess, citizenErrors } = useActions();
   const logout = useLogout();
 
   const getAccountInfo = async () => {
@@ -25,6 +26,7 @@ export const AboutMe: FC<IProps> = ({ changeNeedShowCreatePossessionForm }) => {
       response = await getUserRequest(logout);
       if (response) userSuccess(response);
     }
+    if (error) citizenErrors(null);
     response = await getCitizenRequest(logout);
     if (response) citizenSuccess(response);
     changeNeedUpdateAccountInfo(false);

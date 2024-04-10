@@ -34,6 +34,7 @@ import { IError } from '../../components/types';
 import request from 'axios';
 import { refreshRequest } from './Main';
 import { errorAlert } from './Main';
+import { cache } from '../instance';
 
 export const getApplicationsRequest = async (
   logout: () => void,
@@ -400,6 +401,10 @@ export const getSubTypesRequest = async (
 ): Promise<ISubtype[] | void> => {
   const makeRequest = async (): Promise<ISubtype[] | 401 | void> => {
     try {
+      let cache_data = cache.subtype.filter((el) => el.url === `appSubtype/${id}`);
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
       const response = await getSubTypes(id);
       if (response.data) return response.data;
     } catch (e) {

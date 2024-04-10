@@ -394,6 +394,9 @@ export interface INotApprovedPossessions {
 
 export interface INotApprovedCitizens {
   id: number;
+  fio: string;
+  phone: string;
+  email: string;
   complex: string;
   building: string;
   possession: string;
@@ -463,4 +466,33 @@ export interface ISortOptions {
   status_dec: boolean;
   creating_date_inc: boolean;
   creating_date_dec: boolean;
+}
+
+export interface ICache {
+  subtype: ISubtypeCache[];
+}
+
+export interface ISubtypeCache {
+  url: string;
+  data: ISubtype[];
+}
+
+export interface ITypeCache {
+  url: string;
+  data: ISubtype[];
+}
+
+export interface IStatusCache {
+  url: string;
+  data: ISubtype[];
+}
+
+export interface IPriorityCache {
+  url: string;
+  data: ISubtype[];
+}
+
+export interface ISourceCache {
+  url: string;
+  data: ISubtype[];
 }

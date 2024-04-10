@@ -1,4 +1,4 @@
-import { Button, CheckboxOptionType, ConfigProvider, Popover } from 'antd';
+import { Button, ConfigProvider, Popover } from 'antd';
 import { AppForm } from './appForm/AppForm';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
@@ -22,7 +22,7 @@ import { useLogout } from '../../../../hooks/useLogout';
 import { defaultAppForm } from './appForm/defaultAppForm';
 
 export const Application = () => {
-  const { applications, types, statuses } = useTypedSelector((state) => state.ApplicationReducer);
+  const { applications } = useTypedSelector((state) => state.ApplicationReducer);
   const [selectedItem, changeSelectedItem] = useState<IApplication | null>(null);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);

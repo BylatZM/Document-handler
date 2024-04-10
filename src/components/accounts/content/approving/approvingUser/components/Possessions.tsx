@@ -15,7 +15,7 @@ export const Possessions: FC<IProps> = ({ selectedUserInfo }) => {
             <div key={el.id} className='p-1 disable'>
               <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Лицевой счет</span>
-                <Input value={el.personal_account} disabled />
+                <Input className='text-base' value={el.personal_account} disabled />
               </div>
               <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
                 <span className='font-bold'>Тип имущества</span>

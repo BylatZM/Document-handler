@@ -127,7 +127,7 @@ export const Buttons: FC<IProp> = ({
           !data.complex.id ||
           data.personal_account === '' ||
           !data.possession.id ||
-          (form_id !== -1 && updatingFormId !== form_id)
+          updatingFormId !== form_id
             ? true
             : false
         }

@@ -136,6 +136,7 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
                 </button>
                 <FaArrowDownShortWide
                   className={clsx(
+                    'text-lg',
                     sortedBy === 'id_decreasing' && 'block',
                     !['id_increasing', 'id_decreasing'].some((el) => sortedBy === el) && 'hidden',
                     sortedBy === 'id_increasing' && 'rotate-180',
@@ -149,11 +150,11 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
         if (
           props.children &&
           Array.isArray(props.children) &&
-          props.children[1] === 'Статус заявки'
+          props.children[1] === 'Статус собственности'
         ) {
           return (
             <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
-              <div className='flex items-center gap-x-1 justify-center'>
+              <div className='flex w-max items-center gap-x-1 justify-center'>
                 <span>{props.children}</span>
                 <button
                   className='outline-none border-none'
@@ -167,6 +168,7 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
                 </button>
                 <FaArrowDownShortWide
                   className={clsx(
+                    'text-lg',
                     sortedBy === 'status_decreasing' && 'block',
                     !['status_increasing', 'status_decreasing'].some((el) => sortedBy === el) &&
                       'hidden',
@@ -194,7 +196,22 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
       key: 'key',
     },
     {
-      title: 'Статус заявки',
+      title: 'ФИО жителя',
+      dataIndex: 'fio',
+      key: 'fio',
+    },
+    {
+      title: 'Номер телефона жителя',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: 'Адрес электронной почты',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Статус собственности',
       dataIndex: 'approving_status',
       key: 'approving_status',
       render: (approving_status: string) => (
@@ -348,6 +365,9 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
         complex: el.complex,
         building: el.building,
         possession: el.possession,
+        fio: el.fio,
+        phone: el.phone,
+        email: el.email,
       }))}
       columns={columns}
       components={components}
