@@ -206,7 +206,9 @@ export const AppTable: FC<IProps> = ({
         }
 
         return (
-          <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+          <th
+            style={{ background: '#000', color: '#fff', textAlign: 'center', whiteSpace: 'nowrap' }}
+          >
             {props.children}
           </th>
         );

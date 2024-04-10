@@ -182,7 +182,9 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
         }
 
         return (
-          <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+          <th
+            style={{ background: '#000', color: '#fff', textAlign: 'center', whiteSpace: 'nowrap' }}
+          >
             {props.children}
           </th>
         );
