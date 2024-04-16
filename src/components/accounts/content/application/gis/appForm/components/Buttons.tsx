@@ -8,14 +8,22 @@ import {
 } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
-import { updateGisAppRequest } from '../../../../../../../api/requests/Application';
+import {
+  updateGisAppRequest,
+  updateGisAppStatusOnCloseRequest,
+} from '../../../../../../../api/requests/Application';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 
-type IOperation = 'update' | 'close_application' | 'proceed_to_execution' | 'return_for_revision';
+type IOperation =
+  | 'update'
+  | 'close_application'
+  | 'proceed_to_execution'
+  | 'return_for_revision'
+  | 'got_incorrectly';
 
-type IUpdateOperation = 'update' | 'close_application' | 'proceed_to_execution';
+type IUpdateOperation = 'update' | 'close_application' | 'proceed_to_execution' | 'got_incorrectly';
 
 interface IProps {
   data: IGisApplication;
@@ -39,6 +47,23 @@ export const Buttons: FC<IProps> = ({
   const [errorButton, changeErrorButton] = useState<null | IOperation>(null);
   const [successButton, changeSuccessButton] = useState<null | IOperation>(null);
   const [loadingButton, changeLoadingButton] = useState<null | IOperation>(null);
+
+  const update_app_status_on_close = async () => {
+    changeLoadingButton('got_incorrectly');
+    const response = await updateGisAppStatusOnCloseRequest(data.id.toString(), logout);
+    changeLoadingButton(null);
+    if (response && response === 200) {
+      changeSuccessButton('got_incorrectly');
+      setTimeout(() => {
+        changeSuccessButton((prev) => null);
+        getApplications();
+        exitFromForm();
+      }, 2000);
+    } else {
+      changeErrorButton('got_incorrectly');
+      setTimeout(() => changeErrorButton(null), 2000);
+    }
+  };
 
   const update_application = async (operation_type: IUpdateOperation) => {
     if (!data.status.id || !data.employee || !statuses.length) return;
@@ -101,110 +126,105 @@ export const Buttons: FC<IProps> = ({
   };
 
   return (
-    <div className='gap-4 flex max-md:flex-wrap max-md:justify-start justify-center'>
-      <ConfigProvider
-        theme={{
-          components: {
-            Button: {
-              colorPrimaryHover: undefined,
+    <div className='gap-4 flex flex-wrap justify-center'>
+      {role === 'dispatcher' && (
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: undefined,
+              },
             },
-          },
-        }}
-      >
-        <Button
-          onClick={() => {
-            update_application('update');
           }}
-          className='text-white bg-blue-700'
-          disabled={
-            !loadingButton &&
-            !successButton &&
-            data.status.appStatus !== 'Закрыта' &&
-            ((role === 'dispatcher' &&
+        >
+          <Button
+            onClick={() => {
+              update_application('update');
+            }}
+            className='text-white bg-blue-700'
+            disabled={
+              !loadingButton &&
+              !successButton &&
+              data.status.appStatus !== 'Закрыта' &&
+              role === 'dispatcher' &&
               ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
                 !data.dispatcher_comment) &&
               data.priority.id &&
               data.employee &&
-              data.employee.id) ||
-              (role === 'executor' &&
-                data.status.appStatus !== 'Назначена' &&
-                data.status.appStatus !== 'Возвращена' &&
-                data.employee_comment &&
-                data.employee_comment.length < 501))
-              ? false
-              : true
-          }
-        >
-          {loadingButton === 'update' && (
-            <div>
-              <ImSpinner9 className='inline animate-spin mr-2' />
-              <span>Обработка</span>
-            </div>
-          )}
-          {errorButton === 'update' && !loadingButton && !successButton && (
-            <div>
-              <ImCross className='inline mr-2' />
-              <span>Ошибка</span>
-            </div>
-          )}
-          {!loadingButton && !errorButton && successButton === 'update' && (
-            <div>
-              <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-              <span>Успешно</span>
-            </div>
-          )}
-          {loadingButton !== 'update' && errorButton !== 'update' && successButton !== 'update' && (
-            <>Записать</>
-          )}
-        </Button>
-      </ConfigProvider>
-      <ConfigProvider
-        theme={{
-          components: {
-            Button: {
-              colorPrimaryHover: undefined,
+              data.employee.id
+                ? false
+                : true
+            }
+          >
+            {loadingButton === 'update' && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {errorButton === 'update' && !loadingButton && !successButton && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!loadingButton && !errorButton && successButton === 'update' && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {loadingButton !== 'update' &&
+              errorButton !== 'update' &&
+              successButton !== 'update' && <>Записать</>}
+          </Button>
+        </ConfigProvider>
+      )}
+      {role === 'executor' && (
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: undefined,
+              },
             },
-          },
-        }}
-      >
-        <Button
-          onClick={() => {
-            update_application('close_application');
           }}
-          className='text-white bg-green-700'
-          disabled={
-            !loadingButton &&
-            !successButton &&
-            (data.status.appStatus === 'В работе' ||
-              ((data.status.appStatus === 'Назначена' || data.status.appStatus === 'Возвращена') &&
-                role === 'dispatcher'))
-              ? false
-              : true
-          }
         >
-          {loadingButton === 'close_application' && (
-            <div>
-              <ImSpinner9 className='inline animate-spin mr-2' />
-              <span>Обработка</span>
-            </div>
-          )}
-          {errorButton === 'close_application' && !loadingButton && !successButton && (
-            <div>
-              <ImCross className='inline mr-2' />
-              <span>Ошибка</span>
-            </div>
-          )}
-          {!loadingButton && !errorButton && successButton === 'close_application' && (
-            <div>
-              <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-              <span>Успешно</span>
-            </div>
-          )}
-          {loadingButton !== 'close_application' &&
-            errorButton !== 'close_application' &&
-            successButton !== 'close_application' && <>Заявка выполнена</>}
-        </Button>
-      </ConfigProvider>
+          <Button
+            onClick={() => {
+              update_application('close_application');
+            }}
+            className='text-white bg-green-700'
+            disabled={
+              !loadingButton && !successButton && data.status.appStatus === 'В работе'
+                ? false
+                : true
+            }
+          >
+            {loadingButton === 'close_application' && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {errorButton === 'close_application' && !loadingButton && !successButton && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!loadingButton && !errorButton && successButton === 'close_application' && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {loadingButton !== 'close_application' &&
+              errorButton !== 'close_application' &&
+              successButton !== 'close_application' && <>Заявка выполнена</>}
+          </Button>
+        </ConfigProvider>
+      )}
       {role === 'executor' && (
         <ConfigProvider
           theme={{
@@ -250,6 +270,47 @@ export const Buttons: FC<IProps> = ({
             {loadingButton !== 'proceed_to_execution' &&
               errorButton !== 'proceed_to_execution' &&
               successButton !== 'proceed_to_execution' && <>Приступить к исполнению</>}
+          </Button>
+        </ConfigProvider>
+      )}
+      {data.status.appStatus !== 'Закрыта' && (
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: undefined,
+              },
+            },
+          }}
+        >
+          <Button
+            onClick={() => {
+              update_app_status_on_close();
+            }}
+            className='text-white bg-red-500'
+            disabled={!loadingButton && !successButton ? false : true}
+          >
+            {loadingButton === 'got_incorrectly' && (
+              <div>
+                <ImSpinner9 className='inline animate-spin mr-2' />
+                <span>Обработка</span>
+              </div>
+            )}
+            {errorButton === 'got_incorrectly' && !loadingButton && !successButton && (
+              <div>
+                <ImCross className='inline mr-2' />
+                <span>Ошибка</span>
+              </div>
+            )}
+            {!loadingButton && !errorButton && successButton === 'got_incorrectly' && (
+              <div>
+                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                <span>Успешно</span>
+              </div>
+            )}
+            {loadingButton !== 'got_incorrectly' &&
+              errorButton !== 'got_incorrectly' &&
+              successButton !== 'got_incorrectly' && <>Заведена неверно</>}
           </Button>
         </ConfigProvider>
       )}

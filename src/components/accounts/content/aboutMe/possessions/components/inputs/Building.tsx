@@ -6,6 +6,7 @@ import {
   ICitizenLoading,
   IBuilding,
   IPossession,
+  IPosLoading,
 } from '../../../../../../types';
 
 interface IProps {
@@ -19,6 +20,7 @@ interface IProps {
   buildings: IBuilding[];
   error: ICitizenError | null;
   emptyPossession: IPossession;
+  possessionLoadingField: IPosLoading;
 }
 
 export const Building: FC<IProps> = ({
@@ -32,6 +34,7 @@ export const Building: FC<IProps> = ({
   buildings,
   error,
   emptyPossession,
+  possessionLoadingField,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
@@ -44,6 +47,7 @@ export const Building: FC<IProps> = ({
           }
           value={!data.building.id || !buildings.length ? undefined : data.building.id}
           options={buildings.map((el) => ({ value: el.id, label: el.building }))}
+          loading={possessionLoadingField === 'buildings' ? true : false}
           onChange={(e: number) => {
             if (error && error.error.type === 'possession') citizenErrors(null);
             const new_building = buildings.filter((el) => el.id === e);

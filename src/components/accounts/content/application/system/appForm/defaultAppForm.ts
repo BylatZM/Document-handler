@@ -42,7 +42,7 @@ export const defaultAppForm: IApplication = {
   },
   status: {
     id: 1,
-    appStatus: '',
+    appStatus: 'Новая',
   },
   type: null,
   employeeComment: '',

@@ -19,7 +19,6 @@ interface IProps {
   citizenErrors: (error: ICitizenError | null) => void;
   getBuildings: (complex_id: string) => void;
   loadingForm: ICitizenLoading;
-  loadingPossession: IPosLoading;
   complexes: IComplex[];
   emptyPossession: IPossession;
   emptyBuilding: IBuilding;
@@ -34,7 +33,6 @@ export const Complex: FC<IProps> = ({
   citizenErrors,
   getBuildings,
   loadingForm,
-  loadingPossession,
   complexes,
   emptyPossession,
   emptyBuilding,
@@ -46,11 +44,7 @@ export const Complex: FC<IProps> = ({
         <Select
           className='w-full'
           disabled={
-            (loadingForm && loadingForm.form_id === form_id) ||
-            !complexes.length ||
-            loadingPossession === 'complex'
-              ? true
-              : false
+            (loadingForm && loadingForm.form_id === form_id) || !complexes.length ? true : false
           }
           value={!data.complex.name ? undefined : data.complex.id}
           options={complexes.map((el) => ({ value: el.id, label: el.name }))}

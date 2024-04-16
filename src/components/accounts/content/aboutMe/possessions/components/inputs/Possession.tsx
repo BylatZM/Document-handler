@@ -1,5 +1,11 @@
 import { FC } from 'react';
-import { ICitizen, ICitizenError, ICitizenLoading, IPossession } from '../../../../../../types';
+import {
+  ICitizen,
+  ICitizenError,
+  ICitizenLoading,
+  IPosLoading,
+  IPossession,
+} from '../../../../../../types';
 import { Select } from 'antd';
 
 interface IProps {
@@ -11,6 +17,7 @@ interface IProps {
   citizenErrors: (error: ICitizenError | null) => void;
   loadingForm: ICitizenLoading;
   possessions: IPossession[];
+  possessionLoadingField: IPosLoading;
 }
 
 export const Possession: FC<IProps> = ({
@@ -22,6 +29,7 @@ export const Possession: FC<IProps> = ({
   citizenErrors,
   loadingForm,
   possessions,
+  possessionLoadingField,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
@@ -30,12 +38,16 @@ export const Possession: FC<IProps> = ({
         <Select
           className='w-full'
           disabled={
-            loadingForm.form_id === form_id || !data.building.id || !possessions.length
+            loadingForm.form_id === form_id ||
+            !data.building.id ||
+            !possessions.length ||
+            possessionLoadingField === 'possessions'
               ? true
               : false
           }
           value={!possessions.length || !data.possession.id ? undefined : data.possession.id}
           options={possessions.map((el) => ({ value: el.id, label: el.address }))}
+          loading={possessionLoadingField === 'possessions' ? true : false}
           onChange={(e: number) => {
             if (error && error.error.type === 'possession') citizenErrors(null);
             const new_possession = possessions.filter((el) => el.id === e);

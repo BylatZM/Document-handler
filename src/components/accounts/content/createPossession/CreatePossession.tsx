@@ -1,10 +1,8 @@
 import { useState, FC, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { IApprovePossession, IError } from '../../../types';
-import { getBuildingsRequest } from '../../../../api/requests/Possession';
+import { IApprovePossession, IBuildingWithComplex, IError } from '../../../types';
 import { useLogout } from '../../../hooks/useLogout';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
-import { useActions } from '../../../hooks/useActions';
 import { Complex } from './inputs/Complex';
 import { PossessionType } from './inputs/PossessionType';
 import { Building } from './inputs/Building';
@@ -14,6 +12,7 @@ import { Buttons } from './button/Buttons';
 interface IProps {
   needShowForm: boolean;
   changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
 }
 
 const defaultPossessionInfo: IApprovePossession = {
@@ -23,19 +22,17 @@ const defaultPossessionInfo: IApprovePossession = {
   possession: '',
 };
 
-export const CreatePossession: FC<IProps> = ({ needShowForm, changeNeedShowForm }) => {
+export const CreatePossession: FC<IProps> = ({
+  needShowForm,
+  changeNeedShowForm,
+  getBuildings,
+}) => {
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
   const { user, isLoading } = useTypedSelector((state) => state.UserReducer);
   const [error, changeError] = useState<IError | null>(null);
   const { buildings, complexes } = useTypedSelector((state) => state.PossessionReducer);
-  const { buildingSuccess } = useActions();
   const logout = useLogout();
   const [needInitializeForm, changeNeedInitializeForm] = useState(true);
-
-  const getBuildings = async (complex_id: string) => {
-    const response = await getBuildingsRequest(complex_id, logout);
-    if (response) buildingSuccess(response);
-  };
 
   useEffect(() => {
     if (!complexes.length || !needInitializeForm || !needShowForm) return;

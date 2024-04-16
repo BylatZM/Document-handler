@@ -1,5 +1,12 @@
 import { FC } from 'react';
-import { IApplication, ICitizen, IError, IPossession, IRole } from '../../../../../../types';
+import {
+  IApplication,
+  ICitizen,
+  IError,
+  IPosLoading,
+  IPossession,
+  IRole,
+} from '../../../../../../types';
 import { Select } from 'antd';
 
 interface IProps {
@@ -10,6 +17,7 @@ interface IProps {
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizen[];
   error: IError | null;
+  possessionLoadingField: IPosLoading;
 }
 
 export const Possession: FC<IProps> = ({
@@ -20,6 +28,7 @@ export const Possession: FC<IProps> = ({
   changeFormData,
   citizenPossessions,
   error,
+  possessionLoadingField,
 }) => {
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
@@ -39,7 +48,7 @@ export const Possession: FC<IProps> = ({
                 building: { ...new_possession[0].building },
               }));
             }}
-            disabled={form_id !== 0 ? true : false}
+            disabled={form_id !== 0 || !possessions.length ? true : false}
             options={
               form_id !== 0
                 ? [{ label: data.possession.address, value: data.possession.id }]
@@ -67,8 +76,13 @@ export const Possession: FC<IProps> = ({
                 possession: { ...new_possession[0] },
               }));
             }}
+            loading={possessionLoadingField === 'possessions' ? true : false}
             disabled={
-              form_id !== 0 || data.building.id === 0 || (error && error.type === 'possession')
+              form_id !== 0 ||
+              data.building.id === 0 ||
+              (error && error.type === 'possession') ||
+              !possessions.length ||
+              possessionLoadingField === 'possessions'
                 ? true
                 : false
             }

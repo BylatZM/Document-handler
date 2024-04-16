@@ -1,28 +1,20 @@
 import { FC } from 'react';
-import { IGisApplication, IStatus } from '../../../../../../types';
+import { IStatus } from '../../../../../../types';
 import { Select } from 'antd';
 
 interface IProps {
   status: IStatus;
-  changeFormData: React.Dispatch<React.SetStateAction<IGisApplication>>;
-  statuses: IStatus[];
 }
 
-export const Status: FC<IProps> = ({ status, changeFormData, statuses }) => {
+export const Status: FC<IProps> = ({ status }) => {
   return (
     <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Статус заявки</span>
       <Select
         className='h-[50px]'
         value={!status.id ? undefined : status.id}
-        onChange={(e: number) =>
-          changeFormData((prev) => ({ ...prev, status: { id: e, appStatus: '' } }))
-        }
         disabled
-        options={statuses.map((el) => ({
-          value: el.id,
-          label: el.appStatus,
-        }))}
+        options={[{ value: status.id, label: status.appStatus }]}
       />
     </div>
   );

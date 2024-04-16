@@ -13,7 +13,7 @@ export const PossessionReducer = createSlice({
   name: 'PossessionReducer',
   initialState,
   reducers: {
-    possessionStart: (state, { payload }: PayloadAction<IPosLoading>) => {
+    possessionLoading: (state, { payload }: PayloadAction<IPosLoading>) => {
       state.isLoading = payload;
     },
     complexSuccess: (state, { payload }: PayloadAction<IComplex[]>) => {
@@ -35,7 +35,7 @@ export const PossessionReducer = createSlice({
 });
 
 export const {
-  possessionStart,
+  possessionLoading,
   complexSuccess,
   buildingSuccess,
   possessionSuccess,

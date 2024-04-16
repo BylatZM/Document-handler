@@ -16,28 +16,37 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
       {role !== 'citizen' && (
         <div className='w-full md:w-[48%] mt-2 gap-2 flex flex-col'>
           <span>Приоритет исполнения</span>
-          <Select
-            className='h-[50px]'
-            value={!data.priority.id ? undefined : data.priority.id}
-            disabled={
-              role === 'executor' ||
-              (form_id > 0 &&
+          {role === 'dispatcher' && (
+            <Select
+              className='h-[50px]'
+              value={!data.priority.id ? undefined : data.priority.id}
+              disabled={
+                form_id > 0 &&
                 data.status.appStatus !== 'Новая' &&
                 data.status.appStatus !== 'Назначена' &&
-                data.status.appStatus !== 'Возвращена')
-                ? true
-                : false
-            }
-            onChange={(e: number) => {
-              const new_priority = priorities.filter((el) => el.id === e);
-              if (!new_priority.length) return;
-              changeFormData((prev) => ({ ...prev, priority: { ...new_priority[0] } }));
-            }}
-            options={priorities.map((el) => ({
-              value: el.id,
-              label: el.appPriority,
-            }))}
-          />
+                data.status.appStatus !== 'Возвращена'
+                  ? true
+                  : false
+              }
+              onChange={(e: number) => {
+                const new_priority = priorities.filter((el) => el.id === e);
+                if (!new_priority.length) return;
+                changeFormData((prev) => ({ ...prev, priority: { ...new_priority[0] } }));
+              }}
+              options={priorities.map((el) => ({
+                value: el.id,
+                label: el.appPriority,
+              }))}
+            />
+          )}
+          {role === 'executor' && (
+            <Select
+              className='h-[50px]'
+              value={!data.priority.id ? undefined : data.priority.id}
+              disabled
+              options={[{ value: data.priority.id, label: data.priority.appPriority }]}
+            />
+          )}
         </div>
       )}
     </>

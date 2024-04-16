@@ -6,6 +6,7 @@ import {
   IBuilding,
   ICitizen,
   IError,
+  IPosLoading,
   IPossession,
   IRole,
 } from '../../../../../../types';
@@ -20,7 +21,7 @@ interface IProps {
   citizenPossessions: ICitizen[];
   getPossessions: (type: string, building_id: string) => Promise<void | IError | IPossession[]>;
   error: IError | null;
-  possessions: IPossession[];
+  possessionLoadingField: IPosLoading;
 }
 
 export const Building: FC<IProps> = ({
@@ -32,9 +33,9 @@ export const Building: FC<IProps> = ({
   citizenPossessions,
   getPossessions,
   error,
-  possessions,
+  possessionLoadingField,
 }) => {
-  const { possessionSuccess, applicationError } = useActions();
+  const { applicationError } = useActions();
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Здание</span>
@@ -77,7 +78,6 @@ export const Building: FC<IProps> = ({
           className='h-[50px]'
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
-            if (possessions.length) possessionSuccess([]);
             if (error) applicationError(null);
             getPossessions(data.possessionType, e.toString());
             const new_building = buildings.filter((el) => el.id === e);
@@ -88,7 +88,15 @@ export const Building: FC<IProps> = ({
               possession: { ...defaultAppForm.possession },
             }));
           }}
-          disabled={form_id !== 0 || data.complex.id === 0 ? true : false}
+          disabled={
+            form_id !== 0 ||
+            data.complex.id === 0 ||
+            possessionLoadingField === 'buildings' ||
+            !buildings.length
+              ? true
+              : false
+          }
+          loading={possessionLoadingField === 'buildings' ? true : false}
           options={
             form_id !== 0
               ? [{ label: data.building.building, value: data.building.id }]

@@ -4,7 +4,7 @@ import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { ITableParams, ISortingOption, IGisTableColumns, IGisApplication } from '../../../../types';
 import { BsFilterRight } from 'react-icons/bs';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useActions } from '../../../../hooks/useActions';
 import { useLogout } from '../../../../hooks/useLogout';
 import { getGisApplicationsRequest } from '../../../../../api/requests/Application';
@@ -13,10 +13,18 @@ import { ColumnsForm } from './ColumnsForm';
 import { GisTable } from './GisTable';
 import { DefaultAppForm } from './appForm/DefaultAppForm';
 
-export const GisApplication = () => {
-  const { gisApplications } = useTypedSelector((state) => state.ApplicationReducer);
-  const [selectedItem, changeSelectedItem] = useState<IGisApplication | null>(null);
+interface IProps {
+  getPriorities: () => void;
+  getStatuses: () => void;
+  getEmploys: () => void;
+}
+
+export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmploys }) => {
+  const { gisApplications, employs, priorities, statuses } = useTypedSelector(
+    (state) => state.ApplicationReducer,
+  );
   const { role } = useTypedSelector((state) => state.UserReducer.user);
+  const [selectedItem, changeSelectedItem] = useState<IGisApplication | null>(null);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
   const [checkboxValues, changeCheckboxValues] = useState<null | string[]>(null);
   const [gisTable, changeGisTable] = useState<null | ColumnsType<IGisTableColumns>>(null);
@@ -127,7 +135,7 @@ export const GisApplication = () => {
     });
   };
   const getApplications = async () => {
-    applicationLoading(true);
+    applicationLoading('gisApplications');
     let page = '1';
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
@@ -151,7 +159,7 @@ export const GisApplication = () => {
       }
       gisApplicationSuccess(response.result);
       setSortOption(null);
-    } else applicationLoading(false);
+    } else applicationLoading(null);
   };
 
   const options = defaultColumns.map(({ key, title }) => ({
@@ -182,6 +190,13 @@ export const GisApplication = () => {
       changeGisTable(defaultColumns);
       changeCheckboxValues(defaultColumns.map(({ key }) => key as string));
     }
+  }, []);
+
+  useEffect(() => {
+    if (role === 'executor') return;
+    if (!employs.length) getEmploys();
+    if (!statuses.length) getStatuses();
+    if (!priorities.length) getPriorities();
   }, []);
 
   useEffect(() => {

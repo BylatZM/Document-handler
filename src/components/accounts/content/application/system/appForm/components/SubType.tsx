@@ -76,6 +76,7 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
               if (!new_subtype.length) return;
               changeData((prev) => ({ ...prev, subtype: { ...new_subtype[0] } }));
             }}
+            status={error && error.type === 'subtype' ? 'error' : undefined}
             options={
               form_id > 0 && data.subtype
                 ? [{ value: data.subtype.id, label: data.subtype.subtype }]

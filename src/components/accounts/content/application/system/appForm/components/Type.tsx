@@ -33,37 +33,50 @@ export const Type: FC<IProps> = ({
   return (
     <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Тип заявки</span>
-      <Select
-        className='h-[50px]'
-        value={!data.type ? undefined : data.type.id}
-        disabled={
-          !types.length ||
-          role === 'executor' ||
-          (role === 'citizen' && form_id > 0) ||
-          (form_id > 0 &&
-            data.status.appStatus !== 'Новая' &&
-            data.status.appStatus !== 'Назначена' &&
-            data.status.appStatus !== 'Возвращена')
-            ? true
-            : false
-        }
-        onChange={(e: number) => {
-          if (error) applicationError(null);
-          const new_type = types.filter((el) => el.id === e);
-          if (!new_type.length) return;
-          changeFormData((prev) => ({
-            ...prev,
-            type: { ...new_type[0] },
-            subtype: null,
-          }));
-          getSubtypesRequest(e.toString());
-        }}
-        options={types.map((el) => ({
-          value: el.id,
-          label: el.appType,
-        }))}
-      />
-      {error && error.type === 'type' && <span className='errorText'>{error.error}</span>}
+      {role !== 'executor' && (
+        <>
+          <Select
+            className='h-[50px]'
+            value={!data.type ? undefined : data.type.id}
+            disabled={
+              !types.length ||
+              role === 'executor' ||
+              (role === 'citizen' && form_id > 0) ||
+              (form_id > 0 &&
+                data.status.appStatus !== 'Новая' &&
+                data.status.appStatus !== 'Назначена' &&
+                data.status.appStatus !== 'Возвращена')
+                ? true
+                : false
+            }
+            onChange={(e: number) => {
+              if (error) applicationError(null);
+              const new_type = types.filter((el) => el.id === e);
+              if (!new_type.length) return;
+              changeFormData((prev) => ({
+                ...prev,
+                type: { ...new_type[0] },
+                subtype: null,
+              }));
+              getSubtypesRequest(e.toString());
+            }}
+            status={error && error.type === 'type' ? 'error' : undefined}
+            options={types.map((el) => ({
+              value: el.id,
+              label: el.appType,
+            }))}
+          />
+          {error && error.type === 'type' && <span className='errorText'>{error.error}</span>}
+        </>
+      )}
+      {role === 'executor' && (
+        <Select
+          className='h-[50px]'
+          value={!data.type ? undefined : data.type.id}
+          disabled
+          options={data.type ? [{ value: data.type.id, label: data.type.appType }] : []}
+        />
+      )}
     </div>
   );
 };

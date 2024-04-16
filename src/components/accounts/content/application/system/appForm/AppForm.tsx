@@ -4,10 +4,6 @@ import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 import { IApplication, IBuildingWithComplex, IPossession, ISubtype } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useLogout } from '../../../../../hooks/useLogout';
-import {
-  getBuildingsRequest,
-  getPossessionsRequest,
-} from '../../../../../../api/requests/Possession';
 import { Grade } from './components/Grade';
 import { Status } from './components/Status';
 import { Type } from './components/Type';
@@ -21,7 +17,6 @@ import { Possession } from './components/Possession';
 import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
-import { getSubTypesRequest } from '../../../../../../api/requests/Application';
 import { SubType } from './components/SubType';
 import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
@@ -32,6 +27,9 @@ interface IProps {
   getApplications: () => Promise<void>;
   changeSelectedItem: React.Dispatch<React.SetStateAction<IApplication | null>>;
   applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getSubtypes: (id: string) => Promise<ISubtype[] | void>;
 }
 
 export const AppForm: FC<IProps> = ({
@@ -39,56 +37,25 @@ export const AppForm: FC<IProps> = ({
   getApplications,
   changeSelectedItem,
   applicationFreshnessStatus,
+  getSubtypes,
+  getBuildings,
+  getPossessions,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { employs, types, sources, statuses, priorities, subtypes, error } = useTypedSelector(
+  const { employs, types, sources, priorities, subtypes, error } = useTypedSelector(
     (state) => state.ApplicationReducer,
   );
   const { complexes, possessions, buildings } = useTypedSelector(
     (state) => state.PossessionReducer,
   );
-  const { buildingSuccess, possessionSuccess, subTypesSuccess, applicationError } = useActions();
+  const possessionLoadingField = useTypedSelector((state) => state.PossessionReducer.isLoading);
+  const { subTypesSuccess, applicationError } = useActions();
 
   const [FormData, changeFormData] = useState<IApplication>(defaultAppForm);
-
-  const getBuildings = async (complex_id: string): Promise<IBuildingWithComplex[] | void> => {
-    const builds = await getBuildingsRequest(complex_id, logout);
-
-    if (!builds) return;
-    else {
-      buildingSuccess(builds);
-      return builds;
-    }
-  };
-
-  const getSubtypes = async (id: string): Promise<ISubtype[] | void> => {
-    const subtypes = await getSubTypesRequest(logout, id);
-
-    if (!subtypes || (subtypes && !subtypes.length)) return;
-    else {
-      subTypesSuccess(subtypes);
-      return subtypes;
-    }
-  };
-
-  const getPossessions = async (
-    type: string,
-    building_id: string,
-  ): Promise<void | IPossession[]> => {
-    const possessions = await getPossessionsRequest(type, building_id, logout);
-
-    if (!possessions) return;
-
-    if ('type' in possessions) applicationError(possessions);
-    else {
-      possessionSuccess(possessions);
-      return possessions;
-    }
-  };
 
   const initialize_create_app_by_citizen = () => {
     if (!citizen.length) return;
@@ -247,7 +214,7 @@ export const AppForm: FC<IProps> = ({
           <span className='font-bold text-lg'>Сведения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
             <Grade />
-            <Status status={FormData.status} changeFormData={changeFormData} statuses={statuses} />
+            <Status status={FormData.status} />
             <Type
               form_id={FormData.id}
               role={role}
@@ -312,7 +279,7 @@ export const AppForm: FC<IProps> = ({
               citizenPossessions={citizen}
               getPossessions={getPossessions}
               error={error}
-              possessions={possessions}
+              possessionLoadingField={possessionLoadingField}
             />
             <Possession
               form_id={FormData.id}
@@ -322,6 +289,7 @@ export const AppForm: FC<IProps> = ({
               changeFormData={changeFormData}
               citizenPossessions={citizen}
               error={error}
+              possessionLoadingField={possessionLoadingField}
             />
             {role !== 'citizen' && (
               <>

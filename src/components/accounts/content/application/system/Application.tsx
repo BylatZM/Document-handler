@@ -8,10 +8,13 @@ import {
   IApplicationNotCitizenColumns,
   ITableParams,
   ISortOptions,
+  IPossession,
+  IBuildingWithComplex,
+  ISubtype,
 } from '../../../../types';
 import { BsFilterRight } from 'react-icons/bs';
 import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { CitizenTable } from './appTable/CitizenTable';
 import { NotCitizenTable } from './appTable/NotCitizenTable';
 import { CitizenColumnsForm } from './changeTableColumnsForms/CitizenColumnsForm';
@@ -21,8 +24,30 @@ import { getApplicationsRequest } from '../../../../../api/requests/Application'
 import { useLogout } from '../../../../hooks/useLogout';
 import { defaultAppForm } from './appForm/defaultAppForm';
 
-export const Application = () => {
-  const { applications } = useTypedSelector((state) => state.ApplicationReducer);
+interface IProps {
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getTypes: () => Promise<void>;
+  getPriorities: () => Promise<void>;
+  getSources: () => Promise<void>;
+  getStatuses: () => Promise<void>;
+  getEmploys: () => Promise<void>;
+  getSubtypes: (id: string) => Promise<ISubtype[] | void>;
+}
+
+export const Application: FC<IProps> = ({
+  getPossessions,
+  getBuildings,
+  getPriorities,
+  getSources,
+  getStatuses,
+  getSubtypes,
+  getTypes,
+  getEmploys,
+}) => {
+  const { applications, priorities, types, statuses, sources, employs } = useTypedSelector(
+    (state) => state.ApplicationReducer,
+  );
   const [selectedItem, changeSelectedItem] = useState<IApplication | null>(null);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
@@ -58,7 +83,7 @@ export const Application = () => {
   const logout = useLogout();
 
   const getApplications = async () => {
-    applicationLoading(true);
+    applicationLoading('applications');
     localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
     let extra = '';
     if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
@@ -88,7 +113,7 @@ export const Application = () => {
         });
       }
       applicationSuccess(response.result);
-    } else applicationLoading(false);
+    } else applicationLoading(null);
   };
 
   const applicationFreshnessStatus = (
@@ -126,6 +151,16 @@ export const Application = () => {
       pagination,
     });
   };
+
+  useEffect(() => {
+    if (!statuses.length) getStatuses();
+    if (role === 'executor') return;
+    if (!types.length) getTypes();
+    if (role === 'citizen') return;
+    if (!priorities.length) getPriorities();
+    if (!sources.length) getSources();
+    if (!employs.length) getEmploys();
+  }, []);
 
   useEffect(() => {
     let sort_params = localStorage.getItem('application_sort_options');
@@ -236,6 +271,9 @@ export const Application = () => {
                 !selectedItem.subtype ? 0 : selectedItem.subtype.normative,
               )
         }
+        getBuildings={getBuildings}
+        getPossessions={getPossessions}
+        getSubtypes={getSubtypes}
       />
       <div className='mt-[68px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>

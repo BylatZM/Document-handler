@@ -3,32 +3,45 @@ import { Main } from './possessions/Main';
 import { General } from './general/General';
 import { FC, useEffect, useState } from 'react';
 import { Notification } from './Notification';
-import { useLogout } from '../../../hooks/useLogout';
-import { getCitizenRequest, getUserRequest } from '../../../../api/requests/Person';
 import { useActions } from '../../../hooks/useActions';
 import { LoadingSkeleton } from './possessions/LoadingSkeleton';
+import { IBuildingWithComplex, IPossession, IUser } from '../../../types';
 
 interface IProps {
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getUser: () => Promise<void | IUser>;
+  getCitizenPossessions: () => Promise<void>;
 }
 
-export const AboutMe: FC<IProps> = ({ changeNeedShowCreatePossessionForm }) => {
+export const AboutMe: FC<IProps> = ({
+  changeNeedShowCreatePossessionForm,
+  getPossessions,
+  getBuildings,
+  getCitizenPossessions,
+  getUser,
+}) => {
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { error } = useTypedSelector((state) => state.CitizenReducer);
+  const { error, citizen } = useTypedSelector((state) => state.CitizenReducer);
   const [showNotification, changeShowNotification] = useState(false);
   const [needUpdateAccountInfo, changeNeedUpdateAccountInfo] = useState(true);
-  const { userSuccess, citizenSuccess, citizenErrors } = useActions();
-  const logout = useLogout();
+  const { citizenErrors } = useActions();
 
   const getAccountInfo = async () => {
-    let response = null;
     if (['На подтверждении', 'Отклонен'].some((el) => el === user.account_status)) {
-      response = await getUserRequest(logout);
-      if (response) userSuccess(response);
+      await getUser();
     }
     if (error) citizenErrors(null);
-    response = await getCitizenRequest(logout);
-    if (response) citizenSuccess(response);
+    if (
+      user.role === 'citizen' &&
+      (citizen.length === 1 ||
+        ['Отклонена', 'На подтверждении'].some((el) =>
+          citizen.some((item) => item.approving_status === el),
+        ))
+    ) {
+      await getCitizenPossessions();
+    }
     changeNeedUpdateAccountInfo(false);
   };
 
@@ -50,6 +63,8 @@ export const AboutMe: FC<IProps> = ({ changeNeedShowCreatePossessionForm }) => {
               changeNeedShowNotification={changeShowNotification}
               changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
               changeNeedUpdateAccountInfo={changeNeedUpdateAccountInfo}
+              getBuildings={getBuildings}
+              getPossessions={getPossessions}
             />
           )}
           {user.role === 'citizen' && needUpdateAccountInfo && <LoadingSkeleton />}

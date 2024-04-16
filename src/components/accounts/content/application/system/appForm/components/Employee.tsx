@@ -52,6 +52,7 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
                 ? true
                 : false
             }
+            status={error && error.type === 'employee' ? 'error' : undefined}
             options={workers.map((el) => ({
               value: el.id,
               label: el.employee,

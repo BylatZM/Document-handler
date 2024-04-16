@@ -5,7 +5,7 @@ export const DefaultAppForm: IGisApplication = {
   employee: null,
   status: {
     id: 1,
-    appStatus: '',
+    appStatus: 'Новая',
   },
   priority: {
     id: 0,

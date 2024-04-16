@@ -1,5 +1,10 @@
 import { FC, useState } from 'react';
-import { ICitizen, ICitizenLoading } from '../../../../../../types';
+import {
+  IBuildingWithComplex,
+  ICitizen,
+  ICitizenLoading,
+  IPossession,
+} from '../../../../../../types';
 import { Button, ConfigProvider } from 'antd';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { useActions } from '../../../../../../hooks/useActions';
@@ -20,8 +25,8 @@ interface IProp {
   loadingForm: ICitizenLoading;
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
-  getPossessions: (type: string, building_id: string) => Promise<void>;
-  getBuildings: (complex_id: string) => Promise<void>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
 }
 

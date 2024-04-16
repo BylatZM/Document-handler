@@ -32,7 +32,7 @@ export interface IAuthState {
   isLoading: boolean;
 }
 
-export type IPosLoading = 'complex' | 'building' | 'possession' | 'notApproved' | null;
+export type IPosLoading = 'complexes' | 'buildings' | 'possessions' | null;
 
 export interface IHelpFormRequest {
   name: string;
@@ -55,6 +55,18 @@ export interface IUserState {
   error: IError | null;
 }
 
+export type IAppLoading =
+  | 'applications'
+  | 'gisApplications'
+  | 'types'
+  | 'grades'
+  | 'employs'
+  | 'sources'
+  | 'priorities'
+  | 'statuses'
+  | 'subtypes'
+  | null;
+
 export interface IApplicationState {
   applications: IApplication[];
   gisApplications: IGisApplication[];
@@ -65,7 +77,7 @@ export interface IApplicationState {
   priorities: IPriority[];
   statuses: IStatus[];
   subtypes: ISubtype[];
-  isLoading: boolean;
+  isLoading: IAppLoading;
   error: IError | null;
 }
 

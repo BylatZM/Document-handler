@@ -128,7 +128,7 @@ export const GisTable: FC<IProps> = ({
       bordered
       pagination={tableParams.pagination}
       onChange={handleTableChange}
-      loading={isLoading}
+      loading={isLoading === 'gisApplications' ? true : false}
       locale={{
         emptyText: <span className='font-bold text-lg'>Нет данных</span>,
       }}

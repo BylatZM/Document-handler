@@ -3,17 +3,22 @@ import { Possessions } from './components/Possessions';
 import { useActions } from '../../../../hooks/useActions';
 import { FC, useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
+import { IBuildingWithComplex, IPossession } from '../../../../types';
 
 interface IProps {
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
 }
 
 export const Main: FC<IProps> = ({
   changeNeedShowNotification,
   changeNeedShowCreatePossessionForm,
   changeNeedUpdateAccountInfo,
+  getBuildings,
+  getPossessions,
 }) => {
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { error } = useTypedSelector((state) => state.CitizenReducer);
@@ -57,6 +62,8 @@ export const Main: FC<IProps> = ({
           changeUpdatingFormId={changeUpdatingFormId}
           updatingFormId={updatingFormId}
           changeNeedShowNotification={changeNeedShowNotification}
+          getBuildings={getBuildings}
+          getPossessions={getPossessions}
         />
       ))}
     </>

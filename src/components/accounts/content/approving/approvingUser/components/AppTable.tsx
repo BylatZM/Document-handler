@@ -104,6 +104,8 @@ export const AppTable: FC<IProps> = ({
         changeProcessingRow((prev) => null);
         changeTableInfo(tableInfo.filter((el) => el.id !== user_id));
       }, 2000);
+    } else {
+      changeProcessingRow((prev) => null);
     }
   };
 
@@ -127,6 +129,8 @@ export const AppTable: FC<IProps> = ({
           }),
         );
       }, 2000);
+    } else {
+      changeProcessingRow((prev) => null);
     }
   };
 
@@ -146,6 +150,8 @@ export const AppTable: FC<IProps> = ({
         changeProcessingRow((prev) => null);
         changeIsFormActive(true);
       }, 2000);
+    } else {
+      changeProcessingRow((prev) => null);
     }
   };
 

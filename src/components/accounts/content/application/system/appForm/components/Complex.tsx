@@ -82,8 +82,6 @@ export const Complex: FC<IProps> = ({
           className='h-[50px]'
           value={!data.complex.id ? undefined : data.complex.id}
           onChange={(e: number) => {
-            if (possessions.length) possessionSuccess([]);
-            if (buildings.length) buildingSuccess([]);
             if (error) applicationError(null);
             getBuildings(e.toString());
             const new_complex = complexes.filter((el) => el.id === e);

@@ -29,6 +29,7 @@ import {
   getSubTypes,
   getGisApplication,
   updateGisApplication,
+  updateGisAppStatusOnClose,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -174,6 +175,39 @@ export const updateGisAppRequest = async (
   const applicationRequest = async (): Promise<IError | 200 | 401 | void> => {
     try {
       await updateGisApplication(id, data);
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) return e.response.data;
+          else errorAlert(e.response.status);
+        }
+      }
+    }
+  };
+
+  const response = await applicationRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await applicationRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const updateGisAppStatusOnCloseRequest = async (
+  id: string,
+  logout: () => void,
+): Promise<200 | void> => {
+  const applicationRequest = async (): Promise<200 | 401 | void> => {
+    try {
+      await updateGisAppStatusOnClose(id);
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

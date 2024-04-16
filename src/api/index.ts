@@ -142,6 +142,9 @@ export const updateGisApplication = (
 ): AxiosPromise<void | IError> =>
   axiosInstance.put(endpoints.gisApplication.update + `/${application_id}`, data);
 
+export const updateGisAppStatusOnClose = (application_id: string): AxiosPromise<void | IError> =>
+  axiosInstance.put(endpoints.gisApplication.updateStatusOnClose + `/${application_id}`);
+
 export const getApplication = (
   page: string,
   page_size: string,

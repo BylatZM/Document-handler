@@ -27,6 +27,7 @@ export const UserReducer = createSlice({
     },
     userSuccess: (state, { payload }: PayloadAction<IUser>) => {
       state.user = payload;
+      state.isLoading = false;
     },
     userError: (state, { payload }: PayloadAction<IError | null>) => {
       state.error = payload;

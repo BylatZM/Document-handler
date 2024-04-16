@@ -1,15 +1,18 @@
 import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { FC } from 'react';
-import { IGisApplication, IRole } from '../../../../../../types';
+import { IError, IGisApplication, IRole } from '../../../../../../types';
+import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
   data: IGisApplication;
   role: IRole;
   changeData: React.Dispatch<React.SetStateAction<IGisApplication>>;
+  error: IError | null;
 }
 
-export const TimeSlot: FC<IProps> = ({ data, role, changeData }) => {
+export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
+  const { applicationError } = useActions();
   const dateCalculator = (days: number, creatingDate: string): string => {
     const [dmy, hms] = creatingDate.split(' ');
     const currentDate = new Date(`${dmy.split('.').reverse().join('-')}T${hms}`);
@@ -73,13 +76,20 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData }) => {
         <span>Комментарий исполнителя</span>
         <TextArea
           value={!data.employee_comment ? undefined : data.employee_comment}
-          onChange={(e) => changeData((prev) => ({ ...prev, employee_comment: e.target.value }))}
+          onChange={(e) => {
+            if (error) applicationError(null);
+            changeData((prev) => ({ ...prev, employee_comment: e.target.value }));
+          }}
           className='rounded-md h-[60px] text-base'
           maxLength={500}
           rows={5}
+          status={error && error.type === 'employee_comment' ? 'error' : undefined}
           style={{ resize: 'none' }}
           disabled={role === 'dispatcher' || data.status.appStatus !== 'В работе' ? true : false}
         />
+        {error && error.type === 'employee_comment' && (
+          <span className='errorText'>{error.error}</span>
+        )}
       </div>
     </div>
   );

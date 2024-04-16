@@ -1,12 +1,7 @@
 import { FC, useState } from 'react';
-import { IBuilding, ICitizen, IPossession } from '../../../../../types';
+import { IBuilding, IBuildingWithComplex, ICitizen, IPossession } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
-import {
-  getBuildingsRequest,
-  getPossessionsRequest,
-} from '../../../../../../api/requests/Possession';
-import { useLogout } from '../../../../../hooks/useLogout';
 import { FrontScore } from './inputs/FrontScore';
 import { PossessionType } from './inputs/PossessionType';
 import { OwnershipStatus } from './inputs/OwnershipStatus';
@@ -27,6 +22,8 @@ interface ICitizenFormProps {
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   updatingFormId: number | null;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
 }
 
 export const Possessions: FC<ICitizenFormProps> = ({
@@ -35,14 +32,15 @@ export const Possessions: FC<ICitizenFormProps> = ({
   changeUpdatingFormId,
   updatingFormId,
   changeNeedShowNotification,
+  getBuildings,
+  getPossessions,
 }) => {
-  const { citizenErrors, possessionSuccess, buildingSuccess } = useActions();
+  const { citizenErrors } = useActions();
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
-  const isLoadingPossession = useTypedSelector((state) => state.PossessionReducer.isLoading);
+  const possessionLoadingField = useTypedSelector((state) => state.PossessionReducer.isLoading);
   const { complexes, buildings, possessions } = useTypedSelector(
     (state) => state.PossessionReducer,
   );
-  const logout = useLogout();
   const [formData, changeFormData] = useState<ICitizen>(data.info);
   const emptyPossession: IPossession = {
     id: 0,
@@ -55,27 +53,6 @@ export const Possessions: FC<ICitizenFormProps> = ({
     building: '',
   };
 
-  const getBuildings = async (complex_id: string) => {
-    buildingSuccess([]);
-    const response = await getBuildingsRequest(complex_id, logout);
-
-    if (!response) return;
-
-    buildingSuccess(response);
-  };
-
-  const getPossessions = async (type: string, building_id: string) => {
-    possessionSuccess([]);
-    const response = await getPossessionsRequest(type, building_id, logout);
-
-    if (!response) return;
-
-    if ('type' in response) {
-      citizenErrors({ form_id: data.key, error: response });
-      return;
-    }
-    possessionSuccess(response);
-  };
   return (
     <>
       <PossessionStatus data={formData} form_id={data.key} />
@@ -114,7 +91,6 @@ export const Possessions: FC<ICitizenFormProps> = ({
         citizenErrors={citizenErrors}
         getBuildings={getBuildings}
         loadingForm={isLoading}
-        loadingPossession={isLoadingPossession}
         complexes={complexes}
         emptyPossession={emptyPossession}
         emptyBuilding={emptyBuilding}
@@ -130,6 +106,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         buildings={buildings}
         error={error}
         emptyPossession={emptyPossession}
+        possessionLoadingField={possessionLoadingField}
       />
       <Possession
         data={formData}
@@ -140,6 +117,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         citizenErrors={citizenErrors}
         loadingForm={isLoading}
         possessions={possessions}
+        possessionLoadingField={possessionLoadingField}
       />
       <Buttons
         data={formData}

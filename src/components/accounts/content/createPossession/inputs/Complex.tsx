@@ -1,10 +1,10 @@
 import { Select } from 'antd';
-import { IApprovePossession, IComplex } from '../../../../types';
+import { IApprovePossession, IBuildingWithComplex, IComplex } from '../../../../types';
 import { FC } from 'react';
 
 interface IProps {
   complexes: IComplex[];
-  getBuildings: (complex_id: string) => Promise<void>;
+  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
   data: IApprovePossession;
   changeData: React.Dispatch<React.SetStateAction<IApprovePossession>>;
 }
