@@ -34,21 +34,28 @@ export const CreatePossession: FC<IProps> = ({
   const logout = useLogout();
   const [needInitializeForm, changeNeedInitializeForm] = useState(true);
 
-  useEffect(() => {
+  const InitForm = async () => {
     if (!complexes.length || !needInitializeForm || !needShowForm) return;
 
+    let builds: IBuildingWithComplex[] = [];
     if (!buildings.length) {
-      getBuildings(complexes[0].id.toString());
-    } else {
-      const complex = complexes.filter((el) => el.name === buildings[0].complex)[0];
-      changeFormData((prev) => ({
-        ...prev,
-        building: buildings[0].id,
-        complex: complex.id,
-      }));
-      changeNeedInitializeForm(false);
-    }
-  }, [needShowForm, buildings]);
+      const response = await getBuildings(complexes[0].id.toString());
+      if (!response) return;
+      else builds = response;
+    } else builds = buildings;
+
+    const complex = complexes.filter((el) => el.name === builds[0].complex)[0];
+    changeFormData((prev) => ({
+      ...prev,
+      building: builds[0].id,
+      complex: complex.id,
+    }));
+    changeNeedInitializeForm(false);
+  };
+
+  useEffect(() => {
+    InitForm();
+  }, [needShowForm]);
 
   const exitFromForm = () => {
     changeNeedShowForm(false);
