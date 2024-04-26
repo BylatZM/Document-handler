@@ -239,7 +239,7 @@ export const AppForm: FC<IProps> = ({
               getSubtypes={getSubtypes}
               error={error}
             />
-            <Subtype
+            <SubType
               data={FormData}
               changeData={changeFormData}
               form_id={FormData.id}
