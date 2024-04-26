@@ -1,4 +1,4 @@
-import { getCitizenRequest, getUserRequest } from '../../api/requests/Person';
+import { getAllCitizenPossessionsRequest, getUserRequest } from '../../api/requests/User';
 import { Loading } from '../Loading/Loading';
 import { useActions } from '../hooks/useActions';
 import { Application } from './content/application/system/Application';
@@ -10,33 +10,32 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
 import {
-  getBuildingsRequest,
-  getComplexesRequest,
-  getPossessionsRequest,
+  getAllBuildingsByComplexIdRequest,
+  getAllComplexesRequest,
+  getAllPossessionsByExtraRequest,
 } from '../../api/requests/Possession';
 import {
-  getEmploysRequest,
-  getPrioritiesRequest,
-  getSourcesRequest,
-  getStatusesRequest,
-  getSubTypesRequest,
-  getTypesRequest,
+  getAllEmploysRequest,
+  getAllPrioritiesRequest,
+  getAllSourcesRequest,
+  getAllStatusesRequest,
+  getAllSubtypesByTypeIdRequest,
+  getAllTypesRequest,
 } from '../../api/requests/Application';
-import { ApprovingUser } from './content/approving/approvingUser/ApprovingUser';
 import { ApprovingUserPossession } from './content/approving/approvingUserPossession/ApprovingUserPossession';
 import { ErrorPage } from '../ErrorPage';
 import { ApprovingLivingSpace } from './content/approving/approvingLivingSpace/ApprovingLivingSpace';
 import { GisApplication } from './content/application/gis/GisApplication';
 import { CreatePossession } from './content/createPossession/CreatePossession';
 import { HelpForm } from './content/helpForm/HelpForm';
-import { IBuildingWithComplex, IPossession, ISubtype } from '../types';
+import { IBuildingWithComplex, ICitizenPossession, IError, IPossession, ISubtype } from '../types';
 
 export const Account = () => {
   const logout = useLogout();
   const navigate = useNavigate();
   const [isOpened, changeIsOpened] = useState(false);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { citizen } = useTypedSelector((state) => state.CitizenReducer);
+  const { citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
   const { pathname } = useLocation();
   const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
   const [needShowCreatePossessionForm, changeNeedShowCreatePossessionForm] = useState(false);
@@ -54,12 +53,13 @@ export const Account = () => {
     buildingSuccess,
     possessionSuccess,
     applicationError,
+    possessionError,
     applicationLoading,
     userLoading,
   } = useActions();
   const [IsRequested, changeIsRequested] = useState(true);
 
-  const get_user_data = async () => {
+  const getUserBaseInfo = async () => {
     const user = await getUser();
 
     if (!user) return;
@@ -68,17 +68,17 @@ export const Account = () => {
       logout();
       return;
     }
-    // if (user.role === 'dispatcher') {
-    //   const employs = await getEmploysRequest(logout);
-    //   if (employs) employsSuccess(employs);
-    // }
     if (user.role !== 'executor') {
-      await getComplexes();
+      await getAllComplexes();
     }
-    if (user.account_status === 'Подтвержден') {
+    if (user.role === 'citizen') {
+      const response = await getCitizenPossessions();
+      if (response && response.some((el) => el.approving_status === 'Подтверждена')) {
+        navigate('/account/applications');
+      }
+    }
+    if (['dispatcher', 'executor'].some((el) => el === user.role))
       navigate('/account/applications');
-      if (user.role === 'citizen') await getCitizenPossessions();
-    }
   };
 
   const getUser = async () => {
@@ -94,17 +94,18 @@ export const Account = () => {
     return user;
   };
 
-  const getCitizenPossessions = async () => {
-    const citizenPossessions = await getCitizenRequest(logout);
+  const getCitizenPossessions = async (): Promise<ICitizenPossession[] | void> => {
+    const citizenPossessions = await getAllCitizenPossessionsRequest(logout);
 
     if (!citizenPossessions) return;
 
     citizenSuccess(citizenPossessions);
+    return citizenPossessions;
   };
 
   const getTypes = async () => {
     applicationLoading('types');
-    const types = await getTypesRequest(logout);
+    const types = await getAllTypesRequest(logout);
 
     if (!types) {
       applicationLoading(null);
@@ -115,7 +116,7 @@ export const Account = () => {
 
   const getPriorities = async () => {
     applicationLoading('priorities');
-    const priorities = await getPrioritiesRequest(logout);
+    const priorities = await getAllPrioritiesRequest(logout);
 
     if (!priorities) {
       applicationLoading(null);
@@ -126,7 +127,7 @@ export const Account = () => {
 
   const getSources = async () => {
     applicationLoading('sources');
-    const sources = await getSourcesRequest(logout);
+    const sources = await getAllSourcesRequest(logout);
 
     if (!sources) {
       applicationLoading(null);
@@ -138,7 +139,7 @@ export const Account = () => {
 
   const getStatuses = async () => {
     applicationLoading('statuses');
-    const statuses = await getStatusesRequest(logout);
+    const statuses = await getAllStatusesRequest(logout);
 
     if (!statuses) {
       applicationLoading(null);
@@ -150,7 +151,7 @@ export const Account = () => {
 
   const getEmploys = async () => {
     applicationLoading('employs');
-    const employs = await getEmploysRequest(logout);
+    const employs = await getAllEmploysRequest(logout);
 
     if (!employs) {
       applicationLoading(null);
@@ -160,9 +161,9 @@ export const Account = () => {
     employsSuccess(employs);
   };
 
-  const getComplexes = async () => {
+  const getAllComplexes = async () => {
     possessionLoading('complexes');
-    const complexes = await getComplexesRequest(logout);
+    const complexes = await getAllComplexesRequest(logout);
 
     if (!complexes) {
       possessionLoading(null);
@@ -172,11 +173,13 @@ export const Account = () => {
     complexSuccess(complexes);
   };
 
-  const getBuildings = async (complex_id: string): Promise<IBuildingWithComplex[] | void> => {
+  const getAllBuildingsByComplexId = async (
+    complex_id: string,
+  ): Promise<IBuildingWithComplex[] | void> => {
     buildingSuccess([]);
     possessionSuccess([]);
     possessionLoading('buildings');
-    const builds = await getBuildingsRequest(complex_id, logout);
+    const builds = await getAllBuildingsByComplexIdRequest(complex_id, logout);
 
     if (!builds) {
       possessionLoading(null);
@@ -189,7 +192,7 @@ export const Account = () => {
 
   const getSubtypes = async (id: string): Promise<ISubtype[] | void> => {
     applicationLoading('subtypes');
-    const subtypes = await getSubTypesRequest(logout, id);
+    const subtypes = await getAllSubtypesByTypeIdRequest(logout, id);
 
     if (!subtypes) {
       applicationLoading(null);
@@ -200,22 +203,21 @@ export const Account = () => {
     return subtypes;
   };
 
-  const getPossessions = async (
+  const getAllPossessionsByExtra = async (
     type: string,
     building_id: string,
-  ): Promise<void | IPossession[]> => {
+  ): Promise<void | IPossession[] | IError> => {
     possessionSuccess([]);
     possessionLoading('possessions');
-    const possessions = await getPossessionsRequest(type, building_id, logout);
+    const possessions = await getAllPossessionsByExtraRequest(type, building_id, logout);
 
     if (!possessions) {
       possessionLoading(null);
       return;
     }
-
     if ('type' in possessions) {
-      applicationError(possessions);
       possessionLoading(null);
+      return possessions;
     } else {
       possessionSuccess(possessions);
       return possessions;
@@ -223,7 +225,7 @@ export const Account = () => {
   };
 
   const makeRequest = async () => {
-    await get_user_data();
+    await getUserBaseInfo();
     changeIsRequested(false);
   };
 
@@ -236,32 +238,39 @@ export const Account = () => {
       return (
         <AboutMe
           changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
-          getBuildings={getBuildings}
+          getAllBuildingsByComplexId={getAllBuildingsByComplexId}
           getCitizenPossessions={getCitizenPossessions}
-          getPossessions={getPossessions}
-          getUser={getUser}
+          getPossessions={getAllPossessionsByExtra}
         />
       );
     if (pathname === '/account/applications') {
       if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role))
         return <ErrorPage message='Страница не найдена' />;
-      if (user.role !== 'citizen' && user.account_status !== 'Подтвержден')
-        return <ErrorPage message='Ваш аккаунт не подтвержден' />;
-      if (user.role === 'citizen' && user.account_status !== 'Подтвержден')
-        return (
-          <ErrorPage
-            message={`Ваш аккаунт еще не подтвержден. Для того чтобы иметь возможность подавать заявки Вам нужно в разделе "Обо мне" указать фамилию, имя, отчество (при наличии), номер телефона, а также собственность, после чего дождаться уведомления (на почту ${user.email}) о подтверждении аккаунта диспетчером`}
-          />
-        );
-      if (user.role === 'citizen' && !citizen.some((el) => el.approving_status === 'Подтверждена'))
-        return (
-          <ErrorPage message='У Вас нет ни одной собственности со статусом "Подтверждена", возможно вам стоит дождаться их подтверждения со стороны диспетчера или обратиться в техподдержку' />
-        );
-
+      if (user.role === 'citizen') {
+        if (citizenPossessions.length === 1 && citizenPossessions[0].id < 1) {
+          return (
+            <ErrorPage
+              message={`Для того чтобы иметь возможность подавать заявки Вам нужно в разделе "Обо мне" указать фамилию, имя, отчество (при наличии), номер телефона, а также собственность, после чего дождаться уведомления (на почту ${user.email}) о подтверждении Вашего имущества диспетчером`}
+            />
+          );
+        }
+        if (
+          (citizenPossessions.length === 1 &&
+            citizenPossessions[0].approving_status !== 'Подтверждена') ||
+          (citizenPossessions.length > 1 &&
+            !citizenPossessions.some((el) => el.approving_status === 'Подтверждена'))
+        ) {
+          return (
+            <ErrorPage
+              message={`У ни одной заданной Вами собственности на данный момент нет статуса "Подтверждена". Вам следует дождаться подтверждения хотя бы одной из них, для того чтобы иметь возможност подавать заявки. Уведомление об одобрении или отказе имущества придет на почту ${user.email}`}
+            />
+          );
+        }
+      }
       return (
         <Application
-          getPossessions={getPossessions}
-          getBuildings={getBuildings}
+          getPossessions={getAllPossessionsByExtra}
+          getAllBuildingsByComplexId={getAllBuildingsByComplexId}
           getPriorities={getPriorities}
           getSources={getSources}
           getStatuses={getStatuses}
@@ -282,9 +291,6 @@ export const Account = () => {
         />
       );
     }
-    if (pathname === '/account/approve/user' && user.role === 'dispatcher')
-      return <ApprovingUser />;
-
     if (pathname === '/account/approve/living_space' && user.role === 'dispatcher')
       return <ApprovingLivingSpace />;
 
@@ -307,7 +313,7 @@ export const Account = () => {
         <CreatePossession
           needShowForm={needShowCreatePossessionForm}
           changeNeedShowForm={changeNeedShowCreatePossessionForm}
-          getBuildings={getBuildings}
+          getAllBuildingsByComplexId={getAllBuildingsByComplexId}
         />
         {GetCurrentFrame(pathname)}
       </div>

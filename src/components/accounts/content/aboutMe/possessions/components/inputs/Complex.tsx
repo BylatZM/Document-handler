@@ -2,20 +2,19 @@ import { FC } from 'react';
 import { Select } from 'antd';
 import {
   IBuilding,
-  ICitizen,
+  ICitizenPossession,
   ICitizenError,
   ICitizenLoading,
   IComplex,
-  IPosLoading,
   IPossession,
 } from '../../../../../../types';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
   error: ICitizenError | null;
   updatingFormId: number | null;
-  changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
+  changeFormData: React.Dispatch<React.SetStateAction<ICitizenPossession>>;
   citizenErrors: (error: ICitizenError | null) => void;
   getBuildings: (complex_id: string) => void;
   loadingForm: ICitizenLoading;

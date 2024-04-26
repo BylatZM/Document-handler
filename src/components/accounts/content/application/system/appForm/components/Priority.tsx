@@ -29,9 +29,9 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
                   : false
               }
               onChange={(e: number) => {
-                const new_priority = priorities.filter((el) => el.id === e);
-                if (!new_priority.length) return;
-                changeFormData((prev) => ({ ...prev, priority: { ...new_priority[0] } }));
+                const newPriority = priorities.filter((el) => el.id === e);
+                if (!newPriority.length) return;
+                changeFormData((prev) => ({ ...prev, priority: { ...newPriority[0] } }));
               }}
               options={priorities.map((el) => ({
                 value: el.id,

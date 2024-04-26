@@ -12,7 +12,7 @@ import { Buttons } from './button/Buttons';
 interface IProps {
   needShowForm: boolean;
   changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
 }
 
 const defaultPossessionInfo: IApprovePossession = {
@@ -25,7 +25,7 @@ const defaultPossessionInfo: IApprovePossession = {
 export const CreatePossession: FC<IProps> = ({
   needShowForm,
   changeNeedShowForm,
-  getBuildings,
+  getAllBuildingsByComplexId,
 }) => {
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
   const { user, isLoading } = useTypedSelector((state) => state.UserReducer);
@@ -39,7 +39,7 @@ export const CreatePossession: FC<IProps> = ({
 
     let builds: IBuildingWithComplex[] = [];
     if (!buildings.length) {
-      const response = await getBuildings(complexes[0].id.toString());
+      const response = await getAllBuildingsByComplexId(complexes[0].id.toString());
       if (!response) return;
       else builds = response;
     } else builds = buildings;
@@ -72,11 +72,13 @@ export const CreatePossession: FC<IProps> = ({
       )}
     >
       <div className='sm:min-w-[500px] sm:max-w-[500px] min-w-[250px] max-w-[250px] h-fit bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5'>
-        <div className='text-xl font-bold text-center mb-4'>Добавить собственность</div>
+        <div className='text-xl font-bold text-center mb-4'>
+          Добавить недостающую жил. площадь в список вариантов выбора
+        </div>
         <div className='flex flex-col gap-4'>
           <Complex
             complexes={complexes}
-            getBuildings={getBuildings}
+            getAllBuildingsByComplexId={getAllBuildingsByComplexId}
             data={formData}
             changeData={changeFormData}
           />

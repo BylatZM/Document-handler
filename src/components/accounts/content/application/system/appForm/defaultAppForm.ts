@@ -25,7 +25,12 @@ export const defaultAppForm: IApplication = {
     appClass: '',
   },
   id: 0,
-  subtype: null,
+  subtype: {
+    id: 0,
+    type: '',
+    subtype: '',
+    normative: 0,
+  },
   possession: {
     id: 0,
     address: '',
@@ -44,7 +49,10 @@ export const defaultAppForm: IApplication = {
     id: 1,
     appStatus: 'Новая',
   },
-  type: null,
+  type: {
+    id: 0,
+    appType: '',
+  },
   employeeComment: '',
   user: {
     role: '',

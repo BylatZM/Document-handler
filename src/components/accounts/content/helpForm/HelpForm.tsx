@@ -14,21 +14,21 @@ interface IHelpFormProps {
 
 export const HelpForm: FC<IHelpFormProps> = ({ needShowForm, changeNeedShowForm }) => {
   const [isAgreementChecked, changeIsAgreementCheckedChecked] = useState(true);
-  const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
-  const { processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
+  const { citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
+  const { processedPossessions, info } = useTypedSelector((state) => state.HelpFormReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { helpFormName, helpFormContact, helpFormPossessions, helpFormAddress } = useActions();
 
   useEffect(() => {
     if (!needShowForm) return;
 
-    if (!processed_possessions && possessions[0].id !== 0) {
+    if (!processedPossessions && citizenPossessions[0].id !== 0) {
       let poss_processed = null;
-      poss_processed = possessions.map((item) => {
+      poss_processed = citizenPossessions.map((item) => {
         let possessionType = 'парковка';
-        if (item.possessionType === '1') possessionType = 'квартира';
-        if (item.possessionType === '2') possessionType = 'офис';
-        if (item.possessionType === '4') possessionType = 'кладовка';
+        if (item.possession_type === '1') possessionType = 'квартира';
+        if (item.possession_type === '2') possessionType = 'офис';
+        if (item.possession_type === '4') possessionType = 'кладовка';
         return (
           item.complex.name +
           ', ' +

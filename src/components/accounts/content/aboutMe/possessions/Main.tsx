@@ -3,13 +3,13 @@ import { Possessions } from './components/Possessions';
 import { useActions } from '../../../../hooks/useActions';
 import { FC, useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import { IBuildingWithComplex, IPossession } from '../../../../types';
+import { IBuildingWithComplex, IError, IPossession } from '../../../../types';
 
 interface IProps {
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
-  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
   getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
 }
 
@@ -20,11 +20,21 @@ export const Main: FC<IProps> = ({
   getBuildings,
   getPossessions,
 }) => {
-  const { user } = useTypedSelector((state) => state.UserReducer);
-  const { error } = useTypedSelector((state) => state.CitizenReducer);
+  const { error, citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
   const { addCitizenForm, citizenErrors } = useActions();
   const [updatingFormId, changeUpdatingFormId] = useState<number | null>(null);
-  const citizens = useTypedSelector((state) => state.CitizenReducer.citizen);
+
+  const checkPossessionsRequestOnError = async (
+    form_id: number,
+    possession_type: string,
+    building_id: string,
+  ): Promise<void> => {
+    const response = await getPossessions(possession_type, building_id);
+    if (!response) return;
+    if ('type' in response) {
+      citizenErrors({ form_id: form_id, error: response });
+    }
+  };
 
   return (
     <>
@@ -37,7 +47,9 @@ export const Main: FC<IProps> = ({
             if (error) citizenErrors(null);
             addCitizenForm();
           }}
-          disabled={user.account_status !== 'Подтвержден'}
+          disabled={
+            citizenPossessions.some((el) => el.approving_status === 'Подтверждена') ? false : true
+          }
         >
           Добавить собственность
         </Button>
@@ -49,11 +61,11 @@ export const Main: FC<IProps> = ({
         </Button>
       </div>
 
-      {citizens.map((el, index) => (
+      {citizenPossessions.map((el, index) => (
         <Possessions
           key={index}
           data={{
-            key: !el.id ? -1 * citizens.length : el.id,
+            key: !el.id ? -1 * citizenPossessions.length : el.id,
             info: el,
             isFirstItem: index === 0 ? true : false,
             isNew: el.id < 1 ? true : false,
@@ -63,7 +75,7 @@ export const Main: FC<IProps> = ({
           updatingFormId={updatingFormId}
           changeNeedShowNotification={changeNeedShowNotification}
           getBuildings={getBuildings}
-          getPossessions={getPossessions}
+          checkPossessionsRequestOnError={checkPossessionsRequestOnError}
         />
       ))}
     </>

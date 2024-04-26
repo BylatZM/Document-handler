@@ -18,7 +18,7 @@ export const DefaultAppForm: IGisApplication = {
   type: '',
   applicant_сomment: '',
   dispatcher_comment: null,
-  employee_comment: null,
+  employee_comment: '',
   creating_date: '',
   due_date: null,
   possession_address: '',

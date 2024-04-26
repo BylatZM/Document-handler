@@ -37,11 +37,11 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
             value={!data.employee.id ? undefined : data.employee.id}
             onChange={(e: number) => {
               if (error) applicationError(null);
-              const new_worker = workers.filter((el) => el.id === e);
-              if (!new_worker.length) return;
+              const newExecutor = workers.filter((el) => el.id === e);
+              if (!newExecutor.length) return;
               changeFormData((prev) => ({
                 ...prev,
-                employee: { ...new_worker[0] },
+                employee: { ...newExecutor[0] },
               }));
             }}
             disabled={

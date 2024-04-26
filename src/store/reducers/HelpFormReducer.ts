@@ -11,7 +11,7 @@ const initHelpFormInfo: IHelpFormRequest = {
 
 const initialState: IHelpFormState = {
   info: initHelpFormInfo,
-  processed_possessions: null,
+  processedPossessions: null,
   isLoading: false,
   error: null,
 };
@@ -33,7 +33,7 @@ export const HelpFormReducer = createSlice({
       state.info.address = payload;
     },
     helpFormPossessions: (state, { payload }: PayloadAction<string[] | null>) => {
-      state.processed_possessions = payload;
+      state.processedPossessions = payload;
     },
     helpFormInfoSuccess: (state, { payload }: PayloadAction<IHelpFormRequest>): IHelpFormState => {
       return { ...state, info: { ...payload }, isLoading: false };

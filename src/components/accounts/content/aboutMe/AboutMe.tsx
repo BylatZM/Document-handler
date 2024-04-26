@@ -5,39 +5,34 @@ import { FC, useEffect, useState } from 'react';
 import { Notification } from './Notification';
 import { useActions } from '../../../hooks/useActions';
 import { LoadingSkeleton } from './possessions/LoadingSkeleton';
-import { IBuildingWithComplex, IPossession, IUser } from '../../../types';
+import { IBuildingWithComplex, ICitizenPossession, IError, IPossession } from '../../../types';
 
 interface IProps {
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
-  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
-  getUser: () => Promise<void | IUser>;
-  getCitizenPossessions: () => Promise<void>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getCitizenPossessions: () => Promise<ICitizenPossession[] | void>;
 }
 
 export const AboutMe: FC<IProps> = ({
   changeNeedShowCreatePossessionForm,
   getPossessions,
-  getBuildings,
+  getAllBuildingsByComplexId,
   getCitizenPossessions,
-  getUser,
 }) => {
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { error, citizen } = useTypedSelector((state) => state.CitizenReducer);
+  const { error, citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
   const [showNotification, changeShowNotification] = useState(false);
   const [needUpdateAccountInfo, changeNeedUpdateAccountInfo] = useState(true);
   const { citizenErrors } = useActions();
 
-  const getAccountInfo = async () => {
-    if (['На подтверждении', 'Отклонен'].some((el) => el === user.account_status)) {
-      await getUser();
-    }
+  const getCitizenPossessionInfo = async () => {
     if (error) citizenErrors(null);
     if (
       user.role === 'citizen' &&
-      (citizen.length === 1 ||
+      (citizenPossessions.length === 1 ||
         ['Отклонена', 'На подтверждении'].some((el) =>
-          citizen.some((item) => item.approving_status === el),
+          citizenPossessions.some((item) => item.approving_status === el),
         ))
     ) {
       await getCitizenPossessions();
@@ -46,7 +41,7 @@ export const AboutMe: FC<IProps> = ({
   };
 
   useEffect(() => {
-    if (needUpdateAccountInfo && user.role === 'citizen') getAccountInfo();
+    if (needUpdateAccountInfo && user.role === 'citizen') getCitizenPossessionInfo();
   }, [needUpdateAccountInfo]);
 
   return (
@@ -54,16 +49,13 @@ export const AboutMe: FC<IProps> = ({
       <Notification needShowForm={showNotification} changeNeedShowForm={changeShowNotification} />
       <div className='mt-[68px] max-sm:mt-[96px] fixed inset-0 overflow-auto'>
         <div className='w-[250px] mt-4 sm:w-[500px] flex flex-col gap-4 mx-auto p-2'>
-          <General
-            changeNeedShowNotification={changeShowNotification}
-            changeNeedUpdateAccountInfo={changeNeedUpdateAccountInfo}
-          />
+          <General />
           {user.role === 'citizen' && !needUpdateAccountInfo && (
             <Main
               changeNeedShowNotification={changeShowNotification}
               changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
               changeNeedUpdateAccountInfo={changeNeedUpdateAccountInfo}
-              getBuildings={getBuildings}
+              getBuildings={getAllBuildingsByComplexId}
               getPossessions={getPossessions}
             />
           )}

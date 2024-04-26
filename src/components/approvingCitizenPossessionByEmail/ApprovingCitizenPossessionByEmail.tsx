@@ -1,21 +1,21 @@
 import { useSearchParams } from 'react-router-dom';
-import { IApproveUserByLink, IError } from '../types';
+import { IUpdateCitizenPossessionStatusByEmail, IError } from '../types';
 import { useEffect, useState } from 'react';
-import { approveUserByLinkRequest } from '../../api/requests/Person';
+import { UpdateCitizenPossessionStatusByEmailRequest } from '../../api/requests/User';
 import { AiOutlineLoading } from 'react-icons/ai';
 import { BiError } from 'react-icons/bi';
 import { HiOutlineCheck } from 'react-icons/hi';
 
-export const ApprovingByLink = () => {
+export const ApprovingCitizenPossessionsByEmail = () => {
   const [searchParams] = useSearchParams();
   const [error, changeError] = useState<IError | null>(null);
   const [isLoading, changeIsLoading] = useState(false);
   const [isSuccess, changeIsSuccess] = useState(false);
 
-  const makeRequest = async (data: IApproveUserByLink) => {
+  const makeRequest = async (data: IUpdateCitizenPossessionStatusByEmail) => {
     changeError(null);
     changeIsLoading((prev) => true);
-    const response = await approveUserByLinkRequest(data);
+    const response = await UpdateCitizenPossessionStatusByEmailRequest(data);
     changeIsLoading((prev) => false);
     if (!response) return;
 
@@ -23,12 +23,16 @@ export const ApprovingByLink = () => {
     else changeIsSuccess((prev) => true);
   };
   useEffect(() => {
-    if (!searchParams.has('id') || !searchParams.has('key') || !searchParams.has('operation'))
+    if (
+      !searchParams.has('id') ||
+      !searchParams.has('personal_account') ||
+      !searchParams.has('operation')
+    )
       changeError({ type: 'error', error: 'Неверно указаны параметры' });
     else {
       makeRequest({
         id: searchParams.get('id'),
-        key: searchParams.get('key'),
+        personal_account: searchParams.get('personal_account'),
         operation: searchParams.get('operation'),
       });
     }

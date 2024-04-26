@@ -13,7 +13,7 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData }) =>
   return (
     <div className='flex flex-col gap-2 w-full'>
       <span>исполнитель</span>
-      {['executor'].some((el) => el === role) && (
+      {role === 'executor' && (
         <Select
           className='h-[50px]'
           value={!data.employee ? undefined : data.employee.id}

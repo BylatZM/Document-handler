@@ -2,12 +2,10 @@ import { Select } from 'antd';
 import { FC } from 'react';
 import {
   IApplication,
-  IBuilding,
   IBuildingWithComplex,
-  ICitizen,
+  ICitizenPossession,
   IComplex,
   IError,
-  IPossession,
   IRole,
 } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
@@ -19,10 +17,8 @@ interface IProps {
   data: IApplication;
   complexes: IComplex[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  citizenPossessions: ICitizen[];
+  citizenPossessions: ICitizenPossession[];
   getBuildings: (complex_id: string) => Promise<void | IBuildingWithComplex[]>;
-  buildings: IBuilding[];
-  possessions: IPossession[];
   error: IError | null;
 }
 
@@ -34,11 +30,9 @@ export const Complex: FC<IProps> = ({
   changeFormData,
   citizenPossessions,
   getBuildings,
-  buildings,
-  possessions,
   error,
 }) => {
-  const { possessionSuccess, buildingSuccess, applicationError } = useActions();
+  const { applicationError } = useActions();
 
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
@@ -48,13 +42,13 @@ export const Complex: FC<IProps> = ({
           className='h-[50px]'
           value={!data.complex.id ? undefined : data.complex.id}
           onChange={(e) => {
-            const new_possession = citizenPossessions.filter((el) => el.complex.id === e);
-            if (!new_possession.length) return;
+            const newPossession = citizenPossessions.filter((el) => el.complex.id === e);
+            if (!newPossession.length) return;
             changeFormData((prev) => ({
               ...prev,
-              complex: { ...new_possession[0].complex },
-              building: { ...new_possession[0].building },
-              possession: { ...new_possession[0].possession },
+              complex: { ...newPossession[0].complex },
+              building: { ...newPossession[0].building },
+              possession: { ...newPossession[0].possession },
             }));
           }}
           disabled={form_id !== 0 ? true : false}
@@ -77,18 +71,18 @@ export const Complex: FC<IProps> = ({
           }
         />
       )}
-      {role === 'dispatcher' && complexes.length && (
+      {role === 'dispatcher' && (
         <Select
           className='h-[50px]'
           value={!data.complex.id ? undefined : data.complex.id}
           onChange={(e: number) => {
             if (error) applicationError(null);
+            const newComplex = complexes.filter((el) => el.id === e);
+            if (!newComplex.length) return;
             getBuildings(e.toString());
-            const new_complex = complexes.filter((el) => el.id === e);
-            if (!new_complex.length) return;
             changeFormData((prev) => ({
               ...prev,
-              complex: { ...new_complex[0] },
+              complex: { ...newComplex[0] },
               building: { ...defaultAppForm.building },
               possession: { ...defaultAppForm.possession },
             }));

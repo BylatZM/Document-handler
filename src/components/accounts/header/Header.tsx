@@ -21,7 +21,6 @@ export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
           {pathname === '/account/aboutMe' && 'Обо мне'}
           {pathname === '/account/applications' && 'Заявки'}
           {pathname === '/account/applications/gis' && 'Заявки с ГИС ЖКХ'}
-          {pathname === '/account/approve/user' && 'Подтверждение аккаунтов жителей'}
           {pathname === '/account/approve/citizen_possession' &&
             'Подтверждение собственностей жителей'}
           {pathname === '/account/approve/living_space' && 'Подтверждение жилплощади'}
@@ -36,8 +35,6 @@ export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
                 'В этом разделе Вы можете просматривать Ваши заявки и создавать новые'}
               {pathname === '/account/applications/gis' &&
                 'В этом разделе Вы можете просматривать Ваши заявки с ГИС ЖКХ'}
-              {pathname === '/account/approve/user' &&
-                'В этом разделе Вы можете подтвердить аккаунты жителей'}
               {pathname === '/account/approve/citizen_possession' &&
                 'В этом разделе Вы можете подтвердить собственности жителей'}
               {pathname === '/account/approve/living_space' &&

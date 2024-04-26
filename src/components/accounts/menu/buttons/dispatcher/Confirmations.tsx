@@ -32,21 +32,9 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
       <div
         className={clsx(
           'transitionGeneral flex flex-col overflow-hidden',
-          activeAccordion === 'confirmations' ? 'h-[180px]' : 'h-0',
+          activeAccordion === 'confirmations' ? 'h-[120px]' : 'h-0',
         )}
       >
-        <Link
-          to={'/account/approve/user'}
-          className={clsx(
-            'flex items-center py-2 rounded-md text-lg mb-4',
-            pathname.includes('/account/approve/user')
-              ? 'text-blue-700 blue-300 bg-blue-300'
-              : 'bg-gray-300',
-          )}
-        >
-          <FaUserCheck className='mr-4 ml-4' />
-          <span>Житель</span>
-        </Link>
         <Link
           to={'/account/approve/citizen_possession'}
           className={clsx(
@@ -69,7 +57,7 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
           )}
         >
           <BsFillBuildingsFill className='mr-4 ml-4' />
-          <span>Адрес жилплощади</span>
+          <span>Адрес жил. площади</span>
         </Link>
       </div>
     </>

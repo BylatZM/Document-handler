@@ -22,6 +22,12 @@ export const Type: FC<IProps> = ({
   getSubtypes,
   error,
 }) => {
+  const defaultSubtype: ISubtype = {
+    type: '',
+    subtype: '',
+    id: 0,
+    normative: 0,
+  };
   const { subTypesSuccess, applicationError } = useActions();
 
   const getSubtypesRequest = async (id: string) => {
@@ -37,7 +43,7 @@ export const Type: FC<IProps> = ({
         <>
           <Select
             className='h-[50px]'
-            value={!data.type ? undefined : data.type.id}
+            value={!data.type.id ? undefined : data.type.id}
             disabled={
               !types.length ||
               role === 'executor' ||
@@ -51,12 +57,12 @@ export const Type: FC<IProps> = ({
             }
             onChange={(e: number) => {
               if (error) applicationError(null);
-              const new_type = types.filter((el) => el.id === e);
-              if (!new_type.length) return;
+              const newType = types.filter((el) => el.id === e);
+              if (!newType.length) return;
               changeFormData((prev) => ({
                 ...prev,
-                type: { ...new_type[0] },
-                subtype: null,
+                type: { ...newType[0] },
+                subtype: defaultSubtype,
               }));
               getSubtypesRequest(e.toString());
             }}
@@ -72,9 +78,9 @@ export const Type: FC<IProps> = ({
       {role === 'executor' && (
         <Select
           className='h-[50px]'
-          value={!data.type ? undefined : data.type.id}
+          value={!data.type.id ? undefined : data.type.id}
           disabled
-          options={data.type ? [{ value: data.type.id, label: data.type.appType }] : []}
+          options={data.type.id ? [{ value: data.type.id, label: data.type.appType }] : []}
         />
       )}
     </div>

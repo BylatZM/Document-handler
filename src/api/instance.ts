@@ -3,8 +3,8 @@ import { ICache } from '../components/types';
 
 export const API_URL =
   process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8000/api'
-    : 'https://uslugi.dltex.ru/api';
+    ? 'http://localhost:8000/api/'
+    : 'https://uslugi.dltex.ru/api/';
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
@@ -26,7 +26,7 @@ axiosInstance.interceptors.request.use((config) => {
 
   if (cookie_array.length) refresh = cookie_array[0].split('=')[1];
 
-  if (config.url === '/refresh') config.headers['Authorization'] = `Bearer ${refresh}`;
+  if (config.url === 'refresh') config.headers['Authorization'] = `Bearer ${refresh}`;
   else config.headers['Authorization'] = `Bearer ${access}`;
 
   return config;

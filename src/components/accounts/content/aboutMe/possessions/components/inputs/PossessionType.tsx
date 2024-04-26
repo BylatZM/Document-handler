@@ -1,14 +1,23 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { ICitizen, ICitizenError, ICitizenLoading, IPossession } from '../../../../../../types';
+import {
+  ICitizenPossession,
+  ICitizenError,
+  ICitizenLoading,
+  IPossession,
+} from '../../../../../../types';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
   updatingFormId: number | null;
-  changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
+  changeFormData: React.Dispatch<React.SetStateAction<ICitizenPossession>>;
   citizenErrors: (error: ICitizenError | null) => void;
-  getPossessions: (type: string, building_id: string) => void;
+  checkPossessionsRequestOnError: (
+    form_id: number,
+    possession_type: string,
+    building_id: string,
+  ) => Promise<void>;
   loadingForm: ICitizenLoading | null;
   emptyPossession: IPossession;
   error: ICitizenError | null;
@@ -20,7 +29,7 @@ export const PossessionType: FC<IProps> = ({
   updatingFormId,
   changeFormData,
   loadingForm,
-  getPossessions,
+  checkPossessionsRequestOnError,
   citizenErrors,
   emptyPossession,
   error,
@@ -36,7 +45,7 @@ export const PossessionType: FC<IProps> = ({
           { label: 'парковка', value: 3 },
           { label: 'кладовка', value: 4 },
         ]}
-        value={parseInt(data.possessionType)}
+        value={parseInt(data.possession_type)}
         disabled={
           (loadingForm && loadingForm.form_id === form_id) || updatingFormId !== form_id
             ? true
@@ -46,11 +55,11 @@ export const PossessionType: FC<IProps> = ({
           if (error && error.error.type === 'possession') citizenErrors(null);
           changeFormData((prev) => ({
             ...prev,
-            possessionType: e.toString(),
+            possession_type: e.toString(),
             possession: { ...emptyPossession },
           }));
           if (data.building.id) {
-            getPossessions(e.toString(), data.building.id.toString());
+            checkPossessionsRequestOnError(form_id, e.toString(), data.building.id.toString());
           }
         }}
       />

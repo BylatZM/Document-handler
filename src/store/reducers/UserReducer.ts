@@ -12,7 +12,6 @@ const initialState: IUserState = {
     patronymic: null,
     phone: null,
     email: '',
-    account_status: 'На подтверждении',
   },
   isLoading: false,
   error: null,

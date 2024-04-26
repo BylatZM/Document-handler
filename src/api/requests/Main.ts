@@ -5,7 +5,7 @@ import {
   IRegRequest,
   IHelpFormRequest,
 } from '../../components/types';
-import { login, refresh, registration, helpForm, updatePassword } from '..';
+import { login, refresh, registration, help } from '..';
 import request from 'axios';
 
 export const errorAlert = (errorText: number) => {
@@ -68,27 +68,12 @@ export const refreshRequest = async (): Promise<200 | 403 | void> => {
   }
 };
 
-export const helpFormRequest = async (params: IHelpFormRequest): Promise<void> => {
+export const requestFromHelpForm = async (params: IHelpFormRequest): Promise<void> => {
   try {
-    await helpForm(params).then((response) => response.data);
+    await help(params).then((response) => response.data);
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
       errorAlert(e.response.status);
-    }
-  }
-};
-
-export const updatePasswordRequest = async (params: {
-  email: string;
-  phone: string;
-}): Promise<201 | IError | void> => {
-  try {
-    await updatePassword(params).then((response) => response.data);
-    return 201;
-  } catch (e) {
-    if (request.isAxiosError(e) && e.response) {
-      if (e.response.status === 400) return e.response?.data as IError;
-      else errorAlert(e.response.status);
     }
   }
 };

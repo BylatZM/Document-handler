@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { clsx } from 'clsx';
-import { updatePasswordRequest } from '../../../api/requests/Main';
+import { updateUserPasswordRequest } from '../../../api/requests/User';
 import { IError, IUpdatePassword } from '../../types';
 import { Inputs } from './components/Inputs';
 import { Buttons } from './components/Buttons';
@@ -43,7 +43,7 @@ export const UpdatePassword: FC<IUpdatePassProps> = ({ needShowForm, changeNeedS
       return;
     }
     changeIsLoading((prev) => !prev);
-    const response = await updatePasswordRequest(formData);
+    const response = await updateUserPasswordRequest(formData);
     if (!response) {
       changeIsLoading((prev) => !prev);
       return;

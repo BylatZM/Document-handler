@@ -3,8 +3,8 @@ import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { useActions } from '../../../hooks/useActions';
 
 export const Inputs = () => {
-  const { error, processed_possessions, info } = useTypedSelector((state) => state.HelpFormReducer);
-  const possessions = useTypedSelector((state) => state.CitizenReducer.citizen);
+  const { error, processedPossessions, info } = useTypedSelector((state) => state.HelpFormReducer);
+  const { citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const { TextArea } = Input;
   const { helpFormInfoSuccess, helpFormError } = useActions();
@@ -90,7 +90,7 @@ export const Inputs = () => {
         )}
       </div>
       <span>Адрес собственности</span>
-      {possessions[0].id !== 0 && role === 'citizen' ? (
+      {citizenPossessions[0].id !== 0 && role === 'citizen' ? (
         <div style={{ marginBottom: 25 }}>
           <Select
             style={{ fontSize: '0.4rem' }}
@@ -99,9 +99,9 @@ export const Inputs = () => {
             value={info.address}
             placeholder='Адрес собственности'
             options={
-              !processed_possessions
+              !processedPossessions
                 ? []
-                : processed_possessions.map((item, index) => ({
+                : processedPossessions.map((item, index) => ({
                     value: (index + 1).toString(),
                     label: item,
                   }))

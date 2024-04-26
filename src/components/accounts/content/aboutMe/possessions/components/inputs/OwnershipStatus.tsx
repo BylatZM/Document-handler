@@ -1,13 +1,13 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { ICitizen, ICitizenLoading } from '../../../../../../types';
+import { ICitizenPossession, ICitizenLoading } from '../../../../../../types';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
   updatingFormId: number | null;
   loadingForm: ICitizenLoading | null;
-  changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
+  changeFormData: React.Dispatch<React.SetStateAction<ICitizenPossession>>;
 }
 
 export const OwnershipStatus: FC<IProps> = ({
@@ -31,8 +31,8 @@ export const OwnershipStatus: FC<IProps> = ({
             ? true
             : false
         }
-        value={data.ownershipStatus}
-        onChange={(e) => changeFormData((prev) => ({ ...prev, ownershipStatus: e }))}
+        value={data.ownership_status}
+        onChange={(e) => changeFormData((prev) => ({ ...prev, ownership_status: e }))}
       />
     </div>
   );

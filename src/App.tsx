@@ -4,7 +4,7 @@ import { Account } from './components/accounts/Account';
 import { RequireAuth } from './components/RequireAuth';
 import { useEffect } from 'react';
 import { ErrorPage } from './components/ErrorPage';
-import { ApprovingByLink } from './components/approvingByLink/ApprovingByLink';
+import { ApprovingCitizenPossessionsByEmail } from './components/approvingCitizenPossessionByEmail/ApprovingCitizenPossessionByEmail';
 
 export const App = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export const App = () => {
       <Routes>
         <Route path='/' element={<Main pageType='auth' />} />
         <Route path='/registration' element={<Main pageType='reg' />} />
-        <Route path='/approveByLink' element={<ApprovingByLink />} />
+        <Route path='/approveByLink' element={<ApprovingCitizenPossessionsByEmail />} />
         <Route element={<RequireAuth />}>
           <Route path='/account/*' element={<Account />} />
         </Route>

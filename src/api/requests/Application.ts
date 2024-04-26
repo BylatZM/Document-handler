@@ -2,7 +2,6 @@ import {
   IAppCreateByDispatcher,
   IAppCreateByCitizen,
   IEmployee,
-  IGrade,
   IPriority,
   ISource,
   IStatus,
@@ -16,20 +15,19 @@ import {
   IUpdateGisAppByEmployee,
 } from '../../components/types';
 import {
-  createApplication,
-  getApplication,
-  getEmployee,
-  getGrade,
-  getPriority,
-  getSource,
-  getStatus,
-  getType,
-  updateApplication,
-  updateApplicationStatus,
-  getSubTypes,
-  getGisApplication,
-  updateGisApplication,
-  updateGisAppStatusOnClose,
+  createSystemApplication,
+  getAllSystemApplicationsByExtra,
+  getAllEmploys,
+  getAllPriorities,
+  getAllSources,
+  getAllStatuses,
+  getAllTypes,
+  updateSystemApplicationById,
+  updateSystemApplicationStatusById,
+  getAllSubtypesByTypeId,
+  getAllGisApplicationsByExtra,
+  updateGisApplicationById,
+  // updateGisApplicationStatusById,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -37,15 +35,15 @@ import { refreshRequest } from './Main';
 import { errorAlert } from './Main';
 import { cache } from '../instance';
 
-export const getApplicationsRequest = async (
+export const getAllSystemApplicationsByExtraRequest = async (
   logout: () => void,
   page: string,
   page_size: string,
   extra: string,
 ): Promise<IApplicationPagination | void> => {
-  const applicationsRequest = async (): Promise<IApplicationPagination | 401 | void> => {
+  const makeRequest = async (): Promise<IApplicationPagination | 401 | void> => {
     try {
-      const response = await getApplication(page, page_size, extra);
+      const response = await getAllSystemApplicationsByExtra(page, page_size, extra);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -55,13 +53,13 @@ export const getApplicationsRequest = async (
     }
   };
 
-  const response = await applicationsRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await applicationsRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -69,14 +67,14 @@ export const getApplicationsRequest = async (
   } else return response;
 };
 
-export const getGisApplicationsRequest = async (
+export const getAllGisApplicationsByExtraRequest = async (
   logout: () => void,
   page: string,
   page_size: string,
 ): Promise<IGisApplicationPagination | void> => {
-  const applicationsRequest = async (): Promise<IGisApplicationPagination | 401 | void> => {
+  const makeRequest = async (): Promise<IGisApplicationPagination | 401 | void> => {
     try {
-      const response = await getGisApplication(page, page_size);
+      const response = await getAllGisApplicationsByExtra(page, page_size);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -86,13 +84,13 @@ export const getGisApplicationsRequest = async (
     }
   };
 
-  const response = await applicationsRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await applicationsRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -100,13 +98,13 @@ export const getGisApplicationsRequest = async (
   } else return response;
 };
 
-export const createApplicationsRequest = async (
+export const createSystemApplicationRequest = async (
   logout: () => void,
   application: IAppCreateByDispatcher | IAppCreateByCitizen,
 ): Promise<IError | 201 | void> => {
-  const applicationsRequest = async (): Promise<IError | 201 | 401 | void> => {
+  const makeRequest = async (): Promise<IError | 201 | 401 | void> => {
     try {
-      await createApplication(application);
+      await createSystemApplication(application);
       return 201;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -119,13 +117,13 @@ export const createApplicationsRequest = async (
     }
   };
 
-  const response = await applicationsRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await applicationsRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -133,14 +131,14 @@ export const createApplicationsRequest = async (
   } else return response;
 };
 
-export const updateAppRequest = async (
+export const updateSystemApplicationByIdRequest = async (
   id: string,
   logout: () => void,
   data: IAppUpdateByDispatcher | IAppUpdateByEmployee,
 ): Promise<IError | 200 | void> => {
-  const applicationRequest = async (): Promise<IError | 200 | 401 | void> => {
+  const makeRequest = async (): Promise<IError | 200 | 401 | void> => {
     try {
-      await updateApplication(id, data);
+      await updateSystemApplicationById(id, data);
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -153,13 +151,13 @@ export const updateAppRequest = async (
     }
   };
 
-  const response = await applicationRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await applicationRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -167,14 +165,14 @@ export const updateAppRequest = async (
   } else return response;
 };
 
-export const updateGisAppRequest = async (
+export const updateGisApplicationByIdRequest = async (
   id: string,
   logout: () => void,
   data: IUpdateGisAppByDispatcher | IUpdateGisAppByEmployee,
 ): Promise<IError | 200 | void> => {
-  const applicationRequest = async (): Promise<IError | 200 | 401 | void> => {
+  const makeRequest = async (): Promise<IError | 200 | 401 | void> => {
     try {
-      await updateGisApplication(id, data);
+      await updateGisApplicationById(id, data);
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -187,13 +185,13 @@ export const updateGisAppRequest = async (
     }
   };
 
-  const response = await applicationRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await applicationRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -201,65 +199,68 @@ export const updateGisAppRequest = async (
   } else return response;
 };
 
-export const updateGisAppStatusOnCloseRequest = async (
-  id: string,
-  logout: () => void,
-): Promise<200 | void> => {
-  const applicationRequest = async (): Promise<200 | 401 | void> => {
-    try {
-      await updateGisAppStatusOnClose(id);
-      return 200;
-    } catch (e) {
-      if (request.isAxiosError(e) && e.response) {
-        if (e.response.status === 401) return 401;
-        else {
-          if (e.response.status === 400) return e.response.data;
-          else errorAlert(e.response.status);
-        }
-      }
-    }
-  };
+// export const updateGisApplicationStatusByIdRequest = async (
+//   application_id: string,
+//   data: IUpdateGisAppStatus,
+//   logout: () => void,
+// ): Promise<200 | void> => {
+//   const makeRequest = async (): Promise<200 | 401 | void> => {
+//     try {
+//       await updateGisApplicationStatusById(application_id, data);
+//       return 200;
+//     } catch (e) {
+//       if (request.isAxiosError(e) && e.response) {
+//         if (e.response.status === 401) return 401;
+//         else {
+//           if (e.response.status === 400) return e.response.data;
+//           else errorAlert(e.response.status);
+//         }
+//       }
+//     }
+//   };
 
-  const response = await applicationRequest();
-  if (!response) return;
+//   const response = await makeRequest();
+//   if (!response) return;
 
-  if (response === 401) {
-    const refresh_status = await refreshRequest();
-    if (refresh_status === 200) {
-      const response = await applicationRequest();
-      if (response !== 401) return response;
-      else return;
-    }
-    if (refresh_status === 403) logout();
-  } else return response;
-};
+//   if (response === 401) {
+//     const refresh_status = await refreshRequest();
+//     if (refresh_status === 200) {
+//       const response = await makeRequest();
+//       if (response !== 401) return response;
+//       else return;
+//     }
+//     if (refresh_status === 403) logout();
+//   } else return response;
+// };
 
-export const updateAppStatusRequest = async (
+export const updateSystemApplicationStatusByIdRequest = async (
   id: string,
   logout: () => void,
   status: number,
-): Promise<200 | void> => {
-  const applicationsRequest = async (): Promise<200 | 401 | void> => {
+): Promise<200 | void | IError> => {
+  const makeRequest = async (): Promise<200 | 401 | void | IError> => {
     try {
-      await updateApplicationStatus({ status: status }, id);
+      await updateSystemApplicationStatusById({ status: status }, id);
       return 200;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
         else {
-          if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
+          if (e.response.status === 400) {
+            return e.response.data;
+          } else if (e.response.status !== 401) errorAlert(e.response.status);
         }
       }
     }
   };
 
-  const response = await applicationsRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await applicationsRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -267,10 +268,10 @@ export const updateAppStatusRequest = async (
   } else return response;
 };
 
-export const getEmploysRequest = async (logout: () => void): Promise<IEmployee[] | void> => {
-  const employsRequest = async (): Promise<IEmployee[] | 401 | void> => {
+export const getAllEmploysRequest = async (logout: () => void): Promise<IEmployee[] | void> => {
+  const makeRequest = async (): Promise<IEmployee[] | 401 | void> => {
     try {
-      const response = await getEmployee();
+      const response = await getAllEmploys();
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -280,13 +281,13 @@ export const getEmploysRequest = async (logout: () => void): Promise<IEmployee[]
     }
   };
 
-  const response = await employsRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await employsRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -294,10 +295,10 @@ export const getEmploysRequest = async (logout: () => void): Promise<IEmployee[]
   } else return response;
 };
 
-export const getGradesRequest = async (logout: () => void): Promise<IGrade[] | void> => {
-  const gradesRequest = async (): Promise<IGrade[] | 401 | void> => {
+export const getAllTypesRequest = async (logout: () => void): Promise<IType[] | void> => {
+  const makeRequest = async (): Promise<IType[] | 401 | void> => {
     try {
-      const response = await getGrade();
+      const response = await getAllTypes();
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -307,13 +308,13 @@ export const getGradesRequest = async (logout: () => void): Promise<IGrade[] | v
     }
   };
 
-  const response = await gradesRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await gradesRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -321,10 +322,10 @@ export const getGradesRequest = async (logout: () => void): Promise<IGrade[] | v
   } else return response;
 };
 
-export const getTypesRequest = async (logout: () => void): Promise<IType[] | void> => {
-  const typesRequest = async (): Promise<IType[] | 401 | void> => {
+export const getAllStatusesRequest = async (logout: () => void): Promise<IStatus[] | void> => {
+  const makeRequest = async (): Promise<IStatus[] | 401 | void> => {
     try {
-      const response = await getType();
+      const response = await getAllStatuses();
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -334,13 +335,13 @@ export const getTypesRequest = async (logout: () => void): Promise<IType[] | voi
     }
   };
 
-  const response = await typesRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await typesRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -348,10 +349,10 @@ export const getTypesRequest = async (logout: () => void): Promise<IType[] | voi
   } else return response;
 };
 
-export const getStatusesRequest = async (logout: () => void): Promise<IStatus[] | void> => {
-  const statusesRequest = async (): Promise<IStatus[] | 401 | void> => {
+export const getAllPrioritiesRequest = async (logout: () => void): Promise<IPriority[] | void> => {
+  const makeRequest = async (): Promise<IPriority[] | 401 | void> => {
     try {
-      const response = await getStatus();
+      const response = await getAllPriorities();
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -361,13 +362,13 @@ export const getStatusesRequest = async (logout: () => void): Promise<IStatus[] 
     }
   };
 
-  const response = await statusesRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await statusesRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -375,10 +376,10 @@ export const getStatusesRequest = async (logout: () => void): Promise<IStatus[] 
   } else return response;
 };
 
-export const getPrioritiesRequest = async (logout: () => void): Promise<IPriority[] | void> => {
-  const prioritiesRequest = async (): Promise<IPriority[] | 401 | void> => {
+export const getAllSourcesRequest = async (logout: () => void): Promise<ISource[] | void> => {
+  const makeRequest = async (): Promise<ISource[] | 401 | void> => {
     try {
-      const response = await getPriority();
+      const response = await getAllSources();
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -388,13 +389,13 @@ export const getPrioritiesRequest = async (logout: () => void): Promise<IPriorit
     }
   };
 
-  const response = await prioritiesRequest();
+  const response = await makeRequest();
   if (!response) return;
 
   if (response === 401) {
     const refresh_status = await refreshRequest();
     if (refresh_status === 200) {
-      const response = await prioritiesRequest();
+      const response = await makeRequest();
       if (response !== 401) return response;
       else return;
     }
@@ -402,34 +403,7 @@ export const getPrioritiesRequest = async (logout: () => void): Promise<IPriorit
   } else return response;
 };
 
-export const getSourcesRequest = async (logout: () => void): Promise<ISource[] | void> => {
-  const sourcesRequest = async (): Promise<ISource[] | 401 | void> => {
-    try {
-      const response = await getSource();
-      if (response.data) return response.data;
-    } catch (e) {
-      if (request.isAxiosError(e) && e.response) {
-        if (e.response.status === 401) return 401;
-        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
-      }
-    }
-  };
-
-  const response = await sourcesRequest();
-  if (!response) return;
-
-  if (response === 401) {
-    const refresh_status = await refreshRequest();
-    if (refresh_status === 200) {
-      const response = await sourcesRequest();
-      if (response !== 401) return response;
-      else return;
-    }
-    if (refresh_status === 403) logout();
-  } else return response;
-};
-
-export const getSubTypesRequest = async (
+export const getAllSubtypesByTypeIdRequest = async (
   logout: () => void,
   id: string,
 ): Promise<ISubtype[] | void> => {
@@ -439,7 +413,7 @@ export const getSubTypesRequest = async (
       if (cache_data.length) {
         return cache_data[0].data;
       }
-      const response = await getSubTypes(id);
+      const response = await getAllSubtypesByTypeId(id);
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

@@ -11,6 +11,7 @@ import {
   IPossession,
   IBuildingWithComplex,
   ISubtype,
+  IError,
 } from '../../../../types';
 import { BsFilterRight } from 'react-icons/bs';
 import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
@@ -20,13 +21,13 @@ import { NotCitizenTable } from './appTable/NotCitizenTable';
 import { CitizenColumnsForm } from './changeTableColumnsForms/CitizenColumnsForm';
 import { NotCitizenColumnsForm } from './changeTableColumnsForms/NotCitizenColumnsForm';
 import { useActions } from '../../../../hooks/useActions';
-import { getApplicationsRequest } from '../../../../../api/requests/Application';
+import { getAllSystemApplicationsByExtraRequest } from '../../../../../api/requests/Application';
 import { useLogout } from '../../../../hooks/useLogout';
 import { defaultAppForm } from './appForm/defaultAppForm';
 
 interface IProps {
-  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
   getTypes: () => Promise<void>;
   getPriorities: () => Promise<void>;
   getSources: () => Promise<void>;
@@ -37,7 +38,7 @@ interface IProps {
 
 export const Application: FC<IProps> = ({
   getPossessions,
-  getBuildings,
+  getAllBuildingsByComplexId,
   getPriorities,
   getSources,
   getStatuses,
@@ -96,7 +97,7 @@ export const Application: FC<IProps> = ({
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
     if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
-    const response = await getApplicationsRequest(logout, page, page_size, extra);
+    const response = await getAllSystemApplicationsByExtraRequest(logout, page, page_size, extra);
     if (response) {
       if (
         (tableParams.pagination && !tableParams.pagination.total) ||
@@ -271,7 +272,7 @@ export const Application: FC<IProps> = ({
                 !selectedItem.subtype ? 0 : selectedItem.subtype.normative,
               )
         }
-        getBuildings={getBuildings}
+        getAllBuildingsByComplexId={getAllBuildingsByComplexId}
         getPossessions={getPossessions}
         getSubtypes={getSubtypes}
       />

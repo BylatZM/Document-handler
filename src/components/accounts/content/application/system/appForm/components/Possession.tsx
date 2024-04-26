@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import {
   IApplication,
-  ICitizen,
+  ICitizenPossession,
   IError,
   IPosLoading,
   IPossession,
@@ -15,7 +15,7 @@ interface IProps {
   data: IApplication;
   possessions: IPossession[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  citizenPossessions: ICitizen[];
+  citizenPossessions: ICitizenPossession[];
   error: IError | null;
   possessionLoadingField: IPosLoading;
 }
@@ -39,16 +39,16 @@ export const Possession: FC<IProps> = ({
             className='h-[50px]'
             value={!data.possession.id ? undefined : data.possession.id}
             onChange={(e: number) => {
-              const new_possession = citizenPossessions.filter((el) => el.possession.id === e);
-              if (!new_possession.length) return;
+              const newPossession = citizenPossessions.filter((el) => el.possession.id === e);
+              if (!newPossession.length) return;
               changeFormData((prev) => ({
                 ...prev,
-                possession: { ...new_possession[0].possession },
-                complex: { ...new_possession[0].complex },
-                building: { ...new_possession[0].building },
+                possession: { ...newPossession[0].possession },
+                complex: { ...newPossession[0].complex },
+                building: { ...newPossession[0].building },
               }));
             }}
-            disabled={form_id !== 0 || !possessions.length ? true : false}
+            disabled={form_id !== 0 || citizenPossessions.length === 0 ? true : false}
             options={
               form_id !== 0
                 ? [{ label: data.possession.address, value: data.possession.id }]
@@ -69,17 +69,17 @@ export const Possession: FC<IProps> = ({
             className='h-[50px]'
             value={!data.possession.id ? undefined : data.possession.id}
             onChange={(e: number) => {
-              const new_possession = possessions.filter((el) => el.id === e);
-              if (!possessions.length) return;
+              const newPossession = possessions.filter((el) => el.id === e);
+              if (!newPossession.length) return;
               changeFormData((prev) => ({
                 ...prev,
-                possession: { ...new_possession[0] },
+                possession: { ...newPossession[0] },
               }));
             }}
             loading={possessionLoadingField === 'possessions' ? true : false}
             disabled={
               form_id !== 0 ||
-              data.building.id === 0 ||
+              !data.building.id ||
               (error && error.type === 'possession') ||
               !possessions.length ||
               possessionLoadingField === 'possessions'

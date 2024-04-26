@@ -1,7 +1,13 @@
 import clsx from 'clsx';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
-import { IApplication, IBuildingWithComplex, IPossession, ISubtype } from '../../../../../types';
+import {
+  IApplication,
+  IBuildingWithComplex,
+  IError,
+  IPossession,
+  ISubtype,
+} from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useLogout } from '../../../../../hooks/useLogout';
 import { Grade } from './components/Grade';
@@ -17,7 +23,7 @@ import { Possession } from './components/Possession';
 import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
-import { SubType } from './components/SubType';
+import { Subtype } from './components/Subtype';
 import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
 import { defaultAppForm } from './defaultAppForm';
@@ -27,8 +33,8 @@ interface IProps {
   getApplications: () => Promise<void>;
   changeSelectedItem: React.Dispatch<React.SetStateAction<IApplication | null>>;
   applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
-  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
   getSubtypes: (id: string) => Promise<ISubtype[] | void>;
 }
 
@@ -38,13 +44,13 @@ export const AppForm: FC<IProps> = ({
   changeSelectedItem,
   applicationFreshnessStatus,
   getSubtypes,
-  getBuildings,
+  getAllBuildingsByComplexId,
   getPossessions,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
   const { role } = useTypedSelector((state) => state.UserReducer.user);
-  const { citizen } = useTypedSelector((state) => state.CitizenReducer);
+  const { citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
   const { user } = useTypedSelector((state) => state.UserReducer);
   const { employs, types, sources, priorities, subtypes, error } = useTypedSelector(
     (state) => state.ApplicationReducer,
@@ -58,8 +64,8 @@ export const AppForm: FC<IProps> = ({
   const [FormData, changeFormData] = useState<IApplication>(defaultAppForm);
 
   const initialize_create_app_by_citizen = () => {
-    if (!citizen.length) return;
-    const possession = citizen.filter((el) => el.approving_status === 'Подтверждена');
+    if (!citizenPossessions.length) return;
+    const possession = citizenPossessions.filter((el) => el.approving_status === 'Подтверждена');
     if (!possession.length) return;
     let fio = user.last_name;
     fio += !user.first_name ? '' : ` ${user.first_name}`;
@@ -79,7 +85,7 @@ export const AppForm: FC<IProps> = ({
     }));
   };
 
-  const initialize_create_app_by_dispatcher = async (app: IApplication) => {
+  const initializeCreateApplicationFormByDispatcher = async (app: IApplication) => {
     if (
       !priorities.length ||
       !sources.length ||
@@ -110,7 +116,7 @@ export const AppForm: FC<IProps> = ({
       }
     }
 
-    const builds = await getBuildings(complexes[0].id.toString());
+    const builds = await getAllBuildingsByComplexId(complexes[0].id.toString());
     if (builds && builds.length) {
       changeFormData((prev) => ({
         ...prev,
@@ -150,12 +156,12 @@ export const AppForm: FC<IProps> = ({
     }
   };
 
-  const initialize_update_app_by_dispatcher = async (app: IApplication) => {
+  const initializeUpdateApplicationFormByDispatcher = async (app: IApplication) => {
     const isNecessaryStatus = ['Назначена', 'Возвращена'].some((el) => el === app.status.appStatus);
-    if (!subtypes.length && isNecessaryStatus && app.type) {
+    if (!subtypes.length && isNecessaryStatus) {
       await getSubtypes(app.type.id.toString());
     }
-    if (app.status.appStatus === 'Новая' && types.length && !app.type && !app.subtype) {
+    if (app.status.appStatus === 'Новая' && types.length && !app.type.id && !app.subtype.id) {
       const subtypes = await getSubtypes(types[0].id.toString());
 
       if (subtypes && subtypes.length) {
@@ -183,8 +189,8 @@ export const AppForm: FC<IProps> = ({
       ref.current.scrollTop = 0;
     }
     if (role === 'dispatcher') {
-      if (application.id === 0) initialize_create_app_by_dispatcher(application);
-      else initialize_update_app_by_dispatcher(application);
+      if (application.id === 0) initializeCreateApplicationFormByDispatcher(application);
+      else initializeUpdateApplicationFormByDispatcher(application);
     }
     if (role === 'citizen' && application.id === 0) initialize_create_app_by_citizen();
   }, [application]);
@@ -193,6 +199,15 @@ export const AppForm: FC<IProps> = ({
     changeSelectedItem(null);
     subTypesSuccess([]);
     if (error) applicationError(null);
+  };
+
+  const checkPossessionRequestOnError = async (
+    possessionType: string,
+    buildingId: string,
+  ): Promise<void> => {
+    const response = await getPossessions(possessionType, buildingId);
+    if (!response) return;
+    if ('type' in response) applicationError(response);
   };
   return (
     <div
@@ -224,7 +239,7 @@ export const AppForm: FC<IProps> = ({
               getSubtypes={getSubtypes}
               error={error}
             />
-            <SubType
+            <Subtype
               data={FormData}
               changeData={changeFormData}
               form_id={FormData.id}
@@ -256,19 +271,17 @@ export const AppForm: FC<IProps> = ({
               data={FormData}
               complexes={complexes}
               changeFormData={changeFormData}
-              citizenPossessions={citizen}
-              getBuildings={getBuildings}
-              buildings={buildings}
-              possessions={possessions}
+              citizenPossessions={citizenPossessions}
+              getBuildings={getAllBuildingsByComplexId}
               error={error}
             />
             <PossessionType
               form_id={FormData.id}
               data={FormData}
               changeFormData={changeFormData}
-              getPossessions={getPossessions}
               role={role}
               error={error}
+              checkPossessionRequestOnError={checkPossessionRequestOnError}
             />
             <Building
               form_id={FormData.id}
@@ -276,10 +289,10 @@ export const AppForm: FC<IProps> = ({
               data={FormData}
               buildings={buildings}
               changeFormData={changeFormData}
-              citizenPossessions={citizen}
-              getPossessions={getPossessions}
+              citizenPossessions={citizenPossessions}
               error={error}
               possessionLoadingField={possessionLoadingField}
+              checkPossessionRequestOnError={checkPossessionRequestOnError}
             />
             <Possession
               form_id={FormData.id}
@@ -287,7 +300,7 @@ export const AppForm: FC<IProps> = ({
               data={FormData}
               possessions={possessions}
               changeFormData={changeFormData}
-              citizenPossessions={citizen}
+              citizenPossessions={citizenPossessions}
               error={error}
               possessionLoadingField={possessionLoadingField}
             />
@@ -306,6 +319,7 @@ export const AppForm: FC<IProps> = ({
             role={role}
             data={FormData}
             changeFormData={changeFormData}
+            error={error}
           />
           {role !== 'citizen' && (
             <div

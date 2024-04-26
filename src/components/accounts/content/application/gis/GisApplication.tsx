@@ -7,7 +7,7 @@ import { BsFilterRight } from 'react-icons/bs';
 import { FC, useEffect, useState } from 'react';
 import { useActions } from '../../../../hooks/useActions';
 import { useLogout } from '../../../../hooks/useLogout';
-import { getGisApplicationsRequest } from '../../../../../api/requests/Application';
+import { getAllGisApplicationsByExtraRequest } from '../../../../../api/requests/Application';
 import { defaultColumns } from './TableArgs';
 import { ColumnsForm } from './ColumnsForm';
 import { GisTable } from './GisTable';
@@ -140,7 +140,7 @@ export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmpl
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
     if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
-    const response = await getGisApplicationsRequest(logout, page, page_size);
+    const response = await getAllGisApplicationsByExtraRequest(logout, page, page_size);
     if (response) {
       if (
         (tableParams.pagination && !tableParams.pagination.total) ||

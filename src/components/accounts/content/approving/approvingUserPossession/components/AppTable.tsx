@@ -1,50 +1,38 @@
-import { useState } from 'react';
-import { Button, ConfigProvider, Table } from 'antd';
-import clsx from 'clsx';
-import { ColumnsType } from 'antd/es/table';
-import { INotApprovedUsers, IUserAccountStatus, IUserDetailsInfo } from '../../../../../types';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { useLogout } from '../../../../../hooks/useLogout';
-import {
-  approveUserRequest,
-  getUserDetailsInfoRequest,
-  rejectUserRequest,
-} from '../../../../../../api/requests/Person';
+import { ICitizenPossessionsColumns, INotApprovedCitizenPossession } from '../../../../../types';
+import { Button, ConfigProvider } from 'antd';
+import clsx from 'clsx';
 import { ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
+import Table, { ColumnsType } from 'antd/es/table';
+import { updateCitizenPossessionStatusWithExtraBySystemRequest } from '../../../../../../api/requests/User';
 import { FaArrowDownShortWide } from 'react-icons/fa6';
 import { IoFunnel } from 'react-icons/io5';
 
 interface IProps {
-  tableInfo: INotApprovedUsers[];
-  changeTableInfo: React.Dispatch<React.SetStateAction<INotApprovedUsers[]>>;
-  changeUserInfo: React.Dispatch<React.SetStateAction<IUserDetailsInfo | null>>;
-  changeIsFormActive: React.Dispatch<React.SetStateAction<boolean>>;
-  isTableLoading: boolean;
+  tableInfo: INotApprovedCitizenPossession[];
+  changeTableInfo: React.Dispatch<React.SetStateAction<INotApprovedCitizenPossession[]>>;
+  isLoading: boolean;
+  changeSelectedCitizenPossession: React.Dispatch<
+    React.SetStateAction<INotApprovedCitizenPossession | null>
+  >;
 }
 
 interface IProcessingRow {
   row_id: number;
   operation: 'success' | 'loading';
-  button_type: 'approve' | 'information' | 'reject';
+  button_type: 'approve' | 'reject';
 }
-
-type TypeColumn = {
-  key: number;
-  last_name: string;
-  first_name: string;
-  account_status: string;
-};
 
 export const AppTable: FC<IProps> = ({
   tableInfo,
   changeTableInfo,
-  changeUserInfo,
-  changeIsFormActive,
-  isTableLoading,
+  isLoading,
+  changeSelectedCitizenPossession,
 }) => {
-  const [processingRow, changeProcessingRow] = useState<null | IProcessingRow>(null);
   const logout = useLogout();
+  const [processingRow, changeProcessingRow] = useState<null | IProcessingRow>(null);
   const [sortedBy, changeSortedBy] = useState<
     null | 'id_increasing' | 'id_decreasing' | 'status_increasing' | 'status_decreasing'
   >(null);
@@ -63,9 +51,12 @@ export const AppTable: FC<IProps> = ({
     if (sortingFieldName === 'status_decreasing') {
       changeTableInfo(
         [...tableInfo].sort((a, b) => {
-          if (a.account_status === 'На подтверждении' && b.account_status === 'Отклонен') {
+          if (a.approving_status === 'На подтверждении' && b.approving_status === 'Отклонена') {
             return -1;
-          } else if (a.account_status === 'Отклонен' && b.account_status === 'На подтверждении') {
+          } else if (
+            a.approving_status === 'Отклонена' &&
+            b.approving_status === 'На подтверждении'
+          ) {
             return 1;
           } else {
             return 0;
@@ -77,9 +68,12 @@ export const AppTable: FC<IProps> = ({
     if (sortingFieldName === 'status_increasing') {
       changeTableInfo(
         [...tableInfo].sort((a, b) => {
-          if (b.account_status === 'На подтверждении' && a.account_status === 'Отклонен') {
+          if (b.approving_status === 'На подтверждении' && a.approving_status === 'Отклонена') {
             return -1;
-          } else if (b.account_status === 'Отклонен' && a.account_status === 'На подтверждении') {
+          } else if (
+            b.approving_status === 'Отклонена' &&
+            a.approving_status === 'На подтверждении'
+          ) {
             return 1;
           } else {
             return 0;
@@ -89,70 +83,48 @@ export const AppTable: FC<IProps> = ({
     }
   };
 
-  const makeApproveRequest = async (user_id: number) => {
-    if (!tableInfo) return;
+  const makeUpdateCitizenPossessionStatusBySystem = async (
+    citizenPossessionId: number,
+    newStatusId: '3' | '1',
+  ) => {
+    if (!tableInfo.length) return;
 
-    changeProcessingRow({
-      row_id: user_id,
-      operation: 'loading',
-      button_type: 'approve',
-    });
-    const response = await approveUserRequest(user_id, logout);
+    if (newStatusId === '3') {
+      changeProcessingRow({
+        row_id: citizenPossessionId,
+        operation: 'loading',
+        button_type: 'approve',
+      });
+    }
+    if (newStatusId === '1') {
+      changeProcessingRow({
+        row_id: citizenPossessionId,
+        operation: 'loading',
+        button_type: 'reject',
+      });
+    }
+    const response = await updateCitizenPossessionStatusWithExtraBySystemRequest(
+      logout,
+      citizenPossessionId.toString(),
+      newStatusId,
+    );
     if (response === 200) {
       changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
       setTimeout(() => {
+        if (newStatusId === '3') {
+          changeTableInfo(tableInfo.filter((el) => el.id !== citizenPossessionId));
+        }
+        if (newStatusId === '1') {
+          changeTableInfo(
+            tableInfo.map((el) => {
+              if (el.id === citizenPossessionId) return { ...el, approving_status: 'Отклонена' };
+              else return el;
+            }),
+          );
+        }
         changeProcessingRow((prev) => null);
-        changeTableInfo(tableInfo.filter((el) => el.id !== user_id));
       }, 2000);
-    } else {
-      changeProcessingRow((prev) => null);
-    }
-  };
-
-  const makeRejectRequest = async (user_id: number) => {
-    if (!tableInfo) return;
-
-    changeProcessingRow({
-      row_id: user_id,
-      operation: 'loading',
-      button_type: 'reject',
-    });
-    const response = await rejectUserRequest(user_id, logout);
-    if (response === 200 && tableInfo) {
-      changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
-      setTimeout(() => {
-        changeProcessingRow((prev) => null);
-        changeTableInfo(
-          tableInfo.map((el) => {
-            if (el.id === user_id) return { ...el, account_status: 'Отклонен' };
-            else return el;
-          }),
-        );
-      }, 2000);
-    } else {
-      changeProcessingRow((prev) => null);
-    }
-  };
-
-  const getUserInfo = async (user_id: number) => {
-    changeProcessingRow({
-      row_id: user_id,
-      operation: 'loading',
-      button_type: 'information',
-    });
-
-    const response = await getUserDetailsInfoRequest(user_id.toString(), logout);
-
-    if (response && typeof response !== 'number') {
-      changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
-      changeUserInfo(response);
-      setTimeout(() => {
-        changeProcessingRow((prev) => null);
-        changeIsFormActive(true);
-      }, 2000);
-    } else {
-      changeProcessingRow((prev) => null);
-    }
+    } else changeProcessingRow((prev) => null);
   };
 
   const components = {
@@ -173,6 +145,7 @@ export const AppTable: FC<IProps> = ({
                 </button>
                 <FaArrowDownShortWide
                   className={clsx(
+                    'text-lg',
                     sortedBy === 'id_decreasing' && 'block',
                     !['id_increasing', 'id_decreasing'].some((el) => sortedBy === el) && 'hidden',
                     sortedBy === 'id_increasing' && 'rotate-180',
@@ -183,10 +156,14 @@ export const AppTable: FC<IProps> = ({
           );
         }
 
-        if (props.children && Array.isArray(props.children) && props.children[1] === 'Статус') {
+        if (
+          props.children &&
+          Array.isArray(props.children) &&
+          props.children[1] === 'Статус собственности'
+        ) {
           return (
             <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
-              <div className='flex items-center gap-x-1 justify-center'>
+              <div className='flex w-max items-center gap-x-1 justify-center'>
                 <span>{props.children}</span>
                 <button
                   className='outline-none border-none'
@@ -200,6 +177,7 @@ export const AppTable: FC<IProps> = ({
                 </button>
                 <FaArrowDownShortWide
                   className={clsx(
+                    'text-lg',
                     sortedBy === 'status_decreasing' && 'block',
                     !['status_increasing', 'status_decreasing'].some((el) => sortedBy === el) &&
                       'hidden',
@@ -222,29 +200,27 @@ export const AppTable: FC<IProps> = ({
     },
   };
 
-  const columns: ColumnsType<TypeColumn> = [
+  const columns: ColumnsType<ICitizenPossessionsColumns> = [
     {
       title: '№',
       dataIndex: 'key',
       key: 'key',
     },
     {
-      title: 'Фамилия',
-      dataIndex: 'last_name',
-      key: 'last_name',
+      title: 'ФИО жителя',
+      dataIndex: 'citizenFIO',
+      key: 'citizenFIO',
     },
     {
-      title: 'Имя',
-      dataIndex: 'first_name',
-      key: 'first_name',
+      title: 'Статус собственности',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => <span className='font-bold whitespace-nowrap'>{status}</span>,
     },
     {
-      title: 'Статус',
-      dataIndex: 'account_status',
-      key: 'account_status',
-      render: (account_status: IUserAccountStatus) => (
-        <span className='font-bold whitespace-nowrap'>{account_status}</span>
-      ),
+      title: 'Адрес собственности',
+      dataIndex: 'address',
+      key: 'address',
     },
     {
       title: 'Подтвердить',
@@ -264,7 +240,7 @@ export const AppTable: FC<IProps> = ({
             type='primary'
             onClick={() => {
               if (!tableInfo) return;
-              makeApproveRequest(rowData.key);
+              makeUpdateCitizenPossessionStatusBySystem(rowData.key, '3');
             }}
             disabled={processingRow && processingRow.row_id === rowData.key ? true : false}
             className='text-white h-[40px] bg-green-700'
@@ -297,9 +273,9 @@ export const AppTable: FC<IProps> = ({
       ),
     },
     {
-      title: 'Подробная информация',
-      dataIndex: 'information',
-      key: 'information',
+      title: 'Подробно',
+      dataIndex: 'details',
+      key: 'details',
       render: (_, rowData) => (
         <ConfigProvider
           theme={{
@@ -312,36 +288,15 @@ export const AppTable: FC<IProps> = ({
         >
           <Button
             type='primary'
-            onClick={() => {
-              if (!tableInfo) return;
-              getUserInfo(rowData.key);
-            }}
             disabled={processingRow && processingRow.row_id === rowData.key ? true : false}
+            onClick={() => {
+              const citizenPossession = tableInfo.filter((el) => el.id === rowData.key);
+              if (!citizenPossession.length) return;
+              changeSelectedCitizenPossession(citizenPossession[0]);
+            }}
             className='text-white h-[40px] bg-blue-700'
           >
-            {processingRow &&
-              processingRow.operation === 'loading' &&
-              processingRow.row_id === rowData.key &&
-              processingRow.button_type === 'information' && (
-                <div>
-                  <ImSpinner9 className='inline animate-spin mr-2' />
-                  <span>Обработка</span>
-                </div>
-              )}
-            {processingRow &&
-              processingRow.operation === 'success' &&
-              processingRow.row_id === rowData.key &&
-              processingRow.button_type === 'information' && (
-                <div>
-                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                  <span>Успешно</span>
-                </div>
-              )}
-            {(!processingRow ||
-              (processingRow &&
-                (processingRow.row_id !== rowData.key ||
-                  (processingRow.row_id === rowData.key &&
-                    processingRow.button_type !== 'information')))) && <>Информация</>}
+            Подробно
           </Button>
         </ConfigProvider>
       ),
@@ -363,10 +318,10 @@ export const AppTable: FC<IProps> = ({
           <Button
             type='primary'
             onClick={() => {
-              makeRejectRequest(rowData.key);
+              makeUpdateCitizenPossessionStatusBySystem(rowData.key, '1');
             }}
             disabled={
-              rowData.account_status === 'Отклонен' ||
+              rowData.status === 'Отклонена' ||
               (processingRow && processingRow.row_id === rowData.key)
                 ? true
                 : false
@@ -406,14 +361,14 @@ export const AppTable: FC<IProps> = ({
     <Table
       dataSource={tableInfo.map((el) => ({
         key: el.id,
-        last_name: el.last_name,
-        first_name: el.first_name,
-        account_status: el.account_status,
+        status: el.approving_status,
+        address: `${el.complex} ${el.building} [${el.possession_type}] № ${el.possession}`,
+        citizenFIO: `${el.last_name} ${el.first_name} ${!el.patronymic ? '' : el.patronymic}`,
       }))}
       columns={columns}
       components={components}
+      loading={isLoading}
       bordered
-      loading={isTableLoading}
       pagination={false}
       locale={{
         emptyText: <span className='font-bold text-lg'>Нет данных</span>,

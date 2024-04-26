@@ -1,7 +1,7 @@
 import { Select } from 'antd';
 import { FC } from 'react';
 import {
-  ICitizen,
+  ICitizenPossession,
   ICitizenError,
   ICitizenLoading,
   IBuilding,
@@ -10,17 +10,21 @@ import {
 } from '../../../../../../types';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
   updatingFormId: number | null;
-  changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
+  changeFormData: React.Dispatch<React.SetStateAction<ICitizenPossession>>;
   citizenErrors: (error: ICitizenError | null) => void;
-  getPossessions: (type: string, building_id: string) => void;
   loadingForm: ICitizenLoading;
   buildings: IBuilding[];
   error: ICitizenError | null;
   emptyPossession: IPossession;
   possessionLoadingField: IPosLoading;
+  checkPossessionsRequestOnError: (
+    form_id: number,
+    possession_type: string,
+    building_id: string,
+  ) => Promise<void>;
 }
 
 export const Building: FC<IProps> = ({
@@ -29,12 +33,12 @@ export const Building: FC<IProps> = ({
   updatingFormId,
   changeFormData,
   citizenErrors,
-  getPossessions,
   loadingForm,
   buildings,
   error,
   emptyPossession,
   possessionLoadingField,
+  checkPossessionsRequestOnError,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
@@ -57,7 +61,7 @@ export const Building: FC<IProps> = ({
               building: { ...new_building[0] },
               possession: { ...emptyPossession },
             }));
-            getPossessions(data.possessionType, e.toString());
+            checkPossessionsRequestOnError(form_id, data.possession_type, e.toString());
           }}
         />
       )}

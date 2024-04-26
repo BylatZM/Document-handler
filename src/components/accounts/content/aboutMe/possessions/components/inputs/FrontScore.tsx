@@ -1,14 +1,14 @@
 import { FC } from 'react';
 import { Input } from 'antd';
-import { ICitizen, ICitizenError, ICitizenLoading } from '../../../../../../types';
+import { ICitizenPossession, ICitizenError, ICitizenLoading } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
   error: ICitizenError | null;
   updatingFormId: number | null;
-  changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
+  changeFormData: React.Dispatch<React.SetStateAction<ICitizenPossession>>;
   loadingForm: ICitizenLoading | null;
 }
 
@@ -31,6 +31,11 @@ export const FrontScore: FC<IProps> = ({
           (loadingForm && loadingForm.form_id === form_id) || updatingFormId !== form_id
             ? true
             : false
+        }
+        status={
+          error && error.form_id === form_id && error.error.type === 'personal_account'
+            ? 'error'
+            : undefined
         }
         onChange={(e) => {
           if (error && error.error.type === 'personal_account') citizenErrors(null);

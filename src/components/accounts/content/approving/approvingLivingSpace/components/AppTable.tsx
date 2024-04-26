@@ -1,22 +1,20 @@
 import { FC, useState } from 'react';
-import { useLogout } from '../../../../hooks/useLogout';
-import {
-  approvePossessionRequest,
-  rejectPossessionRequest,
-} from '../../../../../api/requests/Possession';
-import { INotApprovedPossessions } from '../../../../types';
+import { useLogout } from '../../../../../hooks/useLogout';
+import { updatePossessionStatusWithExtraRequest } from '../../../../../../api/requests/Possession';
+import { ILivingSpaceColumns, INotApprovedPossession } from '../../../../../types';
 import { Button, ConfigProvider } from 'antd';
 import clsx from 'clsx';
-import { ImCross, ImSpinner9 } from 'react-icons/im';
+import { ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 import Table, { ColumnsType } from 'antd/es/table';
 import { FaArrowDownShortWide } from 'react-icons/fa6';
 import { IoFunnel } from 'react-icons/io5';
 
 interface IProps {
-  tableInfo: INotApprovedPossessions[];
-  changeTableInfo: React.Dispatch<React.SetStateAction<INotApprovedPossessions[]>>;
+  tableInfo: INotApprovedPossession[];
+  changeTableInfo: React.Dispatch<React.SetStateAction<INotApprovedPossession[]>>;
   isInfoLoading: boolean;
+  changeSelectedPossession: React.Dispatch<React.SetStateAction<INotApprovedPossession | null>>;
 }
 
 interface IProcessingRow {
@@ -25,9 +23,12 @@ interface IProcessingRow {
   button_type: 'approve' | 'reject';
 }
 
-type IColumnProps = Omit<INotApprovedPossessions, 'id'> & { key: number };
-
-export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading }) => {
+export const AppTable: FC<IProps> = ({
+  tableInfo,
+  changeTableInfo,
+  isInfoLoading,
+  changeSelectedPossession,
+}) => {
   const logout = useLogout();
   const [processingRow, changeProcessingRow] = useState<null | IProcessingRow>(null);
   const [sortedBy, changeSortedBy] = useState<
@@ -80,45 +81,46 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
     }
   };
 
-  const makeApproveRequest = async (possession_id: number) => {
+  const makeUpdatePossessionStatus = async (possession_id: number, newStatusId: '1' | '3') => {
     if (!tableInfo) return;
 
-    changeProcessingRow({
-      row_id: possession_id,
-      operation: 'loading',
-      button_type: 'approve',
-    });
-    const response = await approvePossessionRequest(logout, possession_id.toString());
+    if (newStatusId === '3') {
+      changeProcessingRow({
+        row_id: possession_id,
+        operation: 'loading',
+        button_type: 'approve',
+      });
+    }
+    if (newStatusId === '1') {
+      changeProcessingRow({
+        row_id: possession_id,
+        operation: 'loading',
+        button_type: 'reject',
+      });
+    }
+    const response = await updatePossessionStatusWithExtraRequest(
+      possession_id.toString(),
+      newStatusId,
+      logout,
+    );
     if (response === 200) {
       changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
       setTimeout(() => {
-        changeTableInfo(tableInfo.filter((el) => el.id !== possession_id));
+        if (newStatusId === '1') {
+          changeTableInfo(
+            tableInfo.map((el) => {
+              if (el.id !== possession_id) return el;
+
+              return { ...el, approving_status: 'Отклонена' };
+            }),
+          );
+        }
+        if (newStatusId === '3') {
+          changeTableInfo(tableInfo.filter((el) => el.id !== possession_id));
+        }
         changeProcessingRow((prev) => null);
       }, 2000);
-    }
-  };
-
-  const makeRejectRequest = async (possession_id: number) => {
-    if (!tableInfo) return;
-
-    changeProcessingRow({
-      row_id: possession_id,
-      operation: 'loading',
-      button_type: 'reject',
-    });
-    const response = await rejectPossessionRequest(logout, possession_id.toString());
-    if (response === 200 && tableInfo) {
-      changeProcessingRow((prev) => (prev ? { ...prev, operation: 'success' } : null));
-      setTimeout(() => {
-        changeTableInfo(
-          tableInfo.map((el) => {
-            if (el.id === possession_id) return { ...el, approving_status: 'Отклонена' };
-            else return el;
-          }),
-        );
-        changeProcessingRow((prev) => null);
-      }, 2000);
-    }
+    } else changeProcessingRow((prev) => null);
   };
 
   const components = {
@@ -152,7 +154,7 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
         if (
           props.children &&
           Array.isArray(props.children) &&
-          props.children[1] === 'Статус заявки'
+          props.children[1] === 'Статус жилплощади'
         ) {
           return (
             <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
@@ -192,32 +194,22 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
     },
   };
 
-  const columns: ColumnsType<IColumnProps> = [
+  const columns: ColumnsType<ILivingSpaceColumns> = [
     {
       title: '№',
       dataIndex: 'key',
       key: 'key',
     },
     {
-      title: 'Тип собственности',
-      dataIndex: 'type',
-      key: 'type',
-    },
-    {
-      title: 'Статус заявки',
-      dataIndex: 'approving_status',
-      key: 'approving_status',
+      title: 'Статус жилплощади',
+      dataIndex: 'status',
+      key: 'status',
       render: (approving_status: string) => (
         <span className='font-bold whitespace-nowrap'>{approving_status}</span>
       ),
     },
     {
-      title: 'Адрес здания',
-      dataIndex: 'building',
-      key: 'building',
-    },
-    {
-      title: 'Наименование собственности',
+      title: 'Адрес жил. площади',
       dataIndex: 'address',
       key: 'address',
     },
@@ -237,10 +229,7 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
         >
           <Button
             type='primary'
-            onClick={() => {
-              if (!tableInfo) return;
-              makeApproveRequest(rowData.key);
-            }}
+            onClick={() => makeUpdatePossessionStatus(rowData.key, '3')}
             disabled={processingRow && processingRow.row_id === rowData.key ? true : false}
             className='text-white h-[40px] bg-green-700'
           >
@@ -272,6 +261,35 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
       ),
     },
     {
+      title: 'Подробно',
+      dataIndex: 'details',
+      key: 'details',
+      render: (_, rowData) => (
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimaryHover: undefined,
+              },
+            },
+          }}
+        >
+          <Button
+            type='primary'
+            onClick={() => {
+              const selectedPossession = tableInfo.filter((el) => el.id === rowData.key);
+              if (!selectedPossession.length) return;
+              changeSelectedPossession(selectedPossession[0]);
+            }}
+            disabled={processingRow && processingRow.row_id === rowData.key ? true : false}
+            className='text-white h-[40px] bg-blue-700'
+          >
+            Подробно
+          </Button>
+        </ConfigProvider>
+      ),
+    },
+    {
       title: 'Отклонить',
       dataIndex: 'reject',
       key: 'reject',
@@ -287,11 +305,9 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
         >
           <Button
             type='primary'
-            onClick={() => {
-              makeRejectRequest(rowData.key);
-            }}
+            onClick={() => makeUpdatePossessionStatus(rowData.key, '1')}
             disabled={
-              rowData.approving_status === 'Отклонена' ||
+              rowData.status === 'Отклонена' ||
               (processingRow && processingRow.row_id === rowData.key)
                 ? true
                 : false
@@ -331,10 +347,8 @@ export const AppTable: FC<IProps> = ({ tableInfo, changeTableInfo, isInfoLoading
     <Table
       dataSource={tableInfo.map((el) => ({
         key: el.id,
-        type: el.type,
-        building: el.building,
-        approving_status: el.approving_status,
-        address: el.address,
+        status: el.approving_status,
+        address: `${el.complex} ${el.building} [${el.type}] № ${el.address}`,
       }))}
       columns={columns}
       components={components}

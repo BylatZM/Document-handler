@@ -1,31 +1,36 @@
 import { FC, useState } from 'react';
 import {
   IBuildingWithComplex,
-  ICitizen,
+  ICitizenPossession,
   ICitizenLoading,
   IPossession,
+  IError,
 } from '../../../../../../types';
 import { Button, ConfigProvider } from 'antd';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { useActions } from '../../../../../../hooks/useActions';
 import {
-  createCitizenRequest,
-  deleteCitizenRequest,
-  updateCitizenRequest,
-} from '../../../../../../../api/requests/Person';
+  createCitizenPossessionRequest,
+  deleteCitizenPossessionByIdRequest,
+  updateCitizenPossessionByIdRequest,
+} from '../../../../../../../api/requests/User';
 import { useLogout } from '../../../../../../hooks/useLogout';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { HiOutlineCheck } from 'react-icons/hi';
 
 interface IProp {
-  data: ICitizen;
+  data: ICitizenPossession;
   isFirstItem: boolean;
   form_id: number;
   updatingFormId: number | null;
   loadingForm: ICitizenLoading;
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
-  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
+  checkPossessionsRequestOnError: (
+    form_id: number,
+    possession_type: string,
+    building_id: string,
+  ) => Promise<void>;
   getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -38,7 +43,7 @@ export const Buttons: FC<IProp> = ({
   loadingForm,
   changeUpdatingFormId,
   changeNeedUpdateAccountInfo,
-  getPossessions,
+  checkPossessionsRequestOnError,
   getBuildings,
   changeNeedShowNotification,
 }) => {
@@ -52,75 +57,97 @@ export const Buttons: FC<IProp> = ({
   } = useActions();
   const logout = useLogout();
   const { error } = useTypedSelector((state) => state.CitizenReducer);
-  const { user } = useTypedSelector((state) => state.UserReducer);
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
 
-  const createCitizen = async () => {
+  const createCitizenPossession = async () => {
     if (error && error.form_id === form_id) citizenErrors(null);
     citizenLoading({ form_id: form_id, isLoading: true });
 
-    const response = await createCitizenRequest(logout, {
+    const response = await createCitizenPossessionRequest(logout, {
       personal_account: data.personal_account,
-      ownershipStatus: data.ownershipStatus,
-      possessionType: data.possessionType,
+      ownership_status: data.ownership_status,
+      possession_type: data.possession_type,
       complex: data.complex.id,
       building: data.building.id,
       possession: data.possession.id,
     });
-    if (!response) return;
+    if (!response) {
+      citizenLoading({ form_id: 0, isLoading: false });
+      return;
+    }
 
     if (response === 201) {
-      if (
-        user.account_status === 'На подтверждении' &&
-        user.first_name &&
-        user.last_name &&
-        user.phone
-      )
-        changeNeedShowNotification(true);
+      changeNeedShowNotification(true);
       changeUpdatingFormId(null);
       changeNeedUpdateAccountInfo(true);
     } else {
-      if (response.type === 'user') alert(response.error);
+      if (response.type === 'citizen') alert(response.error);
       citizenErrors({ form_id: form_id, error: response });
+      setTimeout(() => {
+        citizenErrors(null);
+      }, 2000);
     }
 
     citizenLoading({ form_id: 0, isLoading: false });
   };
 
-  const updateCitizen = async () => {
+  const updateCitizenPossession = async () => {
     if (error && error.form_id === form_id) citizenErrors(null);
     citizenLoading({ form_id: form_id, isLoading: true });
-    const response = await updateCitizenRequest(form_id, logout, {
+    const response = await updateCitizenPossessionByIdRequest(form_id, logout, {
       personal_account: data.personal_account,
-      ownershipStatus: data.ownershipStatus,
-      possessionType: data.possessionType,
+      ownership_status: data.ownership_status,
+      possession_type: data.possession_type,
       complex: data.complex.id,
       building: data.building.id,
       possession: data.possession.id,
     });
 
-    if (response) {
-      if (response === 200) {
+    if (!response) {
+      citizenLoading({ form_id: 0, isLoading: false });
+      return;
+    }
+
+    if (response === 200) {
+      changeIsRequestSuccess((prev) => !prev);
+      updateCitizenForm({
+        form_id: form_id,
+        citizen: data,
+      });
+      setTimeout(() => {
+        changeUpdatingFormId(null);
+        changeNeedUpdateAccountInfo(true);
         changeIsRequestSuccess((prev) => !prev);
-        updateCitizenForm({
-          form_id: form_id,
-          citizen: data,
-        });
-        setTimeout(() => {
-          changeUpdatingFormId(null);
-          changeNeedUpdateAccountInfo(true);
-          changeIsRequestSuccess((prev) => !prev);
-        }, 2000);
-      } else citizenErrors(response);
+      }, 2000);
+    } else {
+      citizenErrors(response);
+      setTimeout(() => {
+        citizenErrors(null);
+      }, 2000);
     }
 
     citizenLoading({ form_id: 0, isLoading: false });
   };
 
-  const deleteCitizen = async () => {
+  const deleteCitizenPossession = async (form_id: number) => {
     deleteCitizenForm({ form_id: form_id });
-    if (form_id > 0) await deleteCitizenRequest(form_id, logout);
+    if (form_id > 0) await deleteCitizenPossessionByIdRequest(form_id, logout);
   };
+
+  const prepareFormReadyForUpdateRequest = async () => {
+    buildingSuccess([]);
+    possessionSuccess([]);
+    if (error) citizenErrors(null);
+    changeUpdatingFormId(form_id);
+    if (data.complex.id) await getBuildings(data.complex.id.toString());
+    if (data.possession_type && data.building.id)
+      await checkPossessionsRequestOnError(
+        form_id,
+        data.possession_type,
+        data.building.id.toString(),
+      );
+  };
+
   return (
     <div className='flex max-sm:gap-y-2 max-sm:flex-col max-sm:gap-x-0 gap-4'>
       <Button
@@ -149,7 +176,7 @@ export const Buttons: FC<IProp> = ({
             citizenLoading({ form_id: 0, isLoading: false });
             return;
           }
-          form_id < 1 ? createCitizen() : updateCitizen();
+          form_id < 1 ? createCitizenPossession() : updateCitizenPossession();
         }}
         type='primary'
       >
@@ -186,13 +213,7 @@ export const Buttons: FC<IProp> = ({
         className='text-blue-700 bg-none border-blue-700'
         disabled={updatingFormId === form_id ? true : false}
         onClick={() => {
-          buildingSuccess([]);
-          possessionSuccess([]);
-          if (error) citizenErrors(null);
-          if (data.complex.id) getBuildings(data.complex.id.toString());
-          if (data.possessionType && data.building.id)
-            getPossessions(data.possessionType, data.building.id.toString());
-          changeUpdatingFormId(form_id);
+          prepareFormReadyForUpdateRequest();
         }}
         type='primary'
       >
@@ -212,7 +233,7 @@ export const Buttons: FC<IProp> = ({
           <Button
             type='primary'
             className='text-white bg-red-500 border-none'
-            onClick={() => deleteCitizen()}
+            onClick={() => deleteCitizenPossession(form_id)}
           >
             Удалить форму
           </Button>

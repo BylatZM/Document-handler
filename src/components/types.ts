@@ -47,6 +47,7 @@ export interface IPossessionState {
   complexes: IComplex[];
   possessions: IPossession[];
   isLoading: IPosLoading;
+  error: IError | null;
 }
 
 export interface IUserState {
@@ -82,14 +83,14 @@ export interface IApplicationState {
 }
 
 export interface ICitizenState {
-  citizen: ICitizen[];
+  citizenPossessions: ICitizenPossession[];
   isLoading: ICitizenLoading;
   error: ICitizenError | null;
 }
 
 export interface IHelpFormState {
   info: IHelpFormRequest;
-  processed_possessions: string[] | null;
+  processedPossessions: string[] | null;
   isLoading: boolean;
   error: IError | null;
 }
@@ -118,8 +119,6 @@ export interface IRegRequest {
   email: string;
 }
 
-export type IUserAccountStatus = 'На подтверждении' | 'Подтвержден' | 'Отклонен';
-
 export interface IUser {
   id: number;
   role: IRole;
@@ -128,16 +127,6 @@ export interface IUser {
   patronymic: null | string;
   phone: null | string;
   email: string;
-  account_status: IUserAccountStatus;
-}
-
-export interface IUserDetailsInfo {
-  first_name: string;
-  last_name: string;
-  email: string;
-  patronymic: string | null;
-  phone: string;
-  possessions: ICitizen[];
 }
 
 export type IUserUpdate = Omit<IUser, 'id' | 'role' | 'account_status' | 'email'>;
@@ -164,7 +153,7 @@ export interface IGisApplication {
   type: string;
   applicant_сomment: string;
   dispatcher_comment: string | null;
-  employee_comment: string | null;
+  employee_comment: string;
   creating_date: string;
   due_date: string | null;
   possession_address: string;
@@ -201,19 +190,19 @@ export interface IUpdateGisAppByDispatcher {
   status: number;
   dispatcher_comment: string | null;
   priority: number;
-  employee: number;
+  employee: number | null;
 }
 
 export interface IUpdateGisAppByEmployee {
   status: number;
-  employee_comment: string | null;
+  employee_comment: string;
 }
 
 export interface IApplication {
   id: number;
   status: IStatus;
-  type: IType | null;
-  subtype: ISubtype | null;
+  type: IType;
+  subtype: ISubtype;
   grade: IGrade;
   creatingDate: string;
   dueDate: string | null;
@@ -267,9 +256,12 @@ export type IAppUpdateByDispatcher = {
   priority: number;
   dispatcherComment: string;
   employee: number;
+  status: number;
 };
 
-export type IAppUpdateByEmployee = Pick<IApplication, 'employeeComment'>;
+export type IAppUpdateByEmployee = Pick<IApplication, 'employeeComment'> & {
+  status: number;
+};
 
 export type IAppUpdateStatus = Pick<IApplication, 'status'>;
 
@@ -319,11 +311,11 @@ export interface IPriority {
 
 export type IPossessionStatus = 'Отклонена' | 'На подтверждении' | 'Подтверждена';
 
-export interface ICitizen {
+export interface ICitizenPossession {
   id: number;
   personal_account: string;
-  possessionType: string;
-  ownershipStatus: string;
+  possession_type: string;
+  ownership_status: string;
   complex: IComplex;
   building: IBuilding;
   possession: IPossession;
@@ -331,14 +323,14 @@ export interface ICitizen {
 }
 
 export type IApprovePossession = Omit<
-  ICitizen,
+  ICitizenPossession,
   | 'id'
   | 'personal_account'
-  | 'ownershipStatus'
+  | 'ownership_status'
   | 'complex'
   | 'building'
   | 'possession'
-  | 'possessionType'
+  | 'possession_type'
   | 'approving_status'
 > & {
   complex: number;
@@ -350,7 +342,7 @@ export type IApprovePossession = Omit<
 export type IApprovePossessionRequest = Omit<IApprovePossession, 'complex'>;
 
 export type ICitizenRequest = Omit<
-  ICitizen,
+  ICitizenPossession,
   'id' | 'complex' | 'building' | 'possession' | 'approving_status'
 > & {
   complex: number;
@@ -389,33 +381,42 @@ export interface IBuilding {
   building: string;
 }
 
-export interface INotApprovedUsers {
-  id: number;
-  first_name: string;
-  last_name: string;
-  account_status: IUserAccountStatus;
-}
-
-export interface INotApprovedPossessions {
+export interface INotApprovedPossession {
   id: number;
   type: string;
   building: string;
   approving_status: IPossessionStatus;
   address: string;
+  complex: string;
 }
 
-export interface INotApprovedCitizens {
+export interface INotApprovedCitizenPossession {
   id: number;
-  fio: string;
+  first_name: string;
+  last_name: string;
+  patronymic: string | null;
   phone: string;
   email: string;
   complex: string;
   building: string;
   possession: string;
-  approving_status: string;
-  ownershipStatus: string;
-  possessionType: string;
+  approving_status: IPossessionStatus;
+  ownership_status: string;
+  possession_type: string;
   personal_account: string;
+}
+
+export interface ILivingSpaceColumns {
+  key: number;
+  status: IPossessionStatus;
+  address: string;
+}
+
+export interface ICitizenPossessionsColumns {
+  key: number;
+  status: IPossessionStatus;
+  address: string;
+  citizenFIO: string;
 }
 
 export interface IApplicationCitizenColumns {
@@ -456,9 +457,9 @@ export interface IUpdatePassword {
   phone: string;
 }
 
-export interface IApproveUserByLink {
+export interface IUpdateCitizenPossessionStatusByEmail {
   id: string | null;
-  key: string | null;
+  personal_account: string | null;
   operation: string | null;
 }
 

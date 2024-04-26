@@ -4,7 +4,7 @@ import { ImSpinner9, ImCross } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 import clsx from 'clsx';
 import { useActions } from '../../hooks/useActions';
-import { updatePasswordRequest } from '../../../api/requests/Main';
+import { updateUserPasswordRequest } from '../../../api/requests/User';
 
 interface IProps {
   email: string;
@@ -17,19 +17,17 @@ export const SendEmail: FC<IProps> = ({ email, needShowForm, changeNeedShowForm 
   const { regSuccess } = useActions();
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
   const [isLoading, changeIsLoading] = useState(false);
-  const [isError, changeIsError] = useState(false);
 
   const onFinish = async () => {
     changeIsLoading((prev) => !prev);
-    const response = await updatePasswordRequest({ email: email, phone: '' });
+    const response = await updateUserPasswordRequest({ email: email, phone: '' });
     if (response === 201) {
       changeIsRequestSuccess((prev) => !prev);
       setTimeout(() => {
-        if (isError) changeIsError((prev) => !prev);
         changeIsRequestSuccess((prev) => !prev);
         changeTime(30);
       }, 2000);
-    } else changeIsError((prev) => !prev);
+    }
     changeIsLoading((prev) => !prev);
   };
 
@@ -98,19 +96,13 @@ export const SendEmail: FC<IProps> = ({ email, needShowForm, changeNeedShowForm 
                   <span>Обработка</span>
                 </div>
               )}
-              {isError && !isLoading && !isRequestSuccess && (
-                <div>
-                  <ImCross className='inline mr-2' />
-                  <span>Ошибка</span>
-                </div>
-              )}
-              {!isLoading && !isError && isRequestSuccess && (
+              {!isLoading && isRequestSuccess && (
                 <div>
                   <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
                   <span>Успешно</span>
                 </div>
               )}
-              {!isLoading && !isError && !isRequestSuccess && <>Выслать повторно</>}
+              {!isLoading && !isRequestSuccess && <>Выслать повторно</>}
             </Button>
           </ConfigProvider>
         )}

@@ -1,16 +1,19 @@
 import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FC } from 'react';
-import { IApplication, IRole } from '../../../../../../types';
+import { IApplication, IError, IRole } from '../../../../../../types';
+import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
   form_id: number;
   role: IRole;
   data: IApplication;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
+  error: IError | null;
 }
 
-export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) => {
+export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, error }) => {
+  const { applicationError } = useActions();
   const dateCalculator = (days: number, creatingDate: string): string => {
     const [dmy, hms] = creatingDate.split(' ');
     const currentDate = new Date(`${dmy.split('.').reverse().join('-')}T${hms}`);
@@ -60,9 +63,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
             <span>Плановое время исполнения</span>
             <Input
               className='h-[50px] text-base'
-              value={
-                data.subtype ? dateCalculator(data.subtype.normative / 24, data.creatingDate) : ''
-              }
+              value={dateCalculator(data.subtype.normative / 24, data.creatingDate)}
               disabled
             />
           </div>
@@ -74,9 +75,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
             <span>Плановое время выполнения</span>
             <Input
               className='h-[50px] text-base'
-              value={
-                data.subtype ? dateCalculator(data.subtype.normative / 24, data.creatingDate) : ''
-              }
+              value={dateCalculator(data.subtype.normative / 24, data.creatingDate)}
               disabled
             />
           </>
@@ -107,13 +106,15 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
             <span>Комментарий исполнителя</span>
             <TextArea
               value={!data.employeeComment ? '' : data.employeeComment}
-              onChange={(e) =>
-                changeFormData((prev) => ({ ...prev, employeeComment: e.target.value }))
-              }
+              onChange={(e) => {
+                if (error && error.type === 'employeeComment') applicationError(null);
+                changeFormData((prev) => ({ ...prev, employeeComment: e.target.value }));
+              }}
               className='rounded-md h-[60px] text-base'
               maxLength={500}
               rows={5}
               style={{ resize: 'none' }}
+              status={error && error.type === 'employeeComment' ? 'error' : undefined}
               disabled={
                 ['citizen', 'dispatcher'].some((el) => el === role) ||
                 data.status.appStatus !== 'В работе'
@@ -121,6 +122,9 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData }) =>
                   : false
               }
             />
+            {error && error.type === 'employeeComment' && (
+              <span className='errorText'>{error.error}</span>
+            )}
           </div>
         </>
       )}

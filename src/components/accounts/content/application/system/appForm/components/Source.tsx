@@ -37,9 +37,9 @@ export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormDat
                   : false
               }
               onChange={(e: number) => {
-                const new_source = sources.filter((el) => el.id === e);
-                if (!new_source.length) return;
-                changeFormData((prev) => ({ ...prev, source: { ...new_source[0] } }));
+                const newSource = sources.filter((el) => el.id === e);
+                if (!newSource.length) return;
+                changeFormData((prev) => ({ ...prev, source: { ...newSource[0] } }));
               }}
               options={sources.map((el) => ({
                 value: el.id,

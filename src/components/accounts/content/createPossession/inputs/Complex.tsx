@@ -4,12 +4,17 @@ import { FC } from 'react';
 
 interface IProps {
   complexes: IComplex[];
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
   data: IApprovePossession;
   changeData: React.Dispatch<React.SetStateAction<IApprovePossession>>;
 }
 
-export const Complex: FC<IProps> = ({ complexes, getBuildings, data, changeData }) => {
+export const Complex: FC<IProps> = ({
+  complexes,
+  getAllBuildingsByComplexId,
+  data,
+  changeData,
+}) => {
   return (
     <div className='text-sm'>
       <div>Жилой комплекс</div>
@@ -18,7 +23,7 @@ export const Complex: FC<IProps> = ({ complexes, getBuildings, data, changeData 
         value={!data.complex ? undefined : data.complex}
         onChange={(e: number) => {
           changeData((prev) => ({ ...prev, complex: e, building: 0 }));
-          getBuildings(e.toString());
+          getAllBuildingsByComplexId(e.toString());
         }}
         options={complexes.map((el) => ({ value: el.id, label: el.name }))}
       />

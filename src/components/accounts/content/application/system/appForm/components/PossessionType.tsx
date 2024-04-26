@@ -1,25 +1,25 @@
 import { FC } from 'react';
 import { useActions } from '../../../../../../hooks/useActions';
 import { Input, Select } from 'antd';
-import { IApplication, IError, IPossession, IRole } from '../../../../../../types';
+import { IApplication, IError, IRole } from '../../../../../../types';
 import { defaultAppForm } from '../defaultAppForm';
 
 interface IProps {
   form_id: number;
   data: IApplication;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  getPossessions: (type: string, building_id: string) => Promise<void | IError | IPossession[]>;
   role: IRole;
   error: IError | null;
+  checkPossessionRequestOnError: (possessionType: string, buildingId: string) => Promise<void>;
 }
 
 export const PossessionType: FC<IProps> = ({
   form_id,
   data,
   changeFormData,
-  getPossessions,
   role,
   error,
+  checkPossessionRequestOnError,
 }) => {
   const { applicationError } = useActions();
   return (
@@ -44,7 +44,7 @@ export const PossessionType: FC<IProps> = ({
               possessionType: e.toString(),
               possession: { ...defaultAppForm.possession },
             }));
-            getPossessions(e.toString(), data.building.id.toString());
+            checkPossessionRequestOnError(e.toString(), data.building.id.toString());
           }}
         />
       )}

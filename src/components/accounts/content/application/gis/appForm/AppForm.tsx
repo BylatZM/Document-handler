@@ -33,9 +33,7 @@ export const AppForm: FC<IProps> = ({
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
   const { role } = useTypedSelector((state) => state.UserReducer.user);
-  const { employs, statuses, priorities, error } = useTypedSelector(
-    (state) => state.ApplicationReducer,
-  );
+  const { employs, priorities, error } = useTypedSelector((state) => state.ApplicationReducer);
   const { applicationError } = useActions();
 
   const [FormData, changeFormData] = useState<IGisApplication>(DefaultAppForm);

@@ -19,8 +19,8 @@ export const Notification: FC<IProps> = ({ needShowForm, changeNeedShowForm }) =
     >
       <div className='min-w-[250px] max-w-[250px] sm:min-w-[500px] sm:max-w-[500px] border-blue-500 border-2 max-sm:p-1 sm:p-5 rounded-md flex flex-col bg-blue-700 bg-opacity-10 backdrop-blur-md'>
         <div className='text-center mb-4'>
-          Ваши данные были сохранены. Ожидайте подтверждения аккаунта от диспетчера. Уведомление
-          придет на почту <b>{email}</b>
+          Ваши данные были сохранены. Ожидайте подтверждения Вашей собственности диспетчером.
+          Уведомление придет на почту <b>{email}</b>
         </div>
         <div className='flex w-full justify-center'>
           <Button

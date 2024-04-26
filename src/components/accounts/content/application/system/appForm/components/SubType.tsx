@@ -12,12 +12,12 @@ interface IProps {
   error: IError | null;
 }
 
-export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role, error }) => {
+export const Subtype: FC<IProps> = ({ data, changeData, subtypes, form_id, role, error }) => {
   const { applicationError } = useActions();
   return (
     <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Подтип заявки</span>
-      {role === 'executor' && data.subtype && (
+      {role === 'executor' && (
         <Select
           className='h-[50px]'
           disabled
@@ -41,18 +41,16 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
                 ? true
                 : false
             }
-            value={
-              !data.subtype || (data.subtype && !data.subtype.id) ? undefined : data.subtype.id
-            }
+            value={!data.subtype.id ? undefined : data.subtype.id}
             onChange={(e: number) => {
               if (error) applicationError(null);
-              const new_subtype = subtypes.filter((el) => el.id === e);
-              if (!new_subtype.length) return;
-              changeData((prev) => ({ ...prev, subtype: { ...new_subtype[0] } }));
+              const newSubtype = subtypes.filter((el) => el.id === e);
+              if (!newSubtype.length) return;
+              changeData((prev) => ({ ...prev, subtype: { ...newSubtype[0] } }));
             }}
+            status={error && error.type === 'subtype' ? 'error' : undefined}
             options={
               form_id > 0 &&
-              data.subtype &&
               (data.status.appStatus === 'В работе' || data.status.appStatus === 'Закрыта')
                 ? [{ value: data.subtype.id, label: data.subtype.subtype }]
                 : subtypes.map((el) => ({
@@ -69,16 +67,16 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
           <Select
             className='h-[50px]'
             disabled={!subtypes.length || form_id > 0 ? true : false}
-            value={!data.subtype ? undefined : data.subtype.id}
+            value={!data.subtype.id ? undefined : data.subtype.id}
             onChange={(e: number) => {
               if (error) applicationError(null);
-              const new_subtype = subtypes.filter((el) => el.id === e);
-              if (!new_subtype.length) return;
-              changeData((prev) => ({ ...prev, subtype: { ...new_subtype[0] } }));
+              const newSubtype = subtypes.filter((el) => el.id === e);
+              if (!newSubtype.length) return;
+              changeData((prev) => ({ ...prev, subtype: { ...newSubtype[0] } }));
             }}
             status={error && error.type === 'subtype' ? 'error' : undefined}
             options={
-              form_id > 0 && data.subtype
+              form_id > 0
                 ? [{ value: data.subtype.id, label: data.subtype.subtype }]
                 : subtypes.map((el) => ({
                     value: el.id,

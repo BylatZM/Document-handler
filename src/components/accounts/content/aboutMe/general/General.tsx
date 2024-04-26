@@ -1,22 +1,13 @@
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { useActions } from '../../../../hooks/useActions';
-import { updateUserRequest } from '../../../../../api/requests/Person';
+import { updateUserRequest } from '../../../../../api/requests/User';
 import { useLogout } from '../../../../hooks/useLogout';
 import { Inputs } from './Inputs';
 import { Buttons } from './Buttons';
 
-interface IProps {
-  changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
-  changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export const General: FC<IProps> = ({
-  changeNeedShowNotification,
-  changeNeedUpdateAccountInfo,
-}) => {
+export const General = () => {
   const { user, isLoading, error } = useTypedSelector((user) => user.UserReducer);
-  const { citizen } = useTypedSelector((state) => state.CitizenReducer);
   const { userSuccess, userLoading, userError } = useActions();
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
   const logout = useLogout();
@@ -25,21 +16,23 @@ export const General: FC<IProps> = ({
     if ((user.first_name && !/^[А-Яа-я]+$/.test(user.first_name)) || !user.first_name) {
       userError({
         type: 'first_name',
-        error: 'Имя может состоять только из букв русского алфавита',
+        error: 'Имя может состоять только из букв русского алфавита и не может содержать пробелы',
       });
       return;
     }
     if ((user.last_name && !/^[А-Яа-я]+$/.test(user.last_name)) || !user.last_name) {
       userError({
         type: 'last_name',
-        error: 'Фамилия может состоять только из букв русского алфавита',
+        error:
+          'Фамилия может состоять только из букв русского алфавита и не может содержать пробелы',
       });
       return;
     }
     if (user.patronymic && !/^[А-Яа-я]+$/.test(user.patronymic)) {
       userError({
         type: 'patronymic',
-        error: 'Отчество может состоять только из букв русского алфавита или быть незаполненным',
+        error:
+          'Отчество может состоять только из букв русского алфавита или быть незаполненным и не может содержать пробелы',
       });
       return;
     }
@@ -47,7 +40,7 @@ export const General: FC<IProps> = ({
       userError({
         type: 'phone',
         error:
-          'Номер телефона задан неверно, пожалуйста, введите телефон исходя из примера: +79372833608',
+          'Номер телефона задан неверно, пожалуйста, введите телефон исходя из примера: +79372833608, обратите внимание, что поле не может содержать пробелы',
       });
       return;
     }
@@ -71,9 +64,6 @@ export const General: FC<IProps> = ({
         patronymic: user.patronymic,
         phone: user.phone,
       });
-      if (citizen[0].id > 0 && user.account_status === 'На подтверждении')
-        changeNeedShowNotification(true);
-      changeNeedUpdateAccountInfo(true);
       setTimeout(() => {
         changeIsRequestSuccess((prev) => !prev);
       }, 2000);

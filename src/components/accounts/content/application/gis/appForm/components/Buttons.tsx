@@ -8,10 +8,7 @@ import {
 } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
-import {
-  updateGisAppRequest,
-  updateGisAppStatusOnCloseRequest,
-} from '../../../../../../../api/requests/Application';
+import { updateGisApplicationByIdRequest } from '../../../../../../../api/requests/Application';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
@@ -48,69 +45,63 @@ export const Buttons: FC<IProps> = ({
   const [successButton, changeSuccessButton] = useState<null | IOperation>(null);
   const [loadingButton, changeLoadingButton] = useState<null | IOperation>(null);
 
-  const update_app_status_on_close = async () => {
-    changeLoadingButton('got_incorrectly');
-    const response = await updateGisAppStatusOnCloseRequest(data.id.toString(), logout);
-    changeLoadingButton(null);
-    if (response && response === 200) {
-      changeSuccessButton('got_incorrectly');
-      setTimeout(() => {
-        changeSuccessButton((prev) => null);
-        getApplications();
-        exitFromForm();
-      }, 2000);
-    } else {
-      changeErrorButton('got_incorrectly');
-      setTimeout(() => changeErrorButton(null), 2000);
-    }
-  };
-
-  const update_application = async (operation_type: IUpdateOperation) => {
-    if (!data.status.id || !data.employee || !statuses.length) return;
-    let new_status: IStatus | null = null;
+  const makeUpdateGisApplication = async (operation_type: IUpdateOperation) => {
+    if (
+      !data.status.id ||
+      (!data.employee && operation_type !== 'got_incorrectly') ||
+      !statuses.length
+    )
+      return;
     if (operation_type === 'update') changeLoadingButton('update');
     if (operation_type === 'close_application') changeLoadingButton('close_application');
     if (operation_type === 'proceed_to_execution') changeLoadingButton('proceed_to_execution');
-    try {
-      if (data.status.appStatus === 'Новая' && operation_type === 'update') {
-        new_status = statuses.filter((el) => el.appStatus === 'Назначена')[0];
-      }
-      if (
-        ['Назначена', 'Возвращена'].some((el) => el === data.status.appStatus) &&
-        operation_type === 'proceed_to_execution'
-      ) {
-        new_status = statuses.filter((el) => el.appStatus === 'В работе')[0];
-      }
-      if (
-        ['В работе', 'Назначена'].some((el) => el === data.status.appStatus) &&
-        operation_type === 'close_application'
-      ) {
-        new_status = statuses.filter((el) => el.appStatus === 'Закрыта')[0];
-      }
-    } catch (e) {
-      new_status = data.status;
+    if (operation_type === 'got_incorrectly') changeLoadingButton('got_incorrectly');
+
+    let new_status: IStatus[] | null = null;
+    if (data.status.appStatus === 'Новая' && operation_type === 'update') {
+      new_status = statuses.filter((el) => el.appStatus === 'Назначена');
     }
-    if (!new_status) new_status = data.status;
+    if (data.status.appStatus === 'Новая' && operation_type === 'got_incorrectly') {
+      new_status = statuses.filter((el) => el.appStatus === 'Закрыта');
+    }
+    if (
+      ['Назначена', 'Возвращена'].some((el) => el === data.status.appStatus) &&
+      operation_type === 'proceed_to_execution'
+    ) {
+      new_status = statuses.filter((el) => el.appStatus === 'В работе');
+    }
+    if (
+      ['В работе', 'Назначена'].some((el) => el === data.status.appStatus) &&
+      (operation_type === 'close_application' || operation_type === 'got_incorrectly')
+    ) {
+      new_status = statuses.filter((el) => el.appStatus === 'Закрыта');
+    }
+    if (!new_status || (new_status && new_status.length !== 1)) {
+      new_status = [{ ...data.status }];
+    }
+
     if (errorButton) changeErrorButton(null);
 
     let info: IUpdateGisAppByDispatcher | IUpdateGisAppByEmployee = {
-      employee_comment: !data.employee_comment ? null : data.employee_comment,
-      status: new_status.id,
+      employee_comment: data.employee_comment,
+      status: new_status[0].id,
     };
     if (role === 'dispatcher') {
       info = {
-        employee: data.employee.id,
-        status: new_status.id,
+        employee: !data.employee ? null : data.employee.id,
+        status: new_status[0].id,
         priority: data.priority.id,
-        dispatcher_comment: !data.dispatcher_comment ? null : data.dispatcher_comment,
+        dispatcher_comment:
+          operation_type === 'got_incorrectly' ? 'Заведена неверно' : data.dispatcher_comment,
       };
     }
-    const response = await updateGisAppRequest(data.id.toString(), logout, info);
+    const response = await updateGisApplicationByIdRequest(data.id.toString(), logout, info);
     changeLoadingButton(null);
     if (response === 200) {
       if (operation_type === 'update') changeSuccessButton('update');
       if (operation_type === 'close_application') changeSuccessButton('close_application');
       if (operation_type === 'proceed_to_execution') changeSuccessButton('proceed_to_execution');
+      if (operation_type === 'got_incorrectly') changeSuccessButton('got_incorrectly');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
         getApplications();
@@ -121,65 +112,68 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'update') changeErrorButton('update');
       if (operation_type === 'close_application') changeErrorButton('close_application');
       if (operation_type === 'proceed_to_execution') changeErrorButton('proceed_to_execution');
+      if (operation_type === 'got_incorrectly') changeErrorButton('got_incorrectly');
       setTimeout(() => changeErrorButton(null), 2000);
     }
   };
 
   return (
     <div className='gap-4 flex flex-wrap justify-center'>
-      {role === 'dispatcher' && (
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                colorPrimaryHover: undefined,
-              },
+      <ConfigProvider
+        theme={{
+          components: {
+            Button: {
+              colorPrimaryHover: undefined,
             },
+          },
+        }}
+      >
+        <Button
+          onClick={() => {
+            makeUpdateGisApplication('update');
           }}
-        >
-          <Button
-            onClick={() => {
-              update_application('update');
-            }}
-            className='text-white bg-blue-700'
-            disabled={
-              !loadingButton &&
-              !successButton &&
-              data.status.appStatus !== 'Закрыта' &&
-              role === 'dispatcher' &&
+          className='text-white bg-blue-700'
+          disabled={
+            !loadingButton &&
+            !successButton &&
+            data.status.appStatus !== 'Закрыта' &&
+            ((role === 'dispatcher' &&
               ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
                 !data.dispatcher_comment) &&
               data.priority.id &&
               data.employee &&
-              data.employee.id
-                ? false
-                : true
-            }
-          >
-            {loadingButton === 'update' && (
-              <div>
-                <ImSpinner9 className='inline animate-spin mr-2' />
-                <span>Обработка</span>
-              </div>
-            )}
-            {errorButton === 'update' && !loadingButton && !successButton && (
-              <div>
-                <ImCross className='inline mr-2' />
-                <span>Ошибка</span>
-              </div>
-            )}
-            {!loadingButton && !errorButton && successButton === 'update' && (
-              <div>
-                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                <span>Успешно</span>
-              </div>
-            )}
-            {loadingButton !== 'update' &&
-              errorButton !== 'update' &&
-              successButton !== 'update' && <>Записать</>}
-          </Button>
-        </ConfigProvider>
-      )}
+              data.employee.id) ||
+              (role === 'executor' &&
+                data.status.appStatus !== 'Назначена' &&
+                data.employee_comment &&
+                data.employee_comment.length < 501))
+              ? false
+              : true
+          }
+        >
+          {loadingButton === 'update' && (
+            <div>
+              <ImSpinner9 className='inline animate-spin mr-2' />
+              <span>Обработка</span>
+            </div>
+          )}
+          {errorButton === 'update' && !loadingButton && !successButton && (
+            <div>
+              <ImCross className='inline mr-2' />
+              <span>Ошибка</span>
+            </div>
+          )}
+          {!loadingButton && !errorButton && successButton === 'update' && (
+            <div>
+              <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+              <span>Успешно</span>
+            </div>
+          )}
+          {loadingButton !== 'update' && errorButton !== 'update' && successButton !== 'update' && (
+            <>Записать</>
+          )}
+        </Button>
+      </ConfigProvider>
       {role === 'executor' && (
         <ConfigProvider
           theme={{
@@ -192,7 +186,7 @@ export const Buttons: FC<IProps> = ({
         >
           <Button
             onClick={() => {
-              update_application('close_application');
+              makeUpdateGisApplication('close_application');
             }}
             className='text-white bg-green-700'
             disabled={
@@ -237,7 +231,7 @@ export const Buttons: FC<IProps> = ({
         >
           <Button
             onClick={() => {
-              update_application('proceed_to_execution');
+              makeUpdateGisApplication('proceed_to_execution');
             }}
             className='text-white bg-amber-500'
             disabled={
@@ -273,7 +267,7 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {data.status.appStatus !== 'Закрыта' && (
+      {data.status.appStatus === 'Новая' && role === 'dispatcher' && (
         <ConfigProvider
           theme={{
             components: {
@@ -284,9 +278,7 @@ export const Buttons: FC<IProps> = ({
           }}
         >
           <Button
-            onClick={() => {
-              update_app_status_on_close();
-            }}
+            onClick={() => makeUpdateGisApplication('got_incorrectly')}
             className='text-white bg-red-500'
             disabled={!loadingButton && !successButton ? false : true}
           >

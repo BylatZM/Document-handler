@@ -1,5 +1,10 @@
 import { FC, useState } from 'react';
-import { IBuilding, IBuildingWithComplex, ICitizen, IPossession } from '../../../../../types';
+import {
+  IBuilding,
+  IBuildingWithComplex,
+  ICitizenPossession,
+  IPossession,
+} from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 import { FrontScore } from './inputs/FrontScore';
@@ -14,7 +19,7 @@ import { PossessionStatus } from './inputs/PossessionStatus';
 interface ICitizenFormProps {
   data: {
     key: number;
-    info: ICitizen;
+    info: ICitizenPossession;
     isFirstItem: boolean;
     isNew: boolean;
   };
@@ -22,8 +27,12 @@ interface ICitizenFormProps {
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   updatingFormId: number | null;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
-  getPossessions: (type: string, building_id: string) => Promise<void | IPossession[]>;
   getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  checkPossessionsRequestOnError: (
+    form_id: number,
+    possession_type: string,
+    building_id: string,
+  ) => Promise<void>;
 }
 
 export const Possessions: FC<ICitizenFormProps> = ({
@@ -33,7 +42,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
   updatingFormId,
   changeNeedShowNotification,
   getBuildings,
-  getPossessions,
+  checkPossessionsRequestOnError,
 }) => {
   const { citizenErrors } = useActions();
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
@@ -41,7 +50,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
   const { complexes, buildings, possessions } = useTypedSelector(
     (state) => state.PossessionReducer,
   );
-  const [formData, changeFormData] = useState<ICitizen>(data.info);
+  const [formData, changeFormData] = useState<ICitizenPossession>(data.info);
   const emptyPossession: IPossession = {
     id: 0,
     address: '',
@@ -70,10 +79,10 @@ export const Possessions: FC<ICitizenFormProps> = ({
         updatingFormId={updatingFormId}
         changeFormData={changeFormData}
         loadingForm={isLoading}
-        getPossessions={getPossessions}
         citizenErrors={citizenErrors}
         emptyPossession={emptyPossession}
         error={error}
+        checkPossessionsRequestOnError={checkPossessionsRequestOnError}
       />
       <OwnershipStatus
         data={formData}
@@ -101,12 +110,12 @@ export const Possessions: FC<ICitizenFormProps> = ({
         updatingFormId={updatingFormId}
         changeFormData={changeFormData}
         citizenErrors={citizenErrors}
-        getPossessions={getPossessions}
         loadingForm={isLoading}
         buildings={buildings}
         error={error}
         emptyPossession={emptyPossession}
         possessionLoadingField={possessionLoadingField}
+        checkPossessionsRequestOnError={checkPossessionsRequestOnError}
       />
       <Possession
         data={formData}
@@ -127,7 +136,7 @@ export const Possessions: FC<ICitizenFormProps> = ({
         loadingForm={isLoading}
         changeUpdatingFormId={changeUpdatingFormId}
         changeNeedUpdateAccountInfo={changeNeedUpdateAccountInfo}
-        getPossessions={getPossessions}
+        checkPossessionsRequestOnError={checkPossessionsRequestOnError}
         getBuildings={getBuildings}
         changeNeedShowNotification={changeNeedShowNotification}
       />

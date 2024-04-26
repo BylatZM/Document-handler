@@ -1,9 +1,9 @@
 import clsx from 'clsx';
-import { ICitizen } from '../../../../../../types';
+import { ICitizenPossession } from '../../../../../../types';
 import { FC } from 'react';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
 }
 

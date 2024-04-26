@@ -2,7 +2,6 @@ import { Input } from 'antd';
 import { IError, IUser } from '../../../../types';
 import { FC } from 'react';
 import { useActionType, useActions } from '../../../../hooks/useActions';
-import clsx from 'clsx';
 
 interface IProps {
   user: IUser;
@@ -21,22 +20,6 @@ export const Inputs: FC<IProps> = ({ user, isLoading, error, setUser }) => {
   const { userError } = useActions();
   return (
     <>
-      <div className='text-sm flex justify-between'>
-        <span>Статус аккаунта</span>
-        {!user.email && <span className=' underline text-sm font-bold text-blue-500'>Новый</span>}
-        {user.email && (
-          <span
-            className={clsx(
-              'underline text-sm font-bold',
-              user.account_status === 'На подтверждении' && ' text-amber-500',
-              user.account_status === 'Отклонен' && ' text-red-500',
-              user.account_status === 'Подтвержден' && ' text-green-500',
-            )}
-          >
-            {user.account_status}
-          </span>
-        )}
-      </div>
       <div className='text-sm'>
         <span>Почта</span>
         <Input disabled value={user.email} />

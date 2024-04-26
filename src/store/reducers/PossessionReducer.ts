@@ -1,4 +1,4 @@
-import { IBuildingWithComplex, IPossession } from './../../components/types';
+import { IBuildingWithComplex, IError, IPossession } from './../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IPossessionState, IComplex, IPosLoading } from '../../components/types';
 
@@ -7,6 +7,7 @@ const initialState: IPossessionState = {
   complexes: [],
   possessions: [],
   isLoading: null,
+  error: null,
 };
 
 export const PossessionReducer = createSlice({
@@ -28,6 +29,9 @@ export const PossessionReducer = createSlice({
       state.possessions = payload;
       state.isLoading = null;
     },
+    possessionError: (state, { payload }: PayloadAction<null | IError>) => {
+      state.error = payload;
+    },
     possessionClear: (state): IPossessionState => {
       return initialState;
     },
@@ -40,6 +44,7 @@ export const {
   buildingSuccess,
   possessionSuccess,
   possessionClear,
+  possessionError,
 } = PossessionReducer.actions;
 
 export default PossessionReducer.reducer;

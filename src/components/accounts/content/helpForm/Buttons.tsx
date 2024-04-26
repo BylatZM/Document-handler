@@ -1,6 +1,6 @@
 import { Button, ConfigProvider } from 'antd';
 import { FC, useState } from 'react';
-import { helpFormRequest } from '../../../../api/requests/Main';
+import { requestFromHelpForm } from '../../../../api/requests/Main';
 import { useActions } from '../../../hooks/useActions';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { Logo } from '../../../../assets/svg';
@@ -14,7 +14,7 @@ interface IButtonsProps {
 
 export const Buttons: FC<IButtonsProps> = ({ changeNeedShowForm, isAgreementChecked }) => {
   const { helpFormError, helpFormClear, helpFormLoading } = useActions();
-  const { info, processed_possessions, isLoading, error } = useTypedSelector(
+  const { info, processedPossessions, isLoading, error } = useTypedSelector(
     (state) => state.HelpFormReducer,
   );
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
@@ -56,12 +56,12 @@ export const Buttons: FC<IButtonsProps> = ({ changeNeedShowForm, isAgreementChec
       return;
     }
     let result_address = !address ? '' : address;
-    if (processed_possessions && /^[0-9]$/.test(result_address)) {
-      result_address = processed_possessions[parseInt(result_address)];
+    if (processedPossessions && /^[0-9]$/.test(result_address)) {
+      result_address = processedPossessions[parseInt(result_address)];
     }
 
     helpFormLoading(true);
-    await helpFormRequest({
+    await requestFromHelpForm({
       ...info,
       address: result_address,
     });

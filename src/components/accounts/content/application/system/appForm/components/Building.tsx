@@ -4,10 +4,9 @@ import { Select } from 'antd';
 import {
   IApplication,
   IBuilding,
-  ICitizen,
+  ICitizenPossession,
   IError,
   IPosLoading,
-  IPossession,
   IRole,
 } from '../../../../../../types';
 import { defaultAppForm } from '../defaultAppForm';
@@ -18,10 +17,10 @@ interface IProps {
   data: IApplication;
   buildings: IBuilding[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  citizenPossessions: ICitizen[];
-  getPossessions: (type: string, building_id: string) => Promise<void | IError | IPossession[]>;
+  citizenPossessions: ICitizenPossession[];
   error: IError | null;
   possessionLoadingField: IPosLoading;
+  checkPossessionRequestOnError: (possessionType: string, buildingId: string) => Promise<void>;
 }
 
 export const Building: FC<IProps> = ({
@@ -31,9 +30,9 @@ export const Building: FC<IProps> = ({
   buildings,
   changeFormData,
   citizenPossessions,
-  getPossessions,
   error,
   possessionLoadingField,
+  checkPossessionRequestOnError,
 }) => {
   const { applicationError } = useActions();
   return (
@@ -44,13 +43,13 @@ export const Building: FC<IProps> = ({
           className='h-[50px]'
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
-            const new_possession = citizenPossessions.filter((el) => el.building.id === e);
-            if (!new_possession.length) return;
+            const newPossession = citizenPossessions.filter((el) => el.building.id === e);
+            if (!newPossession.length) return;
             changeFormData((prev) => ({
               ...prev,
-              building: { ...new_possession[0].building },
-              complex: { ...new_possession[0].complex },
-              possession: { ...new_possession[0].possession },
+              building: { ...newPossession[0].building },
+              complex: { ...newPossession[0].complex },
+              possession: { ...newPossession[0].possession },
             }));
           }}
           disabled={form_id !== 0 ? true : false}
@@ -79,12 +78,12 @@ export const Building: FC<IProps> = ({
           value={!data.building.id ? undefined : data.building.id}
           onChange={(e: number) => {
             if (error) applicationError(null);
-            getPossessions(data.possessionType, e.toString());
-            const new_building = buildings.filter((el) => el.id === e);
-            if (!new_building.length) return;
+            const newBuilding = buildings.filter((el) => el.id === e);
+            if (!newBuilding.length) return;
+            checkPossessionRequestOnError(data.possessionType, e.toString());
             changeFormData((prev) => ({
               ...prev,
-              building: { ...new_building[0] },
+              building: { ...newBuilding[0] },
               possession: { ...defaultAppForm.possession },
             }));
           }}

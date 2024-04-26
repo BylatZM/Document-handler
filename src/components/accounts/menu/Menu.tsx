@@ -27,7 +27,7 @@ export const Menu: FC<IMenuProps> = ({
 }) => {
   const { pathname } = useLocation();
   const logout = useLogout();
-  const { role, account_status, email } = useTypedSelector((state) => state.UserReducer.user);
+  const { role, email } = useTypedSelector((state) => state.UserReducer.user);
 
   const [activeAccordion, changeActiveAccordion] = useState<string | null>(null);
 

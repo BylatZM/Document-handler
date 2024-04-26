@@ -11,9 +11,9 @@ import {
 import { useActions } from '../../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
 import {
-  createApplicationsRequest,
-  updateAppRequest,
-  updateAppStatusRequest,
+  createSystemApplicationRequest,
+  updateSystemApplicationByIdRequest,
+  updateSystemApplicationStatusByIdRequest,
 } from '../../../../../../../api/requests/Application';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
@@ -28,6 +28,14 @@ interface IProps {
   getApplications: () => Promise<void>;
 }
 
+type IApplicationOperation =
+  | null
+  | 'create'
+  | 'update'
+  | 'close_application'
+  | 'proceed_to_execution'
+  | 'return_for_revision';
+
 export const Buttons: FC<IProps> = ({
   data,
   form_id,
@@ -38,33 +46,11 @@ export const Buttons: FC<IProps> = ({
 }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
-  const [errorButton, changeErrorButton] = useState<
-    | null
-    | 'create'
-    | 'update'
-    | 'close_application'
-    | 'proceed_to_execution'
-    | 'return_for_revision'
-  >(null);
-  const [successButton, changeSuccessButton] = useState<
-    | null
-    | 'create'
-    | 'update'
-    | 'close_application'
-    | 'proceed_to_execution'
-    | 'return_for_revision'
-  >(null);
-  const [loadingButton, changeLoadingButton] = useState<
-    | null
-    | 'create'
-    | 'update'
-    | 'close_application'
-    | 'proceed_to_execution'
-    | 'return_for_revision'
-  >(null);
+  const [errorButton, changeErrorButton] = useState<IApplicationOperation>(null);
+  const [successButton, changeSuccessButton] = useState<IApplicationOperation>(null);
+  const [loadingButton, changeLoadingButton] = useState<IApplicationOperation>(null);
 
-  const create_application = async () => {
-    if (!statuses.length || !data.subtype || !data.type) return;
+  const makeCreateApplication = async () => {
     changeLoadingButton('create');
     if (errorButton) changeErrorButton(null);
     let info: IAppCreateByCitizen | IAppCreateByDispatcher = {
@@ -94,7 +80,7 @@ export const Buttons: FC<IProps> = ({
       };
     }
 
-    const response = await createApplicationsRequest(logout, info);
+    const response = await createSystemApplicationRequest(logout, info);
     changeLoadingButton(null);
     if (response === 201) {
       changeSuccessButton((prev) => 'create');
@@ -110,43 +96,55 @@ export const Buttons: FC<IProps> = ({
     }
   };
 
-  const update_application_status = async (status: IStatus) => {
-    if (status.appStatus === 'Закрыта') changeLoadingButton('close_application');
-    if (status.appStatus === 'Возвращена') changeLoadingButton('return_for_revision');
-    if (status.appStatus === 'В работе') changeLoadingButton('proceed_to_execution');
+  // const makeUpdateApplicationStatus = async (status: IStatus) => {
+  //   if (status.appStatus === 'Закрыта') changeLoadingButton('close_application');
+  //   if (status.appStatus === 'Возвращена') changeLoadingButton('return_for_revision');
+  //   if (status.appStatus === 'В работе') changeLoadingButton('proceed_to_execution');
 
-    if (errorButton) changeErrorButton(null);
+  //   if (errorButton) changeErrorButton(null);
 
-    const response = await updateAppStatusRequest(form_id.toString(), logout, status.id);
-    changeLoadingButton(null);
-    if (response === 200) {
-      if (status.appStatus === 'Закрыта') changeSuccessButton((prev) => 'close_application');
-      if (status.appStatus === 'Возвращена') changeSuccessButton((prev) => 'return_for_revision');
-      if (status.appStatus === 'В работе') changeSuccessButton((prev) => 'proceed_to_execution');
-      setTimeout(async () => {
-        changeSuccessButton((prev) => null);
-        getApplications();
-        exitFromForm();
-      }, 2000);
-    } else {
-      if (status.appStatus === 'Закрыта') changeErrorButton((prev) => 'close_application');
-      if (status.appStatus === 'Возвращена') changeErrorButton((prev) => 'return_for_revision');
-      if (status.appStatus === 'В работе') changeErrorButton((prev) => 'proceed_to_execution');
-      setTimeout(() => changeErrorButton(null), 2000);
-    }
-  };
+  //   const response = await updateSystemApplicationStatusByIdRequest(
+  //     form_id.toString(),
+  //     logout,
+  //     status.id,
+  //   );
+  //   changeLoadingButton(null);
+  //   if (response === 200) {
+  //     if (status.appStatus === 'Закрыта') changeSuccessButton((prev) => 'close_application');
+  //     if (status.appStatus === 'Возвращена') changeSuccessButton((prev) => 'return_for_revision');
+  //     if (status.appStatus === 'В работе') changeSuccessButton((prev) => 'proceed_to_execution');
+  //     setTimeout(async () => {
+  //       changeSuccessButton((prev) => null);
+  //       getApplications();
+  //       exitFromForm();
+  //     }, 2000);
+  //   } else {
+  //     if (status.appStatus === 'Закрыта') changeErrorButton((prev) => 'close_application');
+  //     if (status.appStatus === 'Возвращена') changeErrorButton((prev) => 'return_for_revision');
+  //     if (status.appStatus === 'В работе') changeErrorButton((prev) => 'proceed_to_execution');
 
-  const update_application = async () => {
-    if (!data.status || !data.employee || !statuses.length || !data.subtype) return;
+  //     if (response && 'type' in response) applicationError(response);
+  //     setTimeout(() => changeErrorButton(null), 2000);
+  //   }
+  // };
 
-    changeLoadingButton('update');
+  const makeUpdateApplication = async (
+    new_status: IStatus,
+    operation_type: IApplicationOperation,
+  ) => {
+    if (operation_type === 'create') return;
+    if (operation_type === 'update') changeLoadingButton('update');
+    if (operation_type === 'close_application') changeLoadingButton('close_application');
+    if (operation_type === 'proceed_to_execution') changeLoadingButton('proceed_to_execution');
+    if (operation_type === 'return_for_revision') changeLoadingButton('return_for_revision');
+
     if (errorButton) changeErrorButton(null);
 
     let info: IAppUpdateByEmployee | IAppUpdateByDispatcher = {
       employeeComment: data.employeeComment,
+      status: new_status.id,
     };
     if (role === 'dispatcher') {
-      if (!data.type) return;
       info = {
         employee: data.employee.id,
         type: data.type.id,
@@ -154,20 +152,27 @@ export const Buttons: FC<IProps> = ({
         source: data.source.id,
         priority: data.priority.id,
         dispatcherComment: data.dispatcherComment,
+        status: new_status.id,
       };
     }
-    const response = await updateAppRequest(form_id.toString(), logout, info);
+    const response = await updateSystemApplicationByIdRequest(form_id.toString(), logout, info);
     changeLoadingButton(null);
     if (response === 200) {
-      changeSuccessButton((prev) => 'update');
+      if (operation_type === 'update') changeSuccessButton('update');
+      if (operation_type === 'close_application') changeSuccessButton('close_application');
+      if (operation_type === 'proceed_to_execution') changeSuccessButton('proceed_to_execution');
+      if (operation_type === 'return_for_revision') changeSuccessButton('return_for_revision');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
         getApplications();
         exitFromForm();
       }, 2000);
     } else {
+      if (operation_type === 'update') changeErrorButton('update');
+      if (operation_type === 'close_application') changeErrorButton('close_application');
+      if (operation_type === 'proceed_to_execution') changeErrorButton('proceed_to_execution');
+      if (operation_type === 'return_for_revision') changeErrorButton('return_for_revision');
       if (response && 'type' in response) applicationError(response);
-      changeErrorButton('update');
       setTimeout(() => changeErrorButton(null), 2000);
     }
   };
@@ -186,7 +191,7 @@ export const Buttons: FC<IProps> = ({
         >
           <Button
             onClick={() => {
-              create_application();
+              makeCreateApplication();
             }}
             className='text-white bg-blue-700'
             disabled={
@@ -194,10 +199,9 @@ export const Buttons: FC<IProps> = ({
               !successButton &&
               data.building.id &&
               data.complex.id &&
-              data.subtype &&
               data.subtype.id &&
               data.possession.id &&
-              data.type &&
+              data.type.id &&
               data.citizenComment &&
               data.citizenComment.length < 501 &&
               ((role === 'dispatcher' &&
@@ -250,21 +254,18 @@ export const Buttons: FC<IProps> = ({
             }}
           >
             <Button
-              onClick={() => {
-                update_application();
-              }}
+              onClick={() => makeUpdateApplication(data.status, 'update')}
               className='text-white bg-blue-700'
               disabled={
                 !loadingButton &&
                 !successButton &&
                 data.status.id &&
-                data.subtype &&
                 data.subtype.id &&
                 data.status.appStatus !== 'Закрыта' &&
                 ((role === 'dispatcher' &&
                   ((data.dispatcherComment && data.dispatcherComment.length < 501) ||
                     !data.dispatcherComment) &&
-                  data.type &&
+                  data.type.id &&
                   data.source.id &&
                   data.building.id &&
                   data.complex.id &&
@@ -317,13 +318,13 @@ export const Buttons: FC<IProps> = ({
               onClick={() => {
                 const new_status = statuses.filter((el) => el.appStatus === 'Закрыта');
                 if (!new_status.length) return;
-                update_application_status(new_status[0]);
+                makeUpdateApplication(new_status[0], 'close_application');
               }}
               className='text-white bg-green-700'
               disabled={
                 !loadingButton &&
                 !successButton &&
-                ((data.status && data.status.appStatus === 'В работе') ||
+                (data.status.appStatus === 'В работе' ||
                   ((data.status.appStatus === 'Назначена' ||
                     data.status.appStatus === 'Возвращена') &&
                     role === 'dispatcher'))
@@ -370,7 +371,7 @@ export const Buttons: FC<IProps> = ({
             onClick={() => {
               const new_status = statuses.filter((el) => el.appStatus === 'В работе');
               if (!new_status.length) return;
-              update_application_status(new_status[0]);
+              makeUpdateApplication(new_status[0], 'proceed_to_execution');
             }}
             className='text-white bg-amber-500'
             disabled={
@@ -422,7 +423,7 @@ export const Buttons: FC<IProps> = ({
             onClick={() => {
               const new_status = statuses.filter((el) => el.appStatus === 'Возвращена');
               if (!new_status.length) return;
-              update_application_status(new_status[0]);
+              makeUpdateApplication(new_status[0], 'return_for_revision');
             }}
             className='text-white bg-amber-500'
           >

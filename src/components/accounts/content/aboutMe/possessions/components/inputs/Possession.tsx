@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import {
-  ICitizen,
+  ICitizenPossession,
   ICitizenError,
   ICitizenLoading,
   IPosLoading,
@@ -9,11 +9,11 @@ import {
 import { Select } from 'antd';
 
 interface IProps {
-  data: ICitizen;
+  data: ICitizenPossession;
   form_id: number;
   error: ICitizenError | null;
   updatingFormId: number | null;
-  changeFormData: React.Dispatch<React.SetStateAction<ICitizen>>;
+  changeFormData: React.Dispatch<React.SetStateAction<ICitizenPossession>>;
   citizenErrors: (error: ICitizenError | null) => void;
   loadingForm: ICitizenLoading;
   possessions: IPossession[];
@@ -48,6 +48,11 @@ export const Possession: FC<IProps> = ({
           value={!possessions.length || !data.possession.id ? undefined : data.possession.id}
           options={possessions.map((el) => ({ value: el.id, label: el.address }))}
           loading={possessionLoadingField === 'possessions' ? true : false}
+          status={
+            error && error.form_id === form_id && error.error.type === 'possession'
+              ? 'error'
+              : undefined
+          }
           onChange={(e: number) => {
             if (error && error.error.type === 'possession') citizenErrors(null);
             const new_possession = possessions.filter((el) => el.id === e);

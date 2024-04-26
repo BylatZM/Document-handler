@@ -1,13 +1,13 @@
 import { ICitizenError, ICitizenLoading } from '../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { ICitizenState, ICitizen } from '../../components/types';
+import { ICitizenState, ICitizenPossession } from '../../components/types';
 
-const defaultCitizen: ICitizen = {
+const defaultCitizen: ICitizenPossession = {
   id: 0,
   personal_account: '',
-  possessionType: '1',
-  ownershipStatus: '2',
+  possession_type: '1',
+  ownership_status: '2',
   complex: {
     id: 0,
     name: '',
@@ -26,7 +26,7 @@ const defaultCitizen: ICitizen = {
 };
 
 const initialState: ICitizenState = {
-  citizen: [defaultCitizen],
+  citizenPossessions: [defaultCitizen],
   isLoading: { form_id: 0, isLoading: false },
   error: null,
 };
@@ -38,27 +38,30 @@ export const CitizenReducer = createSlice({
     citizenLoading: (state, { payload }: PayloadAction<ICitizenLoading>) => {
       state.isLoading = payload;
     },
-    citizenSuccess: (state, { payload }: PayloadAction<ICitizen[]>) => {
-      if (payload.length < 1) state.citizen = [defaultCitizen];
-      else state.citizen = payload;
+    citizenSuccess: (state, { payload }: PayloadAction<ICitizenPossession[]>) => {
+      if (payload.length < 1) state.citizenPossessions = [defaultCitizen];
+      else state.citizenPossessions = payload;
     },
     citizenErrors: (state, { payload }: PayloadAction<ICitizenError | null>) => {
       state.error = payload;
     },
     addCitizenForm: (state) => {
-      state.citizen.push({ ...defaultCitizen, id: -1 * state.citizen.length });
+      state.citizenPossessions.push({
+        ...defaultCitizen,
+        id: -1 * state.citizenPossessions.length,
+      });
     },
     updateCitizenForm: (
       state,
-      { payload }: PayloadAction<{ form_id: number; citizen: ICitizen }>,
+      { payload }: PayloadAction<{ form_id: number; citizen: ICitizenPossession }>,
     ) => {
-      state.citizen = state.citizen.map((el) => {
+      state.citizenPossessions = state.citizenPossessions.map((el) => {
         if (el.id === payload.form_id) return payload.citizen;
         else return el;
       });
     },
     deleteCitizenForm: (state, { payload }: PayloadAction<{ form_id: number }>) => {
-      state.citizen = state.citizen.filter((el) => el.id !== payload.form_id);
+      state.citizenPossessions = state.citizenPossessions.filter((el) => el.id !== payload.form_id);
     },
     citizenClear: (state): ICitizenState => {
       return initialState;
