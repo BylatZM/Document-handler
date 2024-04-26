@@ -23,7 +23,7 @@ import { Possession } from './components/Possession';
 import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
-import { Subtype } from './components/Subtype';
+import { SubType } from './components/SubType';
 import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
 import { defaultAppForm } from './defaultAppForm';

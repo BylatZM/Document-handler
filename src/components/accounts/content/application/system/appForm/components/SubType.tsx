@@ -12,7 +12,7 @@ interface IProps {
   error: IError | null;
 }
 
-export const Subtype: FC<IProps> = ({ data, changeData, subtypes, form_id, role, error }) => {
+export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role, error }) => {
   const { applicationError } = useActions();
   return (
     <div className='w-full md:w-[48%] gap-2 flex flex-col'>
