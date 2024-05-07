@@ -14,7 +14,7 @@ export const Status: FC<IProps> = ({ status }) => {
         className='h-[50px]'
         value={!status.id ? undefined : status.id}
         disabled
-        options={[{ value: status.id, label: status.appStatus }]}
+        options={[{ value: status.id, label: status.name }]}
       />
     </div>
   );

@@ -1,11 +1,5 @@
 import { FC, useState } from 'react';
-import {
-  IBuildingWithComplex,
-  ICitizenPossession,
-  ICitizenLoading,
-  IPossession,
-  IError,
-} from '../../../../../../types';
+import { IBuilding, ICitizenPossession, ICitizenLoading } from '../../../../../../types';
 import { Button, ConfigProvider } from 'antd';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { useActions } from '../../../../../../hooks/useActions';
@@ -31,7 +25,7 @@ interface IProp {
     possession_type: string,
     building_id: string,
   ) => Promise<void>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getBuildings: (complex_id: string) => Promise<IBuilding[] | void>;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -64,7 +58,6 @@ export const Buttons: FC<IProp> = ({
     citizenLoading({ form_id: form_id, isLoading: true });
 
     const response = await createCitizenPossessionRequest(logout, {
-      personal_account: data.personal_account,
       ownership_status: data.ownership_status,
       possession_type: data.possession_type,
       complex: data.complex.id,
@@ -95,7 +88,6 @@ export const Buttons: FC<IProp> = ({
     if (error && error.form_id === form_id) citizenErrors(null);
     citizenLoading({ form_id: form_id, isLoading: true });
     const response = await updateCitizenPossessionByIdRequest(form_id, logout, {
-      personal_account: data.personal_account,
       ownership_status: data.ownership_status,
       possession_type: data.possession_type,
       complex: data.complex.id,
@@ -157,25 +149,12 @@ export const Buttons: FC<IProp> = ({
           loadingForm.form_id ||
           !data.building.id ||
           !data.complex.id ||
-          data.personal_account === '' ||
           !data.possession.id ||
           updatingFormId !== form_id
             ? true
             : false
         }
         onClick={() => {
-          if (!/^\d+$/.test(data.personal_account) || data.personal_account.length < 10) {
-            citizenErrors({
-              form_id: form_id,
-              error: {
-                type: 'personal_account',
-                error:
-                  'Лицевой счет должен состоять только из цифр, количество символов от 10 до 15',
-              },
-            });
-            citizenLoading({ form_id: 0, isLoading: false });
-            return;
-          }
           form_id < 1 ? createCitizenPossession() : updateCitizenPossession();
         }}
         type='primary'

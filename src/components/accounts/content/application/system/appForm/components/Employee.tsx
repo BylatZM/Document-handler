@@ -1,10 +1,10 @@
 import { FC } from 'react';
-import { IApplication, IEmployee, IError, IRole } from '../../../../../../types';
-import { Input, Select } from 'antd';
+import { IApplication, IEmployee, IError } from '../../../../../../types';
+import { Select } from 'antd';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
-  role: IRole;
+  role: string;
   form_id: number;
   data: IApplication;
   workers: IEmployee[];
@@ -20,21 +20,25 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
       {role === 'executor' && (
         <Select
           className='h-[50px]'
-          value={!data.employee.id ? undefined : data.employee.id}
+          value={!data.employee?.id ? undefined : data.employee.id}
           disabled
-          options={[
-            {
-              label: data.employee.employee,
-              value: data.employee.id,
-            },
-          ]}
+          options={
+            data.employee
+              ? [
+                  {
+                    label: data.employee.employee,
+                    value: data.employee.id,
+                  },
+                ]
+              : []
+          }
         />
       )}
       {role === 'dispatcher' && (
         <>
           <Select
             className='h-[50px]'
-            value={!data.employee.id ? undefined : data.employee.id}
+            value={!data.employee?.id ? undefined : data.employee.id}
             onChange={(e: number) => {
               if (error) applicationError(null);
               const newExecutor = workers.filter((el) => el.id === e);
@@ -45,34 +49,27 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
               }));
             }}
             disabled={
-              form_id > 0 &&
-              data.status.appStatus !== 'Новая' &&
-              data.status.appStatus !== 'Назначена' &&
-              data.status.appStatus !== 'Возвращена'
+              (form_id > 0 &&
+                data.status.name !== 'Новая' &&
+                data.status.name !== 'Назначена' &&
+                data.status.name !== 'Возвращена') ||
+              !workers.length
                 ? true
                 : false
             }
             status={error && error.type === 'employee' ? 'error' : undefined}
-            options={workers.map((el) => ({
-              value: el.id,
-              label: el.employee,
-            }))}
+            options={
+              data.status.name === 'Закрыта' && data.employee
+                ? [{ value: data.employee.id, label: data.employee.employee }]
+                : workers.map((el) => ({
+                    value: el.id,
+                    label: el.employee,
+                  }))
+            }
           />
           {error && error.type === 'employee' && <span className='errorText'>{error.error}</span>}
         </>
       )}
-      <span>специализация</span>
-      <Input
-        className='h-[50px] text-base'
-        value={!data.employee ? undefined : data.employee.competence}
-        disabled
-      />
-      <span>компания</span>
-      <Input
-        className='h-[50px] text-base'
-        value={!data.employee ? undefined : data.employee.company}
-        disabled
-      />
     </div>
   );
 };

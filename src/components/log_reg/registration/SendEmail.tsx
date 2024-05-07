@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { Button, ConfigProvider } from 'antd';
-import { ImSpinner9, ImCross } from 'react-icons/im';
+import { ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 import clsx from 'clsx';
 import { useActions } from '../../hooks/useActions';

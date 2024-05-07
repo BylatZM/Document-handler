@@ -46,7 +46,7 @@ export const Possession: FC<IProps> = ({
               : false
           }
           value={!possessions.length || !data.possession.id ? undefined : data.possession.id}
-          options={possessions.map((el) => ({ value: el.id, label: el.address }))}
+          options={possessions.map((el) => ({ value: el.id, label: el.name }))}
           loading={possessionLoadingField === 'possessions' ? true : false}
           status={
             error && error.form_id === form_id && error.error.type === 'possession'
@@ -68,8 +68,8 @@ export const Possession: FC<IProps> = ({
         <Select
           className='w-full'
           disabled
-          value={!data.possession.address ? undefined : data.possession.id}
-          options={[{ value: data.possession.id, label: data.possession.address }]}
+          value={!data.possession.name ? undefined : data.possession.id}
+          options={[{ value: data.possession.id, label: data.possession.name }]}
         />
       )}
       {error && error.form_id === form_id && error.error.type === 'possession' && (

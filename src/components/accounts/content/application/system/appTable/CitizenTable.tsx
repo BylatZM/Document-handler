@@ -128,14 +128,14 @@ export const CitizenTable: FC<IProps> = ({
     <Table
       dataSource={applications.map((el) => ({
         key: el.id,
-        creating_date: !el.creatingDate ? '' : el.creatingDate,
-        app_type: !el.type ? '' : el.type.appType,
-        app_subtype: !el.subtype ? '' : el.subtype.subtype,
-        status: !el.status ? '' : el.status.appStatus,
-        due_date: !el.dueDate ? '' : el.dueDate,
-        citizen_comment: el.citizenComment,
-        possession: `${el.possession.type} ${el.possession.address}`,
-        building: el.building.building,
+        createdDate: !el.created_date ? '' : el.created_date,
+        appType: !el.type ? '' : el.type.name,
+        appSubtype: !el.subtype ? '' : el.subtype.name,
+        status: !el.status ? '' : el.status.name,
+        dueDate: !el.due_date ? '' : el.due_date,
+        applicantComment: el.applicant_comment,
+        possession: `${el.possession.type} ${el.possession.name}`,
+        building: el.building.address,
         complex: el.complex.name,
         contact: el.contact,
       }))}

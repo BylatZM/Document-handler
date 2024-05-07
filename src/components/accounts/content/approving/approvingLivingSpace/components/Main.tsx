@@ -19,7 +19,7 @@ export const Main: FC<IProps> = ({ selectedPossession, changeSelectedPossession 
     >
       <div
         className={clsx(
-          'flex flex-col justify-between rounded-md bg-blue-700 p-[5px] sm:p-[20px] bg-opacity-10 backdrop-blur-xl min-w-[270px] max-w-[270px] h-[500px] sm:min-w-[600px] sm:max-w-[600px] sm:h-[500px] overflow-hidden',
+          'flex flex-col justify-between rounded-md bg-blue-700 p-[5px] sm:p-[20px] bg-opacity-10 backdrop-blur-xl min-w-[270px] max-w-[270px] h-[600px] sm:min-w-[600px] sm:max-w-[600px] sm:h-[600px] overflow-hidden',
         )}
       >
         <span className='font-bold text-lg sm:text-2xl mb-1'>Информация о жил. площади</span>

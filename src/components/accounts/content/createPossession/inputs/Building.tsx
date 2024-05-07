@@ -20,7 +20,7 @@ export const Building: FC<IProps> = ({ data, changeData, buildings }) => {
         loading={isLoading === 'buildings' ? true : false}
         value={!data.building ? undefined : data.building}
         onChange={(e: number) => changeData((prev) => ({ ...prev, building: e }))}
-        options={buildings.map((el) => ({ value: el.id, label: el.building }))}
+        options={buildings.map((el) => ({ value: el.id, label: el.address }))}
       />
     </div>
   );

@@ -77,7 +77,7 @@ export const Buttons: FC<IProps> = ({
             type='primary'
             className='text-white bg-blue-700'
             disabled={
-              data.building && data.complex && data.possession && !isLoading && !isRequestSuccess
+              data.building && data.complex && data.name && !isLoading && !isRequestSuccess
                 ? false
                 : true
             }

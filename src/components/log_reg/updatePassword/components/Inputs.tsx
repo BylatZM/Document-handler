@@ -50,7 +50,7 @@ export const Inputs: FC<IProps> = ({
           changeIsApproved((prev) => !prev);
         }}
       >
-        Мой аккаунт подтвержден диспетчером/администратором
+        Мой аккаунт имеет подтвержденную собственность
       </Checkbox>
 
       <div className='mb-5 relative overflow-hidden'>

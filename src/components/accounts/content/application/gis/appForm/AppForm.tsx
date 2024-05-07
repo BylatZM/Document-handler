@@ -22,6 +22,7 @@ interface IProps {
   getGisApplications: () => Promise<void>;
   changeSelectedItem: React.Dispatch<React.SetStateAction<IGisApplication | null>>;
   applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
+  getGisEmploys: () => Promise<void>;
 }
 
 export const AppForm: FC<IProps> = ({
@@ -29,6 +30,7 @@ export const AppForm: FC<IProps> = ({
   getGisApplications,
   changeSelectedItem,
   applicationFreshnessStatus,
+  getGisEmploys,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
@@ -40,6 +42,7 @@ export const AppForm: FC<IProps> = ({
 
   useEffect(() => {
     if (!gisApplication || !['dispatcher', 'executor'].some((el) => role === el)) return;
+    getGisEmploys();
     changeFormData(gisApplication);
     if (ref.current) {
       ref.current.scrollTop = 0;

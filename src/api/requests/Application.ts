@@ -17,17 +17,17 @@ import {
 import {
   createSystemApplication,
   getAllSystemApplicationsByExtra,
-  getAllEmploys,
+  getAllEmploysWithExtra,
   getAllPriorities,
   getAllSources,
   getAllStatuses,
-  getAllTypes,
+  getAllTypesByComplexId,
   updateSystemApplicationById,
   updateSystemApplicationStatusById,
-  getAllSubtypesByTypeId,
+  getAllSubtypesWithExtra,
   getAllGisApplicationsByExtra,
   updateGisApplicationById,
-  // updateGisApplicationStatusById,
+  getAllEmploysForGis,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -199,40 +199,6 @@ export const updateGisApplicationByIdRequest = async (
   } else return response;
 };
 
-// export const updateGisApplicationStatusByIdRequest = async (
-//   application_id: string,
-//   data: IUpdateGisAppStatus,
-//   logout: () => void,
-// ): Promise<200 | void> => {
-//   const makeRequest = async (): Promise<200 | 401 | void> => {
-//     try {
-//       await updateGisApplicationStatusById(application_id, data);
-//       return 200;
-//     } catch (e) {
-//       if (request.isAxiosError(e) && e.response) {
-//         if (e.response.status === 401) return 401;
-//         else {
-//           if (e.response.status === 400) return e.response.data;
-//           else errorAlert(e.response.status);
-//         }
-//       }
-//     }
-//   };
-
-//   const response = await makeRequest();
-//   if (!response) return;
-
-//   if (response === 401) {
-//     const refresh_status = await refreshRequest();
-//     if (refresh_status === 200) {
-//       const response = await makeRequest();
-//       if (response !== 401) return response;
-//       else return;
-//     }
-//     if (refresh_status === 403) logout();
-//   } else return response;
-// };
-
 export const updateSystemApplicationStatusByIdRequest = async (
   id: string,
   logout: () => void,
@@ -268,10 +234,44 @@ export const updateSystemApplicationStatusByIdRequest = async (
   } else return response;
 };
 
-export const getAllEmploysRequest = async (logout: () => void): Promise<IEmployee[] | void> => {
+export const getAllEmploysWithExtraRequest = async (
+  complex_id: string,
+  subtype_id: string,
+  logout: () => void,
+): Promise<IEmployee[] | void | IError> => {
+  const makeRequest = async (): Promise<IEmployee[] | 401 | void | IError> => {
+    try {
+      const response = await getAllEmploysWithExtra(subtype_id, complex_id);
+      if (response.data) return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status === 400) return e.response.data;
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getAllEmploysForGisRequest = async (
+  logout: () => void,
+): Promise<IEmployee[] | void> => {
   const makeRequest = async (): Promise<IEmployee[] | 401 | void> => {
     try {
-      const response = await getAllEmploys();
+      const response = await getAllEmploysForGis();
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -295,10 +295,19 @@ export const getAllEmploysRequest = async (logout: () => void): Promise<IEmploye
   } else return response;
 };
 
-export const getAllTypesRequest = async (logout: () => void): Promise<IType[] | void> => {
+export const getAllTypesByComplexIdRequest = async (
+  complex_id: string,
+  logout: () => void,
+): Promise<IType[] | void> => {
   const makeRequest = async (): Promise<IType[] | 401 | void> => {
     try {
-      const response = await getAllTypes();
+      let cache_data = cache.type.filter(
+        (el) => el.url === `application/type/getAll/${complex_id}`,
+      );
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
+      const response = await getAllTypesByComplexId(complex_id);
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -325,6 +334,10 @@ export const getAllTypesRequest = async (logout: () => void): Promise<IType[] | 
 export const getAllStatusesRequest = async (logout: () => void): Promise<IStatus[] | void> => {
   const makeRequest = async (): Promise<IStatus[] | 401 | void> => {
     try {
+      let cache_data = cache.status.filter((el) => el.url === 'application/status/getAll');
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
       const response = await getAllStatuses();
       if (response.data) return response.data;
     } catch (e) {
@@ -352,6 +365,10 @@ export const getAllStatusesRequest = async (logout: () => void): Promise<IStatus
 export const getAllPrioritiesRequest = async (logout: () => void): Promise<IPriority[] | void> => {
   const makeRequest = async (): Promise<IPriority[] | 401 | void> => {
     try {
+      let cache_data = cache.priority.filter((el) => el.url === 'application/priority/getAll');
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
       const response = await getAllPriorities();
       if (response.data) return response.data;
     } catch (e) {
@@ -379,6 +396,10 @@ export const getAllPrioritiesRequest = async (logout: () => void): Promise<IPrio
 export const getAllSourcesRequest = async (logout: () => void): Promise<ISource[] | void> => {
   const makeRequest = async (): Promise<ISource[] | 401 | void> => {
     try {
+      let cache_data = cache.source.filter((el) => el.url === 'application/source/getAll');
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
       const response = await getAllSources();
       if (response.data) return response.data;
     } catch (e) {
@@ -403,17 +424,20 @@ export const getAllSourcesRequest = async (logout: () => void): Promise<ISource[
   } else return response;
 };
 
-export const getAllSubtypesByTypeIdRequest = async (
+export const getAllSubtypesWithExtraRequest = async (
   logout: () => void,
-  id: string,
+  type_id: string,
+  complex_id: string,
 ): Promise<ISubtype[] | void> => {
   const makeRequest = async (): Promise<ISubtype[] | 401 | void> => {
     try {
-      let cache_data = cache.subtype.filter((el) => el.url === `appSubtype/${id}`);
+      let cache_data = cache.subtype.filter(
+        (el) => el.url === `application/subtype/getAll?type_id=${type_id}&complex_id=${complex_id}`,
+      );
       if (cache_data.length) {
         return cache_data[0].data;
       }
-      const response = await getAllSubtypesByTypeId(id);
+      const response = await getAllSubtypesWithExtra(type_id, complex_id);
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

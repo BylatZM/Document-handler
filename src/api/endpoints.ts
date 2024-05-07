@@ -4,20 +4,18 @@ const endpoints = {
   help: 'help',
   user: {
     create: 'user/create',
-    get: 'user',
+    get: 'user/get',
     update: 'user/update',
     updatePassword: 'user/update/password',
   },
   complex: {
     getAll: 'complex/getAll',
-    // getByComplexId: 'complex/',
   },
   building: {
     getAllByComplexId: 'building/getAll/',
-    // getByBuildingId: 'building/',
   },
   possession: {
-    getAllWithExtra: 'possession',
+    getAllWithExtra: 'possession/getAll',
     create: 'possession/create',
     getAllNotApproved: 'possession/not_approved/getAll',
     updateStatusWithExtra: 'possession/update/status',
@@ -38,14 +36,16 @@ const endpoints = {
     getAllSystemWithExtra: 'application/system/getAll',
     getAllGisWithExtra: 'application/gis/getAll',
     updateGisById: 'application/gis/update/',
-    // updateGisStatusById: 'application/gis/update/status/',
     getAllStatuses: 'application/status/getAll',
-    getAllTypes: 'application/type/getAll',
-    getAllSubtypesByTypeId: 'application/subtype/getAll/',
+    getAllTypesByComplexId: 'application/type/getAll/',
+    getAllSubtypesWithExtra: 'application/subtype/getAll',
     getAllSources: 'application/source/getAll',
     getAllPriorities: 'application/priority/getAll',
   },
-  getEmploys: 'employee/getAll',
+  employee: {
+    getEmploysWithExtra: 'employee/getAll',
+    getEmploysForGis: 'employee/gis/getAll',
+  },
 };
 
 export default endpoints;

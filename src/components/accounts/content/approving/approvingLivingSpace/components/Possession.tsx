@@ -10,7 +10,25 @@ export const Possession: FC<IProps> = ({ selectedPossession }) => {
   return (
     <div className='p-1 disable'>
       <div className='mb-2 max-sm:text-xs text-sm'>
-        <span className='font-bold'>Тип</span>
+        <span className='font-bold'>Лицевой счет</span>
+        <Input
+          disabled
+          className='text-base'
+          value={
+            !selectedPossession?.personal_account ? 'Не задан' : selectedPossession.personal_account
+          }
+        />
+      </div>
+      <div className='mb-2 max-sm:text-xs text-sm'>
+        <span className='font-bold'>Пользователь, добавивший запись</span>
+        <Input
+          disabled
+          className='text-base h-auto'
+          value={!selectedPossession?.who_created ? 'Не задан' : selectedPossession.who_created}
+        />
+      </div>
+      <div className='mb-2 max-sm:text-xs text-sm'>
+        <span className='font-bold'>Тип собственности</span>
         <Input
           disabled
           className='text-base'
@@ -46,7 +64,7 @@ export const Possession: FC<IProps> = ({ selectedPossession }) => {
         <Input
           className='text-base'
           disabled
-          value={!selectedPossession ? '' : selectedPossession.address}
+          value={!selectedPossession ? '' : selectedPossession.name}
         />
       </div>
     </div>

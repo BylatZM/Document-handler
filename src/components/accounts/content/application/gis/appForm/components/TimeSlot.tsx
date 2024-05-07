@@ -1,12 +1,12 @@
 import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { FC } from 'react';
-import { IError, IGisApplication, IRole } from '../../../../../../types';
+import { IError, IGisApplication } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
   data: IGisApplication;
-  role: IRole;
+  role: string;
   changeData: React.Dispatch<React.SetStateAction<IGisApplication>>;
   error: IError | null;
 }
@@ -36,7 +36,7 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
         <span>Плановое время поступления заявки</span>
         <Input
           className='h-[50px] text-base'
-          value={!data.creating_date ? '' : data.creating_date}
+          value={!data.created_date ? '' : data.created_date}
           disabled
         />
       </div>
@@ -53,8 +53,8 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
         <Input
           className='h-[50px] text-base'
           value={
-            data.normative_in_hours
-              ? dateCalculator(data.normative_in_hours.normative_in_hours / 24, data.creating_date)
+            data.normative
+              ? dateCalculator(data.normative.normative_in_hours / 24, data.created_date)
               : ''
           }
           disabled
@@ -69,7 +69,7 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
           maxLength={500}
           rows={5}
           style={{ resize: 'none' }}
-          disabled={role === 'executor' || data.status.appStatus === 'Закрыта' ? true : false}
+          disabled={role === 'executor' || data.status.name === 'Закрыта' ? true : false}
         />
       </div>
       <div className='flex flex-col gap-2 w-full'>
@@ -85,7 +85,7 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
           rows={5}
           status={error && error.type === 'employee_comment' ? 'error' : undefined}
           style={{ resize: 'none' }}
-          disabled={role === 'dispatcher' || data.status.appStatus !== 'В работе' ? true : false}
+          disabled={role === 'dispatcher' || data.status.name !== 'В работе' ? true : false}
         />
         {error && error.type === 'employee_comment' && (
           <span className='errorText'>{error.error}</span>

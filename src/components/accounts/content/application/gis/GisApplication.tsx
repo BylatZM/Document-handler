@@ -14,13 +14,13 @@ import { GisTable } from './GisTable';
 import { DefaultAppForm } from './appForm/DefaultAppForm';
 
 interface IProps {
-  getPriorities: () => void;
-  getStatuses: () => void;
-  getEmploys: () => void;
+  getPriorities: () => Promise<void>;
+  getStatuses: () => Promise<void>;
+  getGisEmploys: () => Promise<void>;
 }
 
-export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmploys }) => {
-  const { gisApplications, employs, priorities, statuses } = useTypedSelector(
+export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getGisEmploys }) => {
+  const { gisApplications, priorities, statuses } = useTypedSelector(
     (state) => state.ApplicationReducer,
   );
   const { role } = useTypedSelector((state) => state.UserReducer.user);
@@ -86,13 +86,13 @@ export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmpl
       gisApplicationSuccess(
         [...gisApplications].sort((a, b) => {
           const dateA = new Date(
-            a.creating_date.replace(
+            a.created_date.replace(
               /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
               '$3-$2-$1T$4:$5:$6',
             ),
           );
           const dateB = new Date(
-            b.creating_date.replace(
+            b.created_date.replace(
               /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
               '$3-$2-$1T$4:$5:$6',
             ),
@@ -106,13 +106,13 @@ export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmpl
       gisApplicationSuccess(
         [...gisApplications].sort((a, b) => {
           const dateA = new Date(
-            a.creating_date.replace(
+            a.created_date.replace(
               /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
               '$3-$2-$1T$4:$5:$6',
             ),
           );
           const dateB = new Date(
-            b.creating_date.replace(
+            b.created_date.replace(
               /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
               '$3-$2-$1T$4:$5:$6',
             ),
@@ -194,7 +194,6 @@ export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmpl
 
   useEffect(() => {
     if (role === 'executor') return;
-    if (!employs.length) getEmploys();
     if (!statuses.length) getStatuses();
     if (!priorities.length) getPriorities();
   }, []);
@@ -242,16 +241,15 @@ export const GisApplication: FC<IProps> = ({ getPriorities, getStatuses, getEmpl
         changeSelectedItem={changeSelectedItem}
         applicationFreshnessStatus={
           !selectedItem ||
-          (selectedItem && selectedItem.status.appStatus === 'Закрыта') ||
+          (selectedItem && selectedItem.status.name === 'Закрыта') ||
           (selectedItem && selectedItem.id === 0)
             ? 'fresh'
             : applicationFreshnessStatus(
-                selectedItem.creating_date,
-                !selectedItem.normative_in_hours
-                  ? 0
-                  : selectedItem.normative_in_hours.normative_in_hours,
+                selectedItem.created_date,
+                !selectedItem.normative ? 0 : selectedItem.normative.normative_in_hours,
               )
         }
+        getGisEmploys={getGisEmploys}
       />
       <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>

@@ -1,13 +1,8 @@
-import { FC, useState } from 'react';
-import {
-  IBuilding,
-  IBuildingWithComplex,
-  ICitizenPossession,
-  IPossession,
-} from '../../../../../types';
+import { FC, useEffect, useState } from 'react';
+import { IBuilding, ICitizenPossession, IPossession } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
-import { FrontScore } from './inputs/FrontScore';
+import { PersonalAccount } from './inputs/PersonalAccount';
 import { PossessionType } from './inputs/PossessionType';
 import { OwnershipStatus } from './inputs/OwnershipStatus';
 import { Complex } from './inputs/Complex';
@@ -15,6 +10,8 @@ import { Building } from './inputs/Building';
 import { Possession } from './inputs/Possession';
 import { Buttons } from './buttons/Buttons';
 import { PossessionStatus } from './inputs/PossessionStatus';
+import { CreatedDate } from './inputs/CreatedDate';
+import { defaultCitizen } from '../../../../../../store/reducers/CitizenReducer';
 
 interface ICitizenFormProps {
   data: {
@@ -27,7 +24,7 @@ interface ICitizenFormProps {
   changeUpdatingFormId: React.Dispatch<React.SetStateAction<number | null>>;
   updatingFormId: number | null;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getBuildings: (complex_id: string) => Promise<IBuilding[] | void>;
   checkPossessionsRequestOnError: (
     form_id: number,
     possession_type: string,
@@ -50,29 +47,29 @@ export const Possessions: FC<ICitizenFormProps> = ({
   const { complexes, buildings, possessions } = useTypedSelector(
     (state) => state.PossessionReducer,
   );
-  const [formData, changeFormData] = useState<ICitizenPossession>(data.info);
+  const [formData, changeFormData] = useState<ICitizenPossession>(defaultCitizen);
   const emptyPossession: IPossession = {
     id: 0,
-    address: '',
+    name: '',
     type: '',
     building: '',
+    personal_account: null,
   };
   const emptyBuilding: IBuilding = {
     id: 0,
-    building: '',
+    address: '',
+    complex: '',
   };
+
+  useEffect(() => {
+    changeFormData({ ...data.info });
+  }, [data]);
 
   return (
     <>
       <PossessionStatus data={formData} form_id={data.key} />
-      <FrontScore
-        data={formData}
-        form_id={data.key}
-        error={error}
-        updatingFormId={updatingFormId}
-        changeFormData={changeFormData}
-        loadingForm={isLoading}
-      />
+      <PersonalAccount data={formData} />
+      <CreatedDate data={formData} />
       <PossessionType
         data={formData}
         form_id={data.key}

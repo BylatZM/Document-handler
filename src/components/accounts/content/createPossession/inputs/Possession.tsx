@@ -14,13 +14,13 @@ export const Possession: FC<IProps> = ({ data, changeData, error }) => {
       <div>Наименование квартиры (Наименование собственности)</div>
       <Input
         maxLength={60}
-        value={data.possession}
+        value={data.name}
         disabled={!data.building}
         placeholder='34'
         onChange={(e) =>
           changeData((prev) => ({
             ...prev,
-            possession: e.target.value,
+            name: e.target.value,
           }))
         }
       />

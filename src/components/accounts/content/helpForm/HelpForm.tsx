@@ -32,9 +32,9 @@ export const HelpForm: FC<IHelpFormProps> = ({ needShowForm, changeNeedShowForm 
         return (
           item.complex.name +
           ', ' +
-          item.building.building +
+          item.building.address +
           `, ${possessionType}: ` +
-          item.possession.address
+          item.possession.name
         );
       });
       helpFormAddress('1');

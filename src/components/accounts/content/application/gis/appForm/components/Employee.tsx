@@ -1,9 +1,9 @@
 import { FC } from 'react';
-import { IEmployee, IGisApplication, IRole } from '../../../../../../types';
-import { Input, Select } from 'antd';
+import { IEmployee, IGisApplication } from '../../../../../../types';
+import { Select } from 'antd';
 
 interface IProps {
-  role: IRole;
+  role: string;
   data: IGisApplication;
   workers: IEmployee[];
   changeFormData: React.Dispatch<React.SetStateAction<IGisApplication>>;
@@ -39,9 +39,9 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData }) =>
             }));
           }}
           disabled={
-            data.status.appStatus !== 'Новая' &&
-            data.status.appStatus !== 'Назначена' &&
-            data.status.appStatus !== 'Возвращена'
+            data.status.name !== 'Новая' &&
+            data.status.name !== 'Назначена' &&
+            data.status.name !== 'Возвращена'
               ? true
               : false
           }
@@ -51,18 +51,6 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData }) =>
           }))}
         />
       )}
-      <span>специализация</span>
-      <Input
-        className='h-[50px] text-base'
-        value={!data.employee ? undefined : data.employee.competence}
-        disabled
-      />
-      <span>компания</span>
-      <Input
-        className='h-[50px] text-base'
-        value={!data.employee ? undefined : data.employee.company}
-        disabled
-      />
     </div>
   );
 };

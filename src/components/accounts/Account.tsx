@@ -15,12 +15,13 @@ import {
   getAllPossessionsByExtraRequest,
 } from '../../api/requests/Possession';
 import {
-  getAllEmploysRequest,
+  getAllEmploysForGisRequest,
+  getAllEmploysWithExtraRequest,
   getAllPrioritiesRequest,
   getAllSourcesRequest,
   getAllStatusesRequest,
-  getAllSubtypesByTypeIdRequest,
-  getAllTypesRequest,
+  getAllSubtypesWithExtraRequest,
+  getAllTypesByComplexIdRequest,
 } from '../../api/requests/Application';
 import { ApprovingUserPossession } from './content/approving/approvingUserPossession/ApprovingUserPossession';
 import { ErrorPage } from '../ErrorPage';
@@ -28,14 +29,23 @@ import { ApprovingLivingSpace } from './content/approving/approvingLivingSpace/A
 import { GisApplication } from './content/application/gis/GisApplication';
 import { CreatePossession } from './content/createPossession/CreatePossession';
 import { HelpForm } from './content/helpForm/HelpForm';
-import { IBuildingWithComplex, ICitizenPossession, IError, IPossession, ISubtype } from '../types';
+import {
+  IBuilding,
+  ICitizenPossession,
+  IEmployee,
+  IError,
+  IPossession,
+  ISubtype,
+  IType,
+  IUser,
+} from '../types';
 
 export const Account = () => {
   const logout = useLogout();
   const navigate = useNavigate();
   const [isOpened, changeIsOpened] = useState(false);
   const { user } = useTypedSelector((state) => state.UserReducer);
-  const { citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
+  const citizenError = useTypedSelector((state) => state.CitizenReducer.error);
   const { pathname } = useLocation();
   const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
   const [needShowCreatePossessionForm, changeNeedShowCreatePossessionForm] = useState(false);
@@ -49,39 +59,37 @@ export const Account = () => {
     prioritiesSuccess,
     employsSuccess,
     possessionLoading,
-    subTypesSuccess,
+    subtypesSuccess,
     buildingSuccess,
     possessionSuccess,
     applicationError,
-    possessionError,
     applicationLoading,
     userLoading,
+    citizenErrors,
   } = useActions();
   const [IsRequested, changeIsRequested] = useState(true);
 
-  const getUserBaseInfo = async () => {
+  const baseChecker = async (operationType: 'init' | 'is_approved_citizen_check') => {
     const user = await getUser();
 
-    if (!user) return;
+    if (!user) {
+      logout();
+      return;
+    }
 
     if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role)) {
       logout();
       return;
     }
-    if (user.role !== 'executor') {
+    if (user.role !== 'executor' && operationType === 'init') {
       await getAllComplexes();
     }
-    if (user.role === 'citizen') {
-      const response = await getCitizenPossessions();
-      if (response && response.some((el) => el.approving_status === 'Подтверждена')) {
-        navigate('/account/applications');
-      }
-    }
-    if (['dispatcher', 'executor'].some((el) => el === user.role))
+    if (user.is_approved && operationType === 'init') {
       navigate('/account/applications');
+    }
   };
 
-  const getUser = async () => {
+  const getUser = async (): Promise<IUser | void> => {
     userLoading(true);
     const user = await getUserRequest(logout);
 
@@ -95,6 +103,7 @@ export const Account = () => {
   };
 
   const getCitizenPossessions = async (): Promise<ICitizenPossession[] | void> => {
+    if (citizenError) citizenErrors(null);
     const citizenPossessions = await getAllCitizenPossessionsRequest(logout);
 
     if (!citizenPossessions) return;
@@ -103,15 +112,19 @@ export const Account = () => {
     return citizenPossessions;
   };
 
-  const getTypes = async () => {
+  const getTypes = async (complex_id: string): Promise<IType[] | void> => {
+    typesSuccess([]);
+    subtypesSuccess([]);
     applicationLoading('types');
-    const types = await getAllTypesRequest(logout);
+    const types = await getAllTypesByComplexIdRequest(complex_id, logout);
 
     if (!types) {
       applicationLoading(null);
       return;
     }
     typesSuccess(types);
+
+    return types;
   };
 
   const getPriorities = async () => {
@@ -149,16 +162,36 @@ export const Account = () => {
     statusesSuccess(statuses);
   };
 
-  const getEmploys = async () => {
+  const getEmploys = async (
+    complex_id: string,
+    subtype_id: string,
+  ): Promise<IEmployee[] | void> => {
+    employsSuccess([]);
     applicationLoading('employs');
-    const employs = await getAllEmploysRequest(logout);
-
-    if (!employs) {
+    const response = await getAllEmploysWithExtraRequest(complex_id, subtype_id, logout);
+    if (!response) {
       applicationLoading(null);
       return;
     }
 
-    employsSuccess(employs);
+    if ('type' in response) {
+      applicationLoading(null);
+      applicationError(response);
+    } else {
+      employsSuccess(response);
+    }
+  };
+
+  const getGisEmploys = async () => {
+    employsSuccess([]);
+    applicationLoading('employs');
+    const response = await getAllEmploysForGisRequest(logout);
+    if (!response) {
+      applicationLoading(null);
+      return;
+    }
+
+    employsSuccess(response);
   };
 
   const getAllComplexes = async () => {
@@ -173,9 +206,7 @@ export const Account = () => {
     complexSuccess(complexes);
   };
 
-  const getAllBuildingsByComplexId = async (
-    complex_id: string,
-  ): Promise<IBuildingWithComplex[] | void> => {
+  const getAllBuildingsByComplexId = async (complex_id: string): Promise<IBuilding[] | void> => {
     buildingSuccess([]);
     possessionSuccess([]);
     possessionLoading('buildings');
@@ -190,16 +221,17 @@ export const Account = () => {
     }
   };
 
-  const getSubtypes = async (id: string): Promise<ISubtype[] | void> => {
+  const getSubtypes = async (type_id: string, complex_id: string): Promise<ISubtype[] | void> => {
+    subtypesSuccess([]);
     applicationLoading('subtypes');
-    const subtypes = await getAllSubtypesByTypeIdRequest(logout, id);
+    const subtypes = await getAllSubtypesWithExtraRequest(logout, type_id, complex_id);
 
     if (!subtypes) {
       applicationLoading(null);
       return;
     }
 
-    subTypesSuccess(subtypes);
+    subtypesSuccess(subtypes);
     return subtypes;
   };
 
@@ -225,9 +257,15 @@ export const Account = () => {
   };
 
   const makeRequest = async () => {
-    await getUserBaseInfo();
+    await baseChecker('init');
     changeIsRequested(false);
   };
+
+  useEffect(() => {
+    if (!IsRequested && user.role === 'citizen') {
+      baseChecker('is_approved_citizen_check');
+    }
+  }, [pathname, IsRequested]);
 
   useEffect(() => {
     if (IsRequested) makeRequest();
@@ -246,26 +284,12 @@ export const Account = () => {
     if (pathname === '/account/applications') {
       if (!['dispatcher', 'executor', 'citizen'].some((el) => el === user.role))
         return <ErrorPage message='Страница не найдена' />;
-      if (user.role === 'citizen') {
-        if (citizenPossessions.length === 1 && citizenPossessions[0].id < 1) {
-          return (
-            <ErrorPage
-              message={`Для того чтобы иметь возможность подавать заявки Вам нужно в разделе "Обо мне" указать фамилию, имя, отчество (при наличии), номер телефона, а также собственность, после чего дождаться уведомления (на почту ${user.email}) о подтверждении Вашего имущества диспетчером`}
-            />
-          );
-        }
-        if (
-          (citizenPossessions.length === 1 &&
-            citizenPossessions[0].approving_status !== 'Подтверждена') ||
-          (citizenPossessions.length > 1 &&
-            !citizenPossessions.some((el) => el.approving_status === 'Подтверждена'))
-        ) {
-          return (
-            <ErrorPage
-              message={`У ни одной заданной Вами собственности на данный момент нет статуса "Подтверждена". Вам следует дождаться подтверждения хотя бы одной из них, для того чтобы иметь возможност подавать заявки. Уведомление об одобрении или отказе имущества придет на почту ${user.email}`}
-            />
-          );
-        }
+      if (user.role === 'citizen' && !user.is_approved) {
+        return (
+          <ErrorPage
+            message={`У Вас нет заданной собственности со статусом "Подтверждена". Вам нужно в разделе "Обо мне" указать фамилию, имя, отчество (при наличии), номер телефона, а также собственность, после чего дождаться уведомления (на почту ${user.email}) о подтверждении Вашего имущества диспетчером`}
+          />
+        );
       }
       return (
         <Application
@@ -277,6 +301,7 @@ export const Account = () => {
           getSubtypes={getSubtypes}
           getTypes={getTypes}
           getEmploys={getEmploys}
+          getCitizenPossessions={getCitizenPossessions}
         />
       );
     }
@@ -285,9 +310,9 @@ export const Account = () => {
         return <ErrorPage message='Страница не найдена' />;
       return (
         <GisApplication
-          getEmploys={getEmploys}
           getPriorities={getPriorities}
           getStatuses={getStatuses}
+          getGisEmploys={getGisEmploys}
         />
       );
     }

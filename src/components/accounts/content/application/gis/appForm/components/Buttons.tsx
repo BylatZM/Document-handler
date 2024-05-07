@@ -1,6 +1,5 @@
 import { FC, useState } from 'react';
 import {
-  IRole,
   IStatus,
   IGisApplication,
   IUpdateGisAppByDispatcher,
@@ -25,7 +24,7 @@ type IUpdateOperation = 'update' | 'close_application' | 'proceed_to_execution' 
 interface IProps {
   data: IGisApplication;
   changeData: React.Dispatch<React.SetStateAction<IGisApplication>>;
-  role: IRole;
+  role: string;
   exitFromForm: () => void;
   logout: () => void;
   getApplications: () => Promise<void>;
@@ -58,23 +57,23 @@ export const Buttons: FC<IProps> = ({
     if (operation_type === 'got_incorrectly') changeLoadingButton('got_incorrectly');
 
     let new_status: IStatus[] | null = null;
-    if (data.status.appStatus === 'Новая' && operation_type === 'update') {
-      new_status = statuses.filter((el) => el.appStatus === 'Назначена');
+    if (data.status.name === 'Новая' && operation_type === 'update') {
+      new_status = statuses.filter((el) => el.name === 'Назначена');
     }
-    if (data.status.appStatus === 'Новая' && operation_type === 'got_incorrectly') {
-      new_status = statuses.filter((el) => el.appStatus === 'Закрыта');
+    if (data.status.name === 'Новая' && operation_type === 'got_incorrectly') {
+      new_status = statuses.filter((el) => el.name === 'Закрыта');
     }
     if (
-      ['Назначена', 'Возвращена'].some((el) => el === data.status.appStatus) &&
+      ['Назначена', 'Возвращена'].some((el) => el === data.status.name) &&
       operation_type === 'proceed_to_execution'
     ) {
-      new_status = statuses.filter((el) => el.appStatus === 'В работе');
+      new_status = statuses.filter((el) => el.name === 'В работе');
     }
     if (
-      ['В работе', 'Назначена'].some((el) => el === data.status.appStatus) &&
+      ['В работе', 'Назначена'].some((el) => el === data.status.name) &&
       (operation_type === 'close_application' || operation_type === 'got_incorrectly')
     ) {
-      new_status = statuses.filter((el) => el.appStatus === 'Закрыта');
+      new_status = statuses.filter((el) => el.name === 'Закрыта');
     }
     if (!new_status || (new_status && new_status.length !== 1)) {
       new_status = [{ ...data.status }];
@@ -136,7 +135,7 @@ export const Buttons: FC<IProps> = ({
           disabled={
             !loadingButton &&
             !successButton &&
-            data.status.appStatus !== 'Закрыта' &&
+            data.status.name !== 'Закрыта' &&
             ((role === 'dispatcher' &&
               ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
                 !data.dispatcher_comment) &&
@@ -144,7 +143,7 @@ export const Buttons: FC<IProps> = ({
               data.employee &&
               data.employee.id) ||
               (role === 'executor' &&
-                data.status.appStatus !== 'Назначена' &&
+                data.status.name !== 'Назначена' &&
                 data.employee_comment &&
                 data.employee_comment.length < 501))
               ? false
@@ -190,9 +189,7 @@ export const Buttons: FC<IProps> = ({
             }}
             className='text-white bg-green-700'
             disabled={
-              !loadingButton && !successButton && data.status.appStatus === 'В работе'
-                ? false
-                : true
+              !loadingButton && !successButton && data.status.name === 'В работе' ? false : true
             }
           >
             {loadingButton === 'close_application' && (
@@ -238,7 +235,7 @@ export const Buttons: FC<IProps> = ({
               !loadingButton &&
               !successButton &&
               data.status &&
-              (data.status.appStatus === 'Назначена' || data.status.appStatus === 'Возвращена')
+              (data.status.name === 'Назначена' || data.status.name === 'Возвращена')
                 ? false
                 : true
             }
@@ -267,7 +264,7 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {data.status.appStatus === 'Новая' && role === 'dispatcher' && (
+      {data.status.name === 'Новая' && role === 'dispatcher' && (
         <ConfigProvider
           theme={{
             components: {

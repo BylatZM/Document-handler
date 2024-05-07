@@ -52,7 +52,7 @@ export const ApplicationReducer = createSlice({
       state.grades = payload;
       state.isLoading = null;
     },
-    subTypesSuccess: (state, { payload }: PayloadAction<ISubtype[]>) => {
+    subtypesSuccess: (state, { payload }: PayloadAction<ISubtype[]>) => {
       state.subtypes = payload;
       state.isLoading = null;
     },
@@ -92,7 +92,7 @@ export const {
   typesSuccess,
   gradesSuccess,
   prioritiesSuccess,
-  subTypesSuccess,
+  subtypesSuccess,
 } = ApplicationReducer.actions;
 
 export default ApplicationReducer.reducer;

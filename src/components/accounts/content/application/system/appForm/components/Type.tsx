@@ -1,16 +1,18 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IApplication, IError, IRole, ISubtype, IType } from '../../../../../../types';
+import { IAppLoading, IApplication, IError, ISubtype, IType } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
   form_id: number;
-  role: IRole;
+  role: string;
   data: IApplication;
   types: IType[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
-  getSubtypes: (id: string) => Promise<ISubtype[] | void>;
+  getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
   error: IError | null;
+  applicationLoadingField: IAppLoading;
+  defaultSubtype: ISubtype;
 }
 
 export const Type: FC<IProps> = ({
@@ -21,25 +23,21 @@ export const Type: FC<IProps> = ({
   changeFormData,
   getSubtypes,
   error,
+  applicationLoadingField,
+  defaultSubtype,
 }) => {
-  const defaultSubtype: ISubtype = {
-    type: '',
-    subtype: '',
-    id: 0,
-    normative: 0,
-  };
-  const { subTypesSuccess, applicationError } = useActions();
+  const { subtypesSuccess, applicationError } = useActions();
 
-  const getSubtypesRequest = async (id: string) => {
-    const subtypes = await getSubtypes(id);
+  const getSubtypesRequest = async (type_id: string) => {
+    const subtypes = await getSubtypes(type_id, data.complex.id.toString());
 
-    if (subtypes && subtypes.length) subTypesSuccess(subtypes);
+    if (subtypes && subtypes.length) subtypesSuccess(subtypes);
   };
 
   return (
     <div className='w-full md:w-[48%] gap-2 flex flex-col'>
       <span>Тип заявки</span>
-      {role !== 'executor' && (
+      {role !== 'executor' && data.status.name !== 'Закрыта' && (
         <>
           <Select
             className='h-[50px]'
@@ -49,9 +47,9 @@ export const Type: FC<IProps> = ({
               role === 'executor' ||
               (role === 'citizen' && form_id > 0) ||
               (form_id > 0 &&
-                data.status.appStatus !== 'Новая' &&
-                data.status.appStatus !== 'Назначена' &&
-                data.status.appStatus !== 'Возвращена')
+                data.status.name !== 'Новая' &&
+                data.status.name !== 'Назначена' &&
+                data.status.name !== 'Возвращена')
                 ? true
                 : false
             }
@@ -62,27 +60,29 @@ export const Type: FC<IProps> = ({
               changeFormData((prev) => ({
                 ...prev,
                 type: { ...newType[0] },
-                subtype: defaultSubtype,
+                subtype: { ...defaultSubtype },
               }));
               getSubtypesRequest(e.toString());
             }}
+            loading={applicationLoadingField === 'types' ? true : false}
             status={error && error.type === 'type' ? 'error' : undefined}
             options={types.map((el) => ({
               value: el.id,
-              label: el.appType,
+              label: el.name,
             }))}
           />
           {error && error.type === 'type' && <span className='errorText'>{error.error}</span>}
         </>
       )}
-      {role === 'executor' && (
-        <Select
-          className='h-[50px]'
-          value={!data.type.id ? undefined : data.type.id}
-          disabled
-          options={data.type.id ? [{ value: data.type.id, label: data.type.appType }] : []}
-        />
-      )}
+      {role === 'executor' ||
+        (data.status.name === 'Закрыта' && (
+          <Select
+            className='h-[50px]'
+            value={!data.type.id ? undefined : data.type.id}
+            disabled
+            options={data.type.id ? [{ value: data.type.id, label: data.type.name }] : []}
+          />
+        ))}
     </div>
   );
 };

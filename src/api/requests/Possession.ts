@@ -1,6 +1,6 @@
 import {
   IApprovePossessionRequest,
-  IBuildingWithComplex,
+  IBuilding,
   IComplex,
   IError,
   INotApprovedPossession,
@@ -17,6 +17,7 @@ import {
 import { refreshRequest } from './Main';
 import request from 'axios';
 import { errorAlert } from './Main';
+import { cache } from '../instance';
 
 export const getAllComplexesRequest = async (logout: () => void): Promise<IComplex[] | void> => {
   const makeRequest = async (): Promise<IComplex[] | 401 | void> => {
@@ -46,12 +47,16 @@ export const getAllComplexesRequest = async (logout: () => void): Promise<ICompl
 };
 
 export const getAllBuildingsByComplexIdRequest = async (
-  id: string,
+  complex_id: string,
   logout: () => void,
-): Promise<IBuildingWithComplex[] | void> => {
-  const makeRequest = async (): Promise<IBuildingWithComplex[] | 401 | void> => {
+): Promise<IBuilding[] | void> => {
+  const makeRequest = async (): Promise<IBuilding[] | 401 | void> => {
     try {
-      const response = await getAllBuildingsByComplexId(id);
+      let cache_data = cache.building.filter((el) => el.url === `building/getAll/${complex_id}`);
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
+      const response = await getAllBuildingsByComplexId(complex_id);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

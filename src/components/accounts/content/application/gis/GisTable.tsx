@@ -111,17 +111,16 @@ export const GisTable: FC<IProps> = ({
     <Table
       dataSource={gisApplications.map((el) => ({
         key: el.id,
-        creating_date: el.creating_date,
+        createdDate: el.created_date,
         type: el.type,
-        status: el.status.appStatus,
-        applicant_fio: el.applicant_fio,
-        due_date: !el.due_date ? '' : el.due_date,
-        applicant_сomment: el.applicant_сomment,
-        possession_address: el.possession_address,
+        status: el.status.name,
+        dueDate: !el.due_date ? '' : el.due_date,
+        applicantComment: el.applicant_сomment,
+        possessionAddress: el.possession_address,
         phone: !el.phone ? '' : el.phone,
         email: !el.email ? '' : el.email,
-        employee: !el.employee ? '' : `${el.employee.employee} ${el.employee.competence}`,
-        normative_in_hours: !el.normative_in_hours ? 0 : el.normative_in_hours.normative_in_hours,
+        employee: !el.employee ? '' : el.employee.employee,
+        normative: !el.normative ? 0 : el.normative.normative_in_hours,
       }))}
       columns={gisTable}
       components={components}
@@ -134,13 +133,13 @@ export const GisTable: FC<IProps> = ({
       }}
       rowClassName={(item) => {
         if (
-          applicationFreshnessStatus(item.creating_date, item.normative_in_hours) === 'expired' &&
+          applicationFreshnessStatus(item.createdDate, item.normative) === 'expired' &&
           item.status !== 'Закрыта'
         ) {
           return 'table-row bg-red-400 bg-opacity-80';
         }
         if (
-          applicationFreshnessStatus(item.creating_date, item.normative_in_hours) === 'warning' &&
+          applicationFreshnessStatus(item.createdDate, item.normative) === 'warning' &&
           item.status !== 'Закрыта'
         ) {
           return 'table-row bg-amber-400 bg-opacity-80';

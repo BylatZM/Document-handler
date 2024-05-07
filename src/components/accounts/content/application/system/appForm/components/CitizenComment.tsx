@@ -15,8 +15,8 @@ export const CitizenComment: FC<IProps> = ({ form_id, data, changeFormData }) =>
       <TextArea
         rows={5}
         maxLength={500}
-        value={data.citizenComment}
-        onChange={(e) => changeFormData((prev) => ({ ...prev, citizenComment: e.target.value }))}
+        value={data.applicant_comment}
+        onChange={(e) => changeFormData((prev) => ({ ...prev, applicant_comment: e.target.value }))}
         className='rounded-md h-[60px] text-base'
         disabled={form_id > 0 ? true : false}
         style={{ resize: 'none' }}

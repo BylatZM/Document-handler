@@ -9,9 +9,12 @@ import {
   ITableParams,
   ISortOptions,
   IPossession,
-  IBuildingWithComplex,
+  IBuilding,
   ISubtype,
   IError,
+  IEmployee,
+  IType,
+  ICitizenPossession,
 } from '../../../../types';
 import { BsFilterRight } from 'react-icons/bs';
 import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
@@ -27,13 +30,14 @@ import { defaultAppForm } from './appForm/defaultAppForm';
 
 interface IProps {
   getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
-  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
-  getTypes: () => Promise<void>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuilding[] | void>;
+  getTypes: (complex_id: string) => Promise<IType[] | void>;
   getPriorities: () => Promise<void>;
   getSources: () => Promise<void>;
   getStatuses: () => Promise<void>;
-  getEmploys: () => Promise<void>;
-  getSubtypes: (id: string) => Promise<ISubtype[] | void>;
+  getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
+  getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
+  getCitizenPossessions: () => Promise<ICitizenPossession[] | void>;
 }
 
 export const Application: FC<IProps> = ({
@@ -45,8 +49,9 @@ export const Application: FC<IProps> = ({
   getSubtypes,
   getTypes,
   getEmploys,
+  getCitizenPossessions,
 }) => {
-  const { applications, priorities, types, statuses, sources, employs } = useTypedSelector(
+  const { applications, priorities, statuses, sources } = useTypedSelector(
     (state) => state.ApplicationReducer,
   );
   const [selectedItem, changeSelectedItem] = useState<IApplication | null>(null);
@@ -88,9 +93,9 @@ export const Application: FC<IProps> = ({
     localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
     let extra = '';
     if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
-      extra += '&creating_date=dec';
+      extra += '&created_date=dec';
     if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
-      extra += '&creating_date=inc';
+      extra += '&created_date=inc';
     if (sortOptions.status_dec && !sortOptions.status_inc) extra += '&status=dec';
     if (!sortOptions.status_dec && sortOptions.status_inc) extra += '&status=inc';
     let page = '1';
@@ -156,11 +161,9 @@ export const Application: FC<IProps> = ({
   useEffect(() => {
     if (!statuses.length) getStatuses();
     if (role === 'executor') return;
-    if (!types.length) getTypes();
     if (role === 'citizen') return;
     if (!priorities.length) getPriorities();
     if (!sources.length) getSources();
-    if (!employs.length) getEmploys();
   }, []);
 
   useEffect(() => {
@@ -264,17 +267,20 @@ export const Application: FC<IProps> = ({
         applicationFreshnessStatus={
           !selectedItem ||
           role === 'citizen' ||
-          (selectedItem && selectedItem.status.appStatus === 'Закрыта') ||
+          (selectedItem && selectedItem.status.name === 'Закрыта') ||
           (selectedItem && selectedItem.id === 0)
             ? 'fresh'
             : applicationFreshnessStatus(
-                selectedItem.creatingDate,
-                !selectedItem.subtype ? 0 : selectedItem.subtype.normative,
+                selectedItem.created_date,
+                !selectedItem.subtype ? 0 : selectedItem.subtype.normative_in_hours,
               )
         }
         getAllBuildingsByComplexId={getAllBuildingsByComplexId}
         getPossessions={getPossessions}
+        getTypes={getTypes}
         getSubtypes={getSubtypes}
+        getEmploys={getEmploys}
+        getCitizenPossessions={getCitizenPossessions}
       />
       <div className='mt-[68px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>

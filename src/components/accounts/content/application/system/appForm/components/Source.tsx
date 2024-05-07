@@ -1,10 +1,10 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IApplication, IRole, ISource } from '../../../../../../types';
+import { IApplication, ISource } from '../../../../../../types';
 
 interface IProps {
   form_id: number;
-  role: IRole;
+  role: string;
   data: IApplication;
   sources: ISource[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
@@ -21,7 +21,7 @@ export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormDat
               className='h-[50px]'
               value={!data.source.id ? undefined : data.source.id}
               disabled
-              options={[{ value: data.source.id, label: data.source.appSource }]}
+              options={[{ value: data.source.id, label: data.source.name }]}
             />
           )}
           {role === 'dispatcher' && (
@@ -30,9 +30,9 @@ export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormDat
               value={!data.source.id ? undefined : data.source.id}
               disabled={
                 form_id > 0 &&
-                data.status.appStatus !== 'Новая' &&
-                data.status.appStatus !== 'Назначена' &&
-                data.status.appStatus !== 'Возвращена'
+                data.status.name !== 'Новая' &&
+                data.status.name !== 'Назначена' &&
+                data.status.name !== 'Возвращена'
                   ? true
                   : false
               }
@@ -43,7 +43,7 @@ export const Source: FC<IProps> = ({ form_id, role, data, sources, changeFormDat
               }}
               options={sources.map((el) => ({
                 value: el.id,
-                label: el.appSource,
+                label: el.name,
               }))}
             />
           )}

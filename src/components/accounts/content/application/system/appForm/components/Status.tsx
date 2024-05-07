@@ -13,7 +13,7 @@ export const Status: FC<IProps> = ({ status }) => {
       <Select
         className='h-[50px]'
         value={status.id}
-        options={[{ value: status.id, label: status.appStatus }]}
+        options={[{ value: status.id, label: status.name }]}
         disabled
       />
     </div>

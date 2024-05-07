@@ -1,10 +1,10 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IApplication, IPriority, IRole } from '../../../../../../types';
+import { IApplication, IPriority } from '../../../../../../types';
 
 interface IProps {
   form_id: number;
-  role: IRole;
+  role: string;
   data: IApplication;
   priorities: IPriority[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
@@ -22,9 +22,9 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
               value={!data.priority.id ? undefined : data.priority.id}
               disabled={
                 form_id > 0 &&
-                data.status.appStatus !== 'Новая' &&
-                data.status.appStatus !== 'Назначена' &&
-                data.status.appStatus !== 'Возвращена'
+                data.status.name !== 'Новая' &&
+                data.status.name !== 'Назначена' &&
+                data.status.name !== 'Возвращена'
                   ? true
                   : false
               }
@@ -35,7 +35,7 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
               }}
               options={priorities.map((el) => ({
                 value: el.id,
-                label: el.appPriority,
+                label: el.name,
               }))}
             />
           )}
@@ -44,7 +44,7 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData, f
               className='h-[50px]'
               value={!data.priority.id ? undefined : data.priority.id}
               disabled
-              options={[{ value: data.priority.id, label: data.priority.appPriority }]}
+              options={[{ value: data.priority.id, label: data.priority.name }]}
             />
           )}
         </div>

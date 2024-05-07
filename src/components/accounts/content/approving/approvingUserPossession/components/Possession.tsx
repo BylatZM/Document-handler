@@ -13,7 +13,21 @@ export const Possession: FC<IProps> = ({ selectedCitizenPossession }) => {
         <span className='font-bold'>Лицевой счет</span>
         <Input
           className='text-base'
-          value={!selectedCitizenPossession ? '' : selectedCitizenPossession.personal_account}
+          value={
+            !selectedCitizenPossession?.personal_account
+              ? 'Не задан'
+              : selectedCitizenPossession.personal_account
+          }
+          disabled
+        />
+      </div>
+      <div className='mt-2 mb-2 max-sm:text-xs text-sm'>
+        <span className='font-bold'>Дата регистрации</span>
+        <Input
+          className='text-base'
+          value={
+            !selectedCitizenPossession?.created_date ? '' : selectedCitizenPossession.created_date
+          }
           disabled
         />
       </div>

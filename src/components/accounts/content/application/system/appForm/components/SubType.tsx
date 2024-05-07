@@ -1,6 +1,13 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IApplication, IError, IRole, ISubtype } from '../../../../../../types';
+import {
+  IAppLoading,
+  IApplication,
+  IEmployee,
+  IError,
+  IStatus,
+  ISubtype,
+} from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
@@ -8,11 +15,22 @@ interface IProps {
   changeData: React.Dispatch<React.SetStateAction<IApplication>>;
   subtypes: ISubtype[];
   form_id: number;
-  role: IRole;
+  role: string;
   error: IError | null;
+  getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
+  applicationLoadingField: IAppLoading;
 }
 
-export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role, error }) => {
+export const SubType: FC<IProps> = ({
+  data,
+  changeData,
+  subtypes,
+  form_id,
+  role,
+  error,
+  getEmploys,
+  applicationLoadingField,
+}) => {
   const { applicationError } = useActions();
   return (
     <div className='w-full md:w-[48%] gap-2 flex flex-col'>
@@ -25,7 +43,7 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
           options={[
             {
               value: data.subtype.id,
-              label: data.subtype.subtype,
+              label: data.subtype.name,
             },
           ]}
         />
@@ -36,26 +54,38 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
             className='h-[50px]'
             disabled={
               !subtypes.length ||
-              (form_id > 0 &&
-                (data.status.appStatus === 'В работе' || data.status.appStatus === 'Закрыта'))
+              (form_id > 0 && (data.status.name === 'В работе' || data.status.name === 'Закрыта'))
                 ? true
                 : false
             }
-            value={!data.subtype.id ? undefined : data.subtype.id}
+            value={
+              data.status.name !== 'Закрыта' && (!data.subtype.id || !subtypes.length)
+                ? undefined
+                : data.subtype.id
+            }
             onChange={(e: number) => {
               if (error) applicationError(null);
               const newSubtype = subtypes.filter((el) => el.id === e);
               if (!newSubtype.length) return;
-              changeData((prev) => ({ ...prev, subtype: { ...newSubtype[0] } }));
+              if (data.complex.id) {
+                changeData((prev) => ({
+                  ...prev,
+                  subtype: { ...newSubtype[0] },
+                  employee: null,
+                }));
+                getEmploys(data.complex.id.toString(), e.toString());
+              } else {
+                changeData((prev) => ({ ...prev, subtype: { ...newSubtype[0] } }));
+              }
             }}
             status={error && error.type === 'subtype' ? 'error' : undefined}
+            loading={applicationLoadingField === 'subtypes' ? true : false}
             options={
-              form_id > 0 &&
-              (data.status.appStatus === 'В работе' || data.status.appStatus === 'Закрыта')
-                ? [{ value: data.subtype.id, label: data.subtype.subtype }]
+              form_id > 0 && (data.status.name === 'В работе' || data.status.name === 'Закрыта')
+                ? [{ value: data.subtype.id, label: data.subtype.name }]
                 : subtypes.map((el) => ({
                     value: el.id,
-                    label: el.subtype,
+                    label: el.name,
                   }))
             }
           />
@@ -67,7 +97,7 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
           <Select
             className='h-[50px]'
             disabled={!subtypes.length || form_id > 0 ? true : false}
-            value={!data.subtype.id ? undefined : data.subtype.id}
+            value={!data.subtype.id || !subtypes.length ? undefined : data.subtype.id}
             onChange={(e: number) => {
               if (error) applicationError(null);
               const newSubtype = subtypes.filter((el) => el.id === e);
@@ -75,12 +105,13 @@ export const SubType: FC<IProps> = ({ data, changeData, subtypes, form_id, role,
               changeData((prev) => ({ ...prev, subtype: { ...newSubtype[0] } }));
             }}
             status={error && error.type === 'subtype' ? 'error' : undefined}
+            loading={applicationLoadingField === 'subtypes' ? true : false}
             options={
               form_id > 0
-                ? [{ value: data.subtype.id, label: data.subtype.subtype }]
+                ? [{ value: data.subtype.id, label: data.subtype.name }]
                 : subtypes.map((el) => ({
                     value: el.id,
-                    label: el.subtype,
+                    label: el.name,
                   }))
             }
           />

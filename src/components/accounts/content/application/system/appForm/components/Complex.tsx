@@ -2,24 +2,30 @@ import { Select } from 'antd';
 import { FC } from 'react';
 import {
   IApplication,
-  IBuildingWithComplex,
+  IBuilding,
   ICitizenPossession,
   IComplex,
+  IEmployee,
   IError,
-  IRole,
+  IStatus,
+  ISubtype,
+  IType,
 } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 import { defaultAppForm } from '../defaultAppForm';
 
 interface IProps {
   form_id: number;
-  role: IRole;
+  role: string;
   data: IApplication;
   complexes: IComplex[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizenPossession[];
-  getBuildings: (complex_id: string) => Promise<void | IBuildingWithComplex[]>;
+  getBuildings: (complex_id: string) => Promise<void | IBuilding[]>;
   error: IError | null;
+  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  defaultSubtype: ISubtype;
+  defaultType: IType;
 }
 
 export const Complex: FC<IProps> = ({
@@ -31,8 +37,20 @@ export const Complex: FC<IProps> = ({
   citizenPossessions,
   getBuildings,
   error,
+  getTypes,
+  defaultType,
+  defaultSubtype,
 }) => {
   const { applicationError } = useActions();
+
+  const changeType = async (complex_id: string) => {
+    await getTypes(complex_id);
+    changeFormData((prev) => ({
+      ...prev,
+      type: defaultType,
+      subtype: defaultSubtype,
+    }));
+  };
 
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
@@ -50,6 +68,7 @@ export const Complex: FC<IProps> = ({
               building: { ...newPossession[0].building },
               possession: { ...newPossession[0].possession },
             }));
+            changeType(e.toString());
           }}
           disabled={form_id !== 0 ? true : false}
           options={
@@ -85,7 +104,9 @@ export const Complex: FC<IProps> = ({
               complex: { ...newComplex[0] },
               building: { ...defaultAppForm.building },
               possession: { ...defaultAppForm.possession },
+              employee: null,
             }));
+            changeType(e.toString());
           }}
           disabled={form_id !== 0 ? true : false}
           options={

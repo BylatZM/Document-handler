@@ -11,18 +11,18 @@ export const defaultCitizenColumns: ColumnsType<IApplicationCitizenColumns> = [
   },
   {
     title: 'Дата создания',
-    dataIndex: 'creating_date',
-    key: 'creating_date',
+    dataIndex: 'createdDate',
+    key: 'createdDate',
   },
   {
     title: 'Тип заявки',
-    dataIndex: 'app_type',
-    key: 'app_type',
+    dataIndex: 'appType',
+    key: 'appType',
   },
   {
     title: 'Подтип заявки',
-    dataIndex: 'app_subtype',
-    key: 'app_subType',
+    dataIndex: 'appSubtype',
+    key: 'appSubtype',
     render: (subtype) => (
       <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype}</div>
     ),
@@ -48,16 +48,16 @@ export const defaultCitizenColumns: ColumnsType<IApplicationCitizenColumns> = [
   },
   {
     title: 'Время закрытия',
-    dataIndex: 'due_date',
-    key: 'due_date',
+    dataIndex: 'dueDate',
+    key: 'dueDate',
   },
   {
     title: 'Краткое содержание',
-    dataIndex: 'citizen_comment',
-    key: 'citizen_comment',
-    render: (citizen_comment: string) => (
+    dataIndex: 'applicantComment',
+    key: 'applicantComment',
+    render: (applicantComment: string) => (
       <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {citizen_comment}
+        {applicantComment}
       </div>
     ),
   },
@@ -111,18 +111,18 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
   },
   {
     title: 'Дата создания',
-    dataIndex: 'creating_date',
-    key: 'creating_date',
+    dataIndex: 'createdDate',
+    key: 'createdDate',
   },
   {
     title: 'Тип заявки',
-    dataIndex: 'app_type',
-    key: 'app_type',
+    dataIndex: 'appType',
+    key: 'appType',
   },
   {
     title: 'Подтип заявки',
-    dataIndex: 'app_subtype',
-    key: 'app_subType',
+    dataIndex: 'appSubtype',
+    key: 'appSubType',
     render: (subtype) => (
       <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype.name}</div>
     ),
@@ -148,16 +148,16 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
   },
   {
     title: 'Время закрытия',
-    dataIndex: 'due_date',
-    key: 'due_date',
+    dataIndex: 'dueDate',
+    key: 'dueDate',
   },
   {
     title: 'Краткое содержание',
-    dataIndex: 'citizen_comment',
-    key: 'citizen_comment',
-    render: (citizen_comment: string) => (
+    dataIndex: 'applicantComment',
+    key: 'applicantComment',
+    render: (applicantComment: string) => (
       <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {citizen_comment}
+        {applicantComment}
       </div>
     ),
   },

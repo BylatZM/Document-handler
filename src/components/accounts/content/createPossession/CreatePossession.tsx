@@ -1,6 +1,6 @@
 import { useState, FC, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { IApprovePossession, IBuildingWithComplex, IError } from '../../../types';
+import { IApprovePossession, IBuilding, IError } from '../../../types';
 import { useLogout } from '../../../hooks/useLogout';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 import { Complex } from './inputs/Complex';
@@ -12,14 +12,14 @@ import { Buttons } from './button/Buttons';
 interface IProps {
   needShowForm: boolean;
   changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
-  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuilding[] | void>;
 }
 
 const defaultPossessionInfo: IApprovePossession = {
   type: 1,
   complex: 0,
   building: 0,
-  possession: '',
+  name: '',
 };
 
 export const CreatePossession: FC<IProps> = ({
@@ -37,7 +37,7 @@ export const CreatePossession: FC<IProps> = ({
   const InitForm = async () => {
     if (!complexes.length || !needInitializeForm || !needShowForm) return;
 
-    let builds: IBuildingWithComplex[] = [];
+    let builds: IBuilding[] = [];
     if (!buildings.length) {
       const response = await getAllBuildingsByComplexId(complexes[0].id.toString());
       if (!response) return;

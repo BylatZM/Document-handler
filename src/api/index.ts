@@ -26,7 +26,7 @@ import {
   IAppUpdateByEmployee,
   INotApprovedPossession,
   ISubtype,
-  IBuildingWithComplex,
+  IBuilding,
   IPossession,
   INotApprovedCitizenPossession,
   IUpdateCitizenPossessionStatusByEmail,
@@ -61,9 +61,7 @@ export const updateUserPassword = (params: {
 export const getAllComplexes = (): AxiosPromise<IComplex[]> =>
   axiosInstance.get(endpoints.complex.getAll);
 
-export const getAllBuildingsByComplexId = (
-  complex_id: string,
-): AxiosPromise<IBuildingWithComplex[]> =>
+export const getAllBuildingsByComplexId = (complex_id: string): AxiosPromise<IBuilding[]> =>
   axiosInstance.get(endpoints.building.getAllByComplexId + complex_id);
 
 export const getAllPossessionsWithExtra = (
@@ -143,12 +141,6 @@ export const updateGisApplicationById = (
 ): AxiosPromise<void | IError> =>
   axiosInstance.put(endpoints.application.updateGisById + application_id, data);
 
-// export const updateGisApplicationStatusById = (
-//   application_id: string,
-//   data: IUpdateGisAppStatus,
-// ): AxiosPromise<void | IError> =>
-//   axiosInstance.put(endpoints.application.updateGisStatusById + `/${application_id}`, data);
-
 export const getAllSystemApplicationsByExtra = (
   page: string,
   page_size: string,
@@ -166,14 +158,27 @@ export const getAllGisApplicationsByExtra = (
     endpoints.application.getAllGisWithExtra + `?page=${page}&page_size=${page_size}`,
   );
 
-export const getAllEmploys = (): AxiosPromise<IEmployee[] | void> =>
-  axiosInstance.get(endpoints.getEmploys);
+export const getAllEmploysWithExtra = (
+  subtype_id: string,
+  complex_id: string,
+): AxiosPromise<IEmployee[] | void | IError> =>
+  axiosInstance.get(
+    endpoints.employee.getEmploysWithExtra + `?complex_id=${complex_id}&subtype_id=${subtype_id}`,
+  );
 
-export const getAllTypes = (): AxiosPromise<IType[] | void> =>
-  axiosInstance.get(endpoints.application.getAllTypes);
+export const getAllEmploysForGis = (): AxiosPromise<IEmployee[] | void> =>
+  axiosInstance.get(endpoints.employee.getEmploysForGis);
 
-export const getAllSubtypesByTypeId = (type_id: string): AxiosPromise<ISubtype[] | void> =>
-  axiosInstance.get(endpoints.application.getAllSubtypesByTypeId + type_id);
+export const getAllTypesByComplexId = (complex_id: string): AxiosPromise<IType[] | void> =>
+  axiosInstance.get(endpoints.application.getAllTypesByComplexId + complex_id);
+
+export const getAllSubtypesWithExtra = (
+  type_id: string,
+  complex_id: string,
+): AxiosPromise<ISubtype[] | void> =>
+  axiosInstance.get(
+    endpoints.application.getAllSubtypesWithExtra + `?type_id=${type_id}&complex_id=${complex_id}`,
+  );
 
 export const getAllPriorities = (): AxiosPromise<IPriority[] | void> =>
   axiosInstance.get(endpoints.application.getAllPriorities);

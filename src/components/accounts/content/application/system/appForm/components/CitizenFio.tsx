@@ -21,10 +21,10 @@ export const CitizenFio: FC<IProps> = ({ data, changeFormData, form_id }) => {
           onChange={(e) => {
             changeFormData((prev) => ({
               ...prev,
-              citizenFio: e.target.value.replace(/[^а-яА-Я\s]/g, '').replace(/\s\s/g, ' '),
+              applicant_fio: e.target.value.replace(/[^а-яА-Я\s]/g, '').replace(/\s\s/g, ' '),
             }));
           }}
-          value={data.citizenFio}
+          value={data.applicant_fio}
           disabled={form_id > 0 ? true : false}
         />
       </div>

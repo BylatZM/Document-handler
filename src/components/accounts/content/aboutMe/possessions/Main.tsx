@@ -3,14 +3,14 @@ import { Possessions } from './components/Possessions';
 import { useActions } from '../../../../hooks/useActions';
 import { FC, useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import { IBuildingWithComplex, IError, IPossession } from '../../../../types';
+import { IBuilding, IError, IPossession } from '../../../../types';
 
 interface IProps {
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedUpdateAccountInfo: React.Dispatch<React.SetStateAction<boolean>>;
   getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
-  getBuildings: (complex_id: string) => Promise<IBuildingWithComplex[] | void>;
+  getBuildings: (complex_id: string) => Promise<IBuilding[] | void>;
 }
 
 export const Main: FC<IProps> = ({
@@ -21,6 +21,7 @@ export const Main: FC<IProps> = ({
   getPossessions,
 }) => {
   const { error, citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
+  const { is_approved } = useTypedSelector((state) => state.UserReducer.user);
   const { addCitizenForm, citizenErrors } = useActions();
   const [updatingFormId, changeUpdatingFormId] = useState<number | null>(null);
 
@@ -47,9 +48,7 @@ export const Main: FC<IProps> = ({
             if (error) citizenErrors(null);
             addCitizenForm();
           }}
-          disabled={
-            citizenPossessions.some((el) => el.approving_status === 'Подтверждена') ? false : true
-          }
+          disabled={is_approved ? false : true}
         >
           Добавить собственность
         </Button>

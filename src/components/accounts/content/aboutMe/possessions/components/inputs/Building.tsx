@@ -50,7 +50,7 @@ export const Building: FC<IProps> = ({
             loadingForm.form_id === form_id || !data.complex.id || !buildings.length ? true : false
           }
           value={!data.building.id || !buildings.length ? undefined : data.building.id}
-          options={buildings.map((el) => ({ value: el.id, label: el.building }))}
+          options={buildings.map((el) => ({ value: el.id, label: el.address }))}
           loading={possessionLoadingField === 'buildings' ? true : false}
           onChange={(e: number) => {
             if (error && error.error.type === 'possession') citizenErrors(null);
@@ -69,8 +69,8 @@ export const Building: FC<IProps> = ({
         <Select
           className='h-[50px] sm:h-[32px] w-full'
           disabled
-          value={!data.building.building ? undefined : data.building.id}
-          options={[{ value: data.building.id, label: data.building.building }]}
+          value={!data.building.address ? undefined : data.building.id}
+          options={[{ value: data.building.id, label: data.building.address }]}
         />
       )}
     </div>

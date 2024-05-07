@@ -1,9 +1,9 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import { IGisApplication, IPriority, IRole } from '../../../../../../types';
+import { IGisApplication, IPriority } from '../../../../../../types';
 
 interface IProps {
-  role: IRole;
+  role: string;
   data: IGisApplication;
   priorities: IPriority[];
   changeFormData: React.Dispatch<React.SetStateAction<IGisApplication>>;
@@ -18,7 +18,7 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData })
           className='h-[50px]'
           value={!data.priority ? undefined : data.priority.id}
           disabled
-          options={[{ value: data.priority.id, label: data.priority.appPriority }]}
+          options={[{ value: data.priority.id, label: data.priority.name }]}
         />
       )}
       {role === 'dispatcher' && (
@@ -26,18 +26,18 @@ export const Priority: FC<IProps> = ({ role, data, priorities, changeFormData })
           className='h-[50px]'
           value={!data.priority ? undefined : data.priority.id}
           disabled={
-            data.status.appStatus !== 'Новая' &&
-            data.status.appStatus !== 'Назначена' &&
-            data.status.appStatus !== 'Возвращена'
+            data.status.name !== 'Новая' &&
+            data.status.name !== 'Назначена' &&
+            data.status.name !== 'Возвращена'
               ? true
               : false
           }
           onChange={(e: number) =>
-            changeFormData((prev) => ({ ...prev, priority: { id: e, appPriority: '' } }))
+            changeFormData((prev) => ({ ...prev, priority: { id: e, name: '' } }))
           }
           options={priorities.map((el) => ({
             value: el.id,
-            label: el.appPriority,
+            label: el.name,
           }))}
         />
       )}

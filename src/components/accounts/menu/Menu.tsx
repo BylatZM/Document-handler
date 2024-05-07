@@ -48,9 +48,8 @@ export const Menu: FC<IMenuProps> = ({
         </div>
         <div className='flex flex-col mt-10 text-lg'>
           <AboutMe pathname={pathname} />
-          <Applications role={role} pathname={pathname} />
-          {(role === 'executor' ||
-            (role === 'dispatcher' && email === 'SuperDispatcher2@yandex.ru')) && (
+          <Applications pathname={pathname} />
+          {(role === 'executor' || role === 'dispatcher') && (
             <GisApplications pathname={pathname} />
           )}
           {role === 'dispatcher' && (

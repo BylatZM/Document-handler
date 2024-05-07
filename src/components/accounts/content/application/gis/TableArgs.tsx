@@ -10,8 +10,8 @@ export const defaultColumns: ColumnsType<IGisTableColumns> = [
   },
   {
     title: 'Дата создания',
-    dataIndex: 'creating_date',
-    key: 'creating_date',
+    dataIndex: 'createdDate',
+    key: 'createdDate',
   },
   {
     title: 'Тип заявки',
@@ -38,37 +38,27 @@ export const defaultColumns: ColumnsType<IGisTableColumns> = [
     ),
   },
   {
-    title: 'ФИО заявителя',
-    dataIndex: 'applicant_fio',
-    key: 'applicant_fio',
-    render: (applicant_fio: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {applicant_fio}
-      </div>
-    ),
-  },
-  {
     title: 'Время закрытия',
-    dataIndex: 'due_date',
-    key: 'due_date',
+    dataIndex: 'dueDate',
+    key: 'dueDate',
   },
   {
     title: 'Краткое содержание',
-    dataIndex: 'applicant_сomment',
-    key: 'applicant_сomment',
-    render: (applicant_сomment: string) => (
+    dataIndex: 'applicantComment',
+    key: 'applicantComment',
+    render: (applicantComment: string) => (
       <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {applicant_сomment}
+        {applicantComment}
       </div>
     ),
   },
   {
     title: 'Адрес собственности',
-    dataIndex: 'possession_address',
-    key: 'possession_address',
-    render: (possession_address: string) => (
+    dataIndex: 'possessionAddress',
+    key: 'possessionAddress',
+    render: (possessionAddress: string) => (
       <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {possession_address}
+        {possessionAddress}
       </div>
     ),
   },

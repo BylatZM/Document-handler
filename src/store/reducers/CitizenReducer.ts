@@ -3,10 +3,10 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { ICitizenState, ICitizenPossession } from '../../components/types';
 
-const defaultCitizen: ICitizenPossession = {
+export const defaultCitizen: ICitizenPossession = {
   id: 0,
-  personal_account: '',
   possession_type: '1',
+  created_date: '',
   ownership_status: '2',
   complex: {
     id: 0,
@@ -14,12 +14,14 @@ const defaultCitizen: ICitizenPossession = {
   },
   building: {
     id: 0,
-    building: '',
+    address: '',
+    complex: '',
   },
   possession: {
     id: 0,
-    address: '',
+    name: '',
     type: '',
+    personal_account: null,
     building: '',
   },
   approving_status: 'На подтверждении',

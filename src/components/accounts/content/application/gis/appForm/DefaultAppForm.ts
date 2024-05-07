@@ -5,13 +5,13 @@ export const DefaultAppForm: IGisApplication = {
   employee: null,
   status: {
     id: 1,
-    appStatus: 'Новая',
+    name: 'Новая',
   },
   priority: {
     id: 0,
-    appPriority: '',
+    name: '',
   },
-  normative_in_hours: null,
+  normative: null,
   phone: null,
   email: null,
   applicant_fio: '',
@@ -19,7 +19,7 @@ export const DefaultAppForm: IGisApplication = {
   applicant_сomment: '',
   dispatcher_comment: null,
   employee_comment: '',
-  creating_date: '',
+  created_date: '',
   due_date: null,
   possession_address: '',
 };

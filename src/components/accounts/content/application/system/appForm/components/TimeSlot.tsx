@@ -1,12 +1,12 @@
 import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FC } from 'react';
-import { IApplication, IError, IRole } from '../../../../../../types';
+import { IApplication, IError } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
   form_id: number;
-  role: IRole;
+  role: string;
   data: IApplication;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   error: IError | null;
@@ -33,17 +33,17 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
 
   return (
     <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
-      {form_id !== 0 && (
+      {form_id !== 0 && role !== 'citizen' && (
         <>
           <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
             <span>Плановое время поступления заявки</span>
-            <Input className='h-[50px] text-base' value={data.creatingDate} disabled />
+            <Input className='h-[50px] text-base' value={data.created_date} disabled />
           </div>
           <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
             <span>Фактическое время исполнения</span>
             <Input
               className='h-[50px] text-base'
-              value={!data.dueDate ? '' : data.dueDate}
+              value={!data.due_date ? '' : data.due_date}
               disabled
             />
           </div>
@@ -55,7 +55,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
             <span>Заявка была создана</span>
             <Input
               className='h-[50px] text-base'
-              value={data.user.role === 'citizen' ? 'Жителем' : 'Диспетчером'}
+              value={data.applicant.role === 'citizen' ? 'Жителем' : 'Диспетчером'}
               disabled
             />
           </div>
@@ -63,22 +63,10 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
             <span>Плановое время исполнения</span>
             <Input
               className='h-[50px] text-base'
-              value={dateCalculator(data.subtype.normative / 24, data.creatingDate)}
+              value={dateCalculator(data.subtype.normative_in_hours / 24, data.created_date)}
               disabled
             />
           </div>
-        </>
-      )}
-      {form_id !== 0 && role === 'citizen' && (
-        <>
-          <>
-            <span>Плановое время выполнения</span>
-            <Input
-              className='h-[50px] text-base'
-              value={dateCalculator(data.subtype.normative / 24, data.creatingDate)}
-              disabled
-            />
-          </>
         </>
       )}
       {((role === 'citizen' && form_id !== 0) || role !== 'citizen') && (
@@ -86,17 +74,16 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
           <div className='flex flex-col gap-y-2 w-full'>
             <span>Комментарий диспетчера</span>
             <TextArea
-              value={!data.dispatcherComment ? '' : data.dispatcherComment}
+              value={!data.dispatcher_comment ? '' : data.dispatcher_comment}
               onChange={(e) =>
-                changeFormData((prev) => ({ ...prev, dispatcherComment: e.target.value }))
+                changeFormData((prev) => ({ ...prev, dispatcher_comment: e.target.value }))
               }
               className='rounded-md h-[60px] text-base'
               maxLength={500}
               rows={5}
               style={{ resize: 'none' }}
               disabled={
-                ['citizen', 'executor'].some((el) => el === role) ||
-                data.status.appStatus === 'Закрыта'
+                ['citizen', 'executor'].some((el) => el === role) || data.status.name === 'Закрыта'
                   ? true
                   : false
               }
@@ -105,24 +92,24 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
           <div className='flex flex-col gap-2 w-full'>
             <span>Комментарий исполнителя</span>
             <TextArea
-              value={!data.employeeComment ? '' : data.employeeComment}
+              value={!data.employee_comment ? '' : data.employee_comment}
               onChange={(e) => {
-                if (error && error.type === 'employeeComment') applicationError(null);
-                changeFormData((prev) => ({ ...prev, employeeComment: e.target.value }));
+                if (error && error.type === 'employee_comment') applicationError(null);
+                changeFormData((prev) => ({ ...prev, employee_comment: e.target.value }));
               }}
               className='rounded-md h-[60px] text-base'
               maxLength={500}
               rows={5}
               style={{ resize: 'none' }}
-              status={error && error.type === 'employeeComment' ? 'error' : undefined}
+              status={error && error.type === 'employee_comment' ? 'error' : undefined}
               disabled={
                 ['citizen', 'dispatcher'].some((el) => el === role) ||
-                data.status.appStatus !== 'В работе'
+                data.status.name !== 'В работе'
                   ? true
                   : false
               }
             />
-            {error && error.type === 'employeeComment' && (
+            {error && error.type === 'employee_comment' && (
               <span className='errorText'>{error.error}</span>
             )}
           </div>

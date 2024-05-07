@@ -5,19 +5,23 @@ import {
   IError,
   IPosLoading,
   IPossession,
-  IRole,
+  ISubtype,
+  IType,
 } from '../../../../../../types';
 import { Select } from 'antd';
 
 interface IProps {
   form_id: number;
-  role: IRole;
+  role: string;
   data: IApplication;
   possessions: IPossession[];
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   citizenPossessions: ICitizenPossession[];
   error: IError | null;
   possessionLoadingField: IPosLoading;
+  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  defaultSubtype: ISubtype;
+  defaultType: IType;
 }
 
 export const Possession: FC<IProps> = ({
@@ -29,6 +33,9 @@ export const Possession: FC<IProps> = ({
   citizenPossessions,
   error,
   possessionLoadingField,
+  getTypes,
+  defaultSubtype,
+  defaultType,
 }) => {
   return (
     <div className='flex flex-col gap-2 w-full md:w-[48%]'>
@@ -41,22 +48,25 @@ export const Possession: FC<IProps> = ({
             onChange={(e: number) => {
               const newPossession = citizenPossessions.filter((el) => el.possession.id === e);
               if (!newPossession.length) return;
+              getTypes(newPossession[0].complex.id.toString());
               changeFormData((prev) => ({
                 ...prev,
                 possession: { ...newPossession[0].possession },
                 complex: { ...newPossession[0].complex },
                 building: { ...newPossession[0].building },
+                type: { ...defaultType },
+                subtype: { ...defaultSubtype },
               }));
             }}
             disabled={form_id !== 0 || citizenPossessions.length === 0 ? true : false}
             options={
               form_id !== 0
-                ? [{ label: data.possession.address, value: data.possession.id }]
+                ? [{ label: data.possession.name, value: data.possession.id }]
                 : citizenPossessions
                     .filter((el) => el.approving_status === 'Подтверждена')
                     .map((el) => ({
                       value: el.possession.id,
-                      label: el.possession.address,
+                      label: el.possession.name,
                     }))
             }
           />
@@ -88,10 +98,10 @@ export const Possession: FC<IProps> = ({
             }
             options={
               form_id !== 0
-                ? [{ label: data.possession.address, value: data.possession.id }]
+                ? [{ label: data.possession.name, value: data.possession.id }]
                 : possessions.map((el) => ({
                     value: el.id,
-                    label: el.address,
+                    label: el.name,
                   }))
             }
           />
@@ -103,7 +113,7 @@ export const Possession: FC<IProps> = ({
           className='h-[50px]'
           value={!data.possession.id ? undefined : data.possession.id}
           disabled
-          options={[{ label: data.possession.address, value: data.possession.id }]}
+          options={[{ label: data.possession.name, value: data.possession.id }]}
         />
       )}
     </div>

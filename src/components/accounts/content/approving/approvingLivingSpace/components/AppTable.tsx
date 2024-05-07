@@ -348,7 +348,7 @@ export const AppTable: FC<IProps> = ({
       dataSource={tableInfo.map((el) => ({
         key: el.id,
         status: el.approving_status,
-        address: `${el.complex} ${el.building} [${el.type}] № ${el.address}`,
+        address: `${el.complex} ${el.building} [${el.type}] № ${el.name}`,
       }))}
       columns={columns}
       components={components}

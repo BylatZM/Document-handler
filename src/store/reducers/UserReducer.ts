@@ -12,6 +12,7 @@ const initialState: IUserState = {
     patronymic: null,
     phone: null,
     email: '',
+    is_approved: false,
   },
   isLoading: false,
   error: null,

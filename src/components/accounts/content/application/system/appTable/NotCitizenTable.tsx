@@ -139,20 +139,20 @@ export const NotCitizenTable: FC<IProps> = ({
     <Table
       dataSource={applications.map((el) => ({
         key: el.id,
-        creating_date: !el.creatingDate ? '' : el.creatingDate,
-        app_type: !el.type ? '' : el.type.appType,
-        app_subtype: !el.subtype
+        createdDate: !el.created_date ? '' : el.created_date,
+        appType: !el.type ? '' : el.type.name,
+        appSubtype: !el.subtype
           ? default_subtype
-          : { name: el.subtype.subtype, normative: el.subtype.normative },
-        status: !el.status ? '' : el.status.appStatus,
-        due_date: !el.dueDate ? '' : el.dueDate,
-        citizen_comment: el.citizenComment,
-        possession: `${el.possession.type} ${el.possession.address}`,
-        building: el.building.building,
+          : { name: el.subtype.name, normative: el.subtype.normative_in_hours },
+        status: !el.status ? '' : el.status.name,
+        dueDate: !el.due_date ? '' : el.due_date,
+        applicantComment: el.applicant_comment,
+        possession: `${el.possession.type} ${el.possession.name}`,
+        building: el.building.address,
         complex: el.complex.name,
         contact: el.contact,
-        employee: el.employee.employee + ' ' + el.employee.competence,
-        creator: el.user.role === 'dispatcher' ? 'Диспетчер' : 'Житель',
+        employee: !el.employee ? '' : el.employee.employee,
+        creator: el.applicant.role === 'dispatcher' ? 'Диспетчер' : 'Житель',
       }))}
       columns={notCitizenTable}
       components={components}
@@ -165,15 +165,13 @@ export const NotCitizenTable: FC<IProps> = ({
       }}
       rowClassName={(item) => {
         if (
-          applicationFreshnessStatus(item.creating_date, item.app_subtype.normative) ===
-            'expired' &&
+          applicationFreshnessStatus(item.createdDate, item.appSubtype.normative) === 'expired' &&
           item.status !== 'Закрыта'
         ) {
           return 'table-row bg-red-400 bg-opacity-80';
         }
         if (
-          applicationFreshnessStatus(item.creating_date, item.app_subtype.normative) ===
-            'warning' &&
+          applicationFreshnessStatus(item.createdDate, item.appSubtype.normative) === 'warning' &&
           item.status !== 'Закрыта'
         ) {
           return 'table-row bg-amber-400 bg-opacity-80';
