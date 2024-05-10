@@ -43,7 +43,7 @@ import {
 export const Account = () => {
   const logout = useLogout();
   const navigate = useNavigate();
-  const [isOpened, changeIsOpened] = useState(false);
+  const [isMenuOpened, changeIsMenuOpened] = useState(false);
   const { user } = useTypedSelector((state) => state.UserReducer);
   const citizenError = useTypedSelector((state) => state.CitizenReducer.error);
   const { pathname } = useLocation();
@@ -328,9 +328,10 @@ export const Account = () => {
   return (
     <>
       <div className='flex w-full h-full bg-gray-100'>
-        <Header changeIsOpened={changeIsOpened} isOpened={isOpened} />
+        <Header changeIsMenuOpened={changeIsMenuOpened} isMenuOpened={isMenuOpened} />
         <Menu
-          isOpened={isOpened}
+          isMenuOpened={isMenuOpened}
+          changeIsMenuOpened={changeIsMenuOpened}
           changeNeedShowHelpForm={changeNeedShowHelpForm}
           changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
         />

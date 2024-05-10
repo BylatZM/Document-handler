@@ -32,7 +32,7 @@ export const Main: FC<IProps> = ({
         </button>
         <div
           className={clsx(
-            'flex flex-col justify-between rounded-md bg-blue-700 p-[5px] sm:p-[20px] bg-opacity-10 backdrop-blur-xl w-[270px] h-[500px] sm:w-[600px] sm:h-[500px]',
+            'flex flex-col justify-between rounded-md bg-blue-700 p-[5px] sm:p-[20px] bg-opacity-10 backdrop-blur-xl w-[270px] h-[570px] sm:w-[600px] sm:h-[570px]',
           )}
         >
           <span className='font-bold text-lg sm:text-2xl mb-2'>
@@ -42,7 +42,7 @@ export const Main: FC<IProps> = ({
             autoplay={false}
             dots={false}
             ref={CarouselMethods}
-            className='overflow-hidden w-[260px] h-[400px] sm:w-[560px] sm:h-[380px]'
+            className='overflow-hidden w-[260px] h-[470px] sm:w-[560px] sm:h-[450px]'
           >
             <Citizen selectedCitizenPossession={selectedCitizenPossession} />
             <Possession selectedCitizenPossession={selectedCitizenPossession} />

@@ -42,7 +42,7 @@ export const AppForm: FC<IProps> = ({
 
   useEffect(() => {
     if (!gisApplication || !['dispatcher', 'executor'].some((el) => role === el)) return;
-    getGisEmploys();
+    if (role === 'dispatcher') getGisEmploys();
     changeFormData(gisApplication);
     if (ref.current) {
       ref.current.scrollTop = 0;
@@ -72,6 +72,13 @@ export const AppForm: FC<IProps> = ({
         )}
       >
         <div className='flex justify-center gap-4 flex-col disable'>
+          <span className='font-bold text-lg mt-4'>Объект исполнения</span>
+          <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
+            <Possession possession={FormData.possession_address} />
+            <ApplicantFio applicant_fio={FormData.applicant_fio} />
+            <Phone phone={FormData.phone} />
+            <Email email={FormData.email} />
+          </div>
           <span className='font-bold text-lg'>Сведения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
             <Status status={FormData.status} />
@@ -84,14 +91,6 @@ export const AppForm: FC<IProps> = ({
             priorities={priorities}
             changeFormData={changeFormData}
           />
-          <span className='font-bold text-lg mt-4'>Объект исполнения</span>
-          <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
-            <Possession possession={FormData.possession_address} />
-            <ApplicantFio applicant_fio={FormData.applicant_fio} />
-            <Phone phone={FormData.phone} />
-            <Email email={FormData.email} />
-          </div>
-          <span className='font-bold text-lg mt-2'>Таймслот</span>
           <TimeSlot role={role} data={FormData} changeData={changeFormData} error={error} />
           <div className='bg-blue-300 p-5 mt-2 rounded-md backdrop-blur-md bg-opacity-50 flex flex-col gap-2'>
             <span className='font-bold text-lg'>Исполнители</span>

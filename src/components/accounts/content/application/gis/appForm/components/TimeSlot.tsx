@@ -14,52 +14,51 @@ interface IProps {
 export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
   const { applicationError } = useActions();
   const dateCalculator = (days: number, creatingDate: string): string => {
-    const [dmy, hms] = creatingDate.split(' ');
-    const currentDate = new Date(`${dmy.split('.').reverse().join('-')}T${hms}`);
+    const currentDate = new Date(`${creatingDate.split('.').reverse().join('-')}`);
     const futureDate = new Date(currentDate.getTime() + days * 24 * 60 * 60 * 1000);
 
     const newDateStr = `
     ${futureDate.getDate() < 10 ? `0${futureDate.getDate()}` : futureDate.getDate()}.${
       futureDate.getMonth() + 1 < 10 ? `0${futureDate.getMonth() + 1}` : futureDate.getMonth() + 1
-    }.${futureDate.getFullYear()} ${
-      futureDate.getHours() < 10 ? `0${futureDate.getHours()}` : futureDate.getHours()
-    }:${futureDate.getMinutes() < 10 ? `0${futureDate.getMinutes()}` : futureDate.getMinutes()}:${
-      futureDate.getSeconds() < 10 ? `0${futureDate.getSeconds()}` : futureDate.getSeconds()
-    }`.trim();
+    }.${futureDate.getFullYear()}`.trim();
 
     return newDateStr;
   };
 
   return (
-    <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
-      <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
-        <span>Плановое время поступления заявки</span>
-        <Input
-          className='h-[50px] text-base'
-          value={!data.created_date ? '' : data.created_date}
-          disabled
-        />
+    <div className='flex flex-col gap-y-2'>
+      <span className='font-bold text-lg mt-2'>Промежутки времени</span>
+      <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
+        <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
+          <span>Плановая дата поступления заявки</span>
+          <Input
+            className='h-[50px] text-base'
+            value={!data.created_date ? '' : data.created_date}
+            disabled
+          />
+        </div>
+        <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
+          <span>Фактическая дата исполнения</span>
+          <Input
+            className='h-[50px] text-base'
+            value={!data.due_date ? '' : data.due_date}
+            disabled
+          />
+        </div>
+        <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
+          <span>Плановая дата исполнения</span>
+          <Input
+            className='h-[50px] text-base'
+            value={
+              data.normative
+                ? dateCalculator(data.normative.normative_in_hours / 24, data.created_date)
+                : ''
+            }
+            disabled
+          />
+        </div>
       </div>
-      <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
-        <span>Фактическое время исполнения</span>
-        <Input
-          className='h-[50px] text-base'
-          value={!data.due_date ? '' : data.due_date}
-          disabled
-        />
-      </div>
-      <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
-        <span>Плановое время исполнения</span>
-        <Input
-          className='h-[50px] text-base'
-          value={
-            data.normative
-              ? dateCalculator(data.normative.normative_in_hours / 24, data.created_date)
-              : ''
-          }
-          disabled
-        />
-      </div>
+      <span className='font-bold text-lg mt-2'>Комментарии</span>
       <div className='flex flex-col gap-y-2 w-full'>
         <span>Комментарий диспетчера</span>
         <TextArea

@@ -74,15 +74,14 @@ export const Type: FC<IProps> = ({
           {error && error.type === 'type' && <span className='errorText'>{error.error}</span>}
         </>
       )}
-      {role === 'executor' ||
-        (data.status.name === 'Закрыта' && (
-          <Select
-            className='h-[50px]'
-            value={!data.type.id ? undefined : data.type.id}
-            disabled
-            options={data.type.id ? [{ value: data.type.id, label: data.type.name }] : []}
-          />
-        ))}
+      {(role === 'executor' || data.status.name === 'Закрыта') && (
+        <Select
+          className='h-[50px]'
+          value={!data.type.id ? undefined : data.type.id}
+          disabled
+          options={data.type.id ? [{ value: data.type.id, label: data.type.name }] : []}
+        />
+      )}
     </div>
   );
 };

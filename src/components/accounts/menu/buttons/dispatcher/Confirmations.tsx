@@ -1,21 +1,32 @@
 import clsx from 'clsx';
 import { FC } from 'react';
 import { BsBuildingFill, BsFillBuildingsFill } from 'react-icons/bs';
-import { FaUserCheck } from 'react-icons/fa6';
 import { GrNext, GrStatusGood } from 'react-icons/gr';
 import { Link } from 'react-router-dom';
+import { IAccordionState } from '../../../../types';
 
 interface IProps {
-  activeAccordion: string | null;
-  changeActiveAccordion: React.Dispatch<React.SetStateAction<string | null>>;
+  activeAccordion: IAccordionState;
+  changeActiveAccordion: React.Dispatch<React.SetStateAction<IAccordionState>>;
   pathname: string;
+  changeIsMenuOpened: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordion, pathname }) => {
+export const Confirmations: FC<IProps> = ({
+  changeActiveAccordion,
+  activeAccordion,
+  pathname,
+  changeIsMenuOpened,
+}) => {
   return (
     <>
       <button
-        onClick={() => changeActiveAccordion((prev) => (!prev ? 'confirmations' : null))}
+        onClick={() => {
+          changeActiveAccordion((prev) => {
+            if (prev.confirmations) return { ...prev, confirmations: false };
+            else return { ...prev, confirmations: true };
+          });
+        }}
         className='flex items-center justify-between py-2 rounded-md text-lg bg-gray-300 mb-4 h-[45px] overflow-hidden'
       >
         <div className='flex ml-4 items-center'>
@@ -23,20 +34,18 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
           <span>Подтверждение</span>
         </div>
         <GrNext
-          className={clsx(
-            'transitionGeneral mr-6',
-            activeAccordion === 'confirmations' && 'rotate-90',
-          )}
+          className={clsx('transitionFast mr-6', activeAccordion.confirmations && 'rotate-90')}
         />
       </button>
       <div
         className={clsx(
-          'transitionGeneral flex flex-col overflow-hidden',
-          activeAccordion === 'confirmations' ? 'h-[120px]' : 'h-0',
+          'transitionFast flex flex-col overflow-hidden',
+          activeAccordion.confirmations ? 'h-[120px]' : 'h-0',
         )}
       >
         <Link
           to={'/account/approve/citizen_possession'}
+          onClick={() => changeIsMenuOpened(false)}
           className={clsx(
             'flex items-center py-2 rounded-md text-lg mb-4',
             pathname.includes('/account/approve/citizen_possession')
@@ -49,6 +58,7 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
         </Link>
         <Link
           to={'/account/approve/living_space'}
+          onClick={() => changeIsMenuOpened(false)}
           className={clsx(
             'flex items-center py-2 rounded-md text-lg mb-4',
             pathname.includes('/account/approve/living_space')
@@ -57,7 +67,7 @@ export const Confirmations: FC<IProps> = ({ changeActiveAccordion, activeAccordi
           )}
         >
           <BsFillBuildingsFill className='mr-4 ml-4' />
-          <span>Адрес жил. площади</span>
+          <span>Адрес жилой площади</span>
         </Link>
       </div>
     </>

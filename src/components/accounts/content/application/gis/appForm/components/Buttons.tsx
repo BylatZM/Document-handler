@@ -118,62 +118,63 @@ export const Buttons: FC<IProps> = ({
 
   return (
     <div className='gap-4 flex flex-wrap justify-center'>
-      <ConfigProvider
-        theme={{
-          components: {
-            Button: {
-              colorPrimaryHover: undefined,
-            },
-          },
-        }}
-      >
-        <Button
-          onClick={() => {
-            makeUpdateGisApplication('update');
-          }}
-          className='text-white bg-blue-700'
-          disabled={
-            !loadingButton &&
-            !successButton &&
-            data.status.name !== 'Закрыта' &&
-            ((role === 'dispatcher' &&
-              ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
-                !data.dispatcher_comment) &&
-              data.priority.id &&
-              data.employee &&
-              data.employee.id) ||
-              (role === 'executor' &&
-                data.status.name !== 'Назначена' &&
-                data.employee_comment &&
-                data.employee_comment.length < 501))
-              ? false
-              : true
-          }
-        >
-          {loadingButton === 'update' && (
-            <div>
-              <ImSpinner9 className='inline animate-spin mr-2' />
-              <span>Обработка</span>
-            </div>
-          )}
-          {errorButton === 'update' && !loadingButton && !successButton && (
-            <div>
-              <ImCross className='inline mr-2' />
-              <span>Ошибка</span>
-            </div>
-          )}
-          {!loadingButton && !errorButton && successButton === 'update' && (
-            <div>
-              <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-              <span>Успешно</span>
-            </div>
-          )}
-          {loadingButton !== 'update' && errorButton !== 'update' && successButton !== 'update' && (
-            <>Записать</>
-          )}
-        </Button>
-      </ConfigProvider>
-      {role === 'executor' && (
+      {data.status.name !== 'Закрыта' &&
+        (role === 'dispatcher' || (role === 'executor' && data.status.name !== 'Назначена')) && (
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: undefined,
+                },
+              },
+            }}
+          >
+            <Button
+              onClick={() => {
+                makeUpdateGisApplication('update');
+              }}
+              className='text-white bg-blue-700'
+              disabled={
+                !loadingButton &&
+                !successButton &&
+                ((role === 'dispatcher' &&
+                  ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
+                    !data.dispatcher_comment) &&
+                  data.priority.id &&
+                  data.employee &&
+                  data.employee.id) ||
+                  (role === 'executor' &&
+                    data.employee_comment &&
+                    data.employee_comment.length < 501))
+                  ? false
+                  : true
+              }
+            >
+              {loadingButton === 'update' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {errorButton === 'update' && !loadingButton && !successButton && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!loadingButton && !errorButton && successButton === 'update' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {loadingButton !== 'update' &&
+                errorButton !== 'update' &&
+                successButton !== 'update' && <>Записать</>}
+            </Button>
+          </ConfigProvider>
+        )}
+      {role === 'executor' && data.status.name === 'В работе' && (
         <ConfigProvider
           theme={{
             components: {
@@ -188,9 +189,7 @@ export const Buttons: FC<IProps> = ({
               makeUpdateGisApplication('close_application');
             }}
             className='text-white bg-green-700'
-            disabled={
-              !loadingButton && !successButton && data.status.name === 'В работе' ? false : true
-            }
+            disabled={!loadingButton && !successButton ? false : true}
           >
             {loadingButton === 'close_application' && (
               <div>
@@ -216,54 +215,48 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {role === 'executor' && (
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                colorPrimaryHover: undefined,
+      {role === 'executor' &&
+        (data.status.name === 'Назначена' || data.status.name === 'Возвращена') && (
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: undefined,
+                },
               },
-            },
-          }}
-        >
-          <Button
-            onClick={() => {
-              makeUpdateGisApplication('proceed_to_execution');
             }}
-            className='text-white bg-amber-500'
-            disabled={
-              !loadingButton &&
-              !successButton &&
-              data.status &&
-              (data.status.name === 'Назначена' || data.status.name === 'Возвращена')
-                ? false
-                : true
-            }
           >
-            {loadingButton === 'proceed_to_execution' && (
-              <div>
-                <ImSpinner9 className='inline animate-spin mr-2' />
-                <span>Обработка</span>
-              </div>
-            )}
-            {errorButton === 'proceed_to_execution' && !loadingButton && !successButton && (
-              <div>
-                <ImCross className='inline mr-2' />
-                <span>Ошибка</span>
-              </div>
-            )}
-            {!loadingButton && !errorButton && successButton === 'proceed_to_execution' && (
-              <div>
-                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                <span>Успешно</span>
-              </div>
-            )}
-            {loadingButton !== 'proceed_to_execution' &&
-              errorButton !== 'proceed_to_execution' &&
-              successButton !== 'proceed_to_execution' && <>Приступить к исполнению</>}
-          </Button>
-        </ConfigProvider>
-      )}
+            <Button
+              onClick={() => {
+                makeUpdateGisApplication('proceed_to_execution');
+              }}
+              className='text-white bg-amber-500'
+              disabled={!loadingButton && !successButton ? false : true}
+            >
+              {loadingButton === 'proceed_to_execution' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {errorButton === 'proceed_to_execution' && !loadingButton && !successButton && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!loadingButton && !errorButton && successButton === 'proceed_to_execution' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {loadingButton !== 'proceed_to_execution' &&
+                errorButton !== 'proceed_to_execution' &&
+                successButton !== 'proceed_to_execution' && <>Приступить к исполнению</>}
+            </Button>
+          </ConfigProvider>
+        )}
       {data.status.name === 'Новая' && role === 'dispatcher' && (
         <ConfigProvider
           theme={{

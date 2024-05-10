@@ -26,7 +26,7 @@ import { Possession } from './components/Possession';
 import { TimeSlot } from './components/TimeSlot';
 import { Employee } from './components/Employee';
 import { Buttons } from './components/Buttons';
-import { SubType } from './components/SubType';
+import { Subtype } from './components/Subtype';
 import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
 import { defaultAppForm } from './defaultAppForm';
@@ -88,17 +88,17 @@ export const AppForm: FC<IProps> = ({
 
   const initializeCreateApplicationFormByCitizen = async () => {
     let possessions = citizenPossessions;
-    if (
-      !citizenPossessions.length ||
-      !citizenPossessions.some((el) => el.approving_status === 'Подтверждена')
-    ) {
-      const possessions = await getCitizenPossessions();
+    if (possessions.some((el) => el.approving_status === 'На подтверждении')) {
+      const response = await getCitizenPossessions();
       if (
-        !possessions ||
-        !(possessions && possessions.some((el) => el.approving_status === 'Подтверждена'))
+        !response ||
+        (response && !response.some((el) => el.approving_status === 'Подтверждена'))
       ) {
         navigate('/account/aboutMe');
         return;
+      }
+      if (response) {
+        possessions = response;
       }
     }
 
@@ -120,17 +120,22 @@ export const AppForm: FC<IProps> = ({
 
   const initializeCreateApplicationFormByDispatcher = async (app: IApplication) => {
     if (!priorities.length || !sources.length || !complexes.length) return;
-    const responseTypes = await getTypes(complexes[0].id.toString());
+    let complex = complexes[0];
+    const value = complexes.filter((el) => el.name === 'ЖК «Дубрава 2.0»');
+    if (value.length) {
+      complex = value[0];
+    }
+    const responseTypes = await getTypes(complex.id.toString());
 
     if (!responseTypes) return;
 
-    const subtypes = await getSubtypes(responseTypes[0].id.toString(), complexes[0].id.toString());
+    const subtypes = await getSubtypes(responseTypes[0].id.toString(), complex.id.toString());
 
     const source = sources.filter((el) => el.name === 'Входящий звонок');
     const priority = priorities.filter((el) => el.name === 'Обычный');
 
     if (subtypes && subtypes.length && source.length && priority.length) {
-      await getEmploys(complexes[0].id.toString(), subtypes[0].id.toString());
+      await getEmploys(complex.id.toString(), subtypes[0].id.toString());
       const type = responseTypes.filter((el) => el.name === subtypes[0].type);
       if (type.length && employs) {
         changeFormData((prev) => ({
@@ -150,12 +155,12 @@ export const AppForm: FC<IProps> = ({
       }));
     }
 
-    const builds = await getAllBuildingsByComplexId(complexes[0].id.toString());
+    const builds = await getAllBuildingsByComplexId(complex.id.toString());
     if (builds && builds.length) {
       changeFormData((prev) => ({
         ...prev,
         building: { ...builds[0] },
-        complex: { ...complexes[0] },
+        complex: { ...complex },
       }));
       await getPossessions(app.possession_type, builds[0].id.toString());
     }
@@ -168,7 +173,7 @@ export const AppForm: FC<IProps> = ({
     if (isNecessaryStatus) {
       const responseTypes = await getTypes(app.complex.id.toString());
       if (!responseTypes) return;
-      await getSubtypes(responseTypes[0].id.toString(), app.complex.id.toString());
+      await getSubtypes(app.type.id.toString(), app.complex.id.toString());
       await getEmploys(app.complex.id.toString(), app.subtype.id.toString());
     }
   };
@@ -216,47 +221,6 @@ export const AppForm: FC<IProps> = ({
         )}
       >
         <div className='flex justify-center gap-4 flex-col disable'>
-          <span className='font-bold text-lg'>Сведения</span>
-          <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
-            <Grade />
-            <Status status={FormData.status} />
-            <Type
-              form_id={FormData.id}
-              role={role}
-              data={FormData}
-              types={types}
-              changeFormData={changeFormData}
-              getSubtypes={getSubtypes}
-              error={error}
-              applicationLoadingField={applicationLoadingField}
-              defaultSubtype={defaultSubtype}
-            />
-            <SubType
-              data={FormData}
-              changeData={changeFormData}
-              form_id={FormData.id}
-              role={role}
-              subtypes={subtypes}
-              error={error}
-              getEmploys={getEmploys}
-              applicationLoadingField={applicationLoadingField}
-            />
-          </div>
-          <CitizenComment form_id={FormData.id} data={FormData} changeFormData={changeFormData} />
-          <Source
-            form_id={FormData.id}
-            role={role}
-            data={FormData}
-            sources={sources}
-            changeFormData={changeFormData}
-          />
-          <Priority
-            role={role}
-            form_id={FormData.id}
-            data={FormData}
-            priorities={priorities}
-            changeFormData={changeFormData}
-          />
           <span className='font-bold text-lg mt-4'>Объект исполнения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
             <Complex
@@ -314,7 +278,47 @@ export const AppForm: FC<IProps> = ({
               </>
             )}
           </div>
-          {role !== 'citizen' && <span className='font-bold text-lg mt-2'>Таймслот</span>}
+          <span className='font-bold text-lg'>Сведения</span>
+          <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
+            <Grade />
+            <Status status={FormData.status} />
+            <Type
+              form_id={FormData.id}
+              role={role}
+              data={FormData}
+              types={types}
+              changeFormData={changeFormData}
+              getSubtypes={getSubtypes}
+              error={error}
+              applicationLoadingField={applicationLoadingField}
+              defaultSubtype={defaultSubtype}
+            />
+            <Subtype
+              data={FormData}
+              changeData={changeFormData}
+              form_id={FormData.id}
+              role={role}
+              subtypes={subtypes}
+              error={error}
+              getEmploys={getEmploys}
+              applicationLoadingField={applicationLoadingField}
+            />
+          </div>
+          <CitizenComment form_id={FormData.id} data={FormData} changeFormData={changeFormData} />
+          <Source
+            form_id={FormData.id}
+            role={role}
+            data={FormData}
+            sources={sources}
+            changeFormData={changeFormData}
+          />
+          <Priority
+            role={role}
+            form_id={FormData.id}
+            data={FormData}
+            priorities={priorities}
+            changeFormData={changeFormData}
+          />
           <TimeSlot
             form_id={FormData.id}
             role={role}

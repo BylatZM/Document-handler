@@ -1,13 +1,6 @@
 import { Select } from 'antd';
 import { FC } from 'react';
-import {
-  IAppLoading,
-  IApplication,
-  IEmployee,
-  IError,
-  IStatus,
-  ISubtype,
-} from '../../../../../../types';
+import { IAppLoading, IApplication, IEmployee, IError, ISubtype } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 
 interface IProps {
@@ -21,7 +14,7 @@ interface IProps {
   applicationLoadingField: IAppLoading;
 }
 
-export const SubType: FC<IProps> = ({
+export const Subtype: FC<IProps> = ({
   data,
   changeData,
   subtypes,
@@ -39,6 +32,7 @@ export const SubType: FC<IProps> = ({
         <Select
           className='h-[50px]'
           disabled
+          listHeight={350}
           value={data.subtype.id}
           options={[
             {
@@ -52,6 +46,7 @@ export const SubType: FC<IProps> = ({
         <>
           <Select
             className='h-[50px]'
+            listHeight={350}
             disabled={
               !subtypes.length ||
               (form_id > 0 && (data.status.name === 'В работе' || data.status.name === 'Закрыта'))
@@ -97,6 +92,7 @@ export const SubType: FC<IProps> = ({
           <Select
             className='h-[50px]'
             disabled={!subtypes.length || form_id > 0 ? true : false}
+            listHeight={350}
             value={!data.subtype.id || !subtypes.length ? undefined : data.subtype.id}
             onChange={(e: number) => {
               if (error) applicationError(null);

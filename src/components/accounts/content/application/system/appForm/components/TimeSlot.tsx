@@ -32,45 +32,51 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
   };
 
   return (
-    <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
+    <div className='flex flex-col gap-y-2'>
       {form_id !== 0 && role !== 'citizen' && (
-        <>
-          <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
-            <span>Плановое время поступления заявки</span>
-            <Input className='h-[50px] text-base' value={data.created_date} disabled />
-          </div>
-          <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
-            <span>Фактическое время исполнения</span>
-            <Input
-              className='h-[50px] text-base'
-              value={!data.due_date ? '' : data.due_date}
-              disabled
-            />
-          </div>
-        </>
+        <span className='font-bold text-lg mt-2'>Промежутки времени</span>
       )}
-      {form_id !== 0 && role !== 'citizen' && (
-        <>
-          <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
-            <span>Заявка была создана</span>
-            <Input
-              className='h-[50px] text-base'
-              value={data.applicant.role === 'citizen' ? 'Жителем' : 'Диспетчером'}
-              disabled
-            />
-          </div>
-          <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
-            <span>Плановое время исполнения</span>
-            <Input
-              className='h-[50px] text-base'
-              value={dateCalculator(data.subtype.normative_in_hours / 24, data.created_date)}
-              disabled
-            />
-          </div>
-        </>
-      )}
+      <div className='flex max-md:flex-col max-md:flex-nowrap flex-wrap gap-y-2 justify-between'>
+        {form_id !== 0 && role !== 'citizen' && (
+          <>
+            <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
+              <span>Плановое время поступления заявки</span>
+              <Input className='h-[50px] text-base' value={data.created_date} disabled />
+            </div>
+            <div className='flex flex-col gap-2 max-md:w-full w-[48%]'>
+              <span>Фактическое время исполнения</span>
+              <Input
+                className='h-[50px] text-base'
+                value={!data.due_date ? '' : data.due_date}
+                disabled
+              />
+            </div>
+          </>
+        )}
+        {form_id !== 0 && role !== 'citizen' && (
+          <>
+            <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
+              <span>Заявка была создана</span>
+              <Input
+                className='h-[50px] text-base'
+                value={data.applicant.role === 'citizen' ? 'Жителем' : 'Диспетчером'}
+                disabled
+              />
+            </div>
+            <div className='flex flex-col gap-2 w-[48%] max-md:w-full'>
+              <span>Плановое время исполнения</span>
+              <Input
+                className='h-[50px] text-base'
+                value={dateCalculator(data.subtype.normative_in_hours / 24, data.created_date)}
+                disabled
+              />
+            </div>
+          </>
+        )}
+      </div>
       {((role === 'citizen' && form_id !== 0) || role !== 'citizen') && (
         <>
+          <span className='font-bold text-lg mt-2'>Комментарии</span>
           <div className='flex flex-col gap-y-2 w-full'>
             <span>Комментарий диспетчера</span>
             <TextArea

@@ -6,11 +6,11 @@ import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useLocation } from 'react-router-dom';
 
 interface IHeaderProps {
-  changeIsOpened: (numb: boolean) => void;
-  isOpened: boolean;
+  changeIsMenuOpened: (numb: boolean) => void;
+  isMenuOpened: boolean;
 }
 
-export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
+export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) => {
   const { pathname } = useLocation();
   const user_email = useTypedSelector((state) => state.UserReducer.user?.email);
 
@@ -49,21 +49,21 @@ export const Header: FC<IHeaderProps> = ({ changeIsOpened, isOpened }) => {
         <b className='mr-4'>{user_email}</b>
         <div
           className='flex flex-col justify-center w-7 gap-y-2 h-6 cursor-pointer'
-          onClick={() => changeIsOpened(!isOpened)}
+          onClick={() => changeIsMenuOpened(!isMenuOpened)}
         >
           <span
             className={clsx(
               'transition-transform relative bg-blue-700 top-0 w-full h-[3px]',
-              isOpened && 'rotate-[45deg] top-[6px]',
+              isMenuOpened && 'rotate-[45deg] top-[6px]',
             )}
           ></span>
           <span
-            className={clsx('relative bg-blue-700 w-full h-[3px]', isOpened && 'hidden')}
+            className={clsx('relative bg-blue-700 w-full h-[3px]', isMenuOpened && 'hidden')}
           ></span>
           <span
             className={clsx(
               'transition-transform relative bg-blue-700 w-full h-[3px]',
-              isOpened && 'rotate-[-45deg] bottom-[5px]',
+              isMenuOpened && 'rotate-[-45deg] bottom-[5px]',
             )}
           ></span>
         </div>

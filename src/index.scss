@@ -41,6 +41,10 @@ div[id='root'] {
   transition: all 1s ease-in-out;
 }
 
+.transitionFast {
+  transition: all 0.5s ease-in-out;
+}
+
 .primaryField::after {
   margin-left: 4px;
   content: '*';

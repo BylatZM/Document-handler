@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { IApplication, IEmployee, IError } from '../../../../../../types';
 import { Select } from 'antd';
 import { useActions } from '../../../../../../hooks/useActions';
+import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 
 interface IProps {
   role: string;
@@ -13,6 +14,7 @@ interface IProps {
 }
 
 export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form_id, error }) => {
+  const { isLoading } = useTypedSelector((state) => state.ApplicationReducer);
   const { applicationError } = useActions();
   return (
     <div className='flex flex-col gap-2 w-full'>
@@ -39,6 +41,7 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
           <Select
             className='h-[50px]'
             value={!data.employee?.id ? undefined : data.employee.id}
+            loading={isLoading === 'employs' ? true : false}
             onChange={(e: number) => {
               if (error) applicationError(null);
               const newExecutor = workers.filter((el) => el.id === e);

@@ -61,7 +61,7 @@ export const Buttons: FC<IProps> = ({
       contact: data.contact,
       applicant_fio: data.applicant_fio,
     };
-    if (role === 'dispatcher') {
+    if (role === 'dispatcher' && data.employee) {
       info = {
         priority: data.priority.id,
         source: data.source.id,
@@ -71,7 +71,7 @@ export const Buttons: FC<IProps> = ({
         complex: data.complex.id,
         building: data.building.id,
         possession: data.possession.id,
-        employee: !data.employee ? null : data.employee.id,
+        employee: data.employee.id,
         contact: data.contact,
         dispatcher_comment: data.dispatcher_comment,
         applicant_fio: data.applicant_fio,
@@ -208,127 +208,129 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {form_id !== 0 && ['dispatcher', 'executor'].some((el) => el === role) && (
-        <>
-          <ConfigProvider
-            theme={{
-              components: {
-                Button: {
-                  colorPrimaryHover: undefined,
-                },
-              },
-            }}
-          >
-            <Button
-              onClick={() => {
-                let new_status = data.status;
-                if (data.status.name === 'Новая') {
-                  const status = statuses.filter((el) => el.name === 'Назначена');
-                  if (status.length > 0) {
-                    new_status = status[0];
-                  }
-                }
-                makeUpdateApplication(new_status, 'update');
-              }}
-              className='text-white bg-blue-700'
-              disabled={
-                !loadingButton &&
-                !successButton &&
-                data.status.id &&
-                data.subtype.id &&
-                data.status.name !== 'Закрыта' &&
-                ((role === 'dispatcher' &&
-                  ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
-                    !data.dispatcher_comment) &&
-                  data.type.id &&
-                  data.source.id &&
-                  data.building.id &&
-                  data.complex.id &&
-                  data.possession.id &&
-                  data.priority.id &&
-                  data.employee &&
-                  data.employee.id &&
-                  data.applicant_comment) ||
-                  (role === 'executor' &&
-                    data.status.name !== 'Назначена' &&
-                    data.status.name !== 'Возвращена' &&
-                    data.employee_comment &&
-                    data.employee_comment.length < 501))
-                  ? false
-                  : true
-              }
-            >
-              {loadingButton === 'update' && (
-                <div>
-                  <ImSpinner9 className='inline animate-spin mr-2' />
-                  <span>Обработка</span>
-                </div>
-              )}
-              {errorButton === 'update' && !loadingButton && !successButton && (
-                <div>
-                  <ImCross className='inline mr-2' />
-                  <span>Ошибка</span>
-                </div>
-              )}
-              {!loadingButton && !errorButton && successButton === 'update' && (
-                <div>
-                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                  <span>Успешно</span>
-                </div>
-              )}
-              {loadingButton !== 'update' &&
-                errorButton !== 'update' &&
-                successButton !== 'update' && <>Записать</>}
-            </Button>
-          </ConfigProvider>
-          {data.id > 0 &&
-            (data.status.name === 'В работе' ||
-              ((data.status.name === 'Назначена' || data.status.name === 'Возвращена') &&
-                role === 'dispatcher')) && (
-              <ConfigProvider
-                theme={{
-                  components: {
-                    Button: {
-                      colorPrimaryHover: undefined,
-                    },
+      {form_id !== 0 &&
+        data.status.name !== 'Закрыта' &&
+        (role === 'dispatcher' ||
+          (role === 'executor' &&
+            data.status.name !== 'Назначена' &&
+            data.status.name !== 'Возвращена')) && (
+          <>
+            <ConfigProvider
+              theme={{
+                components: {
+                  Button: {
+                    colorPrimaryHover: undefined,
                   },
+                },
+              }}
+            >
+              <Button
+                onClick={() => {
+                  let new_status = data.status;
+                  if (data.status.name === 'Новая') {
+                    const status = statuses.filter((el) => el.name === 'Назначена');
+                    if (status.length > 0) {
+                      new_status = status[0];
+                    }
+                  }
+                  makeUpdateApplication(new_status, 'update');
                 }}
+                className='text-white bg-blue-700'
+                disabled={
+                  !loadingButton &&
+                  !successButton &&
+                  data.status.id &&
+                  data.subtype.id &&
+                  ((role === 'dispatcher' &&
+                    ((data.dispatcher_comment && data.dispatcher_comment.length < 501) ||
+                      !data.dispatcher_comment) &&
+                    data.type.id &&
+                    data.source.id &&
+                    data.building.id &&
+                    data.complex.id &&
+                    data.possession.id &&
+                    data.priority.id &&
+                    data.employee &&
+                    data.employee.id &&
+                    data.applicant_comment) ||
+                    (role === 'executor' &&
+                      data.employee_comment &&
+                      data.employee_comment.length < 501))
+                    ? false
+                    : true
+                }
               >
-                <Button
-                  onClick={() => {
-                    const new_status = statuses.filter((el) => el.name === 'Закрыта');
-                    if (!new_status.length) return;
-                    makeUpdateApplication(new_status[0], 'close_application');
+                {loadingButton === 'update' && (
+                  <div>
+                    <ImSpinner9 className='inline animate-spin mr-2' />
+                    <span>Обработка</span>
+                  </div>
+                )}
+                {errorButton === 'update' && !loadingButton && !successButton && (
+                  <div>
+                    <ImCross className='inline mr-2' />
+                    <span>Ошибка</span>
+                  </div>
+                )}
+                {!loadingButton && !errorButton && successButton === 'update' && (
+                  <div>
+                    <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                    <span>Успешно</span>
+                  </div>
+                )}
+                {loadingButton !== 'update' &&
+                  errorButton !== 'update' &&
+                  successButton !== 'update' && <>Записать</>}
+              </Button>
+            </ConfigProvider>
+            {data.id > 0 &&
+              (data.status.name === 'В работе' ||
+                ((data.status.name === 'Назначена' || data.status.name === 'Возвращена') &&
+                  role === 'dispatcher')) && (
+                <ConfigProvider
+                  theme={{
+                    components: {
+                      Button: {
+                        colorPrimaryHover: undefined,
+                      },
+                    },
                   }}
-                  className='text-white bg-green-700'
-                  disabled={!loadingButton && !successButton ? false : true}
                 >
-                  {loadingButton === 'close_application' && (
-                    <div>
-                      <ImSpinner9 className='inline animate-spin mr-2' />
-                      <span>Обработка</span>
-                    </div>
-                  )}
-                  {errorButton === 'close_application' && !loadingButton && !successButton && (
-                    <div>
-                      <ImCross className='inline mr-2' />
-                      <span>Ошибка</span>
-                    </div>
-                  )}
-                  {!loadingButton && !errorButton && successButton === 'close_application' && (
-                    <div>
-                      <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                      <span>Успешно</span>
-                    </div>
-                  )}
-                  {loadingButton !== 'close_application' &&
-                    errorButton !== 'close_application' &&
-                    successButton !== 'close_application' && <>Заявка выполнена</>}
-                </Button>
-              </ConfigProvider>
-            )}
-        </>
-      )}
+                  <Button
+                    onClick={() => {
+                      const new_status = statuses.filter((el) => el.name === 'Закрыта');
+                      if (!new_status.length) return;
+                      makeUpdateApplication(new_status[0], 'close_application');
+                    }}
+                    className='text-white bg-green-700'
+                    disabled={!loadingButton && !successButton ? false : true}
+                  >
+                    {loadingButton === 'close_application' && (
+                      <div>
+                        <ImSpinner9 className='inline animate-spin mr-2' />
+                        <span>Обработка</span>
+                      </div>
+                    )}
+                    {errorButton === 'close_application' && !loadingButton && !successButton && (
+                      <div>
+                        <ImCross className='inline mr-2' />
+                        <span>Ошибка</span>
+                      </div>
+                    )}
+                    {!loadingButton && !errorButton && successButton === 'close_application' && (
+                      <div>
+                        <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                        <span>Успешно</span>
+                      </div>
+                    )}
+                    {loadingButton !== 'close_application' &&
+                      errorButton !== 'close_application' &&
+                      successButton !== 'close_application' && <>Заявка выполнена</>}
+                  </Button>
+                </ConfigProvider>
+              )}
+          </>
+        )}
       {form_id !== 0 &&
         role === 'executor' &&
         (data.status.name === 'Назначена' || data.status.name === 'Возвращена') && (

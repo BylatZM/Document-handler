@@ -511,3 +511,8 @@ export interface IBuildingCache {
   url: string;
   data: IBuilding[];
 }
+
+export interface IAccordionState {
+  directories: boolean;
+  confirmations: boolean;
+}

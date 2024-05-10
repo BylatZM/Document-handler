@@ -13,29 +13,34 @@ import { TechnicalSupport } from './buttons/general/TechnicalSupport';
 import { Logout } from './buttons/general/Logout';
 import './media.css';
 import { GisApplications } from './buttons/general/GisApplications';
+import { IAccordionState } from '../../types';
 
 interface IMenuProps {
-  isOpened: boolean;
+  isMenuOpened: boolean;
+  changeIsMenuOpened: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowHelpForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Menu: FC<IMenuProps> = ({
-  isOpened,
+  isMenuOpened,
+  changeIsMenuOpened,
   changeNeedShowCreatePossessionForm,
   changeNeedShowHelpForm,
 }) => {
   const { pathname } = useLocation();
   const logout = useLogout();
-  const { role, email } = useTypedSelector((state) => state.UserReducer.user);
+  const { role } = useTypedSelector((state) => state.UserReducer.user);
 
-  const [activeAccordion, changeActiveAccordion] = useState<string | null>(null);
-
+  const [activeAccordion, changeActiveAccordion] = useState<IAccordionState>({
+    confirmations: false,
+    directories: false,
+  });
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed z-40 inset-y-0 left-0 overflow-x-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
-        isOpened ? 'w-[250px] p-1 sm:w-[310px] sm:p-4' : 'w-0 mr-[-2px]',
+        'transitionFast fixed z-40 inset-y-0 left-0 overflow-x-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
+        isMenuOpened ? 'w-[250px] p-1 sm:w-[310px] sm:p-4' : 'w-0 mr-[-2px]',
       )}
     >
       <div className='relative w-[240px] sm:min-w-[274px] h-full'>
@@ -47,10 +52,10 @@ export const Menu: FC<IMenuProps> = ({
           </div>
         </div>
         <div className='flex flex-col mt-10 text-lg'>
-          <AboutMe pathname={pathname} />
-          <Applications pathname={pathname} />
+          <AboutMe pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
+          <Applications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           {(role === 'executor' || role === 'dispatcher') && (
-            <GisApplications pathname={pathname} />
+            <GisApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           )}
           {role === 'dispatcher' && (
             <>
@@ -58,15 +63,20 @@ export const Menu: FC<IMenuProps> = ({
                 changeActiveAccordion={changeActiveAccordion}
                 activeAccordion={activeAccordion}
                 changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
+                changeIsMenuOpened={changeIsMenuOpened}
               />
               <Confirmations
                 changeActiveAccordion={changeActiveAccordion}
                 activeAccordion={activeAccordion}
                 pathname={pathname}
+                changeIsMenuOpened={changeIsMenuOpened}
               />
             </>
           )}
-          <TechnicalSupport changeNeedShowHelpForm={changeNeedShowHelpForm} />
+          <TechnicalSupport
+            changeNeedShowHelpForm={changeNeedShowHelpForm}
+            changeIsMenuOpened={changeIsMenuOpened}
+          />
           <Logout logout={logout} />
         </div>
 
