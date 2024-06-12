@@ -61,7 +61,6 @@ export const AppForm: FC<IProps> = ({
     type: '',
     name: '',
     id: 0,
-    normative_in_hours: 0,
   };
   const defaultType: IType = {
     id: 0,
@@ -88,7 +87,11 @@ export const AppForm: FC<IProps> = ({
 
   const initializeCreateApplicationFormByCitizen = async () => {
     let possessions = citizenPossessions;
-    if (possessions.some((el) => el.approving_status === 'На подтверждении')) {
+    if (
+      possessions.some(
+        (el) => el.approving_status === 'На подтверждении' || el.approving_status === 'Отклонена',
+      )
+    ) {
       const response = await getCitizenPossessions();
       if (
         !response ||

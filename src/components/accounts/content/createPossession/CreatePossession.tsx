@@ -28,7 +28,7 @@ export const CreatePossession: FC<IProps> = ({
   getAllBuildingsByComplexId,
 }) => {
   const [formData, changeFormData] = useState<IApprovePossession>(defaultPossessionInfo);
-  const { user, isLoading } = useTypedSelector((state) => state.UserReducer);
+  const { user } = useTypedSelector((state) => state.UserReducer);
   const [error, changeError] = useState<IError | null>(null);
   const { buildings, complexes } = useTypedSelector((state) => state.PossessionReducer);
   const logout = useLogout();
@@ -71,11 +71,9 @@ export const CreatePossession: FC<IProps> = ({
         needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='sm:min-w-[500px] sm:max-w-[500px] min-w-[250px] max-w-[250px] h-fit bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-5'>
-        <div className='text-xl font-bold text-center mb-4'>
-          Добавить недостающую жил. площадь в список вариантов выбора
-        </div>
-        <div className='flex flex-col gap-4'>
+      <div className='sm:min-w-[500px] sm:max-w-[500px] min-w-[250px] max-w-[250px] h-fit bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md p-4 max-sm:p-2'>
+        <div className='text-xl font-bold text-center mb-4 max-sm:mb-2'>Добавить жилую площадь</div>
+        <div className='flex flex-col gap-4 max-sm:gap-2'>
           <Complex
             complexes={complexes}
             getAllBuildingsByComplexId={getAllBuildingsByComplexId}
@@ -84,13 +82,24 @@ export const CreatePossession: FC<IProps> = ({
           />
           <PossessionType data={formData} changeData={changeFormData} />
           <Building data={formData} changeData={changeFormData} buildings={buildings} />
-          <Possession data={formData} changeData={changeFormData} error={error} />
+          <Possession
+            data={formData}
+            changeData={changeFormData}
+            error={error}
+            changeError={changeError}
+          />
         </div>
+        {user.role === 'citizen' && (
+          <div className='text-left mt-4 max-sm:mt-2 text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50 '>
+            <span className='text-red-500'>Внимание! </span>На данной форме вы можете добавить
+            недостающую жилую площадь в список вариантов выбора. После успешного создания записи,
+            вам нужно дождаться ее подтверждения со стороны диспетчера.
+          </div>
+        )}
         <Buttons
           data={formData}
           changeError={changeError}
           error={error}
-          isLoading={isLoading}
           role={user.role}
           logout={logout}
           exitFromForm={exitFromForm}

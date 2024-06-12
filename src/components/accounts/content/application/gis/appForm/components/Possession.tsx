@@ -1,16 +1,14 @@
-import TextArea from 'antd/es/input/TextArea';
+import { Input } from 'antd';
 import { FC } from 'react';
 
-export const Possession: FC<{ possession: string }> = ({ possession }) => {
+export const Possession: FC<{ possession: string | null }> = ({ possession }) => {
   return (
-    <div className='flex flex-col gap-2 w-full'>
+    <div className='flex flex-col gap-2 w-full md:w-[48%]'>
       <span>Собственность</span>
-      <TextArea
-        value={possession}
-        className='rounded-md text-base'
-        rows={2}
-        style={{ resize: 'none' }}
+      <Input
+        className='w-full h-[50px] text-base'
         disabled
+        value={!possession ? undefined : possession}
       />
     </div>
   );

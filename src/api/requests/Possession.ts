@@ -9,6 +9,7 @@ import {
 import {
   getAllComplexes,
   getAllBuildingsByComplexId,
+  getAllBuildings,
   getAllPossessionsWithExtra,
   createPossession,
   getAllNotApprovedPossessions,
@@ -57,6 +58,37 @@ export const getAllBuildingsByComplexIdRequest = async (
         return cache_data[0].data;
       }
       const response = await getAllBuildingsByComplexId(complex_id);
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getAllBuildingsRequest = async (logout: () => void): Promise<IBuilding[] | void> => {
+  const makeRequest = async (): Promise<IBuilding[] | 401 | void> => {
+    try {
+      let cache_data = cache.building.filter((el) => el.url === `building/getAll`);
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
+      const response = await getAllBuildings();
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

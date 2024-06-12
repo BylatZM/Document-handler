@@ -4,7 +4,6 @@ import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
 import cat from '../../../assets/images/cat.png';
-import { Logo } from '../../../assets/svg';
 import { Directories } from './buttons/dispatcher/Directories';
 import { Confirmations } from './buttons/dispatcher/Confirmations';
 import { AboutMe } from './buttons/general/AboutMe';
@@ -14,6 +13,8 @@ import { Logout } from './buttons/general/Logout';
 import './media.css';
 import { GisApplications } from './buttons/general/GisApplications';
 import { IAccordionState } from '../../types';
+import { Camera } from './buttons/general/Camera';
+import { EmailApplications } from './buttons/general/EmailApplications';
 
 interface IMenuProps {
   isMenuOpened: boolean;
@@ -30,7 +31,7 @@ export const Menu: FC<IMenuProps> = ({
 }) => {
   const { pathname } = useLocation();
   const logout = useLogout();
-  const { role } = useTypedSelector((state) => state.UserReducer.user);
+  const { role, email } = useTypedSelector((state) => state.UserReducer.user);
 
   const [activeAccordion, changeActiveAccordion] = useState<IAccordionState>({
     confirmations: false,
@@ -39,7 +40,7 @@ export const Menu: FC<IMenuProps> = ({
   return (
     <div
       className={clsx(
-        'transitionFast fixed z-40 inset-y-0 left-0 overflow-x-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg',
+        'transitionFast fixed z-40 inset-y-0 left-0 overflow-x-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg menu',
         isMenuOpened ? 'w-[250px] p-1 sm:w-[310px] sm:p-4' : 'w-0 mr-[-2px]',
       )}
     >
@@ -56,6 +57,12 @@ export const Menu: FC<IMenuProps> = ({
           <Applications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           {(role === 'executor' || role === 'dispatcher') && (
             <GisApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
+          )}
+          {(role === 'executor' || role === 'dispatcher') && (
+            <EmailApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
+          )}
+          {email === 'SuperDispatcher2@yandex.ru' && (
+            <Camera pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           )}
           {role === 'dispatcher' && (
             <>
@@ -78,15 +85,6 @@ export const Menu: FC<IMenuProps> = ({
             changeIsMenuOpened={changeIsMenuOpened}
           />
           <Logout logout={logout} />
-        </div>
-
-        <div
-          className={clsx(
-            'transitionGeneral absolute bottom-0 left-0 overflow-hidden Logo',
-            activeAccordion ? 'z-[-1] opacity-0' : 'opacity-100',
-          )}
-        >
-          <Logo />
         </div>
       </div>
     </div>

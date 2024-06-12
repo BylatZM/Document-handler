@@ -13,6 +13,7 @@ export const PersonalAccount: FC<IProps> = ({ data }) => {
       <Popover content='Поле не заполняется пользователем'>
         <Input
           value={!data.possession.personal_account ? 'Не задан' : data.possession.personal_account}
+          className='max-sm:h-[30px] h-[40px]'
           maxLength={15}
           disabled
         />

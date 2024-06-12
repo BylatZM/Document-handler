@@ -19,7 +19,7 @@ export const Complex: FC<IProps> = ({
     <div className='text-sm'>
       <div>Жилой комплекс</div>
       <Select
-        className='h-[50px] sm:h-[30px] w-full'
+        className='h-[40px] max-sm:h-[30px] w-full'
         value={!data.complex ? undefined : data.complex}
         onChange={(e: number) => {
           changeData((prev) => ({ ...prev, complex: e, building: 0 }));

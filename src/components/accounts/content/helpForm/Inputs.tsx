@@ -11,8 +11,8 @@ export const Inputs = () => {
 
   return (
     <>
-      <span className='primaryField'>Имя заявителя</span>
-      <div style={{ marginBottom: 25 }}>
+      <div className='flex flex-col gap-y-1'>
+        <span className='primaryField'>Имя заявителя</span>
         <Input
           className='rounded-md h-[40px]'
           maxLength={20}
@@ -31,8 +31,8 @@ export const Inputs = () => {
           <div className='errorText mt-2'>{error.error}</div>
         )}
       </div>
-      <span className='primaryField'>Контактные данные (номер телефона \ почта)</span>
-      <div style={{ marginBottom: 25 }}>
+      <div className='flex flex-col gap-y-1'>
+        <span className='primaryField'>Контактные данные (номер телефона \ почта)</span>
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
@@ -50,8 +50,8 @@ export const Inputs = () => {
           <div className='errorText mt-2'>{error.error}</div>
         )}
       </div>
-      <span className='primaryField'>Тема обращения</span>
-      <div style={{ marginBottom: 25 }}>
+      <div className='flex flex-col gap-y-1'>
+        <span className='primaryField'>Тема обращения</span>
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
@@ -69,8 +69,8 @@ export const Inputs = () => {
           <div className='errorText mt-2'>{error.error}</div>
         )}
       </div>
-      <span className='primaryField'>Описание проблемы</span>
-      <div style={{ marginBottom: 25 }}>
+      <div className='flex flex-col gap-y-1'>
+        <span className='primaryField'>Описание проблемы</span>
         <TextArea
           rows={3}
           maxLength={200}
@@ -89,9 +89,9 @@ export const Inputs = () => {
           <div className='errorText  mt-2'>{error.error}</div>
         )}
       </div>
-      <span>Адрес собственности</span>
       {citizenPossessions[0].id !== 0 && role === 'citizen' ? (
-        <div style={{ marginBottom: 25 }}>
+        <div className='flex flex-col gap-y-1'>
+          <span>Адрес собственности</span>
           <Select
             style={{ fontSize: '0.4rem' }}
             className='rounded-md h-[80px] sm:h-[40px] w-full'
@@ -109,7 +109,8 @@ export const Inputs = () => {
           />
         </div>
       ) : (
-        <div style={{ marginBottom: 25 }}>
+        <div className='flex flex-col gap-y-1'>
+          <span>Адрес собственности</span>
           <Input
             className='rounded-md h-[40px]'
             onChange={(e) => helpFormInfoSuccess({ ...info, address: e.target.value })}

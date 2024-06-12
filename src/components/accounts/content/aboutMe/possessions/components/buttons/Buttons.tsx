@@ -1,5 +1,11 @@
 import { FC, useState } from 'react';
-import { IBuilding, ICitizenPossession, ICitizenLoading } from '../../../../../../types';
+import {
+  IBuilding,
+  ICitizenPossession,
+  ICitizenLoading,
+  IAboutMeFormSteps,
+  IAboutMeGeneralSteps,
+} from '../../../../../../types';
 import { Button, ConfigProvider } from 'antd';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { useActions } from '../../../../../../hooks/useActions';
@@ -11,6 +17,7 @@ import {
 import { useLogout } from '../../../../../../hooks/useLogout';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { HiOutlineCheck } from 'react-icons/hi';
+import clsx from 'clsx';
 
 interface IProp {
   data: ICitizenPossession;
@@ -27,6 +34,11 @@ interface IProp {
   ) => Promise<void>;
   getBuildings: (complex_id: string) => Promise<IBuilding[] | void>;
   changeNeedShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
+  setPersonalFormSteps: React.Dispatch<React.SetStateAction<IAboutMeFormSteps>>;
+  formPersonalSteps: IAboutMeFormSteps;
+  generalPersonalSteps: IAboutMeGeneralSteps;
+  setPersonalGeneralSteps: React.Dispatch<React.SetStateAction<IAboutMeGeneralSteps>>;
+  changeNeedMakeScrollForGeneral: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Buttons: FC<IProp> = ({
@@ -40,6 +52,11 @@ export const Buttons: FC<IProp> = ({
   checkPossessionsRequestOnError,
   getBuildings,
   changeNeedShowNotification,
+  setPersonalFormSteps,
+  formPersonalSteps,
+  generalPersonalSteps,
+  setPersonalGeneralSteps,
+  changeNeedMakeScrollForGeneral,
 }) => {
   const {
     citizenLoading,
@@ -51,6 +68,7 @@ export const Buttons: FC<IProp> = ({
   } = useActions();
   const logout = useLogout();
   const { error } = useTypedSelector((state) => state.CitizenReducer);
+  const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
 
   const createCitizenPossession = async () => {
@@ -64,8 +82,8 @@ export const Buttons: FC<IProp> = ({
       building: data.building.id,
       possession: data.possession.id,
     });
+    citizenLoading({ form_id: 0, isLoading: false });
     if (!response) {
-      citizenLoading({ form_id: 0, isLoading: false });
       return;
     }
 
@@ -73,6 +91,10 @@ export const Buttons: FC<IProp> = ({
       changeNeedShowNotification(true);
       changeUpdatingFormId(null);
       changeNeedUpdateAccountInfo(true);
+      if (localStorage.getItem('citizen_registered')) {
+        setPersonalFormSteps((prev) => ({ ...prev, create_button: true }));
+        localStorage.removeItem('citizen_registered');
+      }
     } else {
       if (response.type === 'citizen') alert(response.error);
       citizenErrors({ form_id: form_id, error: response });
@@ -80,8 +102,6 @@ export const Buttons: FC<IProp> = ({
         citizenErrors(null);
       }, 2000);
     }
-
-    citizenLoading({ form_id: 0, isLoading: false });
   };
 
   const updateCitizenPossession = async () => {
@@ -142,62 +162,99 @@ export const Buttons: FC<IProp> = ({
 
   return (
     <div className='flex max-sm:gap-y-2 max-sm:flex-col max-sm:gap-x-0 gap-4'>
-      <Button
-        className='text-white bg-blue-700'
-        disabled={
-          isRequestSuccess ||
-          loadingForm.form_id ||
-          !data.building.id ||
-          !data.complex.id ||
-          !data.possession.id ||
-          updatingFormId !== form_id
-            ? true
-            : false
-        }
-        onClick={() => {
-          form_id < 1 ? createCitizenPossession() : updateCitizenPossession();
-        }}
-        type='primary'
-      >
-        {form_id < 1 &&
-          loadingForm.form_id !== form_id &&
-          (!error || (error && updatingFormId !== form_id)) &&
-          (!isRequestSuccess || (isRequestSuccess && updatingFormId !== form_id)) &&
-          'Создать'}
-        {form_id > 0 &&
-          loadingForm.form_id !== form_id &&
-          (!error || (error && updatingFormId !== form_id)) &&
-          (!isRequestSuccess || (isRequestSuccess && updatingFormId !== form_id)) &&
-          'Сохранить'}
-        {loadingForm.form_id === form_id && (
-          <div>
-            <ImSpinner9 className='inline text-white animate-spin mr-4' />
-            <span>Обработка</span>
-          </div>
-        )}
-        {loadingForm.form_id !== form_id && error && error.form_id === form_id && (
-          <div>
-            <ImCross className='mr-2 inline' />
-            <span>Ошибка</span>
-          </div>
-        )}
-        {loadingForm.form_id !== form_id && !error && isRequestSuccess && (
-          <div>
-            <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-            <span>Успешно</span>
-          </div>
-        )}
-      </Button>
-      <Button
-        className='text-blue-700 bg-none border-blue-700'
-        disabled={updatingFormId === form_id ? true : false}
-        onClick={() => {
-          prepareFormReadyForUpdateRequest();
-        }}
-        type='primary'
-      >
-        Править форму
-      </Button>
+      <div className='w-fit relative'>
+        <div
+          className={clsx(
+            role === 'citizen' &&
+              localStorage.getItem('citizen_registered') &&
+              formPersonalSteps.complex &&
+              formPersonalSteps.building &&
+              formPersonalSteps.possession
+              ? 'heartbeat absolute inset-0 bg-blue-700 rounded-md'
+              : 'hidden',
+          )}
+        ></div>
+        <Button
+          className='text-blue-700 border-blue-700 bg-none'
+          disabled={
+            isRequestSuccess ||
+            loadingForm.form_id ||
+            !data.building.id ||
+            !data.complex.id ||
+            !data.possession.id ||
+            updatingFormId !== form_id
+              ? true
+              : false
+          }
+          onClick={() => {
+            form_id < 1 ? createCitizenPossession() : updateCitizenPossession();
+          }}
+          type='primary'
+        >
+          {form_id < 1 &&
+            loadingForm.form_id !== form_id &&
+            (!error || (error && updatingFormId !== form_id)) &&
+            (!isRequestSuccess || (isRequestSuccess && updatingFormId !== form_id)) &&
+            'Создать'}
+          {form_id > 0 &&
+            loadingForm.form_id !== form_id &&
+            (!error || (error && updatingFormId !== form_id)) &&
+            (!isRequestSuccess || (isRequestSuccess && updatingFormId !== form_id)) &&
+            'Сохранить'}
+          {loadingForm.form_id === form_id && (
+            <div>
+              <ImSpinner9 className='inline text-white animate-spin mr-4' />
+              <span>Обработка</span>
+            </div>
+          )}
+          {loadingForm.form_id !== form_id && error && error.form_id === form_id && (
+            <div>
+              <ImCross className='mr-2 inline' />
+              <span>Ошибка</span>
+            </div>
+          )}
+          {loadingForm.form_id !== form_id && !error && isRequestSuccess && (
+            <div>
+              <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+              <span>Успешно</span>
+            </div>
+          )}
+        </Button>
+      </div>
+      <div className='w-fit relative'>
+        <div
+          className={clsx(
+            localStorage.getItem('citizen_registered') &&
+              generalPersonalSteps.general_button &&
+              !generalPersonalSteps.edit_form_button
+              ? 'heartbeat absolute inset-0 bg-blue-700 rounded-md'
+              : 'hidden',
+          )}
+        ></div>
+        <Button
+          className='text-blue-700 bg-none border-blue-700'
+          disabled={updatingFormId === form_id ? true : false}
+          onClick={() => {
+            if (
+              !generalPersonalSteps.general_button &&
+              localStorage.getItem('citizen_registered')
+            ) {
+              changeNeedMakeScrollForGeneral(true);
+              return;
+            }
+            if (
+              generalPersonalSteps.general_button &&
+              !generalPersonalSteps.edit_form_button &&
+              localStorage.getItem('citizen_registered')
+            )
+              setPersonalGeneralSteps((prev) => ({ ...prev, edit_form_button: true }));
+            prepareFormReadyForUpdateRequest();
+          }}
+          type='primary'
+        >
+          Править форму
+        </Button>
+      </div>
       {!isFirstItem && (
         <ConfigProvider
           theme={{

@@ -34,6 +34,9 @@ import {
   IGisApplicationPagination,
   IUpdateGisAppByEmployee,
   IUpdateGisAppByDispatcher,
+  IUpdateEmailAppByDispatcher,
+  IUpdateEmailAppByEmployee,
+  IEmailApplicationPagination,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -63,6 +66,9 @@ export const getAllComplexes = (): AxiosPromise<IComplex[]> =>
 
 export const getAllBuildingsByComplexId = (complex_id: string): AxiosPromise<IBuilding[]> =>
   axiosInstance.get(endpoints.building.getAllByComplexId + complex_id);
+
+export const getAllBuildings = (): AxiosPromise<IBuilding[]> =>
+  axiosInstance.get(endpoints.building.getAll);
 
 export const getAllPossessionsWithExtra = (
   type: string,
@@ -153,9 +159,25 @@ export const getAllSystemApplicationsByExtra = (
 export const getAllGisApplicationsByExtra = (
   page: string,
   page_size: string,
+  extra: string,
 ): AxiosPromise<IGisApplicationPagination> =>
   axiosInstance.get(
-    endpoints.application.getAllGisWithExtra + `?page=${page}&page_size=${page_size}`,
+    endpoints.application.getAllGisWithExtra + `?page=${page}&page_size=${page_size}${extra}`,
+  );
+
+export const updateEmailApplicationById = (
+  application_id: string,
+  data: IUpdateEmailAppByDispatcher | IUpdateEmailAppByEmployee,
+): AxiosPromise<void | IError> =>
+  axiosInstance.put(endpoints.application.updateEmailAppById + application_id, data);
+
+export const getAllEmailApplicationsByExtra = (
+  page: string,
+  page_size: string,
+  extra: string,
+): AxiosPromise<IEmailApplicationPagination> =>
+  axiosInstance.get(
+    endpoints.application.getAllEmailAppWithExtra + `?page=${page}&page_size=${page_size}${extra}`,
   );
 
 export const getAllEmploysWithExtra = (
@@ -165,9 +187,6 @@ export const getAllEmploysWithExtra = (
   axiosInstance.get(
     endpoints.employee.getEmploysWithExtra + `?complex_id=${complex_id}&subtype_id=${subtype_id}`,
   );
-
-export const getAllEmploysForGis = (): AxiosPromise<IEmployee[] | void> =>
-  axiosInstance.get(endpoints.employee.getEmploysForGis);
 
 export const getAllTypesByComplexId = (complex_id: string): AxiosPromise<IType[] | void> =>
   axiosInstance.get(endpoints.application.getAllTypesByComplexId + complex_id);

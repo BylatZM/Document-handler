@@ -21,9 +21,9 @@ export const Inputs: FC<IProps> = ({
   changeIsApproved,
 }) => {
   return (
-    <div className='mt-5'>
-      <span className='primaryField'>Адрес электронной почты</span>
-      <div style={{ marginBottom: 25 }}>
+    <>
+      <div className='text-sm'>
+        <span className='primaryField'>Адрес электронной почты</span>
         <Input
           className='rounded-md h-[40px]'
           maxLength={50}
@@ -41,7 +41,6 @@ export const Inputs: FC<IProps> = ({
       </div>
       <Checkbox
         className='text-left text-gray-600 text-sm'
-        style={{ marginBottom: 25 }}
         checked={isApproved}
         onClick={() => {
           if (!isApproved) changeFormData((prev) => ({ ...prev, phone: '' }));
@@ -50,44 +49,29 @@ export const Inputs: FC<IProps> = ({
           changeIsApproved((prev) => !prev);
         }}
       >
-        Мой аккаунт имеет подтвержденную собственность
+        Мой аккаунт подтвержден
       </Checkbox>
 
-      <div className='mb-5 relative overflow-hidden'>
-        <span
-          className={clsx(
-            'transitionGeneral relative',
-            isApproved ? 'left-0 opacity-100' : 'left-[100px] opacity-0',
-          )}
-        >
-          Номер телефона
-        </span>
-        <div
-          className={clsx(
-            'transitionGeneral relative',
-            isApproved ? 'left-0 opacity-100' : 'left-[180px] opacity-0',
-          )}
-          style={{ marginBottom: 25 }}
-        >
-          <Input
-            className='rounded-md h-[40px]'
-            maxLength={12}
-            onChange={(e) => {
-              if (error && error.type === 'phone') changeError(null);
-              changeFormData((prev) => ({
-                ...prev,
-                phone: e.target.value.length < 3 && e.target.value !== '+7' ? '+7' : e.target.value,
-              }));
-            }}
-            value={data && data.phone ? data.phone : '+7'}
-            type='text'
-            status={error && error.type === 'phone' ? 'error' : undefined}
-            size='large'
-            placeholder='+79372833608'
-          />
-          {error && error.type === 'phone' && <span className='errorText mt-2'>{error.error}</span>}
-        </div>
+      <div className={clsx('transitionGeneral text-sm', isApproved ? 'opacity-100' : 'opacity-0')}>
+        <span>Номер телефона</span>
+        <Input
+          className='rounded-md h-[40px]'
+          maxLength={12}
+          onChange={(e) => {
+            if (error && error.type === 'phone') changeError(null);
+            changeFormData((prev) => ({
+              ...prev,
+              phone: e.target.value.length < 3 && e.target.value !== '+7' ? '+7' : e.target.value,
+            }));
+          }}
+          value={data && data.phone ? data.phone : '+7'}
+          type='text'
+          status={error && error.type === 'phone' ? 'error' : undefined}
+          size='large'
+          placeholder='+79372833608'
+        />
+        {error && error.type === 'phone' && <span className='errorText mt-2'>{error.error}</span>}
       </div>
-    </div>
+    </>
   );
 };

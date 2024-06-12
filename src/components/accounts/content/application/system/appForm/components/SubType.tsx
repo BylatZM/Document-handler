@@ -49,7 +49,10 @@ export const Subtype: FC<IProps> = ({
             listHeight={350}
             disabled={
               !subtypes.length ||
-              (form_id > 0 && (data.status.name === 'В работе' || data.status.name === 'Закрыта'))
+              (form_id > 0 &&
+                (data.status.name === 'В работе' ||
+                  data.status.name === 'Закрыта' ||
+                  data.status.name === 'Заведена неверно'))
                 ? true
                 : false
             }

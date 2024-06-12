@@ -5,9 +5,7 @@ import {
   IBuilding,
   ICitizenPossession,
   IComplex,
-  IEmployee,
   IError,
-  IStatus,
   ISubtype,
   IType,
 } from '../../../../../../types';

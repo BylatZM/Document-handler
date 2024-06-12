@@ -13,9 +13,9 @@ import {
   getAllBuildingsByComplexIdRequest,
   getAllComplexesRequest,
   getAllPossessionsByExtraRequest,
+  getAllBuildingsRequest,
 } from '../../api/requests/Possession';
 import {
-  getAllEmploysForGisRequest,
   getAllEmploysWithExtraRequest,
   getAllPrioritiesRequest,
   getAllSourcesRequest,
@@ -39,6 +39,8 @@ import {
   IType,
   IUser,
 } from '../types';
+import { Camera } from './content/camera/Camera';
+import { EmailApplication } from './content/application/email/EmailApplication';
 
 export const Account = () => {
   const logout = useLogout();
@@ -81,7 +83,7 @@ export const Account = () => {
       logout();
       return;
     }
-    if (user.role !== 'executor' && operationType === 'init') {
+    if (operationType === 'init') {
       await getAllComplexes();
     }
     if (user.is_approved && operationType === 'init') {
@@ -182,18 +184,6 @@ export const Account = () => {
     }
   };
 
-  const getGisEmploys = async () => {
-    employsSuccess([]);
-    applicationLoading('employs');
-    const response = await getAllEmploysForGisRequest(logout);
-    if (!response) {
-      applicationLoading(null);
-      return;
-    }
-
-    employsSuccess(response);
-  };
-
   const getAllComplexes = async () => {
     possessionLoading('complexes');
     const complexes = await getAllComplexesRequest(logout);
@@ -204,6 +194,16 @@ export const Account = () => {
     }
 
     complexSuccess(complexes);
+  };
+
+  const getAllBuildings = async (): Promise<IBuilding[] | void> => {
+    const builds = await getAllBuildingsRequest(logout);
+
+    if (!builds) {
+      return;
+    } else {
+      return builds;
+    }
   };
 
   const getAllBuildingsByComplexId = async (complex_id: string): Promise<IBuilding[] | void> => {
@@ -242,13 +242,12 @@ export const Account = () => {
     possessionSuccess([]);
     possessionLoading('possessions');
     const possessions = await getAllPossessionsByExtraRequest(type, building_id, logout);
+    possessionLoading(null);
 
     if (!possessions) {
-      possessionLoading(null);
       return;
     }
     if ('type' in possessions) {
-      possessionLoading(null);
       return possessions;
     } else {
       possessionSuccess(possessions);
@@ -295,6 +294,7 @@ export const Account = () => {
         <Application
           getPossessions={getAllPossessionsByExtra}
           getAllBuildingsByComplexId={getAllBuildingsByComplexId}
+          getAllBuildings={getAllBuildings}
           getPriorities={getPriorities}
           getSources={getSources}
           getStatuses={getStatuses}
@@ -312,9 +312,29 @@ export const Account = () => {
         <GisApplication
           getPriorities={getPriorities}
           getStatuses={getStatuses}
-          getGisEmploys={getGisEmploys}
+          getEmploys={getEmploys}
+          getTypes={getTypes}
+          getSubtypes={getSubtypes}
         />
       );
+    }
+    if (pathname === '/account/applications/email') {
+      if (!['dispatcher', 'executor'].some((el) => el === user.role))
+        return <ErrorPage message='Страница не найдена' />;
+      return (
+        <EmailApplication
+          getPriorities={getPriorities}
+          getStatuses={getStatuses}
+          getEmploys={getEmploys}
+          getSubtypes={getSubtypes}
+          getTypes={getTypes}
+        />
+      );
+    }
+    if (pathname === '/account/camera') {
+      if (user.email !== 'SuperDispatcher2@yandex.ru')
+        return <ErrorPage message='Страница не найдена' />;
+      return <Camera />;
     }
     if (pathname === '/account/approve/living_space' && user.role === 'dispatcher')
       return <ApprovingLivingSpace />;

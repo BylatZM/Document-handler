@@ -7,7 +7,10 @@ import {
   ICitizenLoading,
   IComplex,
   IPossession,
+  IAboutMeFormSteps,
+  IAboutMeGeneralSteps,
 } from '../../../../../../types';
+import clsx from 'clsx';
 
 interface IProps {
   data: ICitizenPossession;
@@ -21,6 +24,9 @@ interface IProps {
   complexes: IComplex[];
   emptyPossession: IPossession;
   emptyBuilding: IBuilding;
+  setPersonalFormSteps: React.Dispatch<React.SetStateAction<IAboutMeFormSteps>>;
+  generalPersonalSteps: IAboutMeGeneralSteps;
+  formPersonalSteps: IAboutMeFormSteps;
 }
 
 export const Complex: FC<IProps> = ({
@@ -35,35 +41,53 @@ export const Complex: FC<IProps> = ({
   complexes,
   emptyPossession,
   emptyBuilding,
+  setPersonalFormSteps,
+  generalPersonalSteps,
+  formPersonalSteps,
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
       <span>Название жилого комплекса</span>
       {updatingFormId === form_id && (
-        <Select
-          className='w-full'
-          disabled={
-            (loadingForm && loadingForm.form_id === form_id) || !complexes.length ? true : false
-          }
-          value={!data.complex.name ? undefined : data.complex.id}
-          options={complexes.map((el) => ({ value: el.id, label: el.name }))}
-          onChange={(e: number) => {
-            if (error && error.error.type === 'possession') citizenErrors(null);
-            const new_complex = complexes.filter((el) => el.id === e);
-            if (!new_complex.length) return;
-            changeFormData((prev) => ({
-              ...prev,
-              complex: { ...new_complex[0] },
-              building: { ...emptyBuilding },
-              possession: { ...emptyPossession },
-            }));
-            getBuildings(e.toString());
-          }}
-        />
+        <div className='relative'>
+          <div
+            className={clsx(
+              !data.complex.id && localStorage.getItem('citizen_registered')
+                ? 'heartbeat absolute inset-0 bg-blue-700 rounded-md'
+                : 'hidden',
+            )}
+          ></div>
+          <Select
+            className='w-full max-sm:h-[30px] h-[40px]'
+            disabled={
+              (loadingForm && loadingForm.form_id === form_id) || !complexes.length ? true : false
+            }
+            value={!data.complex.name ? undefined : data.complex.id}
+            options={complexes.map((el) => ({ value: el.id, label: el.name }))}
+            onChange={(e: number) => {
+              if (
+                generalPersonalSteps.edit_form_button &&
+                !formPersonalSteps.complex &&
+                localStorage.getItem('citizen_registered')
+              )
+                setPersonalFormSteps((prev) => ({ ...prev, complex: true }));
+              if (error && error.error.type === 'possession') citizenErrors(null);
+              const new_complex = complexes.filter((el) => el.id === e);
+              if (!new_complex.length) return;
+              changeFormData((prev) => ({
+                ...prev,
+                complex: { ...new_complex[0] },
+                building: { ...emptyBuilding },
+                possession: { ...emptyPossession },
+              }));
+              getBuildings(e.toString());
+            }}
+          />
+        </div>
       )}
       {updatingFormId !== form_id && (
         <Select
-          className='w-full'
+          className='w-full max-sm:h-[30px] h-[40px]'
           disabled
           value={!data.complex.name ? undefined : data.complex.id}
           options={[{ value: data.complex.id, label: data.complex.name }]}

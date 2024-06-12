@@ -1,16 +1,39 @@
-import { useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { useActions } from '../../../../hooks/useActions';
 import { updateUserRequest } from '../../../../../api/requests/User';
 import { useLogout } from '../../../../hooks/useLogout';
 import { Inputs } from './Inputs';
 import { Buttons } from './Buttons';
+import { IAboutMeGeneralSteps } from '../../../../types';
 
-export const General = () => {
+interface IProps {
+  personalSteps: IAboutMeGeneralSteps;
+  changeNeedMakeScroll: React.Dispatch<React.SetStateAction<boolean>>;
+  setPersonalSteps: React.Dispatch<React.SetStateAction<IAboutMeGeneralSteps>>;
+  needMakeScrollForGeneral: boolean;
+  changeNeedMakeScrollForGeneral: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const General: FC<IProps> = ({
+  personalSteps,
+  changeNeedMakeScroll,
+  setPersonalSteps,
+  needMakeScrollForGeneral,
+  changeNeedMakeScrollForGeneral,
+}) => {
   const { user, isLoading, error } = useTypedSelector((user) => user.UserReducer);
   const { userSuccess, userLoading, userError } = useActions();
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
   const logout = useLogout();
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (needMakeScrollForGeneral && localStorage.getItem('citizen_registered') && ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth' });
+      changeNeedMakeScrollForGeneral((prev) => !prev);
+    }
+  }, [needMakeScrollForGeneral]);
 
   const onFinish = async () => {
     if ((user.first_name && !/^[А-Яа-я]+$/.test(user.first_name)) || !user.first_name) {
@@ -66,6 +89,10 @@ export const General = () => {
       });
       setTimeout(() => {
         changeIsRequestSuccess((prev) => !prev);
+        changeNeedMakeScroll((prev) => !prev);
+        if (localStorage.getItem('citizen_registered')) {
+          setPersonalSteps((prev) => ({ ...prev, general_button: true }));
+        }
       }, 2000);
     }
     userLoading(false);
@@ -74,13 +101,23 @@ export const General = () => {
   return (
     <>
       <div className='flex flex-col gap-y-8'>
-        <span className='text-xl'>Основная информация</span>
-        <Inputs user={user} isLoading={isLoading} error={error} setUser={{ userSuccess }} />
+        <span className='text-xl' ref={ref}>
+          Основная информация
+        </span>
+        <Inputs
+          user={user}
+          isLoading={isLoading}
+          error={error}
+          setUser={{ userSuccess }}
+          setPersonalSteps={setPersonalSteps}
+          personalSteps={personalSteps}
+        />
         <Buttons
           error={error}
           isRequestSuccess={isRequestSuccess}
           isLoading={isLoading}
           onFinish={onFinish}
+          personalSteps={personalSteps}
         />
       </div>
     </>

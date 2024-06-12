@@ -4,7 +4,8 @@ import { updateUserPasswordRequest } from '../../../api/requests/User';
 import { IError, IUpdatePassword } from '../../types';
 import { Inputs } from './components/Inputs';
 import { Buttons } from './components/Buttons';
-import { Title } from './components/Title';
+import { GoQuestion } from 'react-icons/go';
+import { Popover } from 'antd';
 
 interface IUpdatePassProps {
   needShowForm: boolean;
@@ -71,8 +72,41 @@ export const UpdatePassword: FC<IUpdatePassProps> = ({ needShowForm, changeNeedS
         needShowForm ? 'w-full' : 'w-0',
       )}
     >
-      <div className='bg-blue-700 bg-opacity-10 backdrop-blur-xl z-[40] rounded-md max-sm:max-w-[250px] max-sm:min-w-[250px] max-sm:mx-auto sm:min-w-[500px] sm:max-w-[500px] h-fit p-2 sm:p-5'>
-        <Title />
+      <div className='bg-blue-700 bg-opacity-10 backdrop-blur-xl rounded-md max-sm:max-w-[250px] max-sm:min-w-[250px] min-w-[500px] max-w-[500px] h-fit p-4 max-sm:p-2 flex flex-col gap-y-4 max-sm:gap-y-2'>
+        <div className='text-xl font-bold sm:text-center'>Обновление пароля</div>
+        <Popover
+          className='animate-bounce'
+          placement='left'
+          content={
+            <div className='w-[250px] overflow-y-auto aspect-square'>
+              <span>
+                Если Вы являетесь диспетчером или исполнителем укажите только адрес электронной
+                почты
+              </span>
+              <br />
+              <br />
+              <span>
+                Если Ваш аккаунт имеет хотя бы одну подтвержденную собственность, то, чтобы сбросить
+                пароль, укажите почту, на который был зарегистрирован аккаунт, кликните на текст
+                "Мой аккаунт подтвержден", введите номер телефона, указанный в личном кабинете.
+              </span>
+              <br />
+              <br />
+              <span>
+                Если Ваш аккаунт не имеет подтвержденных собственностей, укажите только адрес
+                электронной почты, на который был зарегистрирован аккаунт.
+              </span>
+              <br />
+              <br />
+              <span>
+                При успешном сбросе пароля на Вашу почту будет выслано письмо с логином и паролем
+                для входа
+              </span>
+            </div>
+          }
+        >
+          <GoQuestion className='absolute top-4 right-4 text-black inline text-lg inset-y-0' />
+        </Popover>
         <Inputs
           error={error}
           changeError={changeError}
@@ -81,6 +115,10 @@ export const UpdatePassword: FC<IUpdatePassProps> = ({ needShowForm, changeNeedS
           isApproved={isApproved}
           changeIsApproved={changeIsApproved}
         />
+        <div className='text-left mt-4 max-sm:mt-2 text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50'>
+          <span className='text-red-500'>Внимание! </span>Чтобы восстановить пароль вам нужно иметь
+          доступ к почте, на который был зарегистрирован аккаунт.
+        </div>
         <Buttons
           isLoading={isLoading}
           changeNeedShowForm={changeNeedShowForm}

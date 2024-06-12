@@ -33,7 +33,7 @@ export const Buttons: FC<IProps> = ({
   changeIsApproved,
 }) => {
   return (
-    <div className='text-end'>
+    <div className='flex justify-center max-sm:gap-x-2 gap-x-4'>
       <Button
         className='inline mr-1 sm:mr-4 border-[1px] border-blue-700 text-blue-700'
         disabled={isLoading}

@@ -21,12 +21,20 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
   const [isAnimActive, changeAnimState] = useState(false);
   const [needShowPasswordForm, changeNeedShowPasswordForm] = useState(false);
   const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
-  const [isAgreementChecked, changeIsAgreementChecked] = useState(true);
+  const [isAgreementChecked, changeIsAgreementChecked] = useState(false);
   const [needShowSendEmailForm, changeNeedShowSendEmailForm] = useState(false);
 
   useEffect(() => {
     changeAnimState(true);
   }, [pageType]);
+
+  useEffect(() => {
+    if (localStorage.getItem('personal_agreement') === null) {
+      changeIsAgreementChecked(false);
+    } else {
+      changeIsAgreementChecked(true);
+    }
+  }, [pageType, needShowHelpForm]);
 
   return (
     <div className={Styles.main}>
@@ -65,25 +73,29 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
             />
           )}
 
-          <ConfigProvider
-            theme={{
-              components: {
-                Checkbox: {
-                  colorBorder: '#9fa6b1',
+          {!isAgreementChecked && (
+            <ConfigProvider
+              theme={{
+                components: {
+                  Checkbox: {
+                    colorBorder: '#9fa6b1',
+                  },
                 },
-              },
-            }}
-          >
-            <Checkbox
-              className='w-full text-left text-gray-400 text-xs'
-              onChange={() => changeIsAgreementChecked((prev) => !prev)}
-              checked={!isAgreementChecked}
+              }}
             >
-              Я принимаю пользовательское соглашение и даю разрешение порталу на обработку моих
-              персональных данных в соотвествии с Федеральным законом №152-ФЗ от 27.07.2006 года “О
-              персональных данных”
-            </Checkbox>
-          </ConfigProvider>
+              <Checkbox
+                className='w-full text-left text-gray-400 text-xs'
+                onChange={() => {
+                  localStorage.setItem('personal_agreement', 'true');
+                  changeIsAgreementChecked(true);
+                }}
+              >
+                Я принимаю пользовательское соглашение и даю разрешение порталу на обработку моих
+                персональных данных в соотвествии с Федеральным законом №152-ФЗ от 27.07.2006 года
+                “О персональных данных”
+              </Checkbox>
+            </ConfigProvider>
+          )}
         </div>
         <button
           className='outline-none border-none mb-2 text-blue-700'

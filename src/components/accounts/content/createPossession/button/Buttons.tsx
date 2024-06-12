@@ -3,41 +3,28 @@ import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { FC, useState } from 'react';
 import { Button, ConfigProvider, Popover } from 'antd';
 import { IApprovePossession, IError } from '../../../../types';
-import { useActions } from '../../../../hooks/useActions';
 import { createPossessionRequest } from '../../../../../api/requests/Possession';
 
 interface IProps {
   data: IApprovePossession;
   changeError: React.Dispatch<React.SetStateAction<IError | null>>;
   error: IError | null;
-  isLoading: boolean;
   role: string;
   logout: () => void;
   exitFromForm: () => void;
 }
 
-export const Buttons: FC<IProps> = ({
-  data,
-  changeError,
-  error,
-  isLoading,
-  role,
-  logout,
-  exitFromForm,
-}) => {
+export const Buttons: FC<IProps> = ({ data, changeError, error, role, logout, exitFromForm }) => {
   const [isRequestSuccess, changeIsRequestSuccess] = useState(false);
-  const { userLoading } = useActions();
+  const [isRequestBad, changeIsRequestBad] = useState(false);
+  const [isLoading, changeIsLoading] = useState(false);
 
   const makeRequest = async () => {
-    userLoading(true);
+    changeIsLoading((prev) => !prev);
     if (error) changeError(null);
     const { complex, ...info } = data;
     const response = await createPossessionRequest(logout, info);
-    userLoading(false);
-    if (response && typeof response !== 'number' && 'type' in response) {
-      changeError(response);
-      return;
-    }
+    changeIsLoading((prev) => !prev);
     if (response === 201) {
       changeIsRequestSuccess((prev) => !prev);
       setTimeout(() => {
@@ -45,15 +32,18 @@ export const Buttons: FC<IProps> = ({
         exitFromForm();
       }, 2000);
     } else {
-      changeError({
-        type: 'global',
-        error: '',
-      });
+      if (response && 'type' in response) {
+        changeError(response);
+      }
+      changeIsRequestBad((prev) => !prev);
+      setTimeout(() => {
+        changeIsRequestBad((prev) => !prev);
+      }, 2000);
     }
   };
 
   return (
-    <div className='mt-5 flex justify-center'>
+    <div className='mt-4 max-sm:mt-2 flex justify-center'>
       <Button
         className='text-blue-700 border-blue-700 mr-4'
         disabled={isLoading}
@@ -91,19 +81,19 @@ export const Buttons: FC<IProps> = ({
                 <span>Обработка</span>
               </div>
             )}
-            {error && !isLoading && !isRequestSuccess && (
+            {isRequestBad && !isLoading && !isRequestSuccess && (
               <div>
                 <ImCross className='inline mr-2' />
                 <span>Ошибка</span>
               </div>
             )}
-            {!isLoading && !error && isRequestSuccess && (
+            {!isLoading && !isRequestBad && isRequestSuccess && (
               <div>
                 <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
                 <span>Успешно</span>
               </div>
             )}
-            {!isLoading && !error && !isRequestSuccess && <>Создать</>}
+            {!isLoading && !isRequestBad && !isRequestSuccess && <>Создать</>}
           </Button>
         </ConfigProvider>
       </Popover>

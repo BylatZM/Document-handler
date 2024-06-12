@@ -13,11 +13,13 @@ import {
   ISubtype,
   IGisApplication,
   IAppLoading,
+  IEmailApplication,
 } from '../../components/types';
 
 const initialState: IApplicationState = {
   applications: [],
   gisApplications: [],
+  emailApplications: [],
   types: [],
   grades: [],
   sources: [],
@@ -42,6 +44,10 @@ export const ApplicationReducer = createSlice({
     },
     gisApplicationSuccess: (state, { payload }: PayloadAction<IGisApplication[]>) => {
       state.gisApplications = payload;
+      state.isLoading = null;
+    },
+    emailApplicationSuccess: (state, { payload }: PayloadAction<IEmailApplication[]>) => {
+      state.emailApplications = payload;
       state.isLoading = null;
     },
     typesSuccess: (state, { payload }: PayloadAction<IType[]>) => {

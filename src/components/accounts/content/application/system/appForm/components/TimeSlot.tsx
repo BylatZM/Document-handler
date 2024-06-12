@@ -67,7 +67,7 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
               <span>Плановое время исполнения</span>
               <Input
                 className='h-[50px] text-base'
-                value={dateCalculator(data.subtype.normative_in_hours / 24, data.created_date)}
+                value={dateCalculator(!data.normative ? 0 : data.normative / 24, data.created_date)}
                 disabled
               />
             </div>
@@ -81,19 +81,26 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
             <span>Комментарий диспетчера</span>
             <TextArea
               value={!data.dispatcher_comment ? '' : data.dispatcher_comment}
-              onChange={(e) =>
-                changeFormData((prev) => ({ ...prev, dispatcher_comment: e.target.value }))
-              }
+              onChange={(e) => {
+                if (error && error.type === 'dispatcher_comment') applicationError(null);
+                changeFormData((prev) => ({ ...prev, dispatcher_comment: e.target.value }));
+              }}
               className='rounded-md h-[60px] text-base'
               maxLength={500}
               rows={5}
+              status={error && error.type === 'dispatcher_comment' ? 'error' : undefined}
               style={{ resize: 'none' }}
               disabled={
-                ['citizen', 'executor'].some((el) => el === role) || data.status.name === 'Закрыта'
+                ['citizen', 'executor'].some((el) => el === role) ||
+                data.status.name === 'Закрыта' ||
+                data.status.name === 'Заведена неверно'
                   ? true
                   : false
               }
             />
+            {error && error.type === 'dispatcher_comment' && (
+              <span className='errorText'>{error.error}</span>
+            )}
           </div>
           <div className='flex flex-col gap-2 w-full'>
             <span>Комментарий исполнителя</span>

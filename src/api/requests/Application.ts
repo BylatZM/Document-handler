@@ -13,6 +13,9 @@ import {
   IGisApplicationPagination,
   IUpdateGisAppByDispatcher,
   IUpdateGisAppByEmployee,
+  IEmailApplicationPagination,
+  IUpdateEmailAppByDispatcher,
+  IUpdateEmailAppByEmployee,
 } from '../../components/types';
 import {
   createSystemApplication,
@@ -27,7 +30,8 @@ import {
   getAllSubtypesWithExtra,
   getAllGisApplicationsByExtra,
   updateGisApplicationById,
-  getAllEmploysForGis,
+  getAllEmailApplicationsByExtra,
+  updateEmailApplicationById,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -71,10 +75,43 @@ export const getAllGisApplicationsByExtraRequest = async (
   logout: () => void,
   page: string,
   page_size: string,
+  extra: string,
 ): Promise<IGisApplicationPagination | void> => {
   const makeRequest = async (): Promise<IGisApplicationPagination | 401 | void> => {
     try {
-      const response = await getAllGisApplicationsByExtra(page, page_size);
+      const response = await getAllGisApplicationsByExtra(page, page_size, extra);
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getAllEmailApplicationsByExtraRequest = async (
+  logout: () => void,
+  page: string,
+  page_size: string,
+  extra: string,
+): Promise<IEmailApplicationPagination | void> => {
+  const makeRequest = async (): Promise<IEmailApplicationPagination | 401 | void> => {
+    try {
+      const response = await getAllEmailApplicationsByExtra(page, page_size, extra);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -199,6 +236,40 @@ export const updateGisApplicationByIdRequest = async (
   } else return response;
 };
 
+export const updateEmailApplicationByIdRequest = async (
+  id: string,
+  logout: () => void,
+  data: IUpdateEmailAppByDispatcher | IUpdateEmailAppByEmployee,
+): Promise<IError | 200 | void> => {
+  const makeRequest = async (): Promise<IError | 200 | 401 | void> => {
+    try {
+      await updateEmailApplicationById(id, data);
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) return e.response.data;
+          else errorAlert(e.response.status);
+        }
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
 export const updateSystemApplicationStatusByIdRequest = async (
   id: string,
   logout: () => void,
@@ -247,35 +318,6 @@ export const getAllEmploysWithExtraRequest = async (
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
         if (e.response.status === 400) return e.response.data;
-        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
-      }
-    }
-  };
-
-  const response = await makeRequest();
-  if (!response) return;
-
-  if (response === 401) {
-    const refresh_status = await refreshRequest();
-    if (refresh_status === 200) {
-      const response = await makeRequest();
-      if (response !== 401) return response;
-      else return;
-    }
-    if (refresh_status === 403) logout();
-  } else return response;
-};
-
-export const getAllEmploysForGisRequest = async (
-  logout: () => void,
-): Promise<IEmployee[] | void> => {
-  const makeRequest = async (): Promise<IEmployee[] | 401 | void> => {
-    try {
-      const response = await getAllEmploysForGis();
-      if (response.data) return response.data;
-    } catch (e) {
-      if (request.isAxiosError(e) && e.response) {
-        if (e.response.status === 401) return 401;
         if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
       }
     }

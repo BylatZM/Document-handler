@@ -13,6 +13,7 @@ const endpoints = {
   },
   building: {
     getAllByComplexId: 'building/getAll/',
+    getAll: 'building/getAll',
   },
   possession: {
     getAllWithExtra: 'possession/getAll',
@@ -36,6 +37,8 @@ const endpoints = {
     getAllSystemWithExtra: 'application/system/getAll',
     getAllGisWithExtra: 'application/gis/getAll',
     updateGisById: 'application/gis/update/',
+    getAllEmailAppWithExtra: 'application/email/getAll',
+    updateEmailAppById: 'application/email/update/',
     getAllStatuses: 'application/status/getAll',
     getAllTypesByComplexId: 'application/type/getAll/',
     getAllSubtypesWithExtra: 'application/subtype/getAll',
@@ -44,7 +47,6 @@ const endpoints = {
   },
   employee: {
     getEmploysWithExtra: 'employee/getAll',
-    getEmploysForGis: 'employee/gis/getAll',
   },
 };
 

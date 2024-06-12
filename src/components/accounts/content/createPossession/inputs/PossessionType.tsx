@@ -14,7 +14,7 @@ export const PossessionType: FC<IProps> = ({ data, changeData }) => {
     <div className='text-sm'>
       <span>Тип имущества</span>
       <Select
-        className='h-[50px] sm:h-[30px] w-full'
+        className='h-[40px] max-sm:h-[30px] w-full'
         options={
           role === 'citizen'
             ? [

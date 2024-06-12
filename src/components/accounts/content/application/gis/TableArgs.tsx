@@ -9,6 +9,21 @@ export const defaultColumns: ColumnsType<IGisTableColumns> = [
     key: 'key',
   },
   {
+    title: 'ФИО заявителя',
+    dataIndex: 'fio',
+    key: 'fio',
+  },
+  {
+    title: 'Контактный телефон',
+    dataIndex: 'phone',
+    key: 'phone',
+  },
+  {
+    title: 'Электронная почта',
+    dataIndex: 'email',
+    key: 'email',
+  },
+  {
     title: 'Дата создания',
     dataIndex: 'createdDate',
     key: 'createdDate',
@@ -19,13 +34,21 @@ export const defaultColumns: ColumnsType<IGisTableColumns> = [
     key: 'type',
   },
   {
+    title: 'Подтип заявки',
+    dataIndex: 'subtype',
+    key: 'subtype',
+    render: (subtype) => (
+      <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype}</div>
+    ),
+  },
+  {
     title: 'Статус',
     dataIndex: 'status',
     key: 'status',
     render: (status: string) => (
-      <span
+      <div
         className={clsx(
-          'text-white p-2 rounded-lg',
+          'text-white p-2 rounded-lg min-w-[90px]',
           status === 'В работе' && 'bg-blue-700',
           status === 'Новая' && 'bg-green-400',
           status === 'Назначена' && 'bg-green-600',
@@ -34,7 +57,7 @@ export const defaultColumns: ColumnsType<IGisTableColumns> = [
         )}
       >
         {status}
-      </span>
+      </div>
     ),
   },
   {
@@ -53,24 +76,29 @@ export const defaultColumns: ColumnsType<IGisTableColumns> = [
     ),
   },
   {
-    title: 'Адрес собственности',
-    dataIndex: 'possessionAddress',
-    key: 'possessionAddress',
-    render: (possessionAddress: string) => (
+    title: 'Жилищный комплекс',
+    dataIndex: 'complex',
+    key: 'complex',
+    render: (complex: string) => (
       <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {possessionAddress}
+        {complex}
       </div>
     ),
   },
   {
-    title: 'Номер телефона',
-    dataIndex: 'phone',
-    key: 'phone',
+    title: 'Адрес здания',
+    dataIndex: 'building',
+    key: 'building',
+    render: (building: string) => (
+      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
+        {building}
+      </div>
+    ),
   },
   {
-    title: 'Адрес электронной почты',
-    dataIndex: 'email',
-    key: 'email',
+    title: 'Наименование собственности',
+    dataIndex: 'possession',
+    key: 'possession',
   },
   {
     title: 'Исполнитель',

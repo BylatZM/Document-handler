@@ -28,7 +28,6 @@ export const defaultAppForm: IApplication = {
     id: 0,
     type: '',
     name: '',
-    normative_in_hours: 0,
   },
   possession: {
     id: 0,
@@ -59,4 +58,5 @@ export const defaultAppForm: IApplication = {
   },
   possession_type: '1',
   contact: '+7',
+  normative: 0,
 };

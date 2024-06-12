@@ -40,7 +40,7 @@ export const Confirmations: FC<IProps> = ({
       <div
         className={clsx(
           'transitionFast flex flex-col overflow-hidden',
-          activeAccordion.confirmations ? 'h-[120px]' : 'h-0',
+          activeAccordion.confirmations ? 'sm:h-[120px] max-sm:h-[148px]' : 'h-0',
         )}
       >
         <Link

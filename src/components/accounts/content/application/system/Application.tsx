@@ -15,6 +15,7 @@ import {
   IEmployee,
   IType,
   ICitizenPossession,
+  IFilterAppOptions,
 } from '../../../../types';
 import { BsFilterRight } from 'react-icons/bs';
 import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
@@ -31,6 +32,7 @@ import { defaultAppForm } from './appForm/defaultAppForm';
 interface IProps {
   getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
   getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuilding[] | void>;
+  getAllBuildings: () => Promise<IBuilding[] | void>;
   getTypes: (complex_id: string) => Promise<IType[] | void>;
   getPriorities: () => Promise<void>;
   getSources: () => Promise<void>;
@@ -43,6 +45,7 @@ interface IProps {
 export const Application: FC<IProps> = ({
   getPossessions,
   getAllBuildingsByComplexId,
+  getAllBuildings,
   getPriorities,
   getSources,
   getStatuses,
@@ -69,6 +72,17 @@ export const Application: FC<IProps> = ({
     creating_date_inc: false,
     creating_date_dec: true,
   });
+  const [filterOptions, setFilterOptions] = useState<IFilterAppOptions>({
+    complexId: null,
+    buildingId: null,
+    statusId: null,
+    role: null,
+    phone: null,
+    fio: null,
+    possessionName: null,
+    possessionType: null,
+    applicationType: null,
+  });
   const page_size = localStorage.getItem('application_size');
   const [tableParams, setTableParams] = useState<ITableParams>({
     pagination: {
@@ -91,7 +105,32 @@ export const Application: FC<IProps> = ({
   const getApplications = async () => {
     applicationLoading('applications');
     localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+    localStorage.setItem('application_filter_options', JSON.stringify(filterOptions));
     let extra = '';
+    if (filterOptions.complexId) {
+      extra += `&complex_id=${filterOptions.complexId}`;
+    }
+    if (filterOptions.buildingId) {
+      extra += `&building_id=${filterOptions.buildingId}`;
+    }
+    if (filterOptions.fio) {
+      extra += `&fio=${filterOptions.fio}`;
+    }
+    if (filterOptions.possessionType) {
+      extra += `&possession_type=${filterOptions.possessionType}`;
+    }
+    if (filterOptions.possessionName) {
+      extra += `&possession_name=${filterOptions.possessionName}`;
+    }
+    if (filterOptions.phone) {
+      extra += `&phone=${filterOptions.phone}`;
+    }
+    if (filterOptions.role) {
+      extra += `&role_name=${filterOptions.role}`;
+    }
+    if (filterOptions.statusId) {
+      extra += `&status_id=${filterOptions.statusId}`;
+    }
     if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
       extra += '&created_date=dec';
     if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
@@ -167,16 +206,27 @@ export const Application: FC<IProps> = ({
   }, []);
 
   useEffect(() => {
-    let sort_params = localStorage.getItem('application_sort_options');
-    let parsed_object: ISortOptions = sortOptions;
-    if (sort_params) {
+    let sortParams = localStorage.getItem('application_sort_options');
+    let parsedSortObject: ISortOptions = sortOptions;
+    if (sortParams) {
       try {
-        parsed_object = JSON.parse(sort_params);
-        setSortOptions(parsed_object);
+        parsedSortObject = JSON.parse(sortParams);
+        setSortOptions(parsedSortObject);
       } catch (e) {
         localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
       }
     } else localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+
+    let filterParams = localStorage.getItem('application_filter_options');
+    let parsedFilterObject: IFilterAppOptions | null = null;
+    if (filterParams) {
+      try {
+        parsedFilterObject = JSON.parse(filterParams);
+        if (parsedFilterObject) setFilterOptions(parsedFilterObject);
+      } catch (e) {
+        localStorage.setItem('application_filter_options', JSON.stringify(filterOptions));
+      }
+    } else localStorage.setItem('application_filter_options', JSON.stringify(filterOptions));
 
     let json_array = localStorage.getItem('application_table_columns');
     let filter_array: string[] = [];
@@ -272,7 +322,7 @@ export const Application: FC<IProps> = ({
             ? 'fresh'
             : applicationFreshnessStatus(
                 selectedItem.created_date,
-                !selectedItem.subtype ? 0 : selectedItem.subtype.normative_in_hours,
+                !selectedItem.normative ? 0 : selectedItem.normative,
               )
         }
         getAllBuildingsByComplexId={getAllBuildingsByComplexId}
@@ -344,6 +394,10 @@ export const Application: FC<IProps> = ({
               sortOptions={sortOptions}
               setSortOptions={setSortOptions}
               changeIsNeedToGet={changeIsNeedToGet}
+              setFilterOptions={setFilterOptions}
+              filterOptions={filterOptions}
+              getAllBuildingsByComplexId={getAllBuildingsByComplexId}
+              getAllBuildings={getAllBuildings}
             />
           )}
         </div>

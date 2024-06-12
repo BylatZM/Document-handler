@@ -73,7 +73,7 @@ axiosInstance.interceptors.response.use((response) => {
         data: response.data,
       });
   }
-  if (response.config.url?.includes('building/getAll/')) {
+  if (response.config.url?.includes('building/getAll')) {
     if (!cache.building.some((el) => el.url === response.config.url))
       cache.building.push({
         url: response.config.url,

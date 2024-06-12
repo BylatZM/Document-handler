@@ -59,6 +59,7 @@ export interface IUserState {
 export type IAppLoading =
   | 'applications'
   | 'gisApplications'
+  | 'emailApplications'
   | 'types'
   | 'grades'
   | 'employs'
@@ -71,6 +72,7 @@ export type IAppLoading =
 export interface IApplicationState {
   applications: IApplication[];
   gisApplications: IGisApplication[];
+  emailApplications: IEmailApplication[];
   types: IType[];
   grades: IGrade[];
   employs: IEmployee[];
@@ -147,63 +149,114 @@ export interface IGisApplication {
   employee: IEmployee | null;
   status: IStatus;
   priority: IPriority;
-  normative: INormative | null;
   phone: string | null;
   email: string | null;
   applicant_fio: string;
-  type: string;
-  applicant_сomment: string;
+  type: IType | null;
+  subtype: ISubtype | null;
+  complex: IComplex | null;
+  applicant_comment: string;
   dispatcher_comment: string | null;
-  employee_comment: string;
+  employee_comment: string | null;
   created_date: string;
   due_date: string | null;
-  possession_address: string;
+  building_address: string;
+  possession: string | null;
+  normative: number | null;
 }
 
-export type IGisTableColumns = Omit<
-  IGisApplication,
-  | 'id'
-  | 'employee'
-  | 'status'
-  | 'priority'
-  | 'normative'
-  | 'phone'
-  | 'email'
-  | 'applicant_fio'
-  | 'applicant_сomment'
-  | 'dispatcher_comment'
-  | 'employee_comment'
-  | 'created_date'
-  | 'due_date'
-  | 'possession_address'
-> & {
+export interface IGisTableColumns {
   key: number;
   createdDate: string;
   status: string;
+  type: string;
+  subtype: string;
   dueDate: string;
   applicantComment: string;
-  possessionAddress: string;
+  complex: string;
+  building: string;
+  possession: string;
   phone: string;
   email: string;
+  fio: string;
   employee: string;
   normative: number;
-};
-
-export interface INormative {
-  normative_in_hours: number;
-  company: string;
 }
 
 export interface IUpdateGisAppByDispatcher {
   status: number;
-  dispatcher_comment: string | null;
-  priority: number;
-  employee: number | null;
+  dispatcher_comment?: string | null;
+  priority?: number;
+  employee?: number;
+  type?: number;
+  subtype?: number;
+  complex?: number;
 }
 
 export interface IUpdateGisAppByEmployee {
   status: number;
-  employee_comment: string;
+  employee_comment?: string | null;
+}
+
+export interface IEmailApplication {
+  id: number;
+  status: IStatus;
+  type: IType | null;
+  subtype: ISubtype | null;
+  created_date: string;
+  due_date: string | null;
+  applicant_comment: string;
+  priority: IPriority;
+  complex: IComplex | null;
+  building_address: string;
+  possession: string;
+  employee: IEmployee | null;
+  dispatcher_comment: string | null;
+  employee_comment: string | null;
+  applicant_fio: string;
+  email: string;
+  phone: string | null;
+  payment_code: string;
+  normative: number | null;
+}
+
+export interface IEmailTableColumns {
+  key: number;
+  createdDate: string;
+  status: string;
+  type: string;
+  subtype: string;
+  dueDate: string;
+  applicantComment: string;
+  complex: string;
+  building: string;
+  possession: string;
+  phone: string;
+  email: string;
+  fio: string;
+  employee: string;
+  payment_code: string;
+  normative: number;
+}
+
+export interface IUpdateEmailAppByDispatcher {
+  type?: number;
+  subtype?: number;
+  priority?: number;
+  dispatcher_comment?: string | null;
+  complex?: number;
+  employee?: number | null;
+  status: number;
+}
+
+export interface IUpdateEmailAppByEmployee {
+  status: number;
+  employee_comment?: null | string;
+}
+
+export interface IEmailApplicationPagination {
+  result: IEmailApplication[];
+  total: number;
 }
 
 export interface IApplication {
@@ -222,54 +275,56 @@ export interface IApplication {
   possession: IPossession;
   employee: IEmployee | null;
   dispatcher_comment: string | null;
-  employee_comment: string;
+  employee_comment: string | null;
   applicant: {
     role: string;
   };
   possession_type: string;
   contact: string;
   applicant_fio: string;
+  normative: number | null;
 }
 
-export type IAppCreateByCitizen = Pick<
-  IApplication,
-  'applicant_comment' | 'contact' | 'applicant_fio'
-> & {
+export interface IAppCreateByCitizen {
   complex: number;
   building: number;
   possession: number;
   type: number;
   subtype: number;
-};
+  applicant_comment: string;
+  contact: string;
+  applicant_fio: string;
+}
 
-export type IAppCreateByDispatcher = Pick<
-  IApplication,
-  'applicant_comment' | 'contact' | 'applicant_fio'
-> & {
+export interface IAppCreateByDispatcher {
   complex: number;
   building: number;
   possession: number;
+  applicant_comment: string;
+  contact: string;
+  applicant_fio: string;
   employee: number | null;
   type: number;
   source: number;
   priority: number;
   dispatcher_comment?: string | null;
   subtype: number;
-};
+}
 
 export type IAppUpdateByDispatcher = {
-  type: number;
-  subtype: number;
-  source: number;
-  priority: number;
-  dispatcher_comment: string | null;
-  employee: number | null;
+  type?: number;
+  subtype?: number;
+  source?: number;
+  priority?: number;
+  dispatcher_comment?: string | null;
+  employee?: number | null;
   status: number;
 };
 
-export type IAppUpdateByEmployee = Pick<IApplication, 'employee_comment'> & {
+export interface IAppUpdateByEmployee {
+  employee_comment?: string | null;
   status: number;
-};
+}
 
 export type IAppUpdateStatus = Pick<IApplication, 'status'>;
 
@@ -287,7 +342,6 @@ export interface ISubtype {
   id: number;
   type: string;
   name: string;
-  normative_in_hours: number;
 }
 
 export interface IGrade {
@@ -429,19 +483,20 @@ export interface IApplicationNotCitizenColumns {
   key: number;
   createdDate: string;
   appType: string;
-  appSubtype: {
-    name: string;
-    normative: number;
-  };
+  appSubtype: string;
   status: string;
   dueDate: string;
   applicantComment: string;
-  possession: string;
+  possessionType: string;
+  possessionNumber: string;
   building: string;
   complex: string;
   contact: string;
   employee: string;
   creator: string;
+  fio: string;
+  phone: string;
+  normative: number;
 }
 
 export interface IUpdatePassword {
@@ -465,6 +520,74 @@ export type ISortingOption =
   | 'creatingDate_increasing'
   | 'creatingDate_decreasing'
   | null;
+
+export interface IFilterAppOptions {
+  complexId: number | null;
+  buildingId: number | null;
+  statusId: number | null;
+  role: 'dispatcher' | 'citizen' | null;
+  phone: string | null;
+  fio: string | null;
+  possessionType: number | null;
+  possessionName: string | null;
+  applicationType: number | null;
+}
+
+export interface IFilterEmailAppOptions {
+  complexId: number | null;
+  buildingAddress: string | null;
+  statusId: number | null;
+  phone: string | null;
+  email: string | null;
+  fio: string | null;
+  possessionName: string | null;
+  applicationType: number | null;
+}
+
+export interface IFilterGisAppOptions {
+  complexId: number | null;
+  buildingAddress: string | null;
+  statusId: number | null;
+  phone: string | null;
+  email: string | null;
+  fio: string | null;
+  possessionName: string | null;
+  applicationType: number | null;
+}
+
+export interface IFilterAppFormActivity {
+  complex: boolean;
+  building: boolean;
+  status: boolean;
+  role: boolean;
+  phone: boolean;
+  fio: boolean;
+  possessionType: boolean;
+  possessionName: boolean;
+  applicationType: boolean;
+}
+
+export interface IFilterEmailAppFormActivity {
+  complex: boolean;
+  building: boolean;
+  status: boolean;
+  email: boolean;
+  phone: boolean;
+  fio: boolean;
+  possessionName: boolean;
+  applicationType: boolean;
+}
+
+export interface IFilterGisAppFormActivity {
+  complex: boolean;
+  building: boolean;
+  status: boolean;
+  email: boolean;
+  phone: boolean;
+  fio: boolean;
+  possessionName: boolean;
+  applicationType: boolean;
+}
 
 export interface ISortOptions {
   status_inc: boolean;
@@ -515,4 +638,19 @@ export interface IBuildingCache {
 export interface IAccordionState {
   directories: boolean;
   confirmations: boolean;
+}
+
+export interface IAboutMeGeneralSteps {
+  first_name: boolean;
+  last_name: boolean;
+  phone: boolean;
+  general_button: boolean;
+  edit_form_button: boolean;
+}
+
+export interface IAboutMeFormSteps {
+  complex: boolean;
+  building: boolean;
+  possession: boolean;
+  create_button: boolean;
 }

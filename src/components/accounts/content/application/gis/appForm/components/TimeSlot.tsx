@@ -50,8 +50,8 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
           <Input
             className='h-[50px] text-base'
             value={
-              data.normative
-                ? dateCalculator(data.normative.normative_in_hours / 24, data.created_date)
+              data.subtype
+                ? dateCalculator(!data.normative ? 0 : data.normative / 24, data.created_date)
                 : ''
             }
             disabled
@@ -63,20 +63,27 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
         <span>Комментарий диспетчера</span>
         <TextArea
           value={!data.dispatcher_comment ? undefined : data.dispatcher_comment}
-          onChange={(e) => changeData((prev) => ({ ...prev, dispatcher_comment: e.target.value }))}
+          onChange={(e) => {
+            if (error && error.type === 'dispatcher_comment') applicationError(null);
+            changeData((prev) => ({ ...prev, dispatcher_comment: e.target.value }));
+          }}
           className='rounded-md h-[60px] text-base'
           maxLength={500}
           rows={5}
+          status={error && error.type === 'dispatcher_comment' ? 'error' : undefined}
           style={{ resize: 'none' }}
           disabled={role === 'executor' || data.status.name === 'Закрыта' ? true : false}
         />
+        {error && error.type === 'dispatcher_comment' && (
+          <span className='errorText'>{error.error}</span>
+        )}
       </div>
       <div className='flex flex-col gap-2 w-full'>
         <span>Комментарий исполнителя</span>
         <TextArea
           value={!data.employee_comment ? undefined : data.employee_comment}
           onChange={(e) => {
-            if (error) applicationError(null);
+            if (error && error.type === 'employee_comment') applicationError(null);
             changeData((prev) => ({ ...prev, employee_comment: e.target.value }));
           }}
           className='rounded-md h-[60px] text-base'

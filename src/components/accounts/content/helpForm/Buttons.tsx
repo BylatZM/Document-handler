@@ -3,7 +3,6 @@ import { FC, useState } from 'react';
 import { requestFromHelpForm } from '../../../../api/requests/Main';
 import { useActions } from '../../../hooks/useActions';
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
-import { Logo } from '../../../../assets/svg';
 import { ImSpinner9, ImCross } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
 
@@ -61,73 +60,74 @@ export const Buttons: FC<IButtonsProps> = ({ changeNeedShowForm, isAgreementChec
     }
 
     helpFormLoading(true);
-    await requestFromHelpForm({
+    const response = await requestFromHelpForm({
       ...info,
       address: result_address,
     });
     helpFormLoading(false);
-    changeIsRequestSuccess((prev) => !prev);
-    setTimeout(() => {
+    if (!response) {
+      helpFormError({ type: 'error', error: 'something wrong' });
+    } else {
       changeIsRequestSuccess((prev) => !prev);
-      changeNeedShowForm(false);
-      helpFormClear();
-    }, 2000);
+      setTimeout(() => {
+        changeIsRequestSuccess((prev) => !prev);
+        changeNeedShowForm(false);
+        helpFormClear();
+      }, 2000);
+    }
   };
 
   return (
-    <div className='flex justify-between m-0 py-2 sm:flex-row sm:items-center gap-y-2 items-start flex-col'>
-      <Logo />
-      <div className='flex gap-x-4'>
-        <Button
-          className='border-[1px] border-blue-700 text-blue-700 h-[40px] mr-4'
-          disabled={isLoading || isRequestSuccess}
-          onClick={() => {
-            changeNeedShowForm(false);
-            helpFormClear();
-          }}
-        >
-          Закрыть
-        </Button>
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                colorPrimaryHover: undefined,
-              },
+    <div className='flex sm:gap-x-4 max-sm:gap-x-2 justify-center'>
+      <Button
+        className='border-[1px] border-blue-700 text-blue-700 h-[40px] mr-4'
+        disabled={isLoading || isRequestSuccess}
+        onClick={() => {
+          changeNeedShowForm(false);
+          helpFormClear();
+        }}
+      >
+        Закрыть
+      </Button>
+      <ConfigProvider
+        theme={{
+          components: {
+            Button: {
+              colorPrimaryHover: undefined,
             },
+          },
+        }}
+      >
+        <Button
+          className='text-white h-[40px] bg-blue-700'
+          disabled={isAgreementChecked && !isRequestSuccess && !isLoading ? false : true}
+          type='primary'
+          htmlType='submit'
+          onClick={() => {
+            onFinish();
           }}
         >
-          <Button
-            className='text-white h-[40px] bg-blue-700'
-            disabled={!isAgreementChecked && !isRequestSuccess && !isLoading ? false : true}
-            type='primary'
-            htmlType='submit'
-            onClick={() => {
-              onFinish();
-            }}
-          >
-            {isLoading && (
-              <div className='inline-flex items-center'>
-                <ImSpinner9 className='animate-spin mr-2' />
-                <span>Обработка</span>
-              </div>
-            )}
-            {error && !isLoading && !isRequestSuccess && (
-              <div className='inline-flex items-center'>
-                <ImCross className='mr-2' />
-                <span>Ошибка</span>
-              </div>
-            )}
-            {!isLoading && !error && isRequestSuccess && (
-              <div className='inline-flex items-center'>
-                <HiOutlineCheck className='mr-2 font-bold text-lg' />
-                <span>Успешно</span>
-              </div>
-            )}
-            {!isLoading && !error && !isRequestSuccess && <>Отправить</>}
-          </Button>
-        </ConfigProvider>
-      </div>
+          {isLoading && (
+            <div className='inline-flex items-center'>
+              <ImSpinner9 className='animate-spin mr-2' />
+              <span>Обработка</span>
+            </div>
+          )}
+          {error && !isLoading && !isRequestSuccess && (
+            <div className='inline-flex items-center'>
+              <ImCross className='mr-2' />
+              <span>Ошибка</span>
+            </div>
+          )}
+          {!isLoading && !error && isRequestSuccess && (
+            <div className='inline-flex items-center'>
+              <HiOutlineCheck className='mr-2 font-bold text-lg' />
+              <span>Успешно</span>
+            </div>
+          )}
+          {!isLoading && !error && !isRequestSuccess && <>Отправить</>}
+        </Button>
+      </ConfigProvider>
     </div>
   );
 };

@@ -39,16 +39,21 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData }) =>
             }));
           }}
           disabled={
-            data.status.name !== 'Новая' &&
-            data.status.name !== 'Назначена' &&
-            data.status.name !== 'Возвращена'
+            !workers.length ||
+            (data.status.name !== 'Новая' &&
+              data.status.name !== 'Назначена' &&
+              data.status.name !== 'Возвращена')
               ? true
               : false
           }
-          options={workers.map((el) => ({
-            value: el.id,
-            label: el.employee,
-          }))}
+          options={
+            ['Закрыта', 'В работе'].some((el) => el === data.status.name) && data.employee
+              ? [{ value: data.employee.id, label: data.employee.employee }]
+              : workers.map((el) => ({
+                  value: el.id,
+                  label: el.employee,
+                }))
+          }
         />
       )}
     </div>

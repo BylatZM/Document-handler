@@ -62,7 +62,8 @@ export const Employee: FC<IProps> = ({ role, data, workers, changeFormData, form
             }
             status={error && error.type === 'employee' ? 'error' : undefined}
             options={
-              data.status.name === 'Закрыта' && data.employee
+              ['Закрыта', 'В работе', 'Заведена неверно'].some((el) => el === data.status.name) &&
+              data.employee
                 ? [{ value: data.employee.id, label: data.employee.employee }]
                 : workers.map((el) => ({
                     value: el.id,

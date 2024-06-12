@@ -1,0 +1,39 @@
+.video:hover .frame {
+  transition: width 0.5s ease-in-out;
+  width: 100%;
+}
+
+.video .frame {
+  transition: width 0.5s ease-in-out;
+  width: 50%;
+}
+
+.video:hover .pause {
+  transition: all 0.5s ease-in-out;
+  opacity: 0;
+  transform: rotate(-180deg);
+}
+
+.video .pause {
+  transition: all 0.5s ease-in-out;
+  transition-delay: 0.1s;
+  opacity: 1;
+}
+
+.video:hover .play {
+  transition: all 0.5s ease-in-out;
+  transition-delay: 0.1s;
+  opacity: 1;
+  transform: rotate(-360deg);
+}
+
+.video .play {
+  transition: all 0.5s ease-in-out;
+  opacity: 0;
+  transform: rotate(-180deg);
+}
+
+.player {
+  transition: opacity 1s ease-in-out;
+  transition-delay: 1s;
+}

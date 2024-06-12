@@ -15,7 +15,7 @@ export const Building: FC<IProps> = ({ data, changeData, buildings }) => {
     <div className='text-sm'>
       <div>Адресс здания</div>
       <Select
-        className='w-full h-[80px] sm:h-[30px]'
+        className='w-full h-[40px] max-sm:h-[30px]'
         disabled={!data.complex || isLoading === 'buildings' || !buildings.length ? true : false}
         loading={isLoading === 'buildings' ? true : false}
         value={!data.building ? undefined : data.building}

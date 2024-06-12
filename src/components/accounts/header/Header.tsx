@@ -6,7 +6,7 @@ import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useLocation } from 'react-router-dom';
 
 interface IHeaderProps {
-  changeIsMenuOpened: (numb: boolean) => void;
+  changeIsMenuOpened: React.Dispatch<React.SetStateAction<boolean>>;
   isMenuOpened: boolean;
 }
 
@@ -21,9 +21,13 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
           {pathname === '/account/aboutMe' && 'Обо мне'}
           {pathname === '/account/applications' && 'Заявки'}
           {pathname === '/account/applications/gis' && 'Заявки с ГИС ЖКХ'}
+          {pathname === '/account/applications/email' && 'Заявки с почты'}
           {pathname === '/account/approve/citizen_possession' &&
             'Подтверждение собственностей жителей'}
           {pathname === '/account/approve/living_space' && 'Подтверждение жилплощади'}
+          {pathname === '/account/camera' &&
+            user_email === 'SuperDispatcher2@yandex.ru' &&
+            'Видео камеры'}
         </b>
         <Popover
           className='text-xl'
@@ -35,6 +39,8 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
                 'В этом разделе Вы можете просматривать Ваши заявки и создавать новые'}
               {pathname === '/account/applications/gis' &&
                 'В этом разделе Вы можете просматривать Ваши заявки с ГИС ЖКХ'}
+              {pathname === '/account/applications/email' &&
+                'В этом разделе Вы можете просматривать Ваши заявки с почты'}
               {pathname === '/account/approve/citizen_possession' &&
                 'В этом разделе Вы можете подтвердить собственности жителей'}
               {pathname === '/account/approve/living_space' &&
@@ -47,9 +53,9 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
       </div>
       <div className='flex items-center text-sm sm:text-base'>
         <b className='mr-4'>{user_email}</b>
-        <div
-          className='flex flex-col justify-center w-7 gap-y-2 h-6 cursor-pointer'
-          onClick={() => changeIsMenuOpened(!isMenuOpened)}
+        <button
+          className='z-10 w-7 h-6 flex flex-col justify-center gap-y-2'
+          onClick={() => changeIsMenuOpened((prev) => !prev)}
         >
           <span
             className={clsx(
@@ -66,7 +72,7 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
               isMenuOpened && 'rotate-[-45deg] bottom-[5px]',
             )}
           ></span>
-        </div>
+        </button>
       </div>
     </div>
   );

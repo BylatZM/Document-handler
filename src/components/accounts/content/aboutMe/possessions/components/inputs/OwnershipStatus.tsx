@@ -21,7 +21,7 @@ export const OwnershipStatus: FC<IProps> = ({
     <div className='mt-2 mb-2 text-sm'>
       <span>Статус собственника</span>
       <Select
-        className='w-full'
+        className='w-full max-sm:h-[30px] h-[40px]'
         options={[
           { label: 'арендатор', value: '1' },
           { label: 'владелец', value: '2' },

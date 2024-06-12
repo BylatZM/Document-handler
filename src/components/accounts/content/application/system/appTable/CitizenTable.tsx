@@ -1,8 +1,6 @@
 import { FC } from 'react';
 import { Table } from 'antd';
-import { IoFunnel } from 'react-icons/io5';
-import { FaLongArrowAltUp } from 'react-icons/fa';
-import clsx from 'clsx';
+import { FaSort, FaSortDown, FaSortUp } from 'react-icons/fa';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { IApplicationCitizenColumns, ISortOptions, ITableParams } from '../../../../../types';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
@@ -68,16 +66,12 @@ export const CitizenTable: FC<IProps> = ({
                     changeIsNeedToGet(true);
                   }}
                 >
-                  <IoFunnel className='text-lg text-white' />
-                </button>
-                <FaLongArrowAltUp
-                  className={clsx(
-                    'text-lg font-bold',
-                    sortOptions.creating_date_dec && 'block rotate-[145deg]',
-                    !sortOptions.creating_date_dec && !sortOptions.creating_date_inc && 'hidden',
-                    sortOptions.creating_date_inc && 'block rotate-45',
+                  {sortOptions.creating_date_dec && <FaSortDown className='text-lg text-white' />}
+                  {sortOptions.creating_date_inc && <FaSortUp className='text-lg text-white' />}
+                  {!sortOptions.creating_date_dec && !sortOptions.creating_date_inc && (
+                    <FaSort className='text-lg text-white' />
                   )}
-                />
+                </button>
               </div>
             </th>
           );
@@ -102,16 +96,12 @@ export const CitizenTable: FC<IProps> = ({
                     changeIsNeedToGet(true);
                   }}
                 >
-                  <IoFunnel className='text-lg text-white' />
-                </button>
-                <FaLongArrowAltUp
-                  className={clsx(
-                    'text-lg font-bold',
-                    sortOptions.status_dec && 'block rotate-[145deg]',
-                    !sortOptions.status_dec && !sortOptions.status_inc && 'hidden',
-                    sortOptions.status_inc && 'block rotate-45',
+                  {sortOptions.status_dec && <FaSortDown className='text-lg text-white' />}
+                  {sortOptions.status_inc && <FaSortUp className='text-lg text-white' />}
+                  {!sortOptions.status_dec && !sortOptions.status_inc && (
+                    <FaSort className='text-lg text-white' />
                   )}
-                />
+                </button>
               </div>
             </th>
           );
@@ -128,11 +118,11 @@ export const CitizenTable: FC<IProps> = ({
     <Table
       dataSource={applications.map((el) => ({
         key: el.id,
-        createdDate: !el.created_date ? '' : el.created_date,
-        appType: !el.type ? '' : el.type.name,
-        appSubtype: !el.subtype ? '' : el.subtype.name,
-        status: !el.status ? '' : el.status.name,
-        dueDate: !el.due_date ? '' : el.due_date,
+        createdDate: el.created_date,
+        appType: el.type.name,
+        appSubtype: el.subtype.name,
+        status: el.status.name,
+        dueDate: !el.due_date ? '—' : el.due_date,
         applicantComment: el.applicant_comment,
         possession: `${el.possession.type} ${el.possession.name}`,
         building: el.building.address,

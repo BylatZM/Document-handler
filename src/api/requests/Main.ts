@@ -68,9 +68,10 @@ export const refreshRequest = async (): Promise<200 | 403 | void> => {
   }
 };
 
-export const requestFromHelpForm = async (params: IHelpFormRequest): Promise<void> => {
+export const requestFromHelpForm = async (params: IHelpFormRequest): Promise<200 | void> => {
   try {
     await help(params).then((response) => response.data);
+    return 200;
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
       errorAlert(e.response.status);

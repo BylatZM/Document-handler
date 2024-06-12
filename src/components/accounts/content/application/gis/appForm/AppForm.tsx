@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
-import { IGisApplication } from '../../../../../types';
+import { IEmployee, IGisApplication, ISubtype, IType } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useLogout } from '../../../../../hooks/useLogout';
 import { Status } from './components/Status';
@@ -16,13 +16,18 @@ import { ApplicantFio } from './components/ApplicantFio';
 import { DefaultAppForm } from './DefaultAppForm';
 import { Phone } from './components/Phone';
 import { Email } from './components/Email';
+import { Complex } from './components/Complex';
+import { Building } from './components/Building';
+import { Subtype } from './components/Subtype';
 
 interface IProps {
   gisApplication: IGisApplication | null;
   getGisApplications: () => Promise<void>;
   changeSelectedItem: React.Dispatch<React.SetStateAction<IGisApplication | null>>;
   applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
-  getGisEmploys: () => Promise<void>;
+  getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
+  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
 }
 
 export const AppForm: FC<IProps> = ({
@@ -30,20 +35,50 @@ export const AppForm: FC<IProps> = ({
   getGisApplications,
   changeSelectedItem,
   applicationFreshnessStatus,
-  getGisEmploys,
+  getEmploys,
+  getTypes,
+  getSubtypes,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
   const { role } = useTypedSelector((state) => state.UserReducer.user);
-  const { employs, priorities, error } = useTypedSelector((state) => state.ApplicationReducer);
+  const { employs, priorities, error, types, isLoading, subtypes } = useTypedSelector(
+    (state) => state.ApplicationReducer,
+  );
+  const { complexes } = useTypedSelector((state) => state.PossessionReducer);
   const { applicationError } = useActions();
 
   const [FormData, changeFormData] = useState<IGisApplication>(DefaultAppForm);
 
+  const initDispatcherForm = async (data: IGisApplication) => {
+    if (role !== 'dispathcer') return;
+
+    if (['Назначена', 'Возвращена'].some((el) => el === data.status.name)) {
+      if (!types.some((el) => el.id === data.type?.id)) {
+        const complex = data.complex;
+        if (!complex) return;
+
+        await getTypes(complex.id.toString());
+      }
+      if (!subtypes.some((el) => el.id === data.subtype?.id)) {
+        const complex = data.complex;
+        const type = data.type;
+        if (!complex || !type) return;
+        await getSubtypes(type.id.toString(), complex.id.toString());
+      }
+      if (!employs.some((el) => el.id === data.employee?.id)) {
+        const complex = data.complex;
+        const subtype = data.subtype;
+        if (!complex || !subtype) return;
+        await getEmploys(complex.id.toString(), subtype.id.toString());
+      }
+    }
+  };
+
   useEffect(() => {
     if (!gisApplication || !['dispatcher', 'executor'].some((el) => role === el)) return;
-    if (role === 'dispatcher') getGisEmploys();
     changeFormData(gisApplication);
+    initDispatcherForm(gisApplication);
     if (ref.current) {
       ref.current.scrollTop = 0;
     }
@@ -74,7 +109,16 @@ export const AppForm: FC<IProps> = ({
         <div className='flex justify-center gap-4 flex-col disable'>
           <span className='font-bold text-lg mt-4'>Объект исполнения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
-            <Possession possession={FormData.possession_address} />
+            <Complex
+              role={role}
+              data={FormData}
+              complexes={complexes}
+              changeFormData={changeFormData}
+              error={error}
+              getTypes={getTypes}
+            />
+            <Building building_address={FormData.building_address} />
+            <Possession possession={FormData.possession} />
             <ApplicantFio applicant_fio={FormData.applicant_fio} />
             <Phone phone={FormData.phone} />
             <Email email={FormData.email} />
@@ -82,9 +126,26 @@ export const AppForm: FC<IProps> = ({
           <span className='font-bold text-lg'>Сведения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
             <Status status={FormData.status} />
-            <Type type={FormData.type} />
+            <Type
+              role={role}
+              data={FormData}
+              types={types}
+              changeFormData={changeFormData}
+              getSubtypes={getSubtypes}
+              error={error}
+              applicationLoadingField={isLoading}
+            />
+            <Subtype
+              data={FormData}
+              changeData={changeFormData}
+              subtypes={subtypes}
+              role={role}
+              error={error}
+              getEmploys={getEmploys}
+              applicationLoadingField={isLoading}
+            />
           </div>
-          <ApplicantComment citizen_comment={FormData.applicant_сomment} />
+          <ApplicantComment citizen_comment={FormData.applicant_comment} />
           <Priority
             role={role}
             data={FormData}
@@ -103,7 +164,6 @@ export const AppForm: FC<IProps> = ({
           </div>
           <Buttons
             data={FormData}
-            changeData={changeFormData}
             role={role}
             exitFromForm={exitFromForm}
             logout={logout}

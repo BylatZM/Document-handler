@@ -19,25 +19,17 @@ type IOperation =
   | 'return_for_revision'
   | 'got_incorrectly';
 
-type IUpdateOperation = 'update' | 'close_application' | 'proceed_to_execution' | 'got_incorrectly';
+type IUpdateOperation = 'update' | 'close_application' | 'proceed_to_execution';
 
 interface IProps {
   data: IGisApplication;
-  changeData: React.Dispatch<React.SetStateAction<IGisApplication>>;
   role: string;
   exitFromForm: () => void;
   logout: () => void;
   getApplications: () => Promise<void>;
 }
 
-export const Buttons: FC<IProps> = ({
-  data,
-  changeData,
-  role,
-  exitFromForm,
-  logout,
-  getApplications,
-}) => {
+export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getApplications }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<null | IOperation>(null);
@@ -45,35 +37,70 @@ export const Buttons: FC<IProps> = ({
   const [loadingButton, changeLoadingButton] = useState<null | IOperation>(null);
 
   const makeUpdateGisApplication = async (operation_type: IUpdateOperation) => {
-    if (
-      !data.status.id ||
-      (!data.employee && operation_type !== 'got_incorrectly') ||
-      !statuses.length
-    )
-      return;
     if (operation_type === 'update') changeLoadingButton('update');
     if (operation_type === 'close_application') changeLoadingButton('close_application');
     if (operation_type === 'proceed_to_execution') changeLoadingButton('proceed_to_execution');
-    if (operation_type === 'got_incorrectly') changeLoadingButton('got_incorrectly');
-
+    let info: IUpdateGisAppByDispatcher | IUpdateGisAppByEmployee = {
+      status: statuses[0].id,
+    };
     let new_status: IStatus[] | null = null;
-    if (data.status.name === 'Новая' && operation_type === 'update') {
-      new_status = statuses.filter((el) => el.name === 'Назначена');
-    }
-    if (data.status.name === 'Новая' && operation_type === 'got_incorrectly') {
-      new_status = statuses.filter((el) => el.name === 'Закрыта');
+    if (operation_type === 'update') {
+      if (role === 'dispatcher') {
+        new_status = statuses.filter((el) => el.name === 'Назначена');
+        if (!data.type || !data.subtype || !data.employee || !data.complex || !new_status.length)
+          return;
+        info = {
+          ...info,
+          status: data.status.name === 'Новая' ? new_status[0].id : data.status.id,
+          type: data.type.id,
+          subtype: data.subtype.id,
+          priority: data.priority.id,
+          employee: data.employee.id,
+          complex: data.complex.id,
+          dispatcher_comment: data.dispatcher_comment,
+        };
+      }
+      if (role === 'executor') {
+        info = {
+          ...info,
+          status: data.status.id,
+          employee_comment: data.employee_comment,
+        };
+      }
     }
     if (
       ['Назначена', 'Возвращена'].some((el) => el === data.status.name) &&
       operation_type === 'proceed_to_execution'
     ) {
       new_status = statuses.filter((el) => el.name === 'В работе');
+      if (!new_status.length) return;
+      info = {
+        status: new_status[0].id,
+      };
     }
     if (
       ['В работе', 'Назначена'].some((el) => el === data.status.name) &&
-      (operation_type === 'close_application' || operation_type === 'got_incorrectly')
+      operation_type === 'close_application'
     ) {
       new_status = statuses.filter((el) => el.name === 'Закрыта');
+      if (!new_status.length) return;
+      if (role === 'executor') {
+        info = { ...info, status: new_status[0].id, employee_comment: data.employee_comment };
+      }
+      if (role === 'dispatcher') {
+        if (!data.type || !data.subtype || !data.employee || !data.complex || !new_status.length)
+          return;
+        info = {
+          ...info,
+          status: new_status[0].id,
+          type: data.type.id,
+          subtype: data.subtype.id,
+          priority: data.priority.id,
+          employee: data.employee.id,
+          complex: data.complex.id,
+          dispatcher_comment: data.dispatcher_comment,
+        };
+      }
     }
     if (!new_status || (new_status && new_status.length !== 1)) {
       new_status = [{ ...data.status }];
@@ -81,26 +108,12 @@ export const Buttons: FC<IProps> = ({
 
     if (errorButton) changeErrorButton(null);
 
-    let info: IUpdateGisAppByDispatcher | IUpdateGisAppByEmployee = {
-      employee_comment: data.employee_comment,
-      status: new_status[0].id,
-    };
-    if (role === 'dispatcher') {
-      info = {
-        employee: !data.employee ? null : data.employee.id,
-        status: new_status[0].id,
-        priority: data.priority.id,
-        dispatcher_comment:
-          operation_type === 'got_incorrectly' ? 'Заведена неверно' : data.dispatcher_comment,
-      };
-    }
     const response = await updateGisApplicationByIdRequest(data.id.toString(), logout, info);
     changeLoadingButton(null);
     if (response === 200) {
       if (operation_type === 'update') changeSuccessButton('update');
       if (operation_type === 'close_application') changeSuccessButton('close_application');
       if (operation_type === 'proceed_to_execution') changeSuccessButton('proceed_to_execution');
-      if (operation_type === 'got_incorrectly') changeSuccessButton('got_incorrectly');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
         getApplications();
@@ -111,7 +124,6 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'update') changeErrorButton('update');
       if (operation_type === 'close_application') changeErrorButton('close_application');
       if (operation_type === 'proceed_to_execution') changeErrorButton('proceed_to_execution');
-      if (operation_type === 'got_incorrectly') changeErrorButton('got_incorrectly');
       setTimeout(() => changeErrorButton(null), 2000);
     }
   };
@@ -142,7 +154,8 @@ export const Buttons: FC<IProps> = ({
                     !data.dispatcher_comment) &&
                   data.priority.id &&
                   data.employee &&
-                  data.employee.id) ||
+                  data.type &&
+                  data.subtype) ||
                   (role === 'executor' &&
                     data.employee_comment &&
                     data.employee_comment.length < 501))
@@ -174,7 +187,8 @@ export const Buttons: FC<IProps> = ({
             </Button>
           </ConfigProvider>
         )}
-      {role === 'executor' && data.status.name === 'В работе' && (
+      {((role === 'executor' && data.status.name === 'В работе') ||
+        (data.status.name === 'Назначена' && role === 'dispatcher')) && (
         <ConfigProvider
           theme={{
             components: {
@@ -215,49 +229,7 @@ export const Buttons: FC<IProps> = ({
           </Button>
         </ConfigProvider>
       )}
-      {role === 'executor' &&
-        (data.status.name === 'Назначена' || data.status.name === 'Возвращена') && (
-          <ConfigProvider
-            theme={{
-              components: {
-                Button: {
-                  colorPrimaryHover: undefined,
-                },
-              },
-            }}
-          >
-            <Button
-              onClick={() => {
-                makeUpdateGisApplication('proceed_to_execution');
-              }}
-              className='text-white bg-amber-500'
-              disabled={!loadingButton && !successButton ? false : true}
-            >
-              {loadingButton === 'proceed_to_execution' && (
-                <div>
-                  <ImSpinner9 className='inline animate-spin mr-2' />
-                  <span>Обработка</span>
-                </div>
-              )}
-              {errorButton === 'proceed_to_execution' && !loadingButton && !successButton && (
-                <div>
-                  <ImCross className='inline mr-2' />
-                  <span>Ошибка</span>
-                </div>
-              )}
-              {!loadingButton && !errorButton && successButton === 'proceed_to_execution' && (
-                <div>
-                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                  <span>Успешно</span>
-                </div>
-              )}
-              {loadingButton !== 'proceed_to_execution' &&
-                errorButton !== 'proceed_to_execution' &&
-                successButton !== 'proceed_to_execution' && <>Приступить к исполнению</>}
-            </Button>
-          </ConfigProvider>
-        )}
-      {data.status.name === 'Новая' && role === 'dispatcher' && (
+      {role === 'executor' && data.status.name === 'Назначена' && (
         <ConfigProvider
           theme={{
             components: {
@@ -268,31 +240,33 @@ export const Buttons: FC<IProps> = ({
           }}
         >
           <Button
-            onClick={() => makeUpdateGisApplication('got_incorrectly')}
-            className='text-white bg-red-500'
+            onClick={() => {
+              makeUpdateGisApplication('proceed_to_execution');
+            }}
+            className='text-white bg-amber-500'
             disabled={!loadingButton && !successButton ? false : true}
           >
-            {loadingButton === 'got_incorrectly' && (
+            {loadingButton === 'proceed_to_execution' && (
               <div>
                 <ImSpinner9 className='inline animate-spin mr-2' />
                 <span>Обработка</span>
               </div>
             )}
-            {errorButton === 'got_incorrectly' && !loadingButton && !successButton && (
+            {errorButton === 'proceed_to_execution' && !loadingButton && !successButton && (
               <div>
                 <ImCross className='inline mr-2' />
                 <span>Ошибка</span>
               </div>
             )}
-            {!loadingButton && !errorButton && successButton === 'got_incorrectly' && (
+            {!loadingButton && !errorButton && successButton === 'proceed_to_execution' && (
               <div>
                 <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
                 <span>Успешно</span>
               </div>
             )}
-            {loadingButton !== 'got_incorrectly' &&
-              errorButton !== 'got_incorrectly' &&
-              successButton !== 'got_incorrectly' && <>Заведена неверно</>}
+            {loadingButton !== 'proceed_to_execution' &&
+              errorButton !== 'proceed_to_execution' &&
+              successButton !== 'proceed_to_execution' && <>Приступить к исполнению</>}
           </Button>
         </ConfigProvider>
       )}

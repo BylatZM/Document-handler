@@ -38,7 +38,7 @@ export const PossessionType: FC<IProps> = ({
     <div className='mt-2 mb-2 text-sm'>
       <span>Тип имущества</span>
       <Select
-        className='w-full'
+        className='w-full max-sm:h-[30px] h-[40px]'
         options={[
           { label: 'квартира', value: 1 },
           { label: 'коммерческое помещение', value: 2 },

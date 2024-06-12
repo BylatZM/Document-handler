@@ -32,7 +32,8 @@ type IApplicationOperation =
   | 'update'
   | 'close_application'
   | 'proceed_to_execution'
-  | 'return_for_revision';
+  | 'return_for_revision'
+  | 'got_incorrectly';
 
 export const Buttons: FC<IProps> = ({
   data,
@@ -103,23 +104,50 @@ export const Buttons: FC<IProps> = ({
     if (operation_type === 'close_application') changeLoadingButton('close_application');
     if (operation_type === 'proceed_to_execution') changeLoadingButton('proceed_to_execution');
     if (operation_type === 'return_for_revision') changeLoadingButton('return_for_revision');
+    if (operation_type === 'got_incorrectly') changeLoadingButton('got_incorrectly');
 
     if (errorButton) changeErrorButton(null);
 
     let info: IAppUpdateByEmployee | IAppUpdateByDispatcher = {
-      employee_comment: data.employee_comment,
       status: new_status.id,
     };
-    if (role === 'dispatcher') {
-      info = {
-        employee: !data.employee ? null : data.employee.id,
-        type: data.type.id,
-        subtype: data.subtype.id,
-        source: data.source.id,
-        priority: data.priority.id,
-        dispatcher_comment: data.dispatcher_comment,
-        status: new_status.id,
-      };
+    if (operation_type === 'update') {
+      if (role === 'dispatcher') {
+        info = {
+          ...info,
+          employee: !data.employee ? null : data.employee.id,
+          type: data.type.id,
+          subtype: data.subtype.id,
+          source: data.source.id,
+          priority: data.priority.id,
+          dispatcher_comment: data.dispatcher_comment,
+        };
+      }
+      if (role === 'executor') {
+        info = {
+          ...info,
+          employee_comment: data.employee_comment,
+        };
+      }
+    }
+    if (operation_type === 'close_application') {
+      if (role === 'dispatcher') {
+        info = {
+          ...info,
+          employee: !data.employee ? null : data.employee.id,
+          type: data.type.id,
+          subtype: data.subtype.id,
+          source: data.source.id,
+          priority: data.priority.id,
+          dispatcher_comment: data.dispatcher_comment,
+        };
+      }
+      if (role === 'executor') {
+        info = {
+          ...info,
+          employee_comment: data.employee_comment,
+        };
+      }
     }
     const response = await updateSystemApplicationByIdRequest(form_id.toString(), logout, info);
     changeLoadingButton(null);
@@ -128,6 +156,7 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'close_application') changeSuccessButton('close_application');
       if (operation_type === 'proceed_to_execution') changeSuccessButton('proceed_to_execution');
       if (operation_type === 'return_for_revision') changeSuccessButton('return_for_revision');
+      if (operation_type === 'got_incorrectly') changeSuccessButton('got_incorrectly');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
         getApplications();
@@ -138,6 +167,7 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'close_application') changeErrorButton('close_application');
       if (operation_type === 'proceed_to_execution') changeErrorButton('proceed_to_execution');
       if (operation_type === 'return_for_revision') changeErrorButton('return_for_revision');
+      if (operation_type === 'got_incorrectly') changeErrorButton('got_incorrectly');
       if (response && 'type' in response) applicationError(response);
       setTimeout(() => changeErrorButton(null), 2000);
     }
@@ -210,6 +240,7 @@ export const Buttons: FC<IProps> = ({
       )}
       {form_id !== 0 &&
         data.status.name !== 'Закрыта' &&
+        data.status.name !== 'Заведена неверно' &&
         (role === 'dispatcher' ||
           (role === 'executor' &&
             data.status.name !== 'Назначена' &&
@@ -284,7 +315,7 @@ export const Buttons: FC<IProps> = ({
               </Button>
             </ConfigProvider>
             {data.id > 0 &&
-              (data.status.name === 'В работе' ||
+              ((role === 'executor' && data.status.name === 'В работе') ||
                 ((data.status.name === 'Назначена' || data.status.name === 'Возвращена') &&
                   role === 'dispatcher')) && (
                 <ConfigProvider
@@ -303,7 +334,15 @@ export const Buttons: FC<IProps> = ({
                       makeUpdateApplication(new_status[0], 'close_application');
                     }}
                     className='text-white bg-green-700'
-                    disabled={!loadingButton && !successButton ? false : true}
+                    disabled={
+                      !loadingButton &&
+                      !successButton &&
+                      data.employee &&
+                      data.type.id &&
+                      data.subtype.id
+                        ? false
+                        : true
+                    }
                   >
                     {loadingButton === 'close_application' && (
                       <div>
@@ -376,49 +415,97 @@ export const Buttons: FC<IProps> = ({
             </Button>
           </ConfigProvider>
         )}
-      {form_id !== 0 && role === 'dispatcher' && data.status.name === 'Закрыта' && (
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                colorPrimaryHover: undefined,
+      {form_id !== 0 &&
+        role === 'dispatcher' &&
+        (data.status.name === 'Закрыта' || data.status.name === 'Заведена неверно') && (
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: undefined,
+                },
               },
-            },
-          }}
-        >
-          <Button
-            disabled={!loadingButton && !successButton ? false : true}
-            onClick={() => {
-              const new_status = statuses.filter((el) => el.name === 'Возвращена');
-              if (!new_status.length) return;
-              makeUpdateApplication(new_status[0], 'return_for_revision');
             }}
-            className='text-white bg-amber-500'
           >
-            {loadingButton === 'return_for_revision' && (
-              <div>
-                <ImSpinner9 className='inline animate-spin mr-2' />
-                <span>Обработка</span>
-              </div>
-            )}
-            {errorButton === 'return_for_revision' && !loadingButton && !successButton && (
-              <div>
-                <ImCross className='inline mr-2' />
-                <span>Ошибка</span>
-              </div>
-            )}
-            {!loadingButton && !errorButton && successButton === 'return_for_revision' && (
-              <div>
-                <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
-                <span>Успешно</span>
-              </div>
-            )}
-            {loadingButton !== 'return_for_revision' &&
-              errorButton !== 'return_for_revision' &&
-              successButton !== 'return_for_revision' && <>Вернуть на доработку</>}
-          </Button>
-        </ConfigProvider>
-      )}
+            <Button
+              disabled={!loadingButton && !successButton ? false : true}
+              onClick={() => {
+                const new_status = statuses.filter((el) => el.name === 'Возвращена');
+                if (!new_status.length) return;
+                makeUpdateApplication(new_status[0], 'return_for_revision');
+              }}
+              className='text-white bg-amber-500'
+            >
+              {loadingButton === 'return_for_revision' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {errorButton === 'return_for_revision' && !loadingButton && !successButton && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!loadingButton && !errorButton && successButton === 'return_for_revision' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {loadingButton !== 'return_for_revision' &&
+                errorButton !== 'return_for_revision' &&
+                successButton !== 'return_for_revision' && <>Вернуть на доработку</>}
+            </Button>
+          </ConfigProvider>
+        )}
+      {form_id !== 0 &&
+        (role === 'dispatcher' || role === 'executor') &&
+        data.status.name !== 'Закрыта' &&
+        data.status.name !== 'Заведена неверно' && (
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimaryHover: undefined,
+                },
+              },
+            }}
+          >
+            <Button
+              disabled={!loadingButton && !successButton ? false : true}
+              onClick={() => {
+                const new_status = statuses.filter((el) => el.name === 'Заведена неверно');
+                if (!new_status.length) return;
+                makeUpdateApplication(new_status[0], 'got_incorrectly');
+              }}
+              className='text-white bg-gray-500'
+            >
+              {loadingButton === 'got_incorrectly' && (
+                <div>
+                  <ImSpinner9 className='inline animate-spin mr-2' />
+                  <span>Обработка</span>
+                </div>
+              )}
+              {errorButton === 'got_incorrectly' && !loadingButton && !successButton && (
+                <div>
+                  <ImCross className='inline mr-2' />
+                  <span>Ошибка</span>
+                </div>
+              )}
+              {!loadingButton && !errorButton && successButton === 'got_incorrectly' && (
+                <div>
+                  <HiOutlineCheck className='inline mr-2 font-bold text-lg' />
+                  <span>Успешно</span>
+                </div>
+              )}
+              {loadingButton !== 'got_incorrectly' &&
+                errorButton !== 'got_incorrectly' &&
+                successButton !== 'got_incorrectly' && <>Заведена неверно</>}
+            </Button>
+          </ConfigProvider>
+        )}
       <ConfigProvider
         theme={{
           components: {

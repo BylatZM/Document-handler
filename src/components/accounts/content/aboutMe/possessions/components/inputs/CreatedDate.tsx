@@ -11,7 +11,12 @@ export const CreatedDate: FC<IProps> = ({ data }) => {
     <div className='mt-2 mb-2 text-sm'>
       <span>Дата регистрации/изменения записи</span>
       <Popover content='Поле не заполняется пользователем'>
-        <Input value={data.created_date} maxLength={15} disabled />
+        <Input
+          className='max-sm:h-[30px] h-[40px]'
+          value={data.created_date}
+          maxLength={15}
+          disabled
+        />
       </Popover>
     </div>
   );

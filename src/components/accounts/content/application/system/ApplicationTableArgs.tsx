@@ -32,18 +32,19 @@ export const defaultCitizenColumns: ColumnsType<IApplicationCitizenColumns> = [
     dataIndex: 'status',
     key: 'status',
     render: (status: string) => (
-      <span
+      <div
         className={clsx(
-          'text-white p-2 rounded-lg',
+          'text-white p-2 rounded-lg min-w-[90px]',
           status === 'В работе' && 'bg-blue-700',
           status === 'Новая' && 'bg-green-400',
           status === 'Назначена' && 'bg-green-600',
           status === 'Возвращена' && 'bg-amber-500',
           status === 'Закрыта' && 'bg-red-500',
+          status === 'Заведена неверно' && 'bg-gray-500',
         )}
       >
         {status}
-      </span>
+      </div>
     ),
   },
   {
@@ -110,6 +111,16 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     key: 'creator',
   },
   {
+    title: 'ФИО заявителя',
+    dataIndex: 'fio',
+    key: 'fio',
+  },
+  {
+    title: 'Контактный телефон',
+    dataIndex: 'phone',
+    key: 'phone',
+  },
+  {
     title: 'Дата создания',
     dataIndex: 'createdDate',
     key: 'createdDate',
@@ -124,7 +135,7 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     dataIndex: 'appSubtype',
     key: 'appSubType',
     render: (subtype) => (
-      <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype.name}</div>
+      <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype}</div>
     ),
   },
   {
@@ -132,18 +143,19 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     dataIndex: 'status',
     key: 'status',
     render: (status: string) => (
-      <span
+      <div
         className={clsx(
-          'text-white p-2 rounded-lg',
+          'text-white p-2 rounded-lg min-w-[90px]',
           status === 'В работе' && 'bg-blue-700',
           status === 'Новая' && 'bg-green-400',
           status === 'Назначена' && 'bg-green-600',
           status === 'Возвращена' && 'bg-amber-500',
           status === 'Закрыта' && 'bg-red-500',
+          status === 'Заведена неверно' && 'bg-gray-500',
         )}
       >
         {status}
-      </span>
+      </div>
     ),
   },
   {
@@ -182,14 +194,14 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     ),
   },
   {
+    title: 'Тип собственности',
+    dataIndex: 'possessionType',
+    key: 'possessionType',
+  },
+  {
     title: 'Наименование собственности',
-    dataIndex: 'possession',
-    key: 'possession',
-    render: (possession: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {possession}
-      </div>
-    ),
+    dataIndex: 'possessionNumber',
+    key: 'possessionNumber',
   },
   {
     title: 'Сотрудник',

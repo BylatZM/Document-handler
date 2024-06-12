@@ -38,6 +38,7 @@ export const Reg: FC<IRegProps> = ({
 
     if (response) {
       if (response === 201) {
+        localStorage.setItem('citizen_registered', 'true');
         regSuccess(props);
         changeNeedShowSendEmailForm(true);
       } else regError(response);
@@ -90,7 +91,7 @@ export const Reg: FC<IRegProps> = ({
         </Form.Item>
         <Form.Item>
           <Button
-            disabled={!isAgreementChecked && !isLoading ? false : true}
+            disabled={isAgreementChecked && !isLoading ? false : true}
             type='primary'
             htmlType='submit'
             className='text-white bg-blue-700 w-full h-[35px] text-lg flex items-center justify-center'

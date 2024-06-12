@@ -1,5 +1,11 @@
 import { FC, useEffect, useState } from 'react';
-import { IBuilding, ICitizenPossession, IPossession } from '../../../../../types';
+import {
+  IAboutMeFormSteps,
+  IAboutMeGeneralSteps,
+  IBuilding,
+  ICitizenPossession,
+  IPossession,
+} from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 import { PersonalAccount } from './inputs/PersonalAccount';
@@ -30,6 +36,10 @@ interface ICitizenFormProps {
     possession_type: string,
     building_id: string,
   ) => Promise<void>;
+  generalPersonalSteps: IAboutMeGeneralSteps;
+  setPersonalGeneralSteps: React.Dispatch<React.SetStateAction<IAboutMeGeneralSteps>>;
+  setIsPossessionListEmpty: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedMakeScrollForGeneral: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Possessions: FC<ICitizenFormProps> = ({
@@ -40,10 +50,20 @@ export const Possessions: FC<ICitizenFormProps> = ({
   changeNeedShowNotification,
   getBuildings,
   checkPossessionsRequestOnError,
+  generalPersonalSteps,
+  setPersonalGeneralSteps,
+  setIsPossessionListEmpty,
+  changeNeedMakeScrollForGeneral,
 }) => {
   const { citizenErrors } = useActions();
   const { isLoading, error } = useTypedSelector((state) => state.CitizenReducer);
   const possessionLoadingField = useTypedSelector((state) => state.PossessionReducer.isLoading);
+  const [formPersonalSteps, setPersonalFormSteps] = useState<IAboutMeFormSteps>({
+    complex: false,
+    building: false,
+    possession: false,
+    create_button: false,
+  });
   const { complexes, buildings, possessions } = useTypedSelector(
     (state) => state.PossessionReducer,
   );
@@ -64,6 +84,18 @@ export const Possessions: FC<ICitizenFormProps> = ({
   useEffect(() => {
     changeFormData({ ...data.info });
   }, [data]);
+
+  useEffect(() => {
+    if (error && error.error.type === 'possession' && localStorage.getItem('citizen_registered')) {
+      setTimeout(() => setIsPossessionListEmpty((prev) => !prev), 2000);
+      setPersonalFormSteps({
+        building: false,
+        possession: false,
+        complex: false,
+        create_button: false,
+      });
+    }
+  }, [error]);
 
   return (
     <>
@@ -100,6 +132,9 @@ export const Possessions: FC<ICitizenFormProps> = ({
         complexes={complexes}
         emptyPossession={emptyPossession}
         emptyBuilding={emptyBuilding}
+        generalPersonalSteps={generalPersonalSteps}
+        setPersonalFormSteps={setPersonalFormSteps}
+        formPersonalSteps={formPersonalSteps}
       />
       <Building
         data={formData}
@@ -113,6 +148,9 @@ export const Possessions: FC<ICitizenFormProps> = ({
         emptyPossession={emptyPossession}
         possessionLoadingField={possessionLoadingField}
         checkPossessionsRequestOnError={checkPossessionsRequestOnError}
+        generalPersonalSteps={generalPersonalSteps}
+        setPersonalFormSteps={setPersonalFormSteps}
+        formPersonalSteps={formPersonalSteps}
       />
       <Possession
         data={formData}
@@ -124,6 +162,9 @@ export const Possessions: FC<ICitizenFormProps> = ({
         loadingForm={isLoading}
         possessions={possessions}
         possessionLoadingField={possessionLoadingField}
+        generalPersonalSteps={generalPersonalSteps}
+        setPersonalFormSteps={setPersonalFormSteps}
+        formPersonalSteps={formPersonalSteps}
       />
       <Buttons
         data={formData}
@@ -136,6 +177,11 @@ export const Possessions: FC<ICitizenFormProps> = ({
         checkPossessionsRequestOnError={checkPossessionsRequestOnError}
         getBuildings={getBuildings}
         changeNeedShowNotification={changeNeedShowNotification}
+        setPersonalFormSteps={setPersonalFormSteps}
+        formPersonalSteps={formPersonalSteps}
+        generalPersonalSteps={generalPersonalSteps}
+        setPersonalGeneralSteps={setPersonalGeneralSteps}
+        changeNeedMakeScrollForGeneral={changeNeedMakeScrollForGeneral}
       />
     </>
   );
