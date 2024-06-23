@@ -15,7 +15,7 @@ export const Possession: FC<IProps> = ({ selectedCitizenPossession }) => {
           className='text-base'
           value={
             !selectedCitizenPossession?.personal_account
-              ? 'Не задан'
+              ? ''
               : selectedCitizenPossession.personal_account
           }
           disabled

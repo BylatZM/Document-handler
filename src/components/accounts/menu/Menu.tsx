@@ -10,7 +10,6 @@ import { AboutMe } from './buttons/general/AboutMe';
 import { Applications } from './buttons/general/Applications';
 import { TechnicalSupport } from './buttons/general/TechnicalSupport';
 import { Logout } from './buttons/general/Logout';
-import './media.css';
 import { GisApplications } from './buttons/general/GisApplications';
 import { IAccordionState } from '../../types';
 import { Camera } from './buttons/general/Camera';
@@ -40,17 +39,13 @@ export const Menu: FC<IMenuProps> = ({
   return (
     <div
       className={clsx(
-        'transitionFast fixed z-40 inset-y-0 left-0 overflow-x-hidden overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg menu',
-        isMenuOpened ? 'w-[250px] p-1 sm:w-[310px] sm:p-4' : 'w-0 mr-[-2px]',
+        'transitionFast fixed z-40 inset-y-0 left-0 overflow-x-hidden p-1 sm:p-4 overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg menu',
+        isMenuOpened ? 'w-[250px] sm:w-[310px] opacity-100' : 'w-0 opacity-0 mr-[-2px]',
       )}
     >
       <div className='relative w-[240px] sm:min-w-[274px] h-full'>
-        <div className='h-min flex items-center gap-4 logoGrid'>
+        <div className='logoGrid flex w-fit items-center'>
           <img src={cat} className='h-auto' width={'70px'} alt='' />
-          <div className='flex flex-col items-end overflow-hidden text-white'>
-            <span className='text-xs w-max leading-4'>Управляющая компания</span>
-            <span className='text-lg sm:text-3xl leading-6'>Миллениум</span>
-          </div>
         </div>
         <div className='flex flex-col mt-10 text-lg'>
           <AboutMe pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />

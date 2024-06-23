@@ -168,7 +168,7 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     dataIndex: 'applicantComment',
     key: 'applicantComment',
     render: (applicantComment: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
+      <div className='max-w-[200px] max-md:max-h-[50px] max-h-[100px] overflow-hidden leading-[15px]'>
         {applicantComment}
       </div>
     ),
@@ -177,21 +177,13 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     title: 'Жилищный комплекс',
     dataIndex: 'complex',
     key: 'complex',
-    render: (complex: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {complex}
-      </div>
-    ),
+    render: (complex: string) => <div className='max-w-[200px]'>{complex}</div>,
   },
   {
     title: 'Адрес здания',
     dataIndex: 'building',
     key: 'building',
-    render: (building: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {building}
-      </div>
-    ),
+    render: (building: string) => <div className='max-w-[200px] leading-[15px]'>{building}</div>,
   },
   {
     title: 'Тип собственности',
@@ -208,7 +200,7 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     dataIndex: 'employee',
     key: 'employee',
     render: (employee: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
+      <div className='max-w-[200px] max-md:max-h-[50px] max-h-[100px] overflow-hidden leading-[15px]'>
         {employee}
       </div>
     ),

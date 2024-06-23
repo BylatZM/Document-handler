@@ -21,7 +21,7 @@ interface IProps {
   citizenPossessions: ICitizenPossession[];
   getBuildings: (complex_id: string) => Promise<void | IBuilding[]>;
   error: IError | null;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   defaultSubtype: ISubtype;
   defaultType: IType;
 }
@@ -35,14 +35,14 @@ export const Complex: FC<IProps> = ({
   citizenPossessions,
   getBuildings,
   error,
-  getTypes,
+  getTypesByComplexId,
   defaultType,
   defaultSubtype,
 }) => {
   const { applicationError } = useActions();
 
   const changeType = async (complex_id: string) => {
-    await getTypes(complex_id);
+    await getTypesByComplexId(complex_id);
     changeFormData((prev) => ({
       ...prev,
       type: defaultType,

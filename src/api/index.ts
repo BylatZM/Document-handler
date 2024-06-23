@@ -20,7 +20,6 @@ import {
   IStatus,
   IAppCreateByDispatcher,
   IAppCreateByCitizen,
-  IHelpFormRequest,
   IApprovePossessionRequest,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
@@ -28,7 +27,6 @@ import {
   ISubtype,
   IBuilding,
   IPossession,
-  INotApprovedCitizenPossession,
   IUpdateCitizenPossessionStatusByEmail,
   IApplicationPagination,
   IGisApplicationPagination,
@@ -37,6 +35,7 @@ import {
   IUpdateEmailAppByDispatcher,
   IUpdateEmailAppByEmployee,
   IEmailApplicationPagination,
+  INotApprovedCitizenPossessionPagination,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -48,7 +47,7 @@ export const registration = (params: IRegRequest): AxiosPromise<IAuthGoodRespons
 export const refresh = (): AxiosPromise<IRefreshGoodResponse> =>
   axiosInstance.get(endpoints.refresh);
 
-export const help = (params: IHelpFormRequest): AxiosPromise<void> =>
+export const help = (params: FormData): AxiosPromise<void | IError> =>
   axiosInstance.post(endpoints.help, params);
 
 export const getUser = (): AxiosPromise<IUser> => axiosInstance.get(endpoints.user.get);
@@ -94,9 +93,14 @@ export const createPossession = (possession: IApprovePossessionRequest): AxiosPr
 export const getAllCitizenPossessions = (): AxiosPromise<ICitizenPossession[]> =>
   axiosInstance.get(endpoints.citizenPossession.getAll);
 
-export const getAllNotApprovedCitizenPossessions = (): AxiosPromise<
-  INotApprovedCitizenPossession[] | void
-> => axiosInstance.get(endpoints.citizenPossession.getAllNotApproved);
+export const getAllNotApprovedCitizenPossessions = (
+  page: string,
+  page_size: string,
+  extra: string,
+): AxiosPromise<INotApprovedCitizenPossessionPagination | void> =>
+  axiosInstance.get(
+    endpoints.citizenPossession.getAllNotApproved + `?page=${page}&page_size=${page_size}${extra}`,
+  );
 
 export const updateCitizenPossessionStatusWithExtraBySystem = (
   citizenPossessionId: string,
@@ -191,13 +195,11 @@ export const getAllEmploysWithExtra = (
 export const getAllTypesByComplexId = (complex_id: string): AxiosPromise<IType[] | void> =>
   axiosInstance.get(endpoints.application.getAllTypesByComplexId + complex_id);
 
-export const getAllSubtypesWithExtra = (
-  type_id: string,
-  complex_id: string,
-): AxiosPromise<ISubtype[] | void> =>
-  axiosInstance.get(
-    endpoints.application.getAllSubtypesWithExtra + `?type_id=${type_id}&complex_id=${complex_id}`,
-  );
+export const getAllTypes = (): AxiosPromise<IType[] | void> =>
+  axiosInstance.get(endpoints.application.getAllTypes);
+
+export const getAllSubtypesWithExtra = (extra: string): AxiosPromise<ISubtype[] | void> =>
+  axiosInstance.get(endpoints.application.getAllSubtypesWithExtra + extra);
 
 export const getAllPriorities = (): AxiosPromise<IPriority[] | void> =>
   axiosInstance.get(endpoints.application.getAllPriorities);

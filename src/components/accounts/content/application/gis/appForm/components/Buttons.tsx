@@ -26,10 +26,9 @@ interface IProps {
   role: string;
   exitFromForm: () => void;
   logout: () => void;
-  getApplications: () => Promise<void>;
 }
 
-export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getApplications }) => {
+export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<null | IOperation>(null);
@@ -116,7 +115,6 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getAppli
       if (operation_type === 'proceed_to_execution') changeSuccessButton('proceed_to_execution');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        getApplications();
         exitFromForm();
       }, 2000);
     } else {

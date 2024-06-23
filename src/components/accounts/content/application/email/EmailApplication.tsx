@@ -1,7 +1,7 @@
-import { CheckboxOptionType, Popover } from 'antd';
+import { Button, CheckboxOptionType } from 'antd';
 import { AppForm } from './appForm/AppForm';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import { ColumnsType } from 'antd/es/table';
 import {
   ITableParams,
   IEmailApplication,
@@ -12,7 +12,6 @@ import {
   ISortOptions,
   IFilterEmailAppOptions,
 } from '../../../../types';
-import { BsFilterRight } from 'react-icons/bs';
 import { FC, useEffect, useState } from 'react';
 import { useActions } from '../../../../hooks/useActions';
 import { useLogout } from '../../../../hooks/useLogout';
@@ -26,7 +25,7 @@ interface IProps {
   getPriorities: () => Promise<void>;
   getStatuses: () => Promise<void>;
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
 }
 
@@ -34,7 +33,7 @@ export const EmailApplication: FC<IProps> = ({
   getPriorities,
   getStatuses,
   getEmploys,
-  getTypes,
+  getTypesByComplexId,
   getSubtypes,
 }) => {
   const { emailApplications, priorities, statuses } = useTypedSelector(
@@ -47,6 +46,7 @@ export const EmailApplication: FC<IProps> = ({
   const [checkboxValues, changeCheckboxValues] = useState<null | string[]>(null);
   const [emailTable, changeEmailTable] = useState<null | ColumnsType<IEmailTableColumns>>(null);
   const { applicationLoading, emailApplicationSuccess } = useActions();
+  const [isNeedToGet, changeIsNeedToGet] = useState(false);
   const page_size = localStorage.getItem('email_application_size');
   const [tableParams, setTableParams] = useState<ITableParams>({
     pagination: {
@@ -63,23 +63,6 @@ export const EmailApplication: FC<IProps> = ({
       position: ['topLeft'],
     },
   });
-  const [filterOptions, setFilterOptions] = useState<IFilterEmailAppOptions>({
-    complexId: null,
-    buildingAddress: null,
-    statusId: null,
-    phone: null,
-    email: null,
-    fio: null,
-    possessionName: null,
-    applicationType: null,
-  });
-  const [sortOptions, setSortOptions] = useState<ISortOptions>({
-    status_inc: false,
-    status_dec: true,
-    creating_date_inc: false,
-    creating_date_dec: true,
-  });
-  const [isNeedToGet, changeIsNeedToGet] = useState(false);
   const logout = useLogout();
 
   const applicationFreshnessStatus = (
@@ -111,45 +94,86 @@ export const EmailApplication: FC<IProps> = ({
     else changeSelectedItem(DefaultAppForm);
   };
 
-  const handleTableChange = (pagination: TablePaginationConfig) => {
-    changeIsNeedToGet(true);
-    setTableParams({
-      pagination,
-    });
-  };
-  const getApplications = async () => {
+  const getApplications = async (
+    filterOptions?: IFilterEmailAppOptions,
+    sortOptions?: ISortOptions,
+  ) => {
     applicationLoading('emailApplications');
-
-    localStorage.setItem('email_application_sort_options', JSON.stringify(sortOptions));
-    localStorage.setItem('email_application_filter_options', JSON.stringify(filterOptions));
+    if (tableParams.pagination) {
+      let application_size: string | null = localStorage.getItem('email_application_size');
+      if (!application_size) {
+        localStorage.setItem('email_application_size', '10');
+        application_size = '10';
+      }
+      let size = parseInt(application_size);
+      if (isNaN(size) || size < 1) {
+        size = 10;
+        localStorage.setItem('email_application_size', '10');
+      }
+      if (tableParams.pagination.pageSize && size !== tableParams.pagination.pageSize) {
+        size = tableParams.pagination.pageSize;
+        localStorage.setItem('email_application_size', tableParams.pagination.pageSize.toString());
+      }
+      setTableParams((prev) => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          pageSize: size,
+        },
+      }));
+    }
     let extra = '';
-    if (filterOptions.complexId) {
-      extra += `&complex_id=${filterOptions.complexId}`;
+    if (filterOptions) {
+      localStorage.setItem('email_application_filter_options', JSON.stringify(filterOptions));
+      if (filterOptions.typeId) {
+        extra += `&type_id=${filterOptions.typeId}`;
+      }
+      if (filterOptions.subtypeName) {
+        extra += `&subtype_name=${filterOptions.subtypeName}`;
+      }
+      if (filterOptions.complexId) {
+        extra += `&complex_id=${filterOptions.complexId}`;
+      }
+      if (filterOptions.buildingAddress) {
+        extra += `&building_address=${filterOptions.buildingAddress
+          .trim()
+          .replaceAll(/\s\s/g, '')
+          .replaceAll(/'[^а-яА-Я\s\.\,0-9]'/g, '')}`;
+      }
+      if (filterOptions.fio) {
+        extra += `&fio=${filterOptions.fio
+          .trim()
+          .replaceAll(/\s\s/g, '')
+          .replaceAll(/'[^а-яА-Я\s]'/g, '')}`;
+      }
+      if (filterOptions.email) {
+        extra += `&email=${filterOptions.email.trim().replaceAll(/\s\s/g, '')}`;
+      }
+      if (filterOptions.possessionName) {
+        extra += `&possession_name=${filterOptions.possessionName
+          .trim()
+          .replaceAll(/[^0-9]/g, '')}`;
+      }
+      if (filterOptions.phone) {
+        let phone = filterOptions.phone.trim().replaceAll(/[^0-9]/g, '');
+        if (['8', '7'].some((el) => el === phone.charAt(0))) {
+          phone = phone.substring(1, phone.length);
+        }
+        extra += `&phone=${phone}`;
+      }
+      if (filterOptions.statusId) {
+        extra += `&status_id=${filterOptions.statusId}`;
+      }
     }
-    if (filterOptions.buildingAddress) {
-      extra += `&building_address=${filterOptions.buildingAddress}`;
+    if (sortOptions) {
+      localStorage.setItem('email_application_sort_options', JSON.stringify(sortOptions));
+      if (sortOptions.status_dec && !sortOptions.status_inc) extra += '&status=dec';
+      if (!sortOptions.status_dec && sortOptions.status_inc) extra += '&status=inc';
+      if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
+        extra += '&created_date=dec';
+      if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
+        extra += '&created_date=inc';
     }
-    if (filterOptions.fio) {
-      extra += `&fio=${filterOptions.fio}`;
-    }
-    if (filterOptions.email) {
-      extra += `&email=${filterOptions.email}`;
-    }
-    if (filterOptions.possessionName) {
-      extra += `&possession_name=${filterOptions.possessionName}`;
-    }
-    if (filterOptions.phone) {
-      extra += `&phone=${filterOptions.phone}`;
-    }
-    if (filterOptions.statusId) {
-      extra += `&status_id=${filterOptions.statusId}`;
-    }
-    if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
-      extra += '&created_date=dec';
-    if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
-      extra += '&created_date=inc';
-    if (sortOptions.status_dec && !sortOptions.status_inc) extra += '&status=dec';
-    if (!sortOptions.status_dec && sortOptions.status_inc) extra += '&status=inc';
     let page = '1';
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
@@ -180,28 +204,6 @@ export const EmailApplication: FC<IProps> = ({
   })) as CheckboxOptionType[];
 
   useEffect(() => {
-    let sortParams = localStorage.getItem('email_application_sort_options');
-    let parsedSortObject: ISortOptions = sortOptions;
-    if (sortParams) {
-      try {
-        parsedSortObject = JSON.parse(sortParams);
-        setSortOptions(parsedSortObject);
-      } catch (e) {
-        localStorage.setItem('email_application_sort_options', JSON.stringify(sortOptions));
-      }
-    } else localStorage.setItem('email_application_sort_options', JSON.stringify(sortOptions));
-
-    let filterParams = localStorage.getItem('email_application_filter_options');
-    let parsedFilterObject: IFilterEmailAppOptions | null = null;
-    if (filterParams) {
-      try {
-        parsedFilterObject = JSON.parse(filterParams);
-        if (parsedFilterObject) setFilterOptions(parsedFilterObject);
-      } catch (e) {
-        localStorage.setItem('email_application_filter_options', JSON.stringify(filterOptions));
-      }
-    } else localStorage.setItem('email_application_filter_options', JSON.stringify(filterOptions));
-
     let json_array = localStorage.getItem('email_application_table_columns');
     let filter_array: string[] = [];
 
@@ -224,7 +226,6 @@ export const EmailApplication: FC<IProps> = ({
       changeEmailTable(defaultColumns);
       changeCheckboxValues(defaultColumns.map(({ key }) => key as string));
     }
-    changeIsNeedToGet(true);
   }, []);
 
   useEffect(() => {
@@ -232,34 +233,6 @@ export const EmailApplication: FC<IProps> = ({
     if (!statuses.length) getStatuses();
     if (!priorities.length) getPriorities();
   }, []);
-
-  useEffect(() => {
-    if (isNeedToGet && tableParams.pagination) {
-      let application_size: string | null = localStorage.getItem('email_application_size');
-      if (!application_size) {
-        localStorage.setItem('email_application_size', '10');
-        application_size = '10';
-      }
-      let size = parseInt(application_size);
-      if (isNaN(size) || size < 1) {
-        size = 10;
-        localStorage.setItem('email_application_size', '10');
-      }
-      if (tableParams.pagination.pageSize && size !== tableParams.pagination.pageSize) {
-        size = tableParams.pagination.pageSize;
-        localStorage.setItem('email_application_size', tableParams.pagination.pageSize.toString());
-      }
-      setTableParams((prev) => ({
-        ...prev,
-        pagination: {
-          ...prev.pagination,
-          pageSize: size,
-        },
-      }));
-      getApplications();
-      changeIsNeedToGet(false);
-    }
-  }, [isNeedToGet]);
 
   return (
     <>
@@ -273,7 +246,7 @@ export const EmailApplication: FC<IProps> = ({
       />
       <AppForm
         emailApplication={selectedItem}
-        getEmailApplications={getApplications}
+        changeIsNeedToGet={changeIsNeedToGet}
         changeSelectedItem={changeSelectedItem}
         applicationFreshnessStatus={
           !selectedItem ||
@@ -286,7 +259,7 @@ export const EmailApplication: FC<IProps> = ({
               )
         }
         getEmploys={getEmploys}
-        getTypes={getTypes}
+        getTypesByComplexId={getTypesByComplexId}
         getSubtypes={getSubtypes}
       />
       <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
@@ -295,30 +268,23 @@ export const EmailApplication: FC<IProps> = ({
             <span className='text-gray-400 min-w-max text-sm'>
               Найдено: {emailApplications.length}
             </span>
-            <Popover content='Изменить отображаемые столбцы таблицы' placement='right'>
-              <button
-                className='outline-none border-none bg-inherit'
-                onClick={() => changeNeedShowColumnForm(true)}
-              >
-                <BsFilterRight className='text-3xl' />
-              </button>
-            </Popover>
+            <Button type='link' onClick={() => changeNeedShowColumnForm(true)}>
+              Изменить отображаемые столбцы
+            </Button>
           </div>
           {!emailTable && <div className='w-[1024px]'></div>}
           {emailTable && (
             <EmailTable
               showForm={showForm}
               emailTable={emailTable}
-              handleTableChange={handleTableChange}
+              setTableParams={setTableParams}
+              getApplications={getApplications}
               tableParams={tableParams}
-              filterOptions={filterOptions}
-              setFilterOptions={setFilterOptions}
-              setSortOptions={setSortOptions}
-              sortOptions={sortOptions}
-              changeIsNeedToGet={changeIsNeedToGet}
               statuses={statuses}
               complexes={complexes}
               applicationFreshnessStatus={applicationFreshnessStatus}
+              changeIsNeedToGet={changeIsNeedToGet}
+              isNeedToGet={isNeedToGet}
             />
           )}
         </div>

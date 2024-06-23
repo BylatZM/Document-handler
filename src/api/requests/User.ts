@@ -3,10 +3,10 @@ import {
   ICitizenError,
   ICitizenRequest,
   IError,
-  INotApprovedCitizenPossession,
   IUser,
   IUserUpdate,
   IUpdateCitizenPossessionStatusByEmail,
+  INotApprovedCitizenPossessionPagination,
 } from '../../components/types';
 import {
   createCitizenPossession,
@@ -263,11 +263,14 @@ export const updateCitizenPossessionStatusWithExtraBySystemRequest = async (
 };
 
 export const getNotApprovedCitizenPossessionsRequest = async (
+  page: string,
+  page_size: string,
+  extra: string,
   logout: () => void,
-): Promise<INotApprovedCitizenPossession[] | void> => {
-  const makeRequest = async (): Promise<INotApprovedCitizenPossession[] | 401 | void> => {
+): Promise<INotApprovedCitizenPossessionPagination | void> => {
+  const makeRequest = async (): Promise<INotApprovedCitizenPossessionPagination | 401 | void> => {
     try {
-      const response = await getAllNotApprovedCitizenPossessions();
+      const response = await getAllNotApprovedCitizenPossessions(page, page_size, extra);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

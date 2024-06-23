@@ -41,6 +41,7 @@ const endpoints = {
     updateEmailAppById: 'application/email/update/',
     getAllStatuses: 'application/status/getAll',
     getAllTypesByComplexId: 'application/type/getAll/',
+    getAllTypes: 'application/type/getAll',
     getAllSubtypesWithExtra: 'application/subtype/getAll',
     getAllSources: 'application/source/getAll',
     getAllPriorities: 'application/priority/getAll',

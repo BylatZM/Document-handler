@@ -23,7 +23,7 @@ interface IProps {
   role: string;
   exitFromForm: () => void;
   logout: () => void;
-  getApplications: () => Promise<void>;
+  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type IApplicationOperation =
@@ -41,7 +41,7 @@ export const Buttons: FC<IProps> = ({
   role,
   exitFromForm,
   logout,
-  getApplications,
+  changeIsNeedToGet,
 }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
@@ -86,7 +86,7 @@ export const Buttons: FC<IProps> = ({
       setTimeout(async () => {
         changeSuccessButton((prev) => null);
         exitFromForm();
-        getApplications();
+        changeIsNeedToGet(true);
       }, 2000);
     } else {
       if (response && 'type' in response) applicationError(response);
@@ -159,8 +159,8 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'got_incorrectly') changeSuccessButton('got_incorrectly');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        getApplications();
         exitFromForm();
+        changeIsNeedToGet(true);
       }, 2000);
     } else {
       if (operation_type === 'update') changeErrorButton('update');
@@ -519,8 +519,8 @@ export const Buttons: FC<IProps> = ({
           className='transition-colors border-white text-white'
           disabled={loadingButton ? true : false}
           onClick={() => {
-            getApplications();
             exitFromForm();
+            changeIsNeedToGet(true);
             if (errorButton) changeErrorButton(null);
           }}
         >

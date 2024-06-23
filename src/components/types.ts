@@ -23,6 +23,7 @@ export interface StoreState {
   CitizenReducer: ICitizenState;
   PossessionReducer: IPossessionState;
   ApplicationReducer: IApplicationState;
+  ApprovingReducer: IApprovingState;
 }
 
 export interface IAuthState {
@@ -32,17 +33,25 @@ export interface IAuthState {
   isLoading: boolean;
 }
 
-export type IPosLoading = 'complexes' | 'buildings' | 'possessions' | null;
+export type IApprovingLoading = 'approvingCitizenPossessions' | 'approvingLivingSpaces' | null;
 
-export interface IHelpFormRequest {
-  name: string;
-  contact: string;
-  title: string;
-  description: string;
-  address: string | undefined;
+export interface IApprovingState {
+  approvingCitizenPossessions: INotApprovedCitizenPossession[];
+  approvingLivingSpaces: INotApprovedPossession[];
+  isLoading: IApprovingLoading;
+  error: IError | null;
 }
 
+export interface IApprovingCitizenPossessionProcessingRow {
+  row_id: number;
+  operation: 'success' | 'loading';
+  button_type: 'approve' | 'reject';
+}
+
+export type IPosLoading = 'complexes' | 'buildings' | 'possessions' | null;
+
 export interface IPossessionState {
+  possessionTypes: IPossessionType[];
   buildings: IBuilding[];
   complexes: IComplex[];
   possessions: IPossession[];
@@ -91,7 +100,6 @@ export interface ICitizenState {
 }
 
 export interface IHelpFormState {
-  info: IHelpFormRequest;
   processedPossessions: string[] | null;
   isLoading: boolean;
   error: IError | null;
@@ -424,6 +432,11 @@ export interface IBuilding {
   complex: string;
 }
 
+export interface IPossessionType {
+  id: number;
+  name: string;
+}
+
 export interface INotApprovedPossession {
   id: number;
   type: string;
@@ -452,6 +465,25 @@ export interface INotApprovedCitizenPossession {
   created_date: string;
 }
 
+export interface INotApprovedCitizenPossessionPagination {
+  result: INotApprovedCitizenPossession[];
+  total: number;
+}
+
+export interface IFilterNotApprovedCitizenPossessionOptions {
+  complexId: number | null;
+  buildingId: number | null;
+  possessionName: string | null;
+  possessionType: number | null;
+  statusId: number | null;
+  fio: string | null;
+}
+
+export interface ISortNotApprovedCitizenPossessionOptions {
+  creating_date_inc: boolean;
+  creating_date_dec: boolean;
+}
+
 export interface ILivingSpaceColumns {
   key: number;
   status: IPossessionStatus;
@@ -461,7 +493,11 @@ export interface ILivingSpaceColumns {
 export interface ICitizenPossessionsColumns {
   key: number;
   status: IPossessionStatus;
-  address: string;
+  possessionName: string;
+  possessionType: string;
+  complex: string;
+  building: string;
+  createdDate: string;
   citizenFIO: string;
 }
 
@@ -530,7 +566,8 @@ export interface IFilterAppOptions {
   fio: string | null;
   possessionType: number | null;
   possessionName: string | null;
-  applicationType: number | null;
+  typeId: number | null;
+  subtypeName: string | null;
 }
 
 export interface IFilterEmailAppOptions {
@@ -541,7 +578,8 @@ export interface IFilterEmailAppOptions {
   email: string | null;
   fio: string | null;
   possessionName: string | null;
-  applicationType: number | null;
+  typeId: number | null;
+  subtypeName: string | null;
 }
 
 export interface IFilterGisAppOptions {
@@ -552,41 +590,8 @@ export interface IFilterGisAppOptions {
   email: string | null;
   fio: string | null;
   possessionName: string | null;
-  applicationType: number | null;
-}
-
-export interface IFilterAppFormActivity {
-  complex: boolean;
-  building: boolean;
-  status: boolean;
-  role: boolean;
-  phone: boolean;
-  fio: boolean;
-  possessionType: boolean;
-  possessionName: boolean;
-  applicationType: boolean;
-}
-
-export interface IFilterEmailAppFormActivity {
-  complex: boolean;
-  building: boolean;
-  status: boolean;
-  email: boolean;
-  phone: boolean;
-  fio: boolean;
-  possessionName: boolean;
-  applicationType: boolean;
-}
-
-export interface IFilterGisAppFormActivity {
-  complex: boolean;
-  building: boolean;
-  status: boolean;
-  email: boolean;
-  phone: boolean;
-  fio: boolean;
-  possessionName: boolean;
-  applicationType: boolean;
+  typeId: number | null;
+  subtypeName: string | null;
 }
 
 export interface ISortOptions {

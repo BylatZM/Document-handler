@@ -22,21 +22,21 @@ import { Subtype } from './components/Subtype';
 
 interface IProps {
   gisApplication: IGisApplication | null;
-  getGisApplications: () => Promise<void>;
+  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
   changeSelectedItem: React.Dispatch<React.SetStateAction<IGisApplication | null>>;
   applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
 }
 
 export const AppForm: FC<IProps> = ({
   gisApplication,
-  getGisApplications,
+  changeIsNeedToGet,
   changeSelectedItem,
   applicationFreshnessStatus,
   getEmploys,
-  getTypes,
+  getTypesByComplexId,
   getSubtypes,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -58,7 +58,7 @@ export const AppForm: FC<IProps> = ({
         const complex = data.complex;
         if (!complex) return;
 
-        await getTypes(complex.id.toString());
+        await getTypesByComplexId(complex.id.toString());
       }
       if (!subtypes.some((el) => el.id === data.subtype?.id)) {
         const complex = data.complex;
@@ -86,8 +86,8 @@ export const AppForm: FC<IProps> = ({
 
   const exitFromForm = () => {
     changeSelectedItem(null);
-    getGisApplications();
     if (error) applicationError(null);
+    changeIsNeedToGet(true);
   };
 
   return (
@@ -100,10 +100,10 @@ export const AppForm: FC<IProps> = ({
       <div
         ref={ref}
         className={clsx(
-          'w-full sm:min-w-[600px] sm:max-w-[600px] md:min-w-[700px] md:max-w-[700px] lg:min-w-[850px] lg:max-w-[850px] h-full bg-opacity-20 backdrop-blur-xl rounded-md p-5 overflow-y-auto',
-          applicationFreshnessStatus === 'warning' && 'bg-amber-700',
-          applicationFreshnessStatus === 'expired' && 'bg-red-700',
-          applicationFreshnessStatus === 'fresh' && 'bg-blue-700',
+          'max-sm:min-w-[280px] max-sm:overflow-x-auto sm:min-w-[600px] sm:max-w-[600px] md:min-w-[700px] md:max-w-[700px] lg:min-w-[850px] lg:max-w-[850px] h-auto max-h-[95%] backdrop-blur-xl rounded-md p-5 overflow-y-auto',
+          applicationFreshnessStatus === 'warning' && 'bg-amber-700 bg-opacity-50',
+          applicationFreshnessStatus === 'expired' && 'bg-red-700 bg-opacity-40',
+          applicationFreshnessStatus === 'fresh' && 'bg-blue-700 bg-opacity-30',
         )}
       >
         <div className='flex justify-center gap-4 flex-col disable'>
@@ -115,7 +115,7 @@ export const AppForm: FC<IProps> = ({
               complexes={complexes}
               changeFormData={changeFormData}
               error={error}
-              getTypes={getTypes}
+              getTypesByComplexId={getTypesByComplexId}
             />
             <Building building_address={FormData.building_address} />
             <Possession possession={FormData.possession} />
@@ -162,13 +162,7 @@ export const AppForm: FC<IProps> = ({
               changeFormData={changeFormData}
             />
           </div>
-          <Buttons
-            data={FormData}
-            role={role}
-            exitFromForm={exitFromForm}
-            logout={logout}
-            getApplications={getGisApplications}
-          />
+          <Buttons data={FormData} role={role} exitFromForm={exitFromForm} logout={logout} />
         </div>
       </div>
     </div>

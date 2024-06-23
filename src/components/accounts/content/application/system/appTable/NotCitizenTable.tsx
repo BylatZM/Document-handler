@@ -1,12 +1,10 @@
 import { FC, useEffect, useState } from 'react';
-import { Table } from 'antd';
+import { Dropdown, Table } from 'antd';
 import { IoFunnel } from 'react-icons/io5';
 import clsx from 'clsx';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import {
   IApplicationNotCitizenColumns,
-  IBuilding,
-  IFilterAppFormActivity,
   IFilterAppOptions,
   ISortOptions,
   ITableParams,
@@ -15,72 +13,114 @@ import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 import { FaSort } from 'react-icons/fa';
 import { FaSortUp } from 'react-icons/fa';
 import { FaSortDown } from 'react-icons/fa6';
-import { ImSpinner9 } from 'react-icons/im';
-import Search from 'antd/es/input/Search';
+import { BuildingTableComponent } from '../notCitizenTableComponents/BuildingTableComponent';
+import { ApplicantFioTableComponent } from '../notCitizenTableComponents/ApplicantFioTableComponent';
+import { ApplicantPhoneTableComponent } from '../notCitizenTableComponents/ApplicantPhoneTableComponent';
+import { PossessionNameTableComponent } from '../notCitizenTableComponents/PossessionNameTableComponent';
+import { TypeTableComponent } from '../notCitizenTableComponents/TypeTableComponent';
+import { SubtypeTableComponent } from '../notCitizenTableComponents/SubtypeTableComponent';
 
 interface IProps {
   showForm: (application_id: number) => void;
   notCitizenTable: ColumnsType<IApplicationNotCitizenColumns>;
-  handleTableChange: (pagination: TablePaginationConfig) => void;
   tableParams: ITableParams;
+  setTableParams: React.Dispatch<React.SetStateAction<ITableParams>>;
   applicationFreshnessStatus: (
     creatingDate: string,
     normative_in_days: number,
   ) => 'fresh' | 'warning' | 'expired';
-  sortOptions: ISortOptions;
-  setSortOptions: React.Dispatch<React.SetStateAction<ISortOptions>>;
+  getApplications: (filterOptions?: IFilterAppOptions, sortOptions?: ISortOptions) => Promise<void>;
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
-  setFilterOptions: React.Dispatch<React.SetStateAction<IFilterAppOptions>>;
-  filterOptions: IFilterAppOptions;
-  getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuilding[] | void>;
-  getAllBuildings: () => Promise<IBuilding[] | void>;
+  isNeedToGet: boolean;
 }
+
+interface IWhoCreated {
+  id: number;
+  name: 'dispatcher' | 'citizen';
+  label: 'Диспетчер' | 'Житель';
+}
+
+const whoCreated: IWhoCreated[] = [
+  {
+    id: 1,
+    name: 'dispatcher',
+    label: 'Диспетчер',
+  },
+  {
+    id: 2,
+    name: 'citizen',
+    label: 'Житель',
+  },
+];
 
 export const NotCitizenTable: FC<IProps> = ({
   showForm,
   notCitizenTable,
-  handleTableChange,
   tableParams,
+  setTableParams,
   applicationFreshnessStatus,
-  sortOptions,
-  setSortOptions,
+  getApplications,
   changeIsNeedToGet,
-  setFilterOptions,
-  filterOptions,
-  getAllBuildingsByComplexId,
-  getAllBuildings,
+  isNeedToGet,
 }) => {
   const { applications, isLoading, statuses } = useTypedSelector(
     (state) => state.ApplicationReducer,
   );
-  const { complexes, buildings } = useTypedSelector((state) => state.PossessionReducer);
-  const [filterFormActivity, setFilterFormActivity] = useState<IFilterAppFormActivity>({
-    complex: false,
-    building: false,
-    status: false,
-    role: false,
-    phone: false,
-    fio: false,
-    possessionName: false,
-    possessionType: false,
-    applicationType: false,
+  const { complexes, possessionTypes } = useTypedSelector((state) => state.PossessionReducer);
+  const [sortOptions, setSortOptions] = useState<ISortOptions>({
+    status_inc: false,
+    status_dec: true,
+    creating_date_inc: false,
+    creating_date_dec: true,
   });
-  const [buildingsInSelect, setBuildingsInSelect] = useState<IBuilding[]>([]);
-  const [isBuildingsLoading, setIsBuildingsLoading] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<IFilterAppOptions>({
+    complexId: null,
+    buildingId: null,
+    statusId: null,
+    role: null,
+    phone: null,
+    fio: null,
+    possessionName: null,
+    possessionType: null,
+    typeId: null,
+    subtypeName: null,
+  });
 
-  const initBuildingsInFilter = async () => {
-    setIsBuildingsLoading((prev) => !prev);
-    const response = await getAllBuildings();
-    setIsBuildingsLoading((prev) => !prev);
-    if (!response) return;
-    setBuildingsInSelect(response);
+  const mainProcesses = async () => {
+    getApplications(filterOptions, sortOptions);
+    changeIsNeedToGet((prev) => !prev);
   };
 
   useEffect(() => {
-    if (buildings.length) {
-      setBuildingsInSelect(buildings);
+    if (isNeedToGet) {
+      mainProcesses();
     }
-  }, [buildings]);
+  }, [isNeedToGet]);
+
+  useEffect(() => {
+    let sortParams = localStorage.getItem('application_sort_options');
+    let parsedSortObject: ISortOptions = sortOptions;
+    if (sortParams) {
+      try {
+        parsedSortObject = JSON.parse(sortParams);
+        setSortOptions(parsedSortObject);
+      } catch (e) {
+        localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+      }
+    } else localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+
+    let filterParams = localStorage.getItem('application_filter_options');
+    let parsedFilterObject: IFilterAppOptions | null = null;
+    if (filterParams) {
+      try {
+        parsedFilterObject = JSON.parse(filterParams);
+        if (parsedFilterObject) setFilterOptions(parsedFilterObject);
+      } catch (e) {
+        localStorage.setItem('application_filter_options', JSON.stringify(filterOptions));
+      }
+    } else localStorage.setItem('application_filter_options', JSON.stringify(filterOptions));
+    changeIsNeedToGet(true);
+  }, []);
 
   const components = {
     header: {
@@ -133,54 +173,7 @@ export const NotCitizenTable: FC<IProps> = ({
         }
         if (props.children && Array.isArray(props.children) && props.children[1] === 'Статус') {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.2rem] right-0 z-10 flex flex-col overflow-hidden',
-                  filterFormActivity.status && 'max-h-[255px]',
-                  !filterFormActivity.status && 'h-0',
-                )}
-              >
-                {statuses
-                  .filter((el) => el.name !== 'Закрыта')
-                  .map((el) => (
-                    <button
-                      className={clsx(
-                        'transitionFast border-none p-2 hover:bg-opacity-80',
-                        filterOptions.statusId === el.id
-                          ? 'text-black bg-white'
-                          : 'bg-black text-white',
-                      )}
-                      onClick={() => {
-                        setFilterOptions((prev) => ({ ...prev, statusId: el.id }));
-                        setFilterFormActivity((prev) => ({ ...prev, status: false }));
-                        changeIsNeedToGet(true);
-                      }}
-                    >
-                      {el.name}
-                    </button>
-                  ))}
-                {
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      filterOptions.statusId === null
-                        ? 'text-black bg-white'
-                        : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, statusId: null }));
-                      setFilterFormActivity((prev) => ({ ...prev, status: false }));
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    Все
-                  </button>
-                }
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
               <div className='flex items-center gap-x-2 justify-center'>
                 <span>{props.children}</span>
                 <button
@@ -204,18 +197,55 @@ export const NotCitizenTable: FC<IProps> = ({
                     <FaSort className='text-lg text-white' />
                   )}
                 </button>
-                <button
-                  onClick={() =>
-                    setFilterFormActivity((prev) => ({ ...prev, status: !prev.status }))
-                  }
+                <Dropdown
+                  trigger={['click']}
+                  arrow
+                  placement='bottom'
+                  align={{ offset: [0, 16] }}
+                  overlayClassName='bg-black border-white p-2 border-[1px] bg-opacity-70 max-sm:text-sm'
+                  dropdownRender={() => (
+                    <div className='flex flex-col'>
+                      {statuses.map((el) => (
+                        <button
+                          key={el.id}
+                          className={clsx(
+                            'transitionFast border-none p-2',
+                            filterOptions.statusId === el.id
+                              ? 'text-black bg-white'
+                              : 'text-white hover:bg-black',
+                          )}
+                          onClick={() => {
+                            setFilterOptions((prev) => ({ ...prev, statusId: el.id }));
+                            changeIsNeedToGet(true);
+                          }}
+                        >
+                          {el.name}
+                        </button>
+                      ))}
+                      <button
+                        className={clsx(
+                          'transitionFast border-none p-2',
+                          filterOptions.statusId === null
+                            ? 'text-black bg-white'
+                            : 'text-white hover:bg-black',
+                        )}
+                        onClick={() => {
+                          setFilterOptions((prev) => ({ ...prev, statusId: null }));
+                          changeIsNeedToGet(true);
+                        }}
+                      >
+                        Все
+                      </button>
+                    </div>
+                  )}
                 >
                   <IoFunnel
                     className={clsx(
-                      'text-lg',
+                      'text-lg cursor-pointer',
                       filterOptions.statusId ? 'text-blue-700' : 'text-white',
                     )}
                   />
-                </button>
+                </Dropdown>
               </div>
             </th>
           );
@@ -230,69 +260,63 @@ export const NotCitizenTable: FC<IProps> = ({
               style={{ background: '#000', color: '#fff', textAlign: 'center' }}
               className='relative'
             >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.2rem] right-0 z-10 flex flex-col overflow-y-scroll overflow-x-hidden filterForm',
-                  filterFormActivity.complex && 'max-h-[160px]',
-                  !filterFormActivity.complex && 'h-0',
-                )}
-              >
-                {complexes.map((el) => (
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      filterOptions.complexId === el.id
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, complexId: el.id, buildingId: null }));
-                      getAllBuildingsByComplexId(el.id.toString());
-                      setFilterFormActivity((prev) => ({
-                        ...prev,
-                        complex: false,
-                        building: false,
-                      }));
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    {el.name}
-                  </button>
-                ))}
-                {
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      filterOptions.complexId === null
-                        ? 'text-black bg-white'
-                        : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, complexId: null }));
-                      setFilterFormActivity((prev) => ({ ...prev, complex: false }));
-                      setBuildingsInSelect([]);
-                      initBuildingsInFilter();
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    Все
-                  </button>
-                }
-              </div>
               <div className='flex items-center gap-x-2 justify-center'>
                 <span>{props.children}</span>
-                <button
-                  onClick={() =>
-                    setFilterFormActivity((prev) => ({ ...prev, complex: !prev.complex }))
-                  }
+                <Dropdown
+                  trigger={['click']}
+                  arrow
+                  placement='bottom'
+                  align={{ offset: [0, 18] }}
+                  overlayClassName='bg-black overflow-y-auto max-h-[150px] border-white border-[1px] bg-opacity-70 max-sm:text-sm'
+                  dropdownRender={() => (
+                    <div className='flex flex-col'>
+                      {complexes.map((el) => (
+                        <button
+                          key={el.id}
+                          className={clsx(
+                            'transitionFast border-none p-2',
+                            filterOptions.complexId === el.id
+                              ? 'bg-white text-black'
+                              : 'hover:bg-black text-white',
+                          )}
+                          onClick={() => {
+                            setFilterOptions((prev) => ({
+                              ...prev,
+                              complexId: el.id,
+                              buildingId: null,
+                              typeId: null,
+                              subtypeName: null,
+                            }));
+                            changeIsNeedToGet(true);
+                          }}
+                        >
+                          {el.name}
+                        </button>
+                      ))}
+                      <button
+                        className={clsx(
+                          'transitionFast border-none p-2',
+                          filterOptions.complexId === null
+                            ? 'text-black bg-white'
+                            : 'hover:bg-black text-white',
+                        )}
+                        onClick={() => {
+                          setFilterOptions((prev) => ({ ...prev, complexId: null }));
+                          changeIsNeedToGet(true);
+                        }}
+                      >
+                        Все
+                      </button>
+                    </div>
+                  )}
                 >
                   <IoFunnel
                     className={clsx(
-                      'text-lg',
+                      'text-lg cursor-pointer',
                       filterOptions.complexId ? 'text-blue-700' : 'text-white',
                     )}
                   />
-                </button>
+                </Dropdown>
               </div>
             </th>
           );
@@ -303,73 +327,45 @@ export const NotCitizenTable: FC<IProps> = ({
           props.children[1] === 'Адрес здания'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-auto filterForm',
-                  filterFormActivity.building && 'max-h-[200px]',
-                  !filterFormActivity.building && 'h-0',
-                )}
-              >
-                {isBuildingsLoading && (
-                  <div className='w-full flex justify-center gap-x-2 p-2 bg-black text-white'>
-                    <span>Загрузка...</span>
-                    <ImSpinner9 className='animate-spin' />
-                  </div>
-                )}
-                {!isBuildingsLoading &&
-                  buildingsInSelect.map((el) => (
-                    <button
-                      className={clsx(
-                        'transitionFast border-none p-2 hover:bg-opacity-80',
-                        filterOptions.buildingId === el.id
-                          ? 'bg-gray-200 text-black'
-                          : 'bg-black text-white',
-                      )}
-                      onClick={() => {
-                        setFilterOptions((prev) => ({ ...prev, buildingId: el.id }));
-                        setFilterFormActivity((prev) => ({ ...prev, building: false }));
-                        changeIsNeedToGet(true);
-                      }}
-                    >
-                      {el.address}
-                    </button>
-                  ))}
-                {!isBuildingsLoading && (
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      !filterOptions.buildingId ? 'bg-white text-black' : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, buildingId: null }));
-                      setFilterFormActivity((prev) => ({ ...prev, building: false }));
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    Все
-                  </button>
-                )}
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, building: !prev.building }));
-                    if (!buildings.length) initBuildingsInFilter();
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.buildingId ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <BuildingTableComponent
+                name={props.children}
+                complexId={filterOptions.complexId}
+                buildingId={filterOptions.buildingId}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
+            </th>
+          );
+        }
+        if (props.children && Array.isArray(props.children) && props.children[1] === 'Тип заявки') {
+          return (
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <TypeTableComponent
+                name={props.children}
+                complexId={filterOptions.complexId}
+                typeId={filterOptions.typeId}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
+            </th>
+          );
+        }
+        if (
+          props.children &&
+          Array.isArray(props.children) &&
+          props.children[1] === 'Подтип заявки'
+        ) {
+          return (
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <SubtypeTableComponent
+                name={props.children}
+                complexId={filterOptions.complexId}
+                typeId={filterOptions.typeId}
+                subtypeName={filterOptions.subtypeName}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -379,72 +375,58 @@ export const NotCitizenTable: FC<IProps> = ({
           props.children[1] === 'Заявку создал'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-auto filterForm',
-                  filterFormActivity.role && 'max-h-[200px]',
-                  !filterFormActivity.role && 'h-0',
-                )}
-              >
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.role === 'dispatcher'
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, role: 'dispatcher' }));
-                    setFilterFormActivity((prev) => ({ ...prev, role: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Диспетчер
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.role === 'citizen'
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, role: 'citizen' }));
-                    setFilterFormActivity((prev) => ({ ...prev, role: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Житель
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.role === null ? 'bg-gray-200 text-black' : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, role: null }));
-                    setFilterFormActivity((prev) => ({ ...prev, role: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Все
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
               <div className='flex items-center gap-x-2 justify-center'>
                 <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, role: !prev.role }));
-                  }}
+                <Dropdown
+                  trigger={['click']}
+                  arrow
+                  placement='bottom'
+                  align={{ offset: [0, 18] }}
+                  overlayClassName='bg-black max-w-[200px] p-2 border-white border-[1px] bg-opacity-70 max-sm:text-sm'
+                  dropdownRender={() => (
+                    <div className='flex flex-col'>
+                      {whoCreated.map((el) => (
+                        <button
+                          key={el.id}
+                          className={clsx(
+                            'transitionFast border-none p-2',
+                            filterOptions.role === el.name
+                              ? 'bg-gray-200 text-black'
+                              : 'hover:bg-black text-white',
+                          )}
+                          onClick={() => {
+                            setFilterOptions((prev) => ({ ...prev, role: el.name }));
+                            changeIsNeedToGet(true);
+                          }}
+                        >
+                          {el.label}
+                        </button>
+                      ))}
+                      <button
+                        className={clsx(
+                          'transitionFast border-none p-2',
+                          filterOptions.role === null
+                            ? 'bg-gray-200 text-black'
+                            : 'hover:bg-black text-white',
+                        )}
+                        onClick={() => {
+                          setFilterOptions((prev) => ({ ...prev, role: null }));
+                          changeIsNeedToGet(true);
+                        }}
+                      >
+                        Все
+                      </button>
+                    </div>
+                  )}
                 >
                   <IoFunnel
-                    className={clsx('text-lg', filterOptions.role ? 'text-blue-700' : 'text-white')}
+                    className={clsx(
+                      'text-lg cursor-pointer',
+                      filterOptions.role ? 'text-blue-700' : 'text-white',
+                    )}
                   />
-                </button>
+                </Dropdown>
               </div>
             </th>
           );
@@ -455,44 +437,13 @@ export const NotCitizenTable: FC<IProps> = ({
           props.children[1] === 'ФИО заявителя'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-y-auto overflow-hidden filterForm bg-gray-200',
-                  filterFormActivity.fio && 'max-h-[200px]',
-                  !filterFormActivity.fio && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите фио заявителя'
-                  allowClear
-                  value={!filterOptions.fio ? undefined : filterOptions.fio}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({
-                      ...prev,
-                      fio: e.replaceAll(/\s\s/g, '').replaceAll(/[^а-яА-Я\s]/g, ''),
-                    }));
-                    setFilterFormActivity((prev) => ({ ...prev, fio: !prev.fio }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, fio: !prev.fio }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx('text-lg', filterOptions.fio ? 'text-blue-700' : 'text-white')}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <ApplicantFioTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.fio}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -502,44 +453,13 @@ export const NotCitizenTable: FC<IProps> = ({
           props.children[1] === 'Контактный телефон'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-hidden filterForm bg-gray-200',
-                  filterFormActivity.phone && 'max-h-[200px]',
-                  !filterFormActivity.phone && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите контактный телефон'
-                  allowClear
-                  value={!filterOptions.phone ? undefined : filterOptions.phone}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({ ...prev, phone: e.replaceAll(/[^0-9]/g, '') }));
-                    setFilterFormActivity((prev) => ({ ...prev, phone: !prev.phone }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, phone: !prev.phone }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.phone ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <ApplicantPhoneTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.phone}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -549,125 +469,58 @@ export const NotCitizenTable: FC<IProps> = ({
           props.children[1] === 'Тип собственности'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-y-auto overflow-x-hidden filterForm bg-gray-200',
-                  filterFormActivity.possessionType && 'max-h-[200px]',
-                  !filterFormActivity.possessionType && 'h-0',
-                )}
-              >
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.possessionType === 1
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, possessionType: 1 }));
-                    setFilterFormActivity((prev) => ({ ...prev, possessionType: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Квартира
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.possessionType === 2
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, possessionType: 2 }));
-                    setFilterFormActivity((prev) => ({ ...prev, possessionType: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Коммерческое помещение
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.possessionType === 3
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, possessionType: 3 }));
-                    setFilterFormActivity((prev) => ({ ...prev, possessionType: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Парковка
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.possessionType === 4
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, possessionType: 4 }));
-                    setFilterFormActivity((prev) => ({ ...prev, possessionType: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Кладовка
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.possessionType === 5
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, possessionType: 5 }));
-                    setFilterFormActivity((prev) => ({ ...prev, possessionType: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Жилищный комплекс
-                </button>
-                <button
-                  className={clsx(
-                    'transitionFast border-none p-2 hover:bg-opacity-80',
-                    filterOptions.possessionType === null
-                      ? 'bg-gray-200 text-black'
-                      : 'bg-black text-white',
-                  )}
-                  onClick={() => {
-                    setFilterOptions((prev) => ({ ...prev, possessionType: null }));
-                    setFilterFormActivity((prev) => ({ ...prev, possessionType: false }));
-                    changeIsNeedToGet(true);
-                  }}
-                >
-                  Все
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
               <div className='flex items-center gap-x-2 justify-center'>
                 <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      possessionType: !prev.possessionType,
-                    }));
-                  }}
+                <Dropdown
+                  trigger={['click']}
+                  arrow
+                  placement='bottom'
+                  align={{ offset: [0, 18] }}
+                  overlayClassName='bg-black max-w-[200px] border-white border-[1px] bg-opacity-70 max-sm:text-sm'
+                  dropdownRender={() => (
+                    <div className='flex flex-col'>
+                      {possessionTypes.map((el) => (
+                        <button
+                          key={el.id}
+                          className={clsx(
+                            'transitionFast border-none p-2',
+                            filterOptions.possessionType === el.id
+                              ? 'bg-gray-200 text-black'
+                              : 'hover:bg-black text-white',
+                          )}
+                          onClick={() => {
+                            setFilterOptions((prev) => ({ ...prev, possessionType: el.id }));
+                            changeIsNeedToGet(true);
+                          }}
+                        >
+                          {el.name}
+                        </button>
+                      ))}
+                      <button
+                        className={clsx(
+                          'transitionFast border-none p-2',
+                          filterOptions.possessionType === null
+                            ? 'bg-gray-200 text-black'
+                            : 'hover:bg-black text-white',
+                        )}
+                        onClick={() => {
+                          setFilterOptions((prev) => ({ ...prev, possessionType: null }));
+                          changeIsNeedToGet(true);
+                        }}
+                      >
+                        Все
+                      </button>
+                    </div>
+                  )}
                 >
                   <IoFunnel
                     className={clsx(
-                      'text-lg',
+                      'text-lg cursor-pointer',
                       filterOptions.possessionType ? 'text-blue-700' : 'text-white',
                     )}
                   />
-                </button>
+                </Dropdown>
               </div>
             </th>
           );
@@ -678,53 +531,13 @@ export const NotCitizenTable: FC<IProps> = ({
           props.children[1] === 'Наименование собственности'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-hidden filterForm bg-gray-200',
-                  filterFormActivity.possessionName && 'max-h-[200px]',
-                  !filterFormActivity.possessionName && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите название собственности'
-                  allowClear
-                  value={!filterOptions.possessionName ? undefined : filterOptions.possessionName}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({
-                      ...prev,
-                      possessionName: e.replaceAll(/\s\s/g, '').replaceAll(/[^а-яА-Я\s0-9]/g, ''),
-                    }));
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      possessionName: !prev.possessionName,
-                    }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      possessionName: !prev.possessionName,
-                    }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.possessionName ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <PossessionNameTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.possessionName}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -735,6 +548,13 @@ export const NotCitizenTable: FC<IProps> = ({
         );
       },
     },
+  };
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    changeIsNeedToGet(true);
+    setTableParams({
+      pagination,
+    });
   };
 
   return (
@@ -787,9 +607,6 @@ export const NotCitizenTable: FC<IProps> = ({
           showForm(record.key);
         },
       })}
-      style={{
-        width: 'fit-content',
-      }}
     />
   );
 };

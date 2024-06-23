@@ -1,4 +1,4 @@
-import { Button, Checkbox, CheckboxOptionType, ConfigProvider, Popover } from 'antd';
+import { Button, Checkbox, CheckboxOptionType } from 'antd';
 import clsx from 'clsx';
 import { FC } from 'react';
 import { IEmailTableColumns } from '../../../../types';
@@ -51,6 +51,11 @@ export const ColumnsForm: FC<IProps> = ({
           />
           <hr />
         </div>
+        <div className='text-left mb-4 max-sm:mt-2 text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50 '>
+          <span className='text-red-500'>Внимание! </span>Если Вы не сохраните Ваш выбор, то после
+          перезагрузки страницы будут отображены все столбцы, вне зависимости от того, какие Вы
+          выбирали
+        </div>
         <div className='flex gap-2 justify-center'>
           <Button
             className='bg-none border-blue-700 border-[1px] text-blue-700 inline sm:mr-4'
@@ -58,37 +63,20 @@ export const ColumnsForm: FC<IProps> = ({
           >
             Закрыть
           </Button>
-          <ConfigProvider
-            theme={{
-              components: {
-                Button: {
-                  colorPrimaryHover: undefined,
-                },
-              },
+
+          <Button
+            type='primary'
+            className='inline bg-blue-700 text-white'
+            onClick={() => {
+              localStorage.setItem(
+                'email_application_table_columns',
+                JSON.stringify(checkboxValues),
+              );
+              changeNeedShow(false);
             }}
           >
-            <Popover
-              content={
-                <div className='w-[200px]'>
-                  Если вы не сохраните ваш выбор, то после перезагрузки страницы будут отображены
-                  все столбцы, вне зависимости от того, какие вы выбрали
-                </div>
-              }
-            >
-              <Button
-                className='inline bg-blue-700 text-white'
-                onClick={() => {
-                  localStorage.setItem(
-                    'gis_application_table_columns',
-                    JSON.stringify(checkboxValues),
-                  );
-                  changeNeedShow(false);
-                }}
-              >
-                Сохранить
-              </Button>
-            </Popover>
-          </ConfigProvider>
+            Сохранить
+          </Button>
         </div>
       </div>
     </div>

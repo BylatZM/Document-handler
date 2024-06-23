@@ -8,6 +8,7 @@ import { UserReducer } from '../../store/reducers/UserReducer';
 import { CitizenReducer } from '../../store/reducers/CitizenReducer';
 import { PossessionReducer } from './../../store/reducers/PossessionReducer';
 import { ApplicationReducer } from '../../store/reducers/ApplicationReducer';
+import { ApprovingReducer } from '../../store/reducers/ApprovingReducer';
 
 const rootActions = {
   ...AuthReducer.actions,
@@ -17,6 +18,7 @@ const rootActions = {
   ...CitizenReducer.actions,
   ...PossessionReducer.actions,
   ...ApplicationReducer.actions,
+  ...ApprovingReducer.actions,
 };
 
 export type useActionType = typeof rootActions;

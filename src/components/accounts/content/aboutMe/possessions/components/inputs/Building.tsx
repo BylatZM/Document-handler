@@ -51,7 +51,7 @@ export const Building: FC<IProps> = ({
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Адрес здания</span>
+      <span className='primaryField'>Адрес здания</span>
       {updatingFormId === form_id && (
         <div className='relative'>
           <div

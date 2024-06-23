@@ -42,7 +42,7 @@ export const Possession: FC<IProps> = ({
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Номер собственности</span>
+      <span className='primaryField'>Номер собственности</span>
       {updatingFormId === form_id && (
         <div className='relative'>
           <div

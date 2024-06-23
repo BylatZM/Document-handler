@@ -19,7 +19,7 @@ export const OwnershipStatus: FC<IProps> = ({
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Статус собственника</span>
+      <span className='primaryField'>Статус собственника</span>
       <Select
         className='w-full max-sm:h-[30px] h-[40px]'
         options={[

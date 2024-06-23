@@ -1,10 +1,4 @@
-import {
-  IAuthRequest,
-  IError,
-  IAuthGoodResponse,
-  IRegRequest,
-  IHelpFormRequest,
-} from '../../components/types';
+import { IAuthRequest, IError, IAuthGoodResponse, IRegRequest } from '../../components/types';
 import { login, refresh, registration, help } from '..';
 import request from 'axios';
 
@@ -68,12 +62,15 @@ export const refreshRequest = async (): Promise<200 | 403 | void> => {
   }
 };
 
-export const requestFromHelpForm = async (params: IHelpFormRequest): Promise<200 | void> => {
+export const requestFromHelpForm = async (params: FormData): Promise<200 | IError | void> => {
   try {
     await help(params).then((response) => response.data);
     return 200;
   } catch (e) {
     if (request.isAxiosError(e) && e.response) {
+      if (e.response.status === 400) {
+        return e.response.data;
+      }
       errorAlert(e.response.status);
     }
   }

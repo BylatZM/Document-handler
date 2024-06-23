@@ -1,4 +1,4 @@
-import { Button, Checkbox, ConfigProvider, Popover } from 'antd';
+import { Button, Checkbox } from 'antd';
 import clsx from 'clsx';
 import { FC } from 'react';
 import { IApplicationNotCitizenColumns } from '../../../../../types';
@@ -53,51 +53,28 @@ export const NotCitizenColumnsForm: FC<IProps> = ({
           />
           <hr />
         </div>
+        <div className='text-left mb-4 max-sm:mt-2 text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50 '>
+          <span className='text-red-500'>Внимание! </span>Если Вы не сохраните Ваш выбор, то после
+          перезагрузки страницы будут отображены все столбцы, вне зависимости от того, какие Вы
+          выбирали
+        </div>
         <div className='flex gap-2 justify-center'>
-          <ConfigProvider
-            theme={{
-              components: {
-                Button: {
-                  colorPrimaryHover: '#1d4ed8',
-                },
-              },
+          <Button
+            className='bg-none text-blue-700 border-blue-700 sm:mr-4'
+            onClick={() => changeNeedShow(false)}
+          >
+            Закрыть
+          </Button>
+          <Button
+            type='primary'
+            className='inline bg-blue-700 text-white'
+            onClick={() => {
+              localStorage.setItem('application_table_columns', JSON.stringify(checkboxValues));
+              changeNeedShow(false);
             }}
           >
-            <Button
-              className='bg-none border-white text-white inline sm:mr-4'
-              onClick={() => changeNeedShow(false)}
-            >
-              Закрыть
-            </Button>
-          </ConfigProvider>
-          <ConfigProvider
-            theme={{
-              components: {
-                Button: {
-                  colorPrimaryHover: undefined,
-                },
-              },
-            }}
-          >
-            <Popover
-              content={
-                <div className='w-[200px]'>
-                  Если вы не сохраните ваш выбор, то после перезагрузки страницы будут отображены
-                  все столбцы, вне зависимости от того, какие вы выбрали
-                </div>
-              }
-            >
-              <Button
-                className='inline bg-blue-700 text-white'
-                onClick={() => {
-                  localStorage.setItem('application_table_columns', JSON.stringify(checkboxValues));
-                  changeNeedShow(false);
-                }}
-              >
-                Сохранить
-              </Button>
-            </Popover>
-          </ConfigProvider>
+            Сохранить
+          </Button>
         </div>
       </div>
     </div>

@@ -37,9 +37,6 @@ export const defaultColumns: ColumnsType<IEmailTableColumns> = [
     title: 'Подтип заявки',
     dataIndex: 'subtype',
     key: 'subtype',
-    render: (subtype) => (
-      <div className='overflow-hidden max-w-[150px] text-ellipsis'>{subtype}</div>
-    ),
   },
   {
     title: 'Статус',
@@ -71,7 +68,7 @@ export const defaultColumns: ColumnsType<IEmailTableColumns> = [
     dataIndex: 'applicantComment',
     key: 'applicantComment',
     render: (applicantComment: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
+      <div className='max-w-[200px] max-md:max-h-[50px] max-h-[100px] overflow-hidden leading-[15px]'>
         {applicantComment}
       </div>
     ),
@@ -80,21 +77,13 @@ export const defaultColumns: ColumnsType<IEmailTableColumns> = [
     title: 'Жилищный комплекс',
     dataIndex: 'complex',
     key: 'complex',
-    render: (complex: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {complex}
-      </div>
-    ),
+    render: (complex: string) => <div className='max-w-[200px]'>{complex}</div>,
   },
   {
     title: 'Адрес здания',
     dataIndex: 'building',
     key: 'building',
-    render: (building: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
-        {building}
-      </div>
-    ),
+    render: (building: string) => <div className='max-w-[200px] leading-[15px]'>{building}</div>,
   },
   {
     title: 'Наименование собственности',
@@ -106,7 +95,7 @@ export const defaultColumns: ColumnsType<IEmailTableColumns> = [
     dataIndex: 'employee',
     key: 'employee',
     render: (employee: string) => (
-      <div className='max-w-[180px] max-h-[80px] mx-auto overflow-hidden text-ellipsis leading-[15px]'>
+      <div className='max-w-[200px] max-md:max-h-[50px] max-h-[100px] overflow-hidden leading-[15px]'>
         {employee}
       </div>
     ),

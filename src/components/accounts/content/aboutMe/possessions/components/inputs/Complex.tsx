@@ -47,7 +47,7 @@ export const Complex: FC<IProps> = ({
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Название жилого комплекса</span>
+      <span className='primaryField'>Название жилого комплекса</span>
       {updatingFormId === form_id && (
         <div className='relative'>
           <div

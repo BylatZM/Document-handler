@@ -36,7 +36,7 @@ export const PossessionType: FC<IProps> = ({
 }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Тип имущества</span>
+      <span className='primaryField'>Тип имущества</span>
       <Select
         className='w-full max-sm:h-[30px] h-[40px]'
         options={[

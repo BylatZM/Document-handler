@@ -34,28 +34,28 @@ import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   application: IApplication | null;
-  getApplications: () => Promise<void>;
   changeSelectedItem: React.Dispatch<React.SetStateAction<IApplication | null>>;
   applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
   getPossessions: (type: string, building_id: string) => Promise<void | IPossession[] | IError>;
   getAllBuildingsByComplexId: (complex_id: string) => Promise<IBuilding[] | void>;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
   getCitizenPossessions: () => Promise<ICitizenPossession[] | void>;
+  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const AppForm: FC<IProps> = ({
   application,
-  getApplications,
   changeSelectedItem,
   applicationFreshnessStatus,
-  getTypes,
+  getTypesByComplexId,
   getSubtypes,
   getAllBuildingsByComplexId,
   getPossessions,
   getEmploys,
   getCitizenPossessions,
+  changeIsNeedToGet,
 }) => {
   const defaultSubtype: ISubtype = {
     type: '',
@@ -118,7 +118,7 @@ export const AppForm: FC<IProps> = ({
       applicant_fio: fio,
       contact: !user.phone ? '+7' : user.phone,
     }));
-    await getTypes(possession[0].complex.id.toString());
+    await getTypesByComplexId(possession[0].complex.id.toString());
   };
 
   const initializeCreateApplicationFormByDispatcher = async (app: IApplication) => {
@@ -128,7 +128,7 @@ export const AppForm: FC<IProps> = ({
     if (value.length) {
       complex = value[0];
     }
-    const responseTypes = await getTypes(complex.id.toString());
+    const responseTypes = await getTypesByComplexId(complex.id.toString());
 
     if (!responseTypes) return;
 
@@ -174,7 +174,7 @@ export const AppForm: FC<IProps> = ({
       (el) => el === app.status.name,
     );
     if (isNecessaryStatus) {
-      const responseTypes = await getTypes(app.complex.id.toString());
+      const responseTypes = await getTypesByComplexId(app.complex.id.toString());
       if (!responseTypes) return;
       await getSubtypes(app.type.id.toString(), app.complex.id.toString());
       await getEmploys(app.complex.id.toString(), app.subtype.id.toString());
@@ -217,7 +217,7 @@ export const AppForm: FC<IProps> = ({
       <div
         ref={ref}
         className={clsx(
-          'w-full sm:min-w-[600px] sm:max-w-[600px] md:min-w-[700px] md:max-w-[700px] lg:min-w-[850px] lg:max-w-[850px] h-full backdrop-blur-xl rounded-md p-5 overflow-y-auto',
+          'max-sm:min-w-[280px] max-sm:overflow-x-auto sm:min-w-[600px] sm:max-w-[600px] md:min-w-[700px] md:max-w-[700px] lg:min-w-[850px] lg:max-w-[850px] h-auto max-h-[95%] backdrop-blur-xl rounded-md p-5 overflow-y-auto',
           applicationFreshnessStatus === 'warning' && 'bg-amber-700 bg-opacity-50',
           applicationFreshnessStatus === 'expired' && 'bg-red-700 bg-opacity-40',
           applicationFreshnessStatus === 'fresh' && 'bg-blue-700 bg-opacity-30',
@@ -235,7 +235,7 @@ export const AppForm: FC<IProps> = ({
               citizenPossessions={citizenPossessions}
               getBuildings={getAllBuildingsByComplexId}
               error={error}
-              getTypes={getTypes}
+              getTypesByComplexId={getTypesByComplexId}
               defaultSubtype={defaultSubtype}
               defaultType={defaultType}
             />
@@ -257,7 +257,7 @@ export const AppForm: FC<IProps> = ({
               error={error}
               possessionLoadingField={possessionLoadingField}
               checkPossessionRequestOnError={checkPossessionRequestOnError}
-              getTypes={getTypes}
+              getTypesByComplexId={getTypesByComplexId}
               defaultSubtype={defaultSubtype}
               defaultType={defaultType}
             />
@@ -270,7 +270,7 @@ export const AppForm: FC<IProps> = ({
               citizenPossessions={citizenPossessions}
               error={error}
               possessionLoadingField={possessionLoadingField}
-              getTypes={getTypes}
+              getTypesByComplexId={getTypesByComplexId}
               defaultSubtype={defaultSubtype}
               defaultType={defaultType}
             />
@@ -355,7 +355,7 @@ export const AppForm: FC<IProps> = ({
             role={role}
             exitFromForm={exitFromForm}
             logout={logout}
-            getApplications={getApplications}
+            changeIsNeedToGet={changeIsNeedToGet}
           />
         </div>
       </div>

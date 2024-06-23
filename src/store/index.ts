@@ -8,6 +8,7 @@ import { UserReducer } from './reducers/UserReducer';
 import { CitizenReducer } from './reducers/CitizenReducer';
 import { PossessionReducer } from './reducers/PossessionReducer';
 import { ApplicationReducer } from './reducers/ApplicationReducer';
+import { ApprovingReducer } from './reducers/ApprovingReducer';
 
 const reducers = combineReducers<StoreState>({
   AuthReducer: AuthReducer.reducer,
@@ -17,12 +18,13 @@ const reducers = combineReducers<StoreState>({
   CitizenReducer: CitizenReducer.reducer,
   PossessionReducer: PossessionReducer.reducer,
   ApplicationReducer: ApplicationReducer.reducer,
+  ApprovingReducer: ApprovingReducer.reducer,
 });
 
 export const store = configureStore({
   reducer: reducers,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(...(process.env.NODE_ENV !== 'production' ? [logger] : [])),
+  // middleware: (getDefaultMiddleware) =>
+  //   getDefaultMiddleware().concat(...(process.env.NODE_ENV !== 'production' ? [logger] : [])),
   devTools: true,
 });
 

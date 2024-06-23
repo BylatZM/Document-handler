@@ -24,10 +24,9 @@ interface IProps {
   role: string;
   exitFromForm: () => void;
   logout: () => void;
-  getApplications: () => Promise<void>;
 }
 
-export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getApplications }) => {
+export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<null | IOperation>(null);
@@ -66,16 +65,6 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getAppli
         };
       }
     }
-    // if (
-    //   ['Назначена', 'Возвращена'].some((el) => el === data.status.name) &&
-    //   operation_type === 'proceed_to_execution'
-    // ) {
-    //   new_status = statuses.filter((el) => el.name === 'В работе');
-    //   if (!new_status.length) return;
-    //   info = {
-    //     status: new_status[0].id,
-    //   };
-    // }
     if (
       ['В работе', 'Назначена', 'Возвращена'].some((el) => el === data.status.name) &&
       operation_type === 'close_application'
@@ -99,14 +88,6 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getAppli
         };
       }
     }
-    // if (
-    //   ['Закрыта'].some((el) => el === data.status.name) &&
-    //   operation_type === 'return_for_revision'
-    // ) {
-    //   new_status = statuses.filter((el) => el.name === 'Возвращена');
-    //   if (!new_status.length) return;
-    //   info = { ...info, status: new_status[0].id };
-    // }
     if (errorButton) changeErrorButton(null);
 
     const response = await updateEmailApplicationByIdRequest(data.id.toString(), logout, info);
@@ -119,7 +100,6 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout, getAppli
       if (operation_type === 'return_for_revision') changeSuccessButton('return_for_revision');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        getApplications();
         exitFromForm();
       }, 2000);
     } else {

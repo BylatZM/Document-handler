@@ -1,65 +1,111 @@
-import { FC, useState } from 'react';
-import { Table } from 'antd';
+import React, { FC, useEffect, useState } from 'react';
+import { Dropdown, Table } from 'antd';
 import { IoFunnel } from 'react-icons/io5';
 import clsx from 'clsx';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import {
   IEmailTableColumns,
   ITableParams,
-  IFilterEmailAppFormActivity,
   IFilterEmailAppOptions,
   ISortOptions,
   IComplex,
   IStatus,
 } from '../../../../types';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import Search from 'antd/es/input/Search';
 import { FaSort, FaSortDown, FaSortUp } from 'react-icons/fa';
+import { BuildingTableComponent } from './tableColumnComponents/BuildingTableComponent';
+import { ApplicantEmailTableComponent } from './tableColumnComponents/ApplicantEmailTableComponent';
+import { ApplicantFioTableComponent } from './tableColumnComponents/ApplicantFioTableComponent';
+import { ApplicantPhoneTableComponent } from './tableColumnComponents/ApplicantPhoneTableComponent';
+import { PossessionNameTableComponent } from './tableColumnComponents/PossessionNameTableComponent';
+import { TypeTableComponent } from './tableColumnComponents/TypeTableComponent';
+import { SubtypeTableComponent } from './tableColumnComponents/SubtypeTableComponent';
 
 interface IProps {
   showForm: (application_id: number) => void;
   emailTable: ColumnsType<IEmailTableColumns>;
-  handleTableChange: (pagination: TablePaginationConfig) => void;
+  setTableParams: React.Dispatch<React.SetStateAction<ITableParams>>;
+  getApplications: (
+    filterOptions?: IFilterEmailAppOptions,
+    sortOptions?: ISortOptions,
+  ) => Promise<void>;
   tableParams: ITableParams;
-  filterOptions: IFilterEmailAppOptions;
-  setFilterOptions: React.Dispatch<React.SetStateAction<IFilterEmailAppOptions>>;
-  sortOptions: ISortOptions;
-  setSortOptions: React.Dispatch<React.SetStateAction<ISortOptions>>;
-  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
   complexes: IComplex[];
   statuses: IStatus[];
   applicationFreshnessStatus: (
     creatingDate: string,
     normative_in_hours: number,
   ) => 'fresh' | 'warning' | 'expired';
+  isNeedToGet: boolean;
+  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const EmailTable: FC<IProps> = ({
   showForm,
   emailTable,
-  handleTableChange,
+  setTableParams,
+  getApplications,
   tableParams,
-  filterOptions,
-  setFilterOptions,
-  sortOptions,
-  setSortOptions,
-  changeIsNeedToGet,
   complexes,
   statuses,
   applicationFreshnessStatus,
+  isNeedToGet,
+  changeIsNeedToGet,
 }) => {
-  const { emailApplications } = useTypedSelector((state) => state.ApplicationReducer);
-  const { isLoading } = useTypedSelector((state) => state.ApplicationReducer);
-  const [filterFormActivity, setFilterFormActivity] = useState<IFilterEmailAppFormActivity>({
-    complex: false,
-    building: false,
-    status: false,
-    email: false,
-    phone: false,
-    fio: false,
-    possessionName: false,
-    applicationType: false,
+  const { emailApplications, isLoading } = useTypedSelector((state) => state.ApplicationReducer);
+  const [filterOptions, setFilterOptions] = useState<IFilterEmailAppOptions>({
+    complexId: null,
+    buildingAddress: null,
+    statusId: null,
+    phone: null,
+    email: null,
+    fio: null,
+    possessionName: null,
+    typeId: null,
+    subtypeName: null,
   });
+  const [sortOptions, setSortOptions] = useState<ISortOptions>({
+    status_inc: false,
+    status_dec: true,
+    creating_date_inc: false,
+    creating_date_dec: true,
+  });
+
+  const mainProcesses = async () => {
+    getApplications(filterOptions, sortOptions);
+    changeIsNeedToGet((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (isNeedToGet) {
+      mainProcesses();
+    }
+  }, [isNeedToGet]);
+
+  useEffect(() => {
+    let sortParams = localStorage.getItem('email_application_sort_options');
+    let parsedSortObject: ISortOptions = sortOptions;
+    if (sortParams) {
+      try {
+        parsedSortObject = JSON.parse(sortParams);
+        setSortOptions(parsedSortObject);
+      } catch (e) {
+        localStorage.setItem('email_application_sort_options', JSON.stringify(sortOptions));
+      }
+    } else localStorage.setItem('email_application_sort_options', JSON.stringify(sortOptions));
+
+    let filterParams = localStorage.getItem('email_application_filter_options');
+    let parsedFilterObject: IFilterEmailAppOptions | null = null;
+    if (filterParams) {
+      try {
+        parsedFilterObject = JSON.parse(filterParams);
+        if (parsedFilterObject) setFilterOptions(parsedFilterObject);
+      } catch (e) {
+        localStorage.setItem('email_application_filter_options', JSON.stringify(filterOptions));
+      }
+    } else localStorage.setItem('email_application_filter_options', JSON.stringify(filterOptions));
+    changeIsNeedToGet(true);
+  }, []);
 
   const components = {
     header: {
@@ -112,49 +158,7 @@ export const EmailTable: FC<IProps> = ({
         }
         if (props.children && Array.isArray(props.children) && props.children[1] === 'Статус') {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.2rem] right-0 z-10 flex flex-col overflow-hidden',
-                  filterFormActivity.status && 'max-h-[200px]',
-                  !filterFormActivity.status && 'h-0',
-                )}
-              >
-                {statuses
-                  .filter((el) => el.name !== 'Закрыта')
-                  .map((el) => (
-                    <button
-                      className='transitionFast bg-black border-none text-white p-2 hover:bg-opacity-80'
-                      onClick={() => {
-                        setFilterOptions((prev) => ({ ...prev, statusId: el.id }));
-                        setFilterFormActivity((prev) => ({ ...prev, status: false }));
-                        changeIsNeedToGet(true);
-                      }}
-                    >
-                      {el.name}
-                    </button>
-                  ))}
-                {
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      filterOptions.statusId === null
-                        ? 'text-black bg-white'
-                        : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, statusId: null }));
-                      setFilterFormActivity((prev) => ({ ...prev, status: false }));
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    Все
-                  </button>
-                }
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
               <div className='flex items-center gap-x-2 justify-center'>
                 <span>{props.children}</span>
                 <button
@@ -178,18 +182,55 @@ export const EmailTable: FC<IProps> = ({
                     <FaSort className='text-lg text-white' />
                   )}
                 </button>
-                <button
-                  onClick={() =>
-                    setFilterFormActivity((prev) => ({ ...prev, status: !prev.status }))
-                  }
+                <Dropdown
+                  trigger={['click']}
+                  arrow
+                  placement='bottom'
+                  align={{ offset: [0, 16] }}
+                  overlayClassName='bg-black border-white p-2 border-[1px] bg-opacity-70 max-sm:text-sm'
+                  dropdownRender={() => (
+                    <div className='flex flex-col'>
+                      {statuses.map((el) => (
+                        <button
+                          key={el.id}
+                          className={clsx(
+                            'transitionFast border-none p-2',
+                            filterOptions.statusId === el.id
+                              ? 'text-black bg-white'
+                              : 'text-white hover:bg-black',
+                          )}
+                          onClick={() => {
+                            setFilterOptions((prev) => ({ ...prev, statusId: el.id }));
+                            changeIsNeedToGet(true);
+                          }}
+                        >
+                          {el.name}
+                        </button>
+                      ))}
+                      <button
+                        className={clsx(
+                          'transitionFast border-none p-2',
+                          filterOptions.statusId === null
+                            ? 'text-black bg-white'
+                            : 'text-white hover:bg-black',
+                        )}
+                        onClick={() => {
+                          setFilterOptions((prev) => ({ ...prev, statusId: null }));
+                          changeIsNeedToGet(true);
+                        }}
+                      >
+                        Все
+                      </button>
+                    </div>
+                  )}
                 >
                   <IoFunnel
                     className={clsx(
-                      'text-lg',
+                      'text-lg cursor-pointer',
                       filterOptions.statusId ? 'text-blue-700' : 'text-white',
                     )}
                   />
-                </button>
+                </Dropdown>
               </div>
             </th>
           );
@@ -204,65 +245,61 @@ export const EmailTable: FC<IProps> = ({
               style={{ background: '#000', color: '#fff', textAlign: 'center' }}
               className='relative'
             >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.2rem] right-0 z-10 flex flex-col overflow-y-scroll overflow-x-hidden filterForm',
-                  filterFormActivity.complex && 'max-h-[160px]',
-                  !filterFormActivity.complex && 'h-0',
-                )}
-              >
-                {complexes.map((el) => (
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      filterOptions.complexId === el.id
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, complexId: el.id }));
-                      setFilterFormActivity((prev) => ({
-                        ...prev,
-                        complex: false,
-                      }));
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    {el.name}
-                  </button>
-                ))}
-                {
-                  <button
-                    className={clsx(
-                      'transitionFast border-none p-2 hover:bg-opacity-80',
-                      filterOptions.complexId === null
-                        ? 'text-black bg-white'
-                        : 'bg-black text-white',
-                    )}
-                    onClick={() => {
-                      setFilterOptions((prev) => ({ ...prev, complexId: null }));
-                      setFilterFormActivity((prev) => ({ ...prev, complex: false }));
-                      changeIsNeedToGet(true);
-                    }}
-                  >
-                    Все
-                  </button>
-                }
-              </div>
               <div className='flex items-center gap-x-2 justify-center'>
                 <span>{props.children}</span>
-                <button
-                  onClick={() =>
-                    setFilterFormActivity((prev) => ({ ...prev, complex: !prev.complex }))
-                  }
+                <Dropdown
+                  trigger={['click']}
+                  arrow
+                  placement='bottom'
+                  align={{ offset: [0, 18] }}
+                  overlayClassName='bg-black overflow-y-auto max-h-[150px] border-white border-[1px] bg-opacity-70 max-sm:text-sm'
+                  dropdownRender={() => (
+                    <div className='flex flex-col'>
+                      {complexes.map((el) => (
+                        <button
+                          key={el.id}
+                          className={clsx(
+                            'transitionFast border-none p-2',
+                            filterOptions.complexId === el.id
+                              ? 'bg-white text-black'
+                              : 'hover:bg-black text-white',
+                          )}
+                          onClick={() => {
+                            setFilterOptions((prev) => ({
+                              ...prev,
+                              complexId: el.id,
+                              buildingId: null,
+                            }));
+                            changeIsNeedToGet(true);
+                          }}
+                        >
+                          {el.name}
+                        </button>
+                      ))}
+                      <button
+                        className={clsx(
+                          'transitionFast border-none p-2',
+                          filterOptions.complexId === null
+                            ? 'text-black bg-white'
+                            : 'hover:bg-black text-white',
+                        )}
+                        onClick={() => {
+                          setFilterOptions((prev) => ({ ...prev, complexId: null }));
+                          changeIsNeedToGet(true);
+                        }}
+                      >
+                        Все
+                      </button>
+                    </div>
+                  )}
                 >
                   <IoFunnel
                     className={clsx(
-                      'text-lg',
+                      'text-lg cursor-pointer',
                       filterOptions.complexId ? 'text-blue-700' : 'text-white',
                     )}
                   />
-                </button>
+                </Dropdown>
               </div>
             </th>
           );
@@ -273,50 +310,44 @@ export const EmailTable: FC<IProps> = ({
           props.children[1] === 'Адрес здания'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-auto filterForm',
-                  filterFormActivity.building && 'max-h-[200px]',
-                  !filterFormActivity.building && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите адрес здания'
-                  allowClear
-                  value={!filterOptions.buildingAddress ? undefined : filterOptions.buildingAddress}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({
-                      ...prev,
-                      buildingAddress: e,
-                    }));
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      building: !prev.building,
-                    }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, building: !prev.building }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.buildingAddress ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <BuildingTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.buildingAddress}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
+            </th>
+          );
+        }
+        if (props.children && Array.isArray(props.children) && props.children[1] === 'Тип заявки') {
+          return (
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <TypeTableComponent
+                name={props.children}
+                complexId={filterOptions.complexId}
+                typeId={filterOptions.typeId}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
+            </th>
+          );
+        }
+        if (
+          props.children &&
+          Array.isArray(props.children) &&
+          props.children[1] === 'Подтип заявки'
+        ) {
+          return (
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <SubtypeTableComponent
+                name={props.children}
+                complexId={filterOptions.complexId}
+                typeId={filterOptions.typeId}
+                subtypeName={filterOptions.subtypeName}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -326,50 +357,13 @@ export const EmailTable: FC<IProps> = ({
           props.children[1] === 'Электронная почта'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-auto filterForm bg-gray-200',
-                  filterFormActivity.email && 'max-h-[200px]',
-                  !filterFormActivity.email && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите электронную почту'
-                  allowClear
-                  value={!filterOptions.email ? undefined : filterOptions.email}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({
-                      ...prev,
-                      email: e,
-                    }));
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      email: !prev.email,
-                    }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, email: !prev.email }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.email ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <ApplicantEmailTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.email}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -379,44 +373,13 @@ export const EmailTable: FC<IProps> = ({
           props.children[1] === 'ФИО заявителя'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-y-auto overflow-hidden filterForm bg-gray-200',
-                  filterFormActivity.fio && 'max-h-[200px]',
-                  !filterFormActivity.fio && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите фио заявителя'
-                  allowClear
-                  value={!filterOptions.fio ? undefined : filterOptions.fio}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({
-                      ...prev,
-                      fio: e.replaceAll(/\s\s/g, '').replaceAll(/[^а-яА-Я\s]/g, ''),
-                    }));
-                    setFilterFormActivity((prev) => ({ ...prev, fio: !prev.fio }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, fio: !prev.fio }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx('text-lg', filterOptions.fio ? 'text-blue-700' : 'text-white')}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <ApplicantFioTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.fio}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -426,44 +389,13 @@ export const EmailTable: FC<IProps> = ({
           props.children[1] === 'Контактный телефон'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-hidden filterForm bg-gray-200',
-                  filterFormActivity.phone && 'max-h-[200px]',
-                  !filterFormActivity.phone && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите телефон'
-                  allowClear
-                  value={!filterOptions.phone ? undefined : filterOptions.phone}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({ ...prev, phone: e.replaceAll(/[^0-9]/g, '') }));
-                    setFilterFormActivity((prev) => ({ ...prev, phone: !prev.phone }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({ ...prev, phone: !prev.phone }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.phone ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <ApplicantPhoneTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.phone}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -473,53 +405,13 @@ export const EmailTable: FC<IProps> = ({
           props.children[1] === 'Наименование собственности'
         ) {
           return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <div
-                className={clsx(
-                  'absolute inset-x-0 top-[3.4rem] right-0 z-10 flex flex-col overflow-hidden filterForm bg-gray-200',
-                  filterFormActivity.possessionName && 'max-h-[200px]',
-                  !filterFormActivity.possessionName && 'h-0',
-                )}
-              >
-                <Search
-                  placeholder='Укажите название собственности'
-                  allowClear
-                  value={!filterOptions.possessionName ? undefined : filterOptions.possessionName}
-                  onSearch={(e) => {
-                    setFilterOptions((prev) => ({
-                      ...prev,
-                      possessionName: e.replaceAll(/\s\s/g, '').replaceAll(/[^а-яА-Я\s0-9]/g, ''),
-                    }));
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      possessionName: !prev.possessionName,
-                    }));
-                    changeIsNeedToGet(true);
-                  }}
-                  className='w-full'
-                />
-              </div>
-              <div className='flex items-center gap-x-2 justify-center'>
-                <span>{props.children}</span>
-                <button
-                  onClick={() => {
-                    setFilterFormActivity((prev) => ({
-                      ...prev,
-                      possessionName: !prev.possessionName,
-                    }));
-                  }}
-                >
-                  <IoFunnel
-                    className={clsx(
-                      'text-lg',
-                      filterOptions.possessionName ? 'text-blue-700' : 'text-white',
-                    )}
-                  />
-                </button>
-              </div>
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <PossessionNameTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.possessionName}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
             </th>
           );
         }
@@ -531,6 +423,14 @@ export const EmailTable: FC<IProps> = ({
       },
     },
   };
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    changeIsNeedToGet(true);
+    setTableParams({
+      pagination,
+    });
+  };
+
   return (
     <Table
       dataSource={emailApplications.map((el) => ({
@@ -556,7 +456,7 @@ export const EmailTable: FC<IProps> = ({
       bordered
       pagination={tableParams.pagination}
       onChange={handleTableChange}
-      loading={isLoading === 'gisApplications' ? true : false}
+      loading={isLoading === 'emailApplications' ? true : false}
       locale={{
         emptyText: <span className='font-bold text-lg'>Нет данных</span>,
       }}
@@ -580,9 +480,6 @@ export const EmailTable: FC<IProps> = ({
           showForm(record.key);
         },
       })}
-      style={{
-        width: 'fit-content',
-      }}
     />
   );
 };

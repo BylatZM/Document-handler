@@ -24,6 +24,7 @@ import {
   getAllPriorities,
   getAllSources,
   getAllStatuses,
+  getAllTypes,
   getAllTypesByComplexId,
   updateSystemApplicationById,
   updateSystemApplicationStatusById,
@@ -373,6 +374,37 @@ export const getAllTypesByComplexIdRequest = async (
   } else return response;
 };
 
+export const getAllTypesRequest = async (logout: () => void): Promise<IType[] | void> => {
+  const makeRequest = async (): Promise<IType[] | 401 | void> => {
+    try {
+      let cache_data = cache.type.filter((el) => el.url === `application/type/getAll`);
+      if (cache_data.length) {
+        return cache_data[0].data;
+      }
+      const response = await getAllTypes();
+      if (response.data) return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
 export const getAllStatusesRequest = async (logout: () => void): Promise<IStatus[] | void> => {
   const makeRequest = async (): Promise<IStatus[] | 401 | void> => {
     try {
@@ -468,18 +500,24 @@ export const getAllSourcesRequest = async (logout: () => void): Promise<ISource[
 
 export const getAllSubtypesWithExtraRequest = async (
   logout: () => void,
-  type_id: string,
-  complex_id: string,
+  type_id?: string,
+  complex_id?: string,
 ): Promise<ISubtype[] | void> => {
   const makeRequest = async (): Promise<ISubtype[] | 401 | void> => {
+    let extra = '';
+    if (type_id) extra = `?type_id=${type_id}`;
+    if (complex_id) {
+      if (extra) extra += `&complex_id=${complex_id}`;
+      else extra = `?complex_id=${complex_id}`;
+    }
     try {
       let cache_data = cache.subtype.filter(
-        (el) => el.url === `application/subtype/getAll?type_id=${type_id}&complex_id=${complex_id}`,
+        (el) => el.url === `application/subtype/getAll${extra}`,
       );
       if (cache_data.length) {
         return cache_data[0].data;
       }
-      const response = await getAllSubtypesWithExtra(type_id, complex_id);
+      const response = await getAllSubtypesWithExtra(extra);
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

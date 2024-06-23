@@ -20,5 +20,5 @@ export const DotsEffect: FC<IProps> = React.memo(({ dotsQuantity }) => {
     return spans;
   };
 
-  return <div className='bubbles overflow-hidden'>{setDots()}</div>;
+  return <div className='flex bubbles overflow-hidden max-sm:hidden'>{setDots()}</div>;
 });

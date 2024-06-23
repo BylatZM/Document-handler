@@ -8,12 +8,12 @@ import { useTypedSelector } from '../hooks/useTypedSelector';
 import { Menu } from './menu/Menu';
 import { ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { MdSupportAgent } from 'react-icons/md';
 import { useLogout } from '../hooks/useLogout';
 import {
   getAllBuildingsByComplexIdRequest,
   getAllComplexesRequest,
   getAllPossessionsByExtraRequest,
-  getAllBuildingsRequest,
 } from '../../api/requests/Possession';
 import {
   getAllEmploysWithExtraRequest,
@@ -114,7 +114,7 @@ export const Account = () => {
     return citizenPossessions;
   };
 
-  const getTypes = async (complex_id: string): Promise<IType[] | void> => {
+  const getTypesByComplexId = async (complex_id: string): Promise<IType[] | void> => {
     typesSuccess([]);
     subtypesSuccess([]);
     applicationLoading('types');
@@ -194,16 +194,6 @@ export const Account = () => {
     }
 
     complexSuccess(complexes);
-  };
-
-  const getAllBuildings = async (): Promise<IBuilding[] | void> => {
-    const builds = await getAllBuildingsRequest(logout);
-
-    if (!builds) {
-      return;
-    } else {
-      return builds;
-    }
   };
 
   const getAllBuildingsByComplexId = async (complex_id: string): Promise<IBuilding[] | void> => {
@@ -294,12 +284,11 @@ export const Account = () => {
         <Application
           getPossessions={getAllPossessionsByExtra}
           getAllBuildingsByComplexId={getAllBuildingsByComplexId}
-          getAllBuildings={getAllBuildings}
           getPriorities={getPriorities}
           getSources={getSources}
           getStatuses={getStatuses}
           getSubtypes={getSubtypes}
-          getTypes={getTypes}
+          getTypesByComplexId={getTypesByComplexId}
           getEmploys={getEmploys}
           getCitizenPossessions={getCitizenPossessions}
         />
@@ -313,7 +302,7 @@ export const Account = () => {
           getPriorities={getPriorities}
           getStatuses={getStatuses}
           getEmploys={getEmploys}
-          getTypes={getTypes}
+          getTypesByComplexId={getTypesByComplexId}
           getSubtypes={getSubtypes}
         />
       );
@@ -327,7 +316,7 @@ export const Account = () => {
           getStatuses={getStatuses}
           getEmploys={getEmploys}
           getSubtypes={getSubtypes}
-          getTypes={getTypes}
+          getTypesByComplexId={getTypesByComplexId}
         />
       );
     }
@@ -355,12 +344,24 @@ export const Account = () => {
           changeNeedShowHelpForm={changeNeedShowHelpForm}
           changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
         />
-        <HelpForm needShowForm={needShowHelpForm} changeNeedShowForm={changeNeedShowHelpForm} />
+        <HelpForm
+          needShowForm={needShowHelpForm}
+          changeNeedShowForm={changeNeedShowHelpForm}
+          getCitizenPossessions={getCitizenPossessions}
+        />
         <CreatePossession
           needShowForm={needShowCreatePossessionForm}
           changeNeedShowForm={changeNeedShowCreatePossessionForm}
           getAllBuildingsByComplexId={getAllBuildingsByComplexId}
         />
+        {user.role === 'citizen' && (
+          <button
+            onClick={() => changeNeedShowHelpForm(true)}
+            className='fixed bottom-10 right-20 rounded-full p-5 bg-white border-blue-700 border-[1px] z-30 max-sm:p-3 max-sm:right-10'
+          >
+            <MdSupportAgent className='text-4xl max-sm:text-2xl' />
+          </button>
+        )}
         {GetCurrentFrame(pathname)}
       </div>
     </>

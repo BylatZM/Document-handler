@@ -50,11 +50,9 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
         changeNeedShowForm={changeNeedShowPasswordForm}
       />
       <div className={clsx(Styles.form, isAnimActive && Styles.form_active)}>
-        <div className='flex items-center justify-between gap-2 logoGrid mt-3 w-fit sm:w-11/12 mx-auto h-[70px]'>
-          <img src={cat} width={'70px'} alt='' />
-          <div className='flex flex-col items-end overflow-hidden text-white mr-2 gap-y-2'>
-            <span className='max-sm:text-xs text-base leading-4'>Управляющая компания</span>
-            <span className='max-sm:text-lg text-3xl leading-6'>Миллениум</span>
+        <div className='w-11/12 mx-auto flex items-start mt-3'>
+          <div className='logoGrid h-[70px] flex items-center'>
+            <img src={cat} width={'70px'} alt='' />
           </div>
         </div>
         <div className='w-11/12 mx-auto'>

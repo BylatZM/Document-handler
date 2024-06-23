@@ -9,14 +9,21 @@ interface IProps {
   complexes: IComplex[];
   changeFormData: React.Dispatch<React.SetStateAction<IGisApplication>>;
   error: IError | null;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
 }
 
-export const Complex: FC<IProps> = ({ role, data, complexes, changeFormData, error, getTypes }) => {
+export const Complex: FC<IProps> = ({
+  role,
+  data,
+  complexes,
+  changeFormData,
+  error,
+  getTypesByComplexId,
+}) => {
   const { applicationError } = useActions();
 
   const changeType = async (complex_id: string) => {
-    await getTypes(complex_id);
+    await getTypesByComplexId(complex_id);
     changeFormData((prev) => ({
       ...prev,
       type: null,

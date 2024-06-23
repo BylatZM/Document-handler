@@ -9,7 +9,7 @@ interface IProps {
 export const CreatedDate: FC<IProps> = ({ data }) => {
   return (
     <div className='mt-2 mb-2 text-sm'>
-      <span>Дата регистрации/изменения записи</span>
+      <span>Дата изменения записи</span>
       <Popover content='Поле не заполняется пользователем'>
         <Input
           className='max-sm:h-[30px] h-[40px]'

@@ -63,6 +63,24 @@ div[id='root'] {
   cursor: pointer;
   text-align: center;
 }
+
+th,
+.ant-table-cell {
+  padding: 2px !important;
+  @media (max-width: 640px) {
+    padding: 4px !important;
+  }
+  @media (min-width: 640px) and (max-width: 768px) {
+    padding: 8px !important;
+  }
+  @media (min-width: 768px) and (max-width: 1024px) {
+    padding: 12px !important;
+  }
+  @media (min-width: 1024px) {
+    padding: 16px !important;
+  }
+}
+
 .ant-table-cell-row-hover {
   background-color: inherit !important;
 }

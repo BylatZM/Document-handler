@@ -22,7 +22,7 @@ interface IProps {
   error: IError | null;
   possessionLoadingField: IPosLoading;
   checkPossessionRequestOnError: (possessionType: string, buildingId: string) => Promise<void>;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   defaultSubtype: ISubtype;
   defaultType: IType;
 }
@@ -37,7 +37,7 @@ export const Building: FC<IProps> = ({
   error,
   possessionLoadingField,
   checkPossessionRequestOnError,
-  getTypes,
+  getTypesByComplexId,
   defaultSubtype,
   defaultType,
 }) => {
@@ -52,7 +52,7 @@ export const Building: FC<IProps> = ({
           onChange={(e: number) => {
             const newPossession = citizenPossessions.filter((el) => el.building.id === e);
             if (!newPossession.length) return;
-            getTypes(newPossession[0].complex.id.toString());
+            getTypesByComplexId(newPossession[0].complex.id.toString());
             changeFormData((prev) => ({
               ...prev,
               building: { ...newPossession[0].building },

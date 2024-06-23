@@ -161,7 +161,7 @@ export const Buttons: FC<IProp> = ({
   };
 
   return (
-    <div className='flex max-sm:gap-y-2 max-sm:flex-col max-sm:gap-x-0 gap-4'>
+    <div className='flex max-sm:flex-col max-sm:gap-x-0 gap-4 max-sm:gap-y-6'>
       <div className='w-fit relative'>
         <div
           className={clsx(

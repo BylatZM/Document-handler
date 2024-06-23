@@ -1,7 +1,7 @@
-import { CheckboxOptionType, Popover } from 'antd';
+import { Button, CheckboxOptionType } from 'antd';
 import { AppForm } from './appForm/AppForm';
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
-import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import { ColumnsType } from 'antd/es/table';
 import {
   ITableParams,
   IGisTableColumns,
@@ -12,7 +12,6 @@ import {
   IType,
   ISubtype,
 } from '../../../../types';
-import { BsFilterRight } from 'react-icons/bs';
 import { FC, useEffect, useState } from 'react';
 import { useActions } from '../../../../hooks/useActions';
 import { useLogout } from '../../../../hooks/useLogout';
@@ -26,7 +25,7 @@ interface IProps {
   getPriorities: () => Promise<void>;
   getStatuses: () => Promise<void>;
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
-  getTypes: (complex_id: string) => Promise<IType[] | void>;
+  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
 }
 
@@ -34,7 +33,7 @@ export const GisApplication: FC<IProps> = ({
   getPriorities,
   getStatuses,
   getEmploys,
-  getTypes,
+  getTypesByComplexId,
   getSubtypes,
 }) => {
   const { gisApplications, priorities, statuses } = useTypedSelector(
@@ -63,24 +62,8 @@ export const GisApplication: FC<IProps> = ({
       position: ['topLeft'],
     },
   });
-  const [filterOptions, setFilterOptions] = useState<IFilterGisAppOptions>({
-    complexId: null,
-    buildingAddress: null,
-    statusId: null,
-    phone: null,
-    email: null,
-    fio: null,
-    possessionName: null,
-    applicationType: null,
-  });
-  const [sortOptions, setSortOptions] = useState<ISortOptions>({
-    status_inc: false,
-    status_dec: true,
-    creating_date_inc: false,
-    creating_date_dec: true,
-  });
-  const [isNeedToGet, changeIsNeedToGet] = useState(false);
   const logout = useLogout();
+  const [isNeedToGet, changeIsNeedToGet] = useState(false);
 
   const applicationFreshnessStatus = (
     creatingDate: string,
@@ -111,45 +94,81 @@ export const GisApplication: FC<IProps> = ({
     else changeSelectedItem(DefaultAppForm);
   };
 
-  const handleTableChange = (pagination: TablePaginationConfig) => {
-    changeIsNeedToGet(true);
-    setTableParams({
-      pagination,
-    });
-  };
-  const getApplications = async () => {
+  const getGisApplications = async (
+    filterOptions?: IFilterGisAppOptions,
+    sortOptions?: ISortOptions,
+  ) => {
     applicationLoading('gisApplications');
-
-    localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
-    localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
+    if (tableParams.pagination) {
+      let application_size: string | null = localStorage.getItem('gis_application_size');
+      if (!application_size) {
+        localStorage.setItem('gis_application_size', '10');
+        application_size = '10';
+      }
+      let size = parseInt(application_size);
+      if (isNaN(size) || size < 1) {
+        size = 10;
+        localStorage.setItem('gis_application_size', '10');
+      }
+      if (tableParams.pagination.pageSize && size !== tableParams.pagination.pageSize) {
+        size = tableParams.pagination.pageSize;
+        localStorage.setItem('gis_application_size', tableParams.pagination.pageSize.toString());
+      }
+      setTableParams((prev) => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          pageSize: size,
+        },
+      }));
+    }
     let extra = '';
-    if (filterOptions.complexId) {
-      extra += `&complex_id=${filterOptions.complexId}`;
+    if (filterOptions) {
+      localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
+      if (filterOptions.complexId) {
+        extra += `&complex_id=${filterOptions.complexId}`;
+      }
+      if (filterOptions.buildingAddress) {
+        extra += `&building_address=${filterOptions.buildingAddress
+          .trim()
+          .replaceAll(/\s\s/g, '')
+          .replaceAll(/[^0-9\.\,а-яА-Я\s]/g, '')}`;
+      }
+      if (filterOptions.fio) {
+        extra += `&fio=${filterOptions.fio
+          .trim()
+          .replaceAll(/\s\s/g, '')
+          .replaceAll(/[а-яА-Я\s]/g, '')}`;
+      }
+      if (filterOptions.email) {
+        extra += `&email=${filterOptions.email.trim().replaceAll(/\s\s/g, '')}`;
+      }
+      if (filterOptions.possessionName) {
+        extra += `&possession_name=${filterOptions.possessionName
+          .trim()
+          .replaceAll(/\s\s/g, '')
+          .replaceAll(/[^0-9]/g, '')}`;
+      }
+      if (filterOptions.phone) {
+        let phone = filterOptions.phone.trim().replaceAll(/[^0-9]/g, '');
+        if (['8', '7'].some((el) => el === phone.charAt(0))) {
+          phone = phone.substring(1, phone.length);
+        }
+        extra += `&phone=${phone}`;
+      }
+      if (filterOptions.statusId) {
+        extra += `&status_id=${filterOptions.statusId}`;
+      }
     }
-    if (filterOptions.buildingAddress) {
-      extra += `&building_address=${filterOptions.buildingAddress}`;
+    if (sortOptions) {
+      localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
+      if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
+        extra += '&created_date=dec';
+      if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
+        extra += '&created_date=inc';
+      if (sortOptions.status_dec && !sortOptions.status_inc) extra += '&status=dec';
+      if (!sortOptions.status_dec && sortOptions.status_inc) extra += '&status=inc';
     }
-    if (filterOptions.fio) {
-      extra += `&fio=${filterOptions.fio}`;
-    }
-    if (filterOptions.email) {
-      extra += `&email=${filterOptions.email}`;
-    }
-    if (filterOptions.possessionName) {
-      extra += `&possession_name=${filterOptions.possessionName}`;
-    }
-    if (filterOptions.phone) {
-      extra += `&phone=${filterOptions.phone}`;
-    }
-    if (filterOptions.statusId) {
-      extra += `&status_id=${filterOptions.statusId}`;
-    }
-    if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
-      extra += '&created_date=dec';
-    if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
-      extra += '&created_date=inc';
-    if (sortOptions.status_dec && !sortOptions.status_inc) extra += '&status=dec';
-    if (!sortOptions.status_dec && sortOptions.status_inc) extra += '&status=inc';
     let page = '1';
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
@@ -180,28 +199,6 @@ export const GisApplication: FC<IProps> = ({
   })) as CheckboxOptionType[];
 
   useEffect(() => {
-    let sortParams = localStorage.getItem('gis_application_sort_options');
-    let parsedSortObject: ISortOptions = sortOptions;
-    if (sortParams) {
-      try {
-        parsedSortObject = JSON.parse(sortParams);
-        setSortOptions(parsedSortObject);
-      } catch (e) {
-        localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
-      }
-    } else localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
-
-    let filterParams = localStorage.getItem('gis_application_filter_options');
-    let parsedFilterObject: IFilterGisAppOptions | null = null;
-    if (filterParams) {
-      try {
-        parsedFilterObject = JSON.parse(filterParams);
-        if (parsedFilterObject) setFilterOptions(parsedFilterObject);
-      } catch (e) {
-        localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
-      }
-    } else localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
-
     let json_array = localStorage.getItem('gis_application_table_columns');
     let filter_array: string[] = [];
 
@@ -224,7 +221,6 @@ export const GisApplication: FC<IProps> = ({
       changeGisTable(defaultColumns);
       changeCheckboxValues(defaultColumns.map(({ key }) => key as string));
     }
-    changeIsNeedToGet(true);
   }, []);
 
   useEffect(() => {
@@ -232,34 +228,6 @@ export const GisApplication: FC<IProps> = ({
     if (!statuses.length) getStatuses();
     if (!priorities.length) getPriorities();
   }, []);
-
-  useEffect(() => {
-    if (isNeedToGet && tableParams.pagination) {
-      let application_size: string | null = localStorage.getItem('gis_application_size');
-      if (!application_size) {
-        localStorage.setItem('gis_application_size', '10');
-        application_size = '10';
-      }
-      let size = parseInt(application_size);
-      if (isNaN(size) || size < 1) {
-        size = 10;
-        localStorage.setItem('gis_application_size', '10');
-      }
-      if (tableParams.pagination.pageSize && size !== tableParams.pagination.pageSize) {
-        size = tableParams.pagination.pageSize;
-        localStorage.setItem('gis_application_size', tableParams.pagination.pageSize.toString());
-      }
-      setTableParams((prev) => ({
-        ...prev,
-        pagination: {
-          ...prev.pagination,
-          pageSize: size,
-        },
-      }));
-      getApplications();
-      changeIsNeedToGet(false);
-    }
-  }, [isNeedToGet]);
 
   return (
     <>
@@ -273,7 +241,7 @@ export const GisApplication: FC<IProps> = ({
       />
       <AppForm
         gisApplication={selectedItem}
-        getGisApplications={getApplications}
+        changeIsNeedToGet={changeIsNeedToGet}
         changeSelectedItem={changeSelectedItem}
         applicationFreshnessStatus={
           !selectedItem ||
@@ -287,37 +255,31 @@ export const GisApplication: FC<IProps> = ({
         }
         getEmploys={getEmploys}
         getSubtypes={getSubtypes}
-        getTypes={getTypes}
+        getTypesByComplexId={getTypesByComplexId}
       />
       <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>
-          <div className='flex justify-start gap-x-8 pl-3 mb-8 items-center'>
-            <span className='text-gray-400 min-w-max text-sm'>
-              Найдено: {gisApplications.length}
-            </span>
-            <Popover content='Изменить отображаемые столбцы таблицы' placement='right'>
-              <button
-                className='outline-none border-none bg-inherit'
-                onClick={() => changeNeedShowColumnForm(true)}
-              >
-                <BsFilterRight className='text-3xl' />
-              </button>
-            </Popover>
+          <div className='flex justify-start gap-x-8 pl-3 mb-8 sm:items-center max-sm:flex-col max-sm:gap-x-0 max-sm:gap-y-3'>
+            <span className='text-gray-400 w-fit text-sm'>Найдено: {gisApplications.length}</span>
+            <Button
+              className='w-fit border-blue-700 text-blue-700'
+              onClick={() => changeNeedShowColumnForm(true)}
+            >
+              Изменить отображаемые столбцы
+            </Button>
           </div>
           {!gisTable && <div className='w-[1024px]'></div>}
           {gisTable && (
             <GisTable
               showForm={showForm}
               gisTable={gisTable}
-              handleTableChange={handleTableChange}
               tableParams={tableParams}
-              filterOptions={filterOptions}
-              setFilterOptions={setFilterOptions}
-              sortOptions={sortOptions}
-              setSortOptions={setSortOptions}
-              changeIsNeedToGet={changeIsNeedToGet}
               complexes={complexes}
               statuses={statuses}
+              setTableParams={setTableParams}
+              getGisApplications={getGisApplications}
+              isNeedToGet={isNeedToGet}
+              changeIsNeedToGet={changeIsNeedToGet}
               applicationFreshnessStatus={applicationFreshnessStatus}
             />
           )}

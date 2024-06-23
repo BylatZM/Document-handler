@@ -10,6 +10,7 @@ export const useLogout = (): (() => void) => {
     authClear,
     citizenClear,
     applicationClear,
+    approvingClear,
   } = useActions();
   const navigate = useNavigate();
 
@@ -21,6 +22,7 @@ export const useLogout = (): (() => void) => {
     authClear();
     citizenClear();
     applicationClear();
+    approvingClear();
     localStorage.removeItem('access');
     document.cookie = `refresh=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=${
       process.env.NODE_ENV === 'development' ? 'localhost' : 'uslugi.dltex.ru'

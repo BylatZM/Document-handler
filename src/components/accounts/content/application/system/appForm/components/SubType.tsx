@@ -32,7 +32,6 @@ export const Subtype: FC<IProps> = ({
         <Select
           className='h-[50px]'
           disabled
-          listHeight={350}
           value={data.subtype.id}
           options={[
             {

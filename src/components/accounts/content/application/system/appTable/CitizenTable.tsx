@@ -1,31 +1,64 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Table } from 'antd';
 import { FaSort, FaSortDown, FaSortUp } from 'react-icons/fa';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import { IApplicationCitizenColumns, ISortOptions, ITableParams } from '../../../../../types';
+import {
+  IApplicationCitizenColumns,
+  IFilterAppOptions,
+  ISortOptions,
+  ITableParams,
+} from '../../../../../types';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 
 interface IProps {
   showForm: (application_id: number) => void;
   citizenTable: ColumnsType<IApplicationCitizenColumns>;
-  handleTableChange: (pagination: TablePaginationConfig) => void;
   tableParams: ITableParams;
-  sortOptions: ISortOptions;
-  setSortOptions: React.Dispatch<React.SetStateAction<ISortOptions>>;
+  setTableParams: React.Dispatch<React.SetStateAction<ITableParams>>;
+  getApplications: (filterOptions?: IFilterAppOptions, sortOptions?: ISortOptions) => Promise<void>;
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
+  isNeedToGet: boolean;
 }
 
 export const CitizenTable: FC<IProps> = ({
   showForm,
   citizenTable,
-  handleTableChange,
   tableParams,
-  sortOptions,
-  setSortOptions,
+  setTableParams,
+  getApplications,
   changeIsNeedToGet,
+  isNeedToGet,
 }) => {
-  const { applications } = useTypedSelector((state) => state.ApplicationReducer);
-  const { isLoading } = useTypedSelector((state) => state.ApplicationReducer);
+  const { applications, isLoading } = useTypedSelector((state) => state.ApplicationReducer);
+  const [sortOptions, setSortOptions] = useState<ISortOptions>({
+    status_inc: false,
+    status_dec: true,
+    creating_date_inc: false,
+    creating_date_dec: true,
+  });
+
+  const mainProcesses = async () => {
+    getApplications(undefined, sortOptions);
+    changeIsNeedToGet((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (isNeedToGet) {
+      mainProcesses();
+    }
+  }, [isNeedToGet]);
+
+  useEffect(() => {
+    let sortParams = localStorage.getItem('application_sort_options');
+    if (sortParams) {
+      try {
+        setSortOptions(JSON.parse(sortParams));
+      } catch (e) {
+        localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+      }
+    } else localStorage.setItem('application_sort_options', JSON.stringify(sortOptions));
+    changeIsNeedToGet(true);
+  }, []);
 
   const components = {
     header: {
@@ -114,6 +147,14 @@ export const CitizenTable: FC<IProps> = ({
       },
     },
   };
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    changeIsNeedToGet(true);
+    setTableParams({
+      pagination,
+    });
+  };
+
   return (
     <Table
       dataSource={applications.map((el) => ({
@@ -144,9 +185,6 @@ export const CitizenTable: FC<IProps> = ({
           showForm(record.key);
         },
       })}
-      style={{
-        width: 'fit-content',
-      }}
     />
   );
 };

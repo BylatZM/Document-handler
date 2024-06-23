@@ -101,7 +101,7 @@ export const Main: FC<IProps> = ({
         >
           Добавить собственность
         </Button>
-        <div className='w-fit relative' ref={ref}>
+        <div className='w-fit relative max-sm:w-full max-sm:mt-6' ref={ref}>
           <div
             className={clsx(
               isPossessionListEmpty
@@ -110,7 +110,7 @@ export const Main: FC<IProps> = ({
             )}
           ></div>
           <Button
-            className='border-blue-700 text-blue-700'
+            className='border-blue-700 text-blue-700 w-full'
             onClick={() => {
               setIsPossessionListEmpty(false);
               changeNeedShowCreatePossessionForm(true);
