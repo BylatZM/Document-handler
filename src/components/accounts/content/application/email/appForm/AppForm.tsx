@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
-import { IEmailApplication, IEmployee, ISubtype, IType } from '../../../../../types';
+import { IAddingFile, IEmailApplication, IEmployee, ISubtype, IType } from '../../../../../types';
 import { useActions } from '../../../../../hooks/useActions';
 import { useLogout } from '../../../../../hooks/useLogout';
 import { Status } from './components/Status';
@@ -20,6 +20,8 @@ import { Complex } from './components/Complex';
 import { Building } from './components/Building';
 import { Subtype } from './components/Subtype';
 import { PaymentCode } from './components/PaymentCode';
+import { Modal } from 'antd';
+import { PlayerPDF } from '../../PlayerPDF';
 
 interface IProps {
   emailApplication: IEmailApplication | null;
@@ -29,6 +31,8 @@ interface IProps {
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
   getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
+  isFileGood: (file: File, fileStorage: IAddingFile[]) => boolean;
+  getBase64: (file: File) => Promise<string>;
 }
 
 export const AppForm: FC<IProps> = ({
@@ -39,6 +43,8 @@ export const AppForm: FC<IProps> = ({
   getEmploys,
   getTypesByComplexId,
   getSubtypes,
+  isFileGood,
+  getBase64,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
@@ -48,6 +54,11 @@ export const AppForm: FC<IProps> = ({
   );
   const { complexes } = useTypedSelector((state) => state.PossessionReducer);
   const { applicationError } = useActions();
+  const [addingEmployeeFiles, setAddingEmployeeFiles] = useState<IAddingFile[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFileType, setPreviewFileType] = useState<'image' | 'document' | null>(null);
+  const [previewFile, setPreviewFile] = useState<string | File | null>(null);
+  const [previewTitle, setPreviewTitle] = useState('');
 
   const [FormData, changeFormData] = useState<IEmailApplication>(DefaultAppForm);
 
@@ -87,8 +98,38 @@ export const AppForm: FC<IProps> = ({
 
   const exitFromForm = () => {
     changeSelectedItem(null);
+    setAddingEmployeeFiles([]);
     if (error) applicationError(null);
-    changeIsNeedToGet(true);
+  };
+
+  const showFile = async (file: File | string) => {
+    if (typeof file === 'string') {
+      if (file.split('.')[file.split('.').length - 1] === 'pdf') {
+        setPreviewFileType('document');
+      } else {
+        setPreviewFileType('image');
+      }
+      setPreviewFile(file);
+      setPreviewTitle(file.split('/')[file.split('/').length - 1]);
+    } else {
+      if (file.type === 'application/pdf') {
+        setPreviewFile(file);
+        setPreviewFileType('document');
+      } else {
+        const loadedFile = await getBase64(file);
+        setPreviewFile(loadedFile as string);
+        setPreviewFileType('image');
+      }
+      setPreviewTitle(file.name);
+    }
+    setPreviewOpen(true);
+  };
+
+  const handleCancel = () => {
+    setPreviewFile(null);
+    setPreviewTitle('');
+    setPreviewOpen(false);
+    setPreviewFileType(null);
   };
 
   return (
@@ -98,6 +139,18 @@ export const AppForm: FC<IProps> = ({
         emailApplication ? 'w-full' : 'w-0',
       )}
     >
+      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+        <div>
+          {typeof previewFile === 'string' && previewFileType === 'image' && (
+            <img
+              alt='выбранное изображение'
+              className='h-auto max-sm:h-3/4 w-[30rem] max-sm:w-auto m-auto'
+              src={previewFile}
+            />
+          )}
+          {previewFileType === 'document' && <PlayerPDF propsFile={previewFile} />}
+        </div>
+      </Modal>
       <div
         ref={ref}
         className={clsx(
@@ -154,7 +207,20 @@ export const AppForm: FC<IProps> = ({
             priorities={priorities}
             changeFormData={changeFormData}
           />
-          <TimeSlot role={role} data={FormData} changeData={changeFormData} error={error} />
+          <TimeSlot
+            role={role}
+            data={FormData}
+            changeData={changeFormData}
+            error={error}
+            form_id={FormData.id}
+            applicationFreshnessStatus={applicationFreshnessStatus}
+            employee_files={FormData.employee_files}
+            getBase64={getBase64}
+            isFileGood={isFileGood}
+            setAddingEmployeeFiles={setAddingEmployeeFiles}
+            addingEmployeeFiles={addingEmployeeFiles}
+            showFile={showFile}
+          />
           <div className='bg-blue-300 p-5 mt-2 rounded-md backdrop-blur-md bg-opacity-50 flex flex-col gap-2'>
             <span className='font-bold text-lg'>Исполнители</span>
             <Employee
@@ -164,7 +230,15 @@ export const AppForm: FC<IProps> = ({
               changeFormData={changeFormData}
             />
           </div>
-          <Buttons data={FormData} role={role} exitFromForm={exitFromForm} logout={logout} />
+          <Buttons
+            data={FormData}
+            setData={changeFormData}
+            role={role}
+            exitFromForm={exitFromForm}
+            logout={logout}
+            changeIsNeedToGet={changeIsNeedToGet}
+            addingEmployeeFiles={addingEmployeeFiles}
+          />
         </div>
       </div>
     </div>

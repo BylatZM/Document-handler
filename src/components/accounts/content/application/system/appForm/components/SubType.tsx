@@ -95,7 +95,9 @@ export const Subtype: FC<IProps> = ({
             className='h-[50px]'
             disabled={!subtypes.length || form_id > 0 ? true : false}
             listHeight={350}
-            value={!data.subtype.id || !subtypes.length ? undefined : data.subtype.id}
+            value={
+              !data.subtype.id || (!subtypes.length && form_id < 1) ? undefined : data.subtype.id
+            }
             onChange={(e: number) => {
               if (error) applicationError(null);
               const newSubtype = subtypes.filter((el) => el.id === e);

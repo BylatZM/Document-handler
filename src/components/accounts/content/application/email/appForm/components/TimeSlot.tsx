@@ -1,17 +1,39 @@
 import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { FC } from 'react';
-import { IEmailApplication, IError } from '../../../../../../types';
+import { IAddingFile, IEmailApplication, IError, IFile } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
+import { EmployeeFiles } from './EmployeeFiles';
 
 interface IProps {
   data: IEmailApplication;
   role: string;
+  form_id: number;
   changeData: React.Dispatch<React.SetStateAction<IEmailApplication>>;
   error: IError | null;
+  applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
+  employee_files: IFile[];
+  getBase64: (file: File) => Promise<string>;
+  isFileGood: (file: File, fileStorage: IAddingFile[]) => boolean;
+  setAddingEmployeeFiles: React.Dispatch<React.SetStateAction<IAddingFile[]>>;
+  addingEmployeeFiles: IAddingFile[];
+  showFile: (file: File | string) => Promise<void>;
 }
 
-export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
+export const TimeSlot: FC<IProps> = ({
+  data,
+  role,
+  changeData,
+  error,
+  form_id,
+  applicationFreshnessStatus,
+  employee_files,
+  getBase64,
+  isFileGood,
+  setAddingEmployeeFiles,
+  addingEmployeeFiles,
+  showFile,
+}) => {
   const { applicationError } = useActions();
   const dateCalculator = (days: number, creatingDate: string): string => {
     const [dmy, hms] = creatingDate.split(' ');
@@ -108,6 +130,19 @@ export const TimeSlot: FC<IProps> = ({ data, role, changeData, error }) => {
           <span className='errorText'>{error.error}</span>
         )}
       </div>
+      {data.status.name !== 'Новая' && (
+        <EmployeeFiles
+          applicationFreshnessStatus={applicationFreshnessStatus}
+          filesURL={employee_files}
+          application_status={data.status}
+          getBase64={getBase64}
+          isFileGood={isFileGood}
+          setAddingEmployeeFiles={setAddingEmployeeFiles}
+          addingEmployeeFiles={addingEmployeeFiles}
+          showFile={showFile}
+          role={role}
+        />
+      )}
     </div>
   );
 };

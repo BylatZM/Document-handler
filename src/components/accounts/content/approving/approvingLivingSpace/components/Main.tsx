@@ -2,11 +2,11 @@ import { Button } from 'antd';
 import clsx from 'clsx';
 import { FC } from 'react';
 import { Possession } from './Possession';
-import { INotApprovedPossession } from '../../../../../types';
+import { INotApprovedLivingSpace } from '../../../../../types';
 
 interface IProps {
-  selectedPossession: INotApprovedPossession | null;
-  changeSelectedPossession: React.Dispatch<React.SetStateAction<INotApprovedPossession | null>>;
+  selectedPossession: INotApprovedLivingSpace | null;
+  changeSelectedPossession: React.Dispatch<React.SetStateAction<INotApprovedLivingSpace | null>>;
 }
 
 export const Main: FC<IProps> = ({ selectedPossession, changeSelectedPossession }) => {

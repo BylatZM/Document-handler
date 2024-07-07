@@ -1,8 +1,9 @@
 import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FC } from 'react';
-import { IApplication, IError } from '../../../../../../types';
+import { IAddingFile, IApplication, IError, IFile } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
+import { EmployeeFiles } from './EmployeeFiles';
 
 interface IProps {
   form_id: number;
@@ -10,9 +11,29 @@ interface IProps {
   data: IApplication;
   changeFormData: React.Dispatch<React.SetStateAction<IApplication>>;
   error: IError | null;
+  employee_files: IFile[];
+  applicationFreshnessStatus: 'fresh' | 'warning' | 'expired';
+  getBase64: (file: File) => Promise<string>;
+  isFileGood: (file: File, fileStorage: IAddingFile[]) => boolean;
+  addingEmployeeFiles: IAddingFile[];
+  setAddingEmployeeFiles: React.Dispatch<React.SetStateAction<IAddingFile[]>>;
+  showFile: (file: File | string) => Promise<void>;
 }
 
-export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, error }) => {
+export const TimeSlot: FC<IProps> = ({
+  form_id,
+  role,
+  data,
+  changeFormData,
+  error,
+  employee_files,
+  applicationFreshnessStatus,
+  getBase64,
+  isFileGood,
+  addingEmployeeFiles,
+  setAddingEmployeeFiles,
+  showFile,
+}) => {
   const { applicationError } = useActions();
   const dateCalculator = (days: number, creatingDate: string): string => {
     const [dmy, hms] = creatingDate.split(' ');
@@ -126,6 +147,18 @@ export const TimeSlot: FC<IProps> = ({ form_id, role, data, changeFormData, erro
               <span className='errorText'>{error.error}</span>
             )}
           </div>
+          {form_id > 0 && (
+            <EmployeeFiles
+              applicationFreshnessStatus={applicationFreshnessStatus}
+              filesURL={employee_files}
+              application_status={data.status}
+              getBase64={getBase64}
+              isFileGood={isFileGood}
+              setAddingEmployeeFiles={setAddingEmployeeFiles}
+              addingEmployeeFiles={addingEmployeeFiles}
+              showFile={showFile}
+            />
+          )}
         </>
       )}
     </div>

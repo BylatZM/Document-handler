@@ -105,6 +105,7 @@ export const GisTable: FC<IProps> = ({
         localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
       }
     } else localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
+    changeIsNeedToGet(true);
   }, []);
 
   const components = {

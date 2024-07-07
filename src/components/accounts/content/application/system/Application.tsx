@@ -16,6 +16,7 @@ import {
   IType,
   ICitizenPossession,
   IFilterAppOptions,
+  IAddingFile,
 } from '../../../../types';
 import { defaultCitizenColumns, defaultNotCitizenColumns } from './ApplicationTableArgs';
 import { FC, useEffect, useState } from 'react';
@@ -38,6 +39,8 @@ interface IProps {
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
   getCitizenPossessions: () => Promise<ICitizenPossession[] | void>;
+  isFileGood: (file: File, fileStorage: IAddingFile[]) => boolean;
+  getBase64: (file: File) => Promise<string>;
 }
 
 export const Application: FC<IProps> = ({
@@ -50,6 +53,8 @@ export const Application: FC<IProps> = ({
   getTypesByComplexId,
   getEmploys,
   getCitizenPossessions,
+  isFileGood,
+  getBase64,
 }) => {
   const { applications, priorities, statuses, sources } = useTypedSelector(
     (state) => state.ApplicationReducer,
@@ -294,6 +299,8 @@ export const Application: FC<IProps> = ({
         getEmploys={getEmploys}
         getCitizenPossessions={getCitizenPossessions}
         changeIsNeedToGet={changeIsNeedToGet}
+        isFileGood={isFileGood}
+        getBase64={getBase64}
       />
       <div className='mt-[68px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>

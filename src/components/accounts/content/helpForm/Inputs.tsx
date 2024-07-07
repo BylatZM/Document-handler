@@ -17,7 +17,7 @@ export const Inputs: FC<IProps> = ({ fileList, setFileList }) => {
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
 
-  const some = async (event: ClipboardEvent) => {
+  const pasteEventHandler = async (event: ClipboardEvent) => {
     if (event.clipboardData) {
       var items = event.clipboardData.items;
       if (items) {
@@ -56,7 +56,7 @@ export const Inputs: FC<IProps> = ({ fileList, setFileList }) => {
 
   useEffect(() => {
     const handlePaste = (event: ClipboardEvent) => {
-      some(event);
+      pasteEventHandler(event);
     };
 
     document.addEventListener('paste', handlePaste);

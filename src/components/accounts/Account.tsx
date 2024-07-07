@@ -30,6 +30,7 @@ import { GisApplication } from './content/application/gis/GisApplication';
 import { CreatePossession } from './content/createPossession/CreatePossession';
 import { HelpForm } from './content/helpForm/HelpForm';
 import {
+  IAddingFile,
   IBuilding,
   ICitizenPossession,
   IEmployee,
@@ -89,6 +90,40 @@ export const Account = () => {
     if (user.is_approved && operationType === 'init') {
       navigate('/account/applications');
     }
+  };
+
+  const getBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const isFileGood = (file: File, fileStorage: IAddingFile[]): boolean => {
+    if (fileStorage.length === 3) {
+      alert('Загрузить можно не более 3 файлов');
+      return false;
+    }
+    if (fileStorage.some((item) => item.file.type === file.type && item.file.size === file.size)) {
+      alert('Нельзя загрузить несколько одинаковых файлов');
+      return false;
+    }
+    if (file.size > 1024 * 1024 * 2) {
+      alert('Размер загружаемого файла не может превышать 2 Мегабайт');
+      return false;
+    }
+    let isBadType = false;
+    if (
+      !['image/png', 'image/jpg', 'image/jpeg', 'application/pdf'].some((el) => el === file.type)
+    ) {
+      isBadType = true;
+    }
+    if (isBadType) {
+      alert('Загружаемый файл должен иметь одно из следующих расширений: jpeg, jpg, png, pdf');
+      return false;
+    }
+    return true;
   };
 
   const getUser = async (): Promise<IUser | void> => {
@@ -291,6 +326,8 @@ export const Account = () => {
           getTypesByComplexId={getTypesByComplexId}
           getEmploys={getEmploys}
           getCitizenPossessions={getCitizenPossessions}
+          isFileGood={isFileGood}
+          getBase64={getBase64}
         />
       );
     }
@@ -317,6 +354,8 @@ export const Account = () => {
           getEmploys={getEmploys}
           getSubtypes={getSubtypes}
           getTypesByComplexId={getTypesByComplexId}
+          isFileGood={isFileGood}
+          getBase64={getBase64}
         />
       );
     }

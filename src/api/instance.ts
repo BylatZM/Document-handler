@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import { ICache } from '../components/types';
 
 export const API_URL =
@@ -33,7 +33,7 @@ axiosInstance.interceptors.request.use((config) => {
 
   if (config.url === 'refresh') config.headers['Authorization'] = `Bearer ${refresh}`;
   else config.headers['Authorization'] = `Bearer ${access}`;
-  if (config.url?.includes('help')) {
+  if (['system/create/file', 'help', 'email/create/file'].some((el) => config.url?.includes(el))) {
     delete config.headers['Content-Type'];
   }
   return config;

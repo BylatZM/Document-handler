@@ -6,6 +6,7 @@ import {
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
   IStatus,
+  IAddingFile,
 } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
@@ -16,14 +17,18 @@ import {
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
+import { loadSystemApplicationFilesRequest } from '../../../../../../../api/requests/Application';
 
 interface IProps {
   data: IApplication;
+  setData: React.Dispatch<React.SetStateAction<IApplication>>;
   form_id: number;
   role: string;
   exitFromForm: () => void;
   logout: () => void;
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
+  addingCitizenFiles: IAddingFile[];
+  addingEmployeeFiles: IAddingFile[];
 }
 
 type IApplicationOperation =
@@ -37,11 +42,14 @@ type IApplicationOperation =
 
 export const Buttons: FC<IProps> = ({
   data,
+  setData,
   form_id,
   role,
   exitFromForm,
   logout,
   changeIsNeedToGet,
+  addingCitizenFiles,
+  addingEmployeeFiles,
 }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
@@ -80,8 +88,20 @@ export const Buttons: FC<IProps> = ({
     }
 
     const response = await createSystemApplicationRequest(logout, info);
+    if (
+      response &&
+      typeof response !== 'number' &&
+      role === 'citizen' &&
+      addingCitizenFiles.length > 0 &&
+      'application_id' in response
+    ) {
+      let files = new FormData();
+      addingCitizenFiles.forEach((item) => files.append('files', item.file, item.file.name));
+      files.append('application_id', response.application_id.toString());
+      await loadSystemApplicationFilesRequest(logout, files);
+    }
     changeLoadingButton(null);
-    if (response === 201) {
+    if (response === 201 || (response && 'application_id' in response)) {
       changeSuccessButton((prev) => 'create');
       setTimeout(async () => {
         changeSuccessButton((prev) => null);
@@ -150,6 +170,16 @@ export const Buttons: FC<IProps> = ({
       }
     }
     const response = await updateSystemApplicationByIdRequest(form_id.toString(), logout, info);
+    if (
+      role === 'executor' &&
+      operation_type === 'close_application' &&
+      addingEmployeeFiles.length > 0
+    ) {
+      let files = new FormData();
+      addingEmployeeFiles.forEach((item) => files.append('files', item.file, item.file.name));
+      files.append('application_id', form_id.toString());
+      await loadSystemApplicationFilesRequest(logout, files);
+    }
     changeLoadingButton(null);
     if (response === 200) {
       if (operation_type === 'update') changeSuccessButton('update');
@@ -159,8 +189,21 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'got_incorrectly') changeSuccessButton('got_incorrectly');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        exitFromForm();
-        changeIsNeedToGet(true);
+        if (operation_type === 'proceed_to_execution') {
+          setData((prev) => ({ ...prev, status: { ...new_status } }));
+        }
+        if (operation_type === 'return_for_revision') {
+          setData((prev) => ({
+            ...prev,
+            status: { ...new_status },
+            dispatcher_comment: null,
+            employee_comment: null,
+          }));
+        }
+        if (!['proceed_to_execution', 'return_for_revision'].some((el) => el === operation_type)) {
+          exitFromForm();
+          changeIsNeedToGet(true);
+        }
       }, 2000);
     } else {
       if (operation_type === 'update') changeErrorButton('update');

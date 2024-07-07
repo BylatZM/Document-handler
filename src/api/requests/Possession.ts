@@ -3,7 +3,7 @@ import {
   IBuilding,
   IComplex,
   IError,
-  INotApprovedPossession,
+  INotApprovedLivingSpacePagination,
   IPossession,
 } from '../../components/types';
 import {
@@ -148,10 +148,13 @@ export const getAllPossessionsByExtraRequest = async (
 
 export const getAllNotApprovedPossessionsRequest = async (
   logout: () => void,
-): Promise<INotApprovedPossession[] | void> => {
-  const makeRequest = async (): Promise<INotApprovedPossession[] | 401 | void> => {
+  page: string,
+  page_size: string,
+  extra: string,
+): Promise<INotApprovedLivingSpacePagination | void> => {
+  const makeRequest = async (): Promise<INotApprovedLivingSpacePagination | 401 | void> => {
     try {
-      const response = await getAllNotApprovedPossessions();
+      const response = await getAllNotApprovedPossessions(extra, page, page_size);
       if (response.data) return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

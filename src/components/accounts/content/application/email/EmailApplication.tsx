@@ -11,6 +11,7 @@ import {
   ISubtype,
   ISortOptions,
   IFilterEmailAppOptions,
+  IAddingFile,
 } from '../../../../types';
 import { FC, useEffect, useState } from 'react';
 import { useActions } from '../../../../hooks/useActions';
@@ -27,6 +28,8 @@ interface IProps {
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
   getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
   getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
+  isFileGood: (file: File, fileStorage: IAddingFile[]) => boolean;
+  getBase64: (file: File) => Promise<string>;
 }
 
 export const EmailApplication: FC<IProps> = ({
@@ -35,6 +38,8 @@ export const EmailApplication: FC<IProps> = ({
   getEmploys,
   getTypesByComplexId,
   getSubtypes,
+  isFileGood,
+  getBase64,
 }) => {
   const { emailApplications, priorities, statuses } = useTypedSelector(
     (state) => state.ApplicationReducer,
@@ -261,6 +266,8 @@ export const EmailApplication: FC<IProps> = ({
         getEmploys={getEmploys}
         getTypesByComplexId={getTypesByComplexId}
         getSubtypes={getSubtypes}
+        isFileGood={isFileGood}
+        getBase64={getBase64}
       />
       <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>
@@ -268,7 +275,10 @@ export const EmailApplication: FC<IProps> = ({
             <span className='text-gray-400 min-w-max text-sm'>
               Найдено: {emailApplications.length}
             </span>
-            <Button type='link' onClick={() => changeNeedShowColumnForm(true)}>
+            <Button
+              className='w-fit border-blue-700 text-blue-700'
+              onClick={() => changeNeedShowColumnForm(true)}
+            >
               Изменить отображаемые столбцы
             </Button>
           </div>

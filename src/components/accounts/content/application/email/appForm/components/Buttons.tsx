@@ -4,10 +4,14 @@ import {
   IEmailApplication,
   IUpdateEmailAppByDispatcher,
   IUpdateEmailAppByEmployee,
+  IAddingFile,
 } from '../../../../../../types';
 import { useActions } from '../../../../../../hooks/useActions';
 import { Button, ConfigProvider } from 'antd';
-import { updateEmailApplicationByIdRequest } from '../../../../../../../api/requests/Application';
+import {
+  loadEmailApplicationFilesRequest,
+  updateEmailApplicationByIdRequest,
+} from '../../../../../../../api/requests/Application';
 import { useTypedSelector } from '../../../../../../hooks/useTypedSelector';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
@@ -21,12 +25,23 @@ type IOperation =
 
 interface IProps {
   data: IEmailApplication;
+  setData: React.Dispatch<React.SetStateAction<IEmailApplication>>;
   role: string;
   exitFromForm: () => void;
   logout: () => void;
+  changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
+  addingEmployeeFiles: IAddingFile[];
 }
 
-export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout }) => {
+export const Buttons: FC<IProps> = ({
+  data,
+  setData,
+  role,
+  exitFromForm,
+  logout,
+  changeIsNeedToGet,
+  addingEmployeeFiles,
+}) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const [errorButton, changeErrorButton] = useState<null | IOperation>(null);
@@ -91,6 +106,16 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout }) => {
     if (errorButton) changeErrorButton(null);
 
     const response = await updateEmailApplicationByIdRequest(data.id.toString(), logout, info);
+    if (
+      role === 'executor' &&
+      operation_type === 'close_application' &&
+      addingEmployeeFiles.length > 0
+    ) {
+      let files = new FormData();
+      addingEmployeeFiles.forEach((item) => files.append('files', item.file, item.file.name));
+      files.append('application_id', data.id.toString());
+      await loadEmailApplicationFilesRequest(logout, files);
+    }
     changeLoadingButton(null);
     if (response === 200) {
       if (operation_type === 'update') changeSuccessButton('update');
@@ -100,7 +125,21 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout }) => {
       if (operation_type === 'return_for_revision') changeSuccessButton('return_for_revision');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
-        exitFromForm();
+        if (operation_type === 'proceed_to_execution') {
+          setData((prev) => ({ ...prev, status: { ...new_status[0] } }));
+        }
+        if (operation_type === 'return_for_revision') {
+          setData((prev) => ({
+            ...prev,
+            status: { ...new_status[0] },
+            dispatcher_comment: null,
+            employee_comment: null,
+          }));
+        }
+        if (!['proceed_to_execution', 'return_for_revision'].some((el) => el === operation_type)) {
+          exitFromForm();
+          changeIsNeedToGet(true);
+        }
       }, 2000);
     } else {
       if (response && 'type' in response) applicationError(response);
@@ -372,6 +411,7 @@ export const Buttons: FC<IProps> = ({ data, role, exitFromForm, logout }) => {
           disabled={loadingButton ? true : false}
           onClick={() => {
             exitFromForm();
+            changeIsNeedToGet(true);
             if (errorButton) changeErrorButton(null);
           }}
         >

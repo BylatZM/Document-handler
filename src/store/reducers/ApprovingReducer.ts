@@ -2,7 +2,7 @@ import {
   IApprovingLoading,
   IApprovingState,
   INotApprovedCitizenPossession,
-  INotApprovedPossession,
+  INotApprovedLivingSpace,
 } from './../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
@@ -29,7 +29,10 @@ export const ApprovingReducer = createSlice({
       state.approvingCitizenPossessions = payload;
       state.isLoading = null;
     },
-    approvingLivingSpacesSuccess: (state, { payload }: PayloadAction<INotApprovedPossession[]>) => {
+    approvingLivingSpacesSuccess: (
+      state,
+      { payload }: PayloadAction<INotApprovedLivingSpace[]>,
+    ) => {
       state.approvingLivingSpaces = payload;
       state.isLoading = null;
     },

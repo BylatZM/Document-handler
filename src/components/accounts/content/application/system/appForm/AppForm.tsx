@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useTypedSelector } from '../../../../../hooks/useTypedSelector';
 import {
+  IAddingFile,
   IApplication,
   IBuilding,
   ICitizenPossession,
@@ -31,6 +32,9 @@ import { CitizenFio } from './components/CitizenFio';
 import { Contact } from './components/Contact';
 import { defaultAppForm } from './defaultAppForm';
 import { useNavigate } from 'react-router-dom';
+import { CitizenFiles } from './components/CitizenFiles';
+import { Modal } from 'antd';
+import { PlayerPDF } from '../../PlayerPDF';
 
 interface IProps {
   application: IApplication | null;
@@ -43,6 +47,8 @@ interface IProps {
   getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
   getCitizenPossessions: () => Promise<ICitizenPossession[] | void>;
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
+  isFileGood: (file: File, fileStorage: IAddingFile[]) => boolean;
+  getBase64: (file: File) => Promise<string>;
 }
 
 export const AppForm: FC<IProps> = ({
@@ -56,6 +62,8 @@ export const AppForm: FC<IProps> = ({
   getEmploys,
   getCitizenPossessions,
   changeIsNeedToGet,
+  isFileGood,
+  getBase64,
 }) => {
   const defaultSubtype: ISubtype = {
     type: '',
@@ -80,8 +88,13 @@ export const AppForm: FC<IProps> = ({
   );
   const possessionLoadingField = useTypedSelector((state) => state.PossessionReducer.isLoading);
   const applicationLoadingField = useTypedSelector((state) => state.ApplicationReducer.isLoading);
-
   const { applicationError } = useActions();
+  const [addingCitizenFiles, setAddingCitizenFiles] = useState<IAddingFile[]>([]);
+  const [addingEmployeeFiles, setAddingEmployeeFiles] = useState<IAddingFile[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFileType, setPreviewFileType] = useState<'image' | 'document' | null>(null);
+  const [previewFile, setPreviewFile] = useState<string | File | null>(null);
+  const [previewTitle, setPreviewTitle] = useState('');
 
   const [FormData, changeFormData] = useState<IApplication>(defaultAppForm);
 
@@ -194,8 +207,40 @@ export const AppForm: FC<IProps> = ({
     if (role === 'citizen' && application.id === 0) initializeCreateApplicationFormByCitizen();
   }, [application]);
 
+  const handleCancel = () => {
+    setPreviewFile(null);
+    setPreviewTitle('');
+    setPreviewOpen(false);
+    setPreviewFileType(null);
+  };
+
+  const showFile = async (file: File | string) => {
+    if (typeof file === 'string') {
+      if (file.split('.')[file.split('.').length - 1] === 'pdf') {
+        setPreviewFileType('document');
+      } else {
+        setPreviewFileType('image');
+      }
+      setPreviewFile(file);
+      setPreviewTitle(file.split('/')[file.split('/').length - 1]);
+    } else {
+      if (file.type === 'application/pdf') {
+        setPreviewFile(file);
+        setPreviewFileType('document');
+      } else {
+        const loadedFile = await getBase64(file);
+        setPreviewFile(loadedFile as string);
+        setPreviewFileType('image');
+      }
+      setPreviewTitle(file.name);
+    }
+    setPreviewOpen(true);
+  };
+
   const exitFromForm = () => {
     changeSelectedItem(null);
+    setAddingCitizenFiles([]);
+    setAddingEmployeeFiles([]);
     if (error) applicationError(null);
   };
 
@@ -214,6 +259,18 @@ export const AppForm: FC<IProps> = ({
         application ? 'w-full' : 'w-0',
       )}
     >
+      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+        <div>
+          {typeof previewFile === 'string' && previewFileType === 'image' && (
+            <img
+              alt='выбранное изображение'
+              className='h-auto max-sm:h-3/4 w-[30rem] max-sm:w-auto m-auto'
+              src={previewFile}
+            />
+          )}
+          {previewFileType === 'document' && <PlayerPDF propsFile={previewFile} />}
+        </div>
+      </Modal>
       <div
         ref={ref}
         className={clsx(
@@ -308,6 +365,17 @@ export const AppForm: FC<IProps> = ({
             />
           </div>
           <CitizenComment form_id={FormData.id} data={FormData} changeFormData={changeFormData} />
+          {((FormData.id < 1 && role === 'citizen') || FormData.id > 0) && (
+            <CitizenFiles
+              form_id={FormData.id}
+              responseFilesURL={FormData.citizen_files}
+              getBase64={getBase64}
+              isFileGood={isFileGood}
+              addingCitizenFiles={addingCitizenFiles}
+              setAddingCitizenFiles={setAddingCitizenFiles}
+              showFile={showFile}
+            />
+          )}
           <Source
             form_id={FormData.id}
             role={role}
@@ -328,6 +396,13 @@ export const AppForm: FC<IProps> = ({
             data={FormData}
             changeFormData={changeFormData}
             error={error}
+            employee_files={FormData.employee_files}
+            applicationFreshnessStatus={applicationFreshnessStatus}
+            getBase64={getBase64}
+            isFileGood={isFileGood}
+            setAddingEmployeeFiles={setAddingEmployeeFiles}
+            addingEmployeeFiles={addingEmployeeFiles}
+            showFile={showFile}
           />
           {role !== 'citizen' && (
             <div
@@ -351,11 +426,14 @@ export const AppForm: FC<IProps> = ({
           )}
           <Buttons
             data={FormData}
+            setData={changeFormData}
             form_id={FormData.id}
             role={role}
             exitFromForm={exitFromForm}
             logout={logout}
             changeIsNeedToGet={changeIsNeedToGet}
+            addingCitizenFiles={addingCitizenFiles}
+            addingEmployeeFiles={addingEmployeeFiles}
           />
         </div>
       </div>

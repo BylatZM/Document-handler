@@ -26,4 +26,5 @@ export const DefaultAppForm: IEmailApplication = {
   payment_code: '',
   complex: null,
   normative: null,
+  employee_files: [],
 };

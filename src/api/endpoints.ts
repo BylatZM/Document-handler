@@ -32,11 +32,13 @@ const endpoints = {
   },
   application: {
     createSystem: 'application/system/create',
+    loadSysFiles: 'application/system/create/file',
     updateSystemById: 'application/system/update/',
     updateSystemStatusById: 'application/system/update/status/',
     getAllSystemWithExtra: 'application/system/getAll',
     getAllGisWithExtra: 'application/gis/getAll',
     updateGisById: 'application/gis/update/',
+    loadEmailFiles: 'application/email/create/file',
     getAllEmailAppWithExtra: 'application/email/getAll',
     updateEmailAppById: 'application/email/update/',
     getAllStatuses: 'application/status/getAll',

@@ -9,7 +9,6 @@ import { useActions } from '../../../hooks/useActions';
 import { FakeFields } from './FakeFields';
 import { ICitizenPossession } from '../../../types';
 import { requestFromHelpForm } from '../../../../api/requests/Main';
-import { RcFile } from 'antd/es/upload';
 
 interface IHelpFormProps {
   needShowForm: boolean;
@@ -57,7 +56,7 @@ export const HelpForm: FC<IHelpFormProps> = ({
     } else {
       possession = citizenPossessions;
     }
-    if (possession.length > 0) {
+    if (possession.length > 0 && possession.some((el) => el.id > 0)) {
       const poss_processed = possession.map((item) => {
         let possessionType = 'парковка';
         if (item.possession_type === '1') possessionType = 'квартира';
@@ -73,11 +72,6 @@ export const HelpForm: FC<IHelpFormProps> = ({
     if (!needShowForm) return;
     initInfo();
   }, [needShowForm]);
-
-  const some = async (file: RcFile | undefined): Promise<ArrayBuffer | void> => {
-    if (!file) return;
-    return await file.arrayBuffer();
-  };
 
   const onFinish = async (values: IFinish) => {
     let data = new FormData();

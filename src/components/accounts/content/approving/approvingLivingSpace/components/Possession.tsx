@@ -1,9 +1,9 @@
 import { Input } from 'antd';
-import { INotApprovedPossession } from '../../../../../types';
+import { INotApprovedLivingSpace } from '../../../../../types';
 import { FC } from 'react';
 
 interface IProps {
-  selectedPossession: INotApprovedPossession | null;
+  selectedPossession: INotApprovedLivingSpace | null;
 }
 
 export const Possession: FC<IProps> = ({ selectedPossession }) => {

@@ -1,3 +1,4 @@
+import { IAddingFile } from './../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import {

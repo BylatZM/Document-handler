@@ -59,4 +59,6 @@ export const defaultAppForm: IApplication = {
   possession_type: '1',
   contact: '+7',
   normative: 0,
+  citizen_files: [],
+  employee_files: [],
 };

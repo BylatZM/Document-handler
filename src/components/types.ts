@@ -37,7 +37,7 @@ export type IApprovingLoading = 'approvingCitizenPossessions' | 'approvingLiving
 
 export interface IApprovingState {
   approvingCitizenPossessions: INotApprovedCitizenPossession[];
-  approvingLivingSpaces: INotApprovedPossession[];
+  approvingLivingSpaces: INotApprovedLivingSpace[];
   isLoading: IApprovingLoading;
   error: IError | null;
 }
@@ -226,6 +226,7 @@ export interface IEmailApplication {
   phone: string | null;
   payment_code: string;
   normative: number | null;
+  employee_files: IFile[];
 }
 
 export interface IEmailTableColumns {
@@ -267,6 +268,12 @@ export interface IEmailApplicationPagination {
   total: number;
 }
 
+export interface IFile {
+  url: string;
+  name: string;
+  created_date: string;
+}
+
 export interface IApplication {
   id: number;
   status: IStatus;
@@ -291,6 +298,13 @@ export interface IApplication {
   contact: string;
   applicant_fio: string;
   normative: number | null;
+  citizen_files: IFile[];
+  employee_files: IFile[];
+}
+
+export interface IAddingFile {
+  url: string;
+  file: File;
 }
 
 export interface IAppCreateByCitizen {
@@ -317,6 +331,10 @@ export interface IAppCreateByDispatcher {
   priority: number;
   dispatcher_comment?: string | null;
   subtype: number;
+}
+
+export interface ICreateApplicationByCitizenSuccessResponse {
+  application_id: number;
 }
 
 export type IAppUpdateByDispatcher = {
@@ -437,15 +455,20 @@ export interface IPossessionType {
   name: string;
 }
 
-export interface INotApprovedPossession {
+export interface INotApprovedLivingSpace {
   id: number;
-  type: string;
+  type: 'квартира' | 'коммерческое помещение' | 'парковка' | 'кладовка';
   building: string;
   approving_status: IPossessionStatus;
   who_created: null | string;
   personal_account: null | string;
   name: string;
   complex: string;
+}
+
+export interface INotApprovedLivingSpacePagination {
+  result: INotApprovedLivingSpace[];
+  total: number;
 }
 
 export interface INotApprovedCitizenPossession {
@@ -484,10 +507,23 @@ export interface ISortNotApprovedCitizenPossessionOptions {
   creating_date_dec: boolean;
 }
 
+export type IFilterNotApprovedLivingSpacesOptions = Omit<
+  IFilterNotApprovedCitizenPossessionOptions,
+  'fio'
+> & {
+  creator: string | null;
+  personalAccount: string | null;
+};
+
 export interface ILivingSpaceColumns {
   key: number;
-  status: IPossessionStatus;
-  address: string;
+  approving_status: IPossessionStatus;
+  complex: string;
+  building: string;
+  whoCreated: string;
+  personalAccount: string;
+  possessionType: 'квартира' | 'коммерческое помещение' | 'парковка' | 'кладовка';
+  possessionName: string;
 }
 
 export interface ICitizenPossessionsColumns {

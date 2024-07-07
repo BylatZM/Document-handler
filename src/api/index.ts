@@ -23,7 +23,7 @@ import {
   IApprovePossessionRequest,
   IAppUpdateByDispatcher,
   IAppUpdateByEmployee,
-  INotApprovedPossession,
+  INotApprovedLivingSpacePagination,
   ISubtype,
   IBuilding,
   IPossession,
@@ -36,6 +36,7 @@ import {
   IUpdateEmailAppByEmployee,
   IEmailApplicationPagination,
   INotApprovedCitizenPossessionPagination,
+  ICreateApplicationByCitizenSuccessResponse,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -75,8 +76,14 @@ export const getAllPossessionsWithExtra = (
 ): AxiosPromise<IPossession[] | IError> =>
   axiosInstance.get(endpoints.possession.getAllWithExtra + `?type=${type}&building=${building}`);
 
-export const getAllNotApprovedPossessions = (): AxiosPromise<INotApprovedPossession[] | void> =>
-  axiosInstance.get(endpoints.possession.getAllNotApproved);
+export const getAllNotApprovedPossessions = (
+  extra: string,
+  page: string,
+  page_size: string,
+): AxiosPromise<INotApprovedLivingSpacePagination | void> =>
+  axiosInstance.get(
+    endpoints.possession.getAllNotApproved + `?page=${page}&page_size=${page_size}${extra}`,
+  );
 
 export const updatePossessionStatusWithExtra = (
   possession_id: string,
@@ -130,8 +137,11 @@ export const deleteCitizenPossessionById = (id: number): AxiosPromise<void> =>
 
 export const createSystemApplication = (
   application: IAppCreateByCitizen | IAppCreateByDispatcher,
-): AxiosPromise<IError | void> =>
+): AxiosPromise<IError | ICreateApplicationByCitizenSuccessResponse | void> =>
   axiosInstance.post(endpoints.application.createSystem, application);
+
+export const loadSystemApplicationFiles = (files: FormData): AxiosPromise<IError | void> =>
+  axiosInstance.post(endpoints.application.loadSysFiles, files);
 
 export const updateSystemApplicationStatusById = (
   data: { status: number },
@@ -168,6 +178,9 @@ export const getAllGisApplicationsByExtra = (
   axiosInstance.get(
     endpoints.application.getAllGisWithExtra + `?page=${page}&page_size=${page_size}${extra}`,
   );
+
+export const loadEmailApplicationFiles = (files: FormData): AxiosPromise<IError | void> =>
+  axiosInstance.post(endpoints.application.loadEmailFiles, files);
 
 export const updateEmailApplicationById = (
   application_id: string,

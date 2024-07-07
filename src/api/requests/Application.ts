@@ -16,6 +16,7 @@ import {
   IEmailApplicationPagination,
   IUpdateEmailAppByDispatcher,
   IUpdateEmailAppByEmployee,
+  ICreateApplicationByCitizenSuccessResponse,
 } from '../../components/types';
 import {
   createSystemApplication,
@@ -33,6 +34,8 @@ import {
   updateGisApplicationById,
   getAllEmailApplicationsByExtra,
   updateEmailApplicationById,
+  loadSystemApplicationFiles,
+  loadEmailApplicationFiles,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -139,10 +142,13 @@ export const getAllEmailApplicationsByExtraRequest = async (
 export const createSystemApplicationRequest = async (
   logout: () => void,
   application: IAppCreateByDispatcher | IAppCreateByCitizen,
-): Promise<IError | 201 | void> => {
-  const makeRequest = async (): Promise<IError | 201 | 401 | void> => {
+): Promise<IError | 201 | ICreateApplicationByCitizenSuccessResponse | void> => {
+  const makeRequest = async (): Promise<
+    IError | 201 | ICreateApplicationByCitizenSuccessResponse | 401 | void
+  > => {
     try {
-      await createSystemApplication(application);
+      const response = await createSystemApplication(application);
+      if (response.data) return response.data;
       return 201;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -151,6 +157,66 @@ export const createSystemApplicationRequest = async (
           if (e.response.status === 400) return e.response.data;
           else errorAlert(e.response.status);
         }
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const loadSystemApplicationFilesRequest = async (
+  logout: () => void,
+  files: FormData,
+): Promise<IError | 201 | void> => {
+  const makeRequest = async (): Promise<IError | 201 | 401 | void> => {
+    try {
+      await loadSystemApplicationFiles(files);
+      return 201;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else if (e.response.status !== 400) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const loadEmailApplicationFilesRequest = async (
+  logout: () => void,
+  files: FormData,
+): Promise<IError | 201 | void> => {
+  const makeRequest = async (): Promise<IError | 201 | 401 | void> => {
+    try {
+      await loadEmailApplicationFiles(files);
+      return 201;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else if (e.response.status !== 400) errorAlert(e.response.status);
       }
     }
   };
