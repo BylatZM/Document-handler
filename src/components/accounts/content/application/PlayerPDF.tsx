@@ -11,10 +11,7 @@ export const PlayerPDF: FC<{ propsFile: File | null | string }> = ({ propsFile }
   const [targetFile, setTargetFile] = useState<File | string | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(1);
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
-  ).toString();
+  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setTotal(numPages);
