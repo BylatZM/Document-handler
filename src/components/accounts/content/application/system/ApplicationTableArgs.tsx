@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { IApplicationCitizenColumns, IApplicationNotCitizenColumns } from '../../../../types';
 import { ColumnsType } from 'antd/es/table';
-import { CheckboxOptionType } from 'antd';
+import { CheckboxOptionType, Rate } from 'antd';
 
 export const defaultCitizenColumns: ColumnsType<IApplicationCitizenColumns> = [
   {
@@ -99,6 +99,8 @@ export const defaultCitizenOptions = defaultCitizenColumns.map(({ key, title }) 
   value: key,
 })) as CheckboxOptionType[];
 
+const desc = ['ужасный', 'плохой', 'нормальный', 'хороший', 'замечательный'];
+
 export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns> = [
   {
     title: '№',
@@ -114,6 +116,22 @@ export const defaultNotCitizenColumns: ColumnsType<IApplicationNotCitizenColumns
     title: 'ФИО заявителя',
     dataIndex: 'fio',
     key: 'fio',
+  },
+  {
+    title: 'Рейтинг заявителя',
+    dataIndex: 'citizen_rating',
+    key: 'citizen_rating',
+    render: (citizen_rating: number | null) => {
+      if (!citizen_rating) return <div>—</div>;
+      else {
+        return (
+          <div className='flex flex-col justify-center gap-y-1 text-sm'>
+            <Rate value={Math.floor(citizen_rating)} disabled />
+            {<span className='ant-rate-text'>{desc[Math.floor(citizen_rating) - 1]}</span>}
+          </div>
+        );
+      }
+    },
   },
   {
     title: 'Контактный телефон',

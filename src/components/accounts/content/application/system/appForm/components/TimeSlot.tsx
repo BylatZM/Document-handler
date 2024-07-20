@@ -157,6 +157,7 @@ export const TimeSlot: FC<IProps> = ({
               setAddingEmployeeFiles={setAddingEmployeeFiles}
               addingEmployeeFiles={addingEmployeeFiles}
               showFile={showFile}
+              role={role}
             />
           )}
         </>

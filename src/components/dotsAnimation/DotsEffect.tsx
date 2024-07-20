@@ -1,4 +1,4 @@
-import './Dots.scss';
+import './Dots.css';
 import React, { FC } from 'react';
 
 interface IProps {
@@ -13,12 +13,12 @@ export const DotsEffect: FC<IProps> = React.memo(({ dotsQuantity }) => {
         <span
           key={i}
           style={{ animationDuration: (Math.random() * 4 + 2).toFixed(2) + 's' }}
-          className='z-[2] component'
+          className='z-[2] dots_item'
         ></span>,
       );
     }
     return spans;
   };
 
-  return <div className='flex bubbles overflow-hidden max-sm:hidden'>{setDots()}</div>;
+  return <div className='flex dots overflow-hidden max-sm:hidden'>{setDots()}</div>;
 });

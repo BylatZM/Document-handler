@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { FC } from 'react';
 import { IoClose } from 'react-icons/io5';
+import './style.css';
 
 interface IProps {
   needShow: boolean;

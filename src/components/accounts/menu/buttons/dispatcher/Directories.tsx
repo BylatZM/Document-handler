@@ -4,12 +4,14 @@ import { BsBuildingFill } from 'react-icons/bs';
 import { GoFileDirectoryFill } from 'react-icons/go';
 import { GrNext } from 'react-icons/gr';
 import { IAccordionState } from '../../../../types';
+import { FaUser } from 'react-icons/fa6';
 
 interface IProps {
   activeAccordion: IAccordionState;
   changeActiveAccordion: React.Dispatch<React.SetStateAction<IAccordionState>>;
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
   changeIsMenuOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedShowRatingForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Directories: FC<IProps> = ({
@@ -17,6 +19,7 @@ export const Directories: FC<IProps> = ({
   activeAccordion,
   changeNeedShowCreatePossessionForm,
   changeIsMenuOpened,
+  changeNeedShowRatingForm,
 }) => {
   return (
     <>
@@ -40,7 +43,7 @@ export const Directories: FC<IProps> = ({
       <div
         className={clsx(
           'transitionFast flex flex-col gap-y-4 overflow-hidden',
-          activeAccordion.directories ? 'h-[60px]' : 'h-0',
+          activeAccordion.directories ? 'sm:h-[120px] max-sm:h-[148px]' : 'h-0',
         )}
       >
         <button
@@ -52,6 +55,16 @@ export const Directories: FC<IProps> = ({
         >
           <BsBuildingFill className='mr-4 ml-5' />
           <span>Собственность</span>
+        </button>
+        <button
+          onClick={() => {
+            changeNeedShowRatingForm(true);
+            changeIsMenuOpened(false);
+          }}
+          className={clsx('flex items-center py-2 rounded-md text-lg bg-gray-300')}
+        >
+          <FaUser className='mr-4 ml-5' />
+          <span className='text-left'>Оценка собственника</span>
         </button>
       </div>
     </>

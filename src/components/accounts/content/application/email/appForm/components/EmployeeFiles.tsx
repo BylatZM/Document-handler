@@ -5,6 +5,8 @@ import pdfPhoto from '../../../../../../../assets/images/pdf-photo.png';
 import { IAddingFile, IFile, IStatus } from '../../../../../../types';
 import { PlusOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
+import { Popover } from 'antd';
+import { GoQuestion } from 'react-icons/go';
 
 interface IProps {
   filesURL: IFile[];
@@ -118,7 +120,22 @@ export const EmployeeFiles: FC<IProps> = ({
 
   return (
     <div className='w-full gap-2 flex flex-col'>
-      <span>Файлы исполнителя</span>
+      <div className='flex gap-x-2 items-center'>
+        <span>Файлы исполнителя</span>
+        {application_status.name === 'В работе' && role === 'executor' && (
+          <Popover
+            content={
+              <ul className='list-inside list-disc'>
+                <li>Загрузить можно не больше 3 файлов</li>
+                <li>Размер файла не может превышать 2 Мегабайта</li>
+                <li>Допустимым расширением файла считается png, jpg, jpeg и pdf</li>
+              </ul>
+            }
+          >
+            <GoQuestion />
+          </Popover>
+        )}
+      </div>
       <input
         type='file'
         accept='image/png, image/jpg, image/jpeg, application/pdf'
@@ -131,7 +148,7 @@ export const EmployeeFiles: FC<IProps> = ({
           {addingEmployeeFiles.length < 3 && (
             <button
               onClick={() => onButtonClick()}
-              className='transitionFast max-w-[100px] min-w-[100px] aspect-square flex justify-center items-center flex-col border-dashed border-[1px] border-black rounded-md hover:border-blue-700 hover:text-blue-700'
+              className='transitionFast max-w-[100px] min-w-[100px] aspect-square flex justify-center items-center flex-col border-dashed border-[1px] border-black text-black rounded-md hover:border-opacity-60 hover:text-opacity-60'
             >
               <PlusOutlined />
               <span>Загрузить</span>

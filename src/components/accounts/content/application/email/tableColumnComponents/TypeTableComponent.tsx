@@ -71,6 +71,7 @@ export const TypeTableComponent: FC<IProps> = ({
             {!isLoading &&
               typesInSelect.map((el) => (
                 <button
+                  key={el.id}
                   className={clsx(
                     'transitionFast border-none p-2',
                     typeId === el.id ? 'bg-gray-200 text-black' : 'hover:bg-black text-white',

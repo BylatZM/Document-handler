@@ -37,6 +37,8 @@ import {
   IEmailApplicationPagination,
   INotApprovedCitizenPossessionPagination,
   ICreateApplicationByCitizenSuccessResponse,
+  ICitizenRatingRequest,
+  ICitizenFio,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -98,7 +100,7 @@ export const createPossession = (possession: IApprovePossessionRequest): AxiosPr
   axiosInstance.post(endpoints.possession.create, possession);
 
 export const getAllCitizenPossessions = (): AxiosPromise<ICitizenPossession[]> =>
-  axiosInstance.get(endpoints.citizenPossession.getAll);
+  axiosInstance.get(endpoints.citizen.possession.getAll);
 
 export const getAllNotApprovedCitizenPossessions = (
   page: string,
@@ -106,7 +108,7 @@ export const getAllNotApprovedCitizenPossessions = (
   extra: string,
 ): AxiosPromise<INotApprovedCitizenPossessionPagination | void> =>
   axiosInstance.get(
-    endpoints.citizenPossession.getAllNotApproved + `?page=${page}&page_size=${page_size}${extra}`,
+    endpoints.citizen.possession.getAllNotApproved + `?page=${page}&page_size=${page_size}${extra}`,
   );
 
 export const updateCitizenPossessionStatusWithExtraBySystem = (
@@ -114,26 +116,32 @@ export const updateCitizenPossessionStatusWithExtraBySystem = (
   newStatusId: '1' | '3',
 ): AxiosPromise<void> =>
   axiosInstance.put(
-    endpoints.citizenPossession.updateStatusWithExtraBySystem +
+    endpoints.citizen.possession.updateStatusWithExtraBySystem +
       `?citizen_possession_id=${citizenPossessionId}&status_id=${newStatusId}`,
   );
 
 export const updateCitizenPossessionStatusByEmail = (
   data: IUpdateCitizenPossessionStatusByEmail,
 ): AxiosPromise<IError | void> =>
-  axiosInstance.put(endpoints.citizenPossession.updateStatusByEmail, data);
+  axiosInstance.put(endpoints.citizen.possession.updateStatusByEmail, data);
 
 export const createCitizenPossession = (citizen: ICitizenRequest): AxiosPromise<IError | void> =>
-  axiosInstance.post(endpoints.citizenPossession.create, citizen);
+  axiosInstance.post(endpoints.citizen.possession.create, citizen);
 
 export const updateCitizenPossessionById = (
   id: number,
   citizen: ICitizenRequest,
 ): AxiosPromise<IError | void> =>
-  axiosInstance.put(endpoints.citizenPossession.updateByCitizenPossessionId + id, citizen);
+  axiosInstance.put(endpoints.citizen.possession.updateByCitizenPossessionId + id, citizen);
 
 export const deleteCitizenPossessionById = (id: number): AxiosPromise<void> =>
-  axiosInstance.delete(endpoints.citizenPossession.deleteByCitizenPossessionId + id);
+  axiosInstance.delete(endpoints.citizen.possession.deleteByCitizenPossessionId + id);
+
+export const addCitizenMark = (data: ICitizenRatingRequest): AxiosPromise<void> =>
+  axiosInstance.post(endpoints.citizen.mark, data);
+
+export const getCitizensFio = (extra: string): AxiosPromise<void | IError | ICitizenFio[]> =>
+  axiosInstance.get(endpoints.citizen.fioWithExtra + extra);
 
 export const createSystemApplication = (
   application: IAppCreateByCitizen | IAppCreateByDispatcher,

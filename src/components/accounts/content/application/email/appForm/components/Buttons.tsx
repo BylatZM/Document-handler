@@ -129,12 +129,31 @@ export const Buttons: FC<IProps> = ({
           setData((prev) => ({ ...prev, status: { ...new_status[0] } }));
         }
         if (operation_type === 'return_for_revision') {
-          setData((prev) => ({
-            ...prev,
-            status: { ...new_status[0] },
-            dispatcher_comment: null,
-            employee_comment: null,
-          }));
+          if (!data.employee) {
+            const status = statuses.filter((el) => el.name === 'Новая');
+            if (!status.length) {
+              setData((prev) => ({
+                ...prev,
+                status: { ...new_status[0] },
+                dispatcher_comment: null,
+                employee_comment: null,
+              }));
+            } else {
+              setData((prev) => ({
+                ...prev,
+                status: { ...status[0] },
+                dispatcher_comment: null,
+                employee_comment: null,
+              }));
+            }
+          } else {
+            setData((prev) => ({
+              ...prev,
+              status: { ...new_status[0] },
+              dispatcher_comment: null,
+              employee_comment: null,
+            }));
+          }
         }
         if (!['proceed_to_execution', 'return_for_revision'].some((el) => el === operation_type)) {
           exitFromForm();

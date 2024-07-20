@@ -21,14 +21,18 @@ const endpoints = {
     getAllNotApproved: 'possession/not_approved/getAll',
     updateStatusWithExtra: 'possession/update/status',
   },
-  citizenPossession: {
-    create: 'citizen_possession/create',
-    getAll: 'citizen_possession/getAll',
-    updateByCitizenPossessionId: 'citizen_possession/update/',
-    updateStatusWithExtraBySystem: 'citizen_possession/update/status/by_system',
-    updateStatusByEmail: 'citizen_possession/update/status/by_email',
-    deleteByCitizenPossessionId: 'citizen_possession/delete/',
-    getAllNotApproved: 'citizen_possession/not_approved/getAll',
+  citizen: {
+    possession: {
+      create: 'citizen/possession/create',
+      getAll: 'citizen/possession/getAll',
+      updateByCitizenPossessionId: 'citizen/possession/update/',
+      updateStatusWithExtraBySystem: 'citizen/possession/update/status/by_system',
+      updateStatusByEmail: 'citizen/possession/update/status/by_email',
+      deleteByCitizenPossessionId: 'citizen/possession/delete/',
+      getAllNotApproved: 'citizen/possession/not_approved/getAll',
+    },
+    mark: 'citizen/mark/add',
+    fioWithExtra: 'citizen/fio/getAll',
   },
   application: {
     createSystem: 'application/system/create',

@@ -24,7 +24,7 @@ export const Video: FC<IProps> = ({ changeNeedShow, title }) => {
           <IoPause className='pause sm:text-2xl lg:text-4xl max-sm:text-base absolute inset-0 m-auto' />
         </div>
       </button>
-      <span className='max-sm:text-sm lg:text-lg'>Камера {title}</span>
+      <span className='max-sm:text-sm lg:text-lg'>{title}</span>
     </div>
   );
 };

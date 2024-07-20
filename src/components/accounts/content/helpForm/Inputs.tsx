@@ -63,7 +63,7 @@ export const Inputs: FC<IProps> = ({ fileList, setFileList }) => {
     return () => {
       document.removeEventListener('paste', handlePaste);
     };
-  }, []);
+  }, [fileList]);
 
   const getBase64 = (file: RcFile): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -183,12 +183,24 @@ export const Inputs: FC<IProps> = ({ fileList, setFileList }) => {
           required
         />
       </Form.Item>
-      <Form.Item className='text-base' label='Прикрепить изображение' name='images'>
+      <Form.Item
+        className='text-base'
+        label='Прикрепить изображение'
+        name='images'
+        tooltip={
+          <ul className='list-inside list-disc'>
+            <li>Загрузить можно не больше 3 файлов</li>
+            <li>Размер файла не может превышать 2 Мегабайта</li>
+            <li>Допустимым расширением файла считается png, jpg и jpeg</li>
+          </ul>
+        }
+      >
         <Upload
           listType='picture-card'
           fileList={fileList}
           onChange={handleUploadChange}
           maxCount={3}
+          className='custom-upload'
           onPreview={handlePreview}
           multiple={false}
           beforeUpload={() => {
@@ -196,7 +208,7 @@ export const Inputs: FC<IProps> = ({ fileList, setFileList }) => {
           }}
         >
           {fileList.length < 3 && (
-            <div>
+            <div className='help_form_upload_item'>
               <PlusOutlined />
               <div style={{ marginTop: 8 }}>Загрузить</div>
             </div>

@@ -1,11 +1,11 @@
-.bubbles {
+.dots {
   position: absolute;
   inset: 0;
   justify-content: space-around;
   z-index: -1;
   overflow: hidden;
 }
-.component {
+.dots_item {
   position: relative;
   width: 5px;
   border-radius: 20px;

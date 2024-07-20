@@ -1,48 +1,24 @@
 import { Button, ConfigProvider } from 'antd';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { ImCross, ImSpinner9 } from 'react-icons/im';
-import { IError, IUpdatePassword } from '../../../types';
+import { IError } from '../../../types';
 import { FC } from 'react';
 import clsx from 'clsx';
 
 interface IProps {
   isLoading: boolean;
   changeNeedShowForm: React.Dispatch<React.SetStateAction<boolean>>;
-  initialState: IUpdatePassword;
-  changeFormData: React.Dispatch<React.SetStateAction<IUpdatePassword>>;
   error: IError | null;
-  changeError: React.Dispatch<React.SetStateAction<IError | null>>;
   isRequestSuccess: boolean;
-  data: IUpdatePassword;
-  onFinish: () => Promise<void>;
-  isApproved: boolean;
-  changeIsApproved: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Buttons: FC<IProps> = ({
-  isLoading,
-  changeNeedShowForm,
-  initialState,
-  changeFormData,
-  error,
-  changeError,
-  isRequestSuccess,
-  data,
-  onFinish,
-  isApproved,
-  changeIsApproved,
-}) => {
+export const Buttons: FC<IProps> = ({ isLoading, changeNeedShowForm, error, isRequestSuccess }) => {
   return (
     <div className='flex justify-center max-sm:gap-x-2 gap-x-4'>
       <Button
         className='inline mr-1 sm:mr-4 border-[1px] border-blue-700 text-blue-700'
         disabled={isLoading}
-        onClick={() => {
-          changeNeedShowForm(false);
-          if (error) changeError(null);
-          if (isApproved) changeIsApproved(false);
-          changeFormData(initialState);
-        }}
+        onClick={() => changeNeedShowForm(false)}
       >
         Закрыть
       </Button>
@@ -57,10 +33,8 @@ export const Buttons: FC<IProps> = ({
       >
         <Button
           className={clsx('inline text-white bg-blue-700')}
-          disabled={data.email && !isRequestSuccess && !isLoading ? false : true}
-          onClick={() => {
-            onFinish();
-          }}
+          disabled={!isRequestSuccess && !isLoading ? false : true}
+          htmlType='submit'
         >
           {isLoading && (
             <div>

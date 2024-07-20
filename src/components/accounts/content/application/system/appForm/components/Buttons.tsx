@@ -29,6 +29,8 @@ interface IProps {
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
   addingCitizenFiles: IAddingFile[];
   addingEmployeeFiles: IAddingFile[];
+  setPreviewTitle: React.Dispatch<React.SetStateAction<string>>;
+  setGradePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type IApplicationOperation =
@@ -50,6 +52,8 @@ export const Buttons: FC<IProps> = ({
   changeIsNeedToGet,
   addingCitizenFiles,
   addingEmployeeFiles,
+  setPreviewTitle,
+  setGradePreviewOpen,
 }) => {
   const { applicationError } = useActions();
   const { statuses } = useTypedSelector((state) => state.ApplicationReducer);
@@ -91,7 +95,6 @@ export const Buttons: FC<IProps> = ({
     if (
       response &&
       typeof response !== 'number' &&
-      role === 'citizen' &&
       addingCitizenFiles.length > 0 &&
       'application_id' in response
     ) {
@@ -189,18 +192,46 @@ export const Buttons: FC<IProps> = ({
       if (operation_type === 'got_incorrectly') changeSuccessButton('got_incorrectly');
       setTimeout(() => {
         changeSuccessButton((prev) => null);
+        if (operation_type === 'close_application' && data.applicant.role === 'citizen') {
+          setPreviewTitle('Оцените работу с жителем');
+          setGradePreviewOpen(true);
+        }
         if (operation_type === 'proceed_to_execution') {
           setData((prev) => ({ ...prev, status: { ...new_status } }));
         }
         if (operation_type === 'return_for_revision') {
-          setData((prev) => ({
-            ...prev,
-            status: { ...new_status },
-            dispatcher_comment: null,
-            employee_comment: null,
-          }));
+          if (!data.employee) {
+            const status = statuses.filter((el) => el.name === 'Новая');
+            if (!status.length) {
+              setData((prev) => ({
+                ...prev,
+                status: { ...new_status },
+                dispatcher_comment: null,
+                employee_comment: null,
+              }));
+            } else {
+              setData((prev) => ({
+                ...prev,
+                status: { ...status[0] },
+                dispatcher_comment: null,
+                employee_comment: null,
+              }));
+            }
+          } else {
+            setData((prev) => ({
+              ...prev,
+              status: { ...new_status },
+              dispatcher_comment: null,
+              employee_comment: null,
+            }));
+          }
         }
-        if (!['proceed_to_execution', 'return_for_revision'].some((el) => el === operation_type)) {
+        if (
+          !['proceed_to_execution', 'return_for_revision', 'close_application'].some(
+            (el) => el === operation_type,
+          ) ||
+          (operation_type === 'close_application' && data.applicant.role !== 'citizen')
+        ) {
           exitFromForm();
           changeIsNeedToGet(true);
         }

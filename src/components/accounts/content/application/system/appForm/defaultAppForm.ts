@@ -54,8 +54,10 @@ export const defaultAppForm: IApplication = {
   },
   employee_comment: '',
   applicant: {
+    id: 0,
     role: '',
   },
+  citizen_rating: null,
   possession_type: '1',
   contact: '+7',
   normative: 0,

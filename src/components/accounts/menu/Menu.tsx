@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { clsx } from 'clsx';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useLocation } from 'react-router-dom';
@@ -20,6 +20,7 @@ interface IMenuProps {
   changeIsMenuOpened: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowCreatePossessionForm: React.Dispatch<React.SetStateAction<boolean>>;
   changeNeedShowHelpForm: React.Dispatch<React.SetStateAction<boolean>>;
+  changeNeedShowRatingForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Menu: FC<IMenuProps> = ({
@@ -27,6 +28,7 @@ export const Menu: FC<IMenuProps> = ({
   changeIsMenuOpened,
   changeNeedShowCreatePossessionForm,
   changeNeedShowHelpForm,
+  changeNeedShowRatingForm,
 }) => {
   const { pathname } = useLocation();
   const logout = useLogout();
@@ -66,6 +68,7 @@ export const Menu: FC<IMenuProps> = ({
                 activeAccordion={activeAccordion}
                 changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
                 changeIsMenuOpened={changeIsMenuOpened}
+                changeNeedShowRatingForm={changeNeedShowRatingForm}
               />
               <Confirmations
                 changeActiveAccordion={changeActiveAccordion}

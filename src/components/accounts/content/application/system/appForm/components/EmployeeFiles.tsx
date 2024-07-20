@@ -5,6 +5,8 @@ import pdfPhoto from '../../../../../../../assets/images/pdf-photo.png';
 import { IAddingFile, IFile, IStatus } from '../../../../../../types';
 import { PlusOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
+import { Popover } from 'antd';
+import { GoQuestion } from 'react-icons/go';
 
 interface IProps {
   filesURL: IFile[];
@@ -15,6 +17,7 @@ interface IProps {
   addingEmployeeFiles: IAddingFile[];
   setAddingEmployeeFiles: React.Dispatch<React.SetStateAction<IAddingFile[]>>;
   showFile: (file: File | string) => Promise<void>;
+  role: string;
 }
 
 export const EmployeeFiles: FC<IProps> = ({
@@ -26,6 +29,7 @@ export const EmployeeFiles: FC<IProps> = ({
   addingEmployeeFiles,
   setAddingEmployeeFiles,
   showFile,
+  role,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [responseURL, setResponseURL] = useState<IFile[][]>([]);
@@ -117,7 +121,27 @@ export const EmployeeFiles: FC<IProps> = ({
 
   return (
     <div className='w-full gap-2 flex flex-col'>
-      <span>Файлы исполнителя</span>
+      <div className='flex gap-x-2 items-center'>
+        {application_status.name === 'В работе' && role === 'executor' && (
+          <span>Прикрепить файл(-ы)</span>
+        )}
+        {application_status.name === 'В работе' && role === 'executor' && (
+          <Popover
+            overlayClassName='bg-none'
+            color='rgba(0, 0, 0, 0.85)'
+            overlayInnerStyle={{ background: 'rgba(0, 0, 0, 0.85)', width: '250px' }}
+            content={
+              <ul className='list-inside list-disc text-gray-200'>
+                <li>Загрузить можно не больше 3 файлов</li>
+                <li>Размер файла не может превышать 2 Мегабайта</li>
+                <li>Допустимым расширением файла считается png, jpg, jpeg и pdf</li>
+              </ul>
+            }
+          >
+            <GoQuestion />
+          </Popover>
+        )}
+      </div>
       <input
         type='file'
         accept='image/png, image/jpg, image/jpeg, application/pdf'
@@ -125,12 +149,12 @@ export const EmployeeFiles: FC<IProps> = ({
         ref={fileInputRef}
         onChange={handleFileInputChange}
       />
-      {application_status.name === 'В работе' && (
+      {application_status.name === 'В работе' && role === 'executor' && (
         <div className='flex gap-x-2 mb-4'>
           {addingEmployeeFiles.length < 3 && (
             <button
               onClick={() => onButtonClick()}
-              className='transitionFast max-w-[100px] min-w-[100px] aspect-square flex justify-center items-center flex-col border-dashed border-[1px] border-black rounded-md hover:border-blue-700 hover:text-blue-700'
+              className='transitionFast max-w-[100px] min-w-[100px] aspect-square flex justify-center items-center flex-col border-dashed border-[1px] border-black text-black rounded-md hover:border-opacity-60 hover:text-opacity-60'
             >
               <PlusOutlined />
               <span>Загрузить</span>
@@ -174,6 +198,7 @@ export const EmployeeFiles: FC<IProps> = ({
           ))}
         </div>
       )}
+      <span>Файлы исполнителя</span>
       <div className='flex flex-wrap gap-4 mt-4 max-sm:gap-1'>
         {responseURL.map((item, ind) => (
           <div

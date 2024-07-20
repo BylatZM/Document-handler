@@ -71,6 +71,7 @@ export const SubtypeTableComponent: FC<IProps> = ({
             {!isLoading &&
               subtypesInSelect.map((el) => (
                 <button
+                  key={el.id}
                   className={clsx(
                     'transitionFast border-none p-2',
                     subtypeName === el.name

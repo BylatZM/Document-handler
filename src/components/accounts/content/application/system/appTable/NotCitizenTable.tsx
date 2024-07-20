@@ -577,6 +577,7 @@ export const NotCitizenTable: FC<IProps> = ({
         fio: el.applicant_fio,
         phone: el.contact,
         normative: !el.normative ? 0 : el.normative,
+        citizen_rating: el.citizen_rating,
       }))}
       columns={notCitizenTable}
       components={components}

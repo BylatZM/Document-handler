@@ -7,10 +7,13 @@ import {
   IUserUpdate,
   IUpdateCitizenPossessionStatusByEmail,
   INotApprovedCitizenPossessionPagination,
+  ICitizenRatingRequest,
+  ICitizenFio,
 } from '../../components/types';
 import {
   createCitizenPossession,
   deleteCitizenPossessionById,
+  addCitizenMark,
   getAllCitizenPossessions,
   getUser,
   updateCitizenPossessionById,
@@ -19,6 +22,7 @@ import {
   updateCitizenPossessionStatusWithExtraBySystem,
   getAllNotApprovedCitizenPossessions,
   updateUserPassword,
+  getCitizensFio,
 } from '..';
 import { refreshRequest } from './Main';
 import request from 'axios';
@@ -191,6 +195,78 @@ export const deleteCitizenPossessionByIdRequest = async (
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const AddCitizenMarkRequest = async (
+  data: ICitizenRatingRequest,
+  logout: () => void,
+): Promise<201 | void> => {
+  const makeRequest = async (): Promise<201 | 401 | void> => {
+    try {
+      await addCitizenMark(data);
+      return 201;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getCitizensFioRequest = async (
+  logout: () => void,
+  possession_id?: number,
+  building_id?: number,
+): Promise<ICitizenFio[] | void | IError> => {
+  const makeRequest = async (): Promise<ICitizenFio[] | 401 | void | IError> => {
+    try {
+      let extra = '';
+      if (building_id && !possession_id) {
+        extra = `?building_id=${building_id.toString()}`;
+      }
+      if (possession_id && !building_id) {
+        extra = `?possession_id=${possession_id.toString()}`;
+      }
+      if (building_id && possession_id) {
+        extra = `?building_id=${building_id.toString()}&possession_id=${possession_id.toString()}`;
+      }
+      const response = await getCitizensFio(extra);
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status === 400) return e.response.data;
         if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
       }
     }

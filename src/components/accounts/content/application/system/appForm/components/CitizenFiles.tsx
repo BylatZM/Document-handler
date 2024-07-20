@@ -4,6 +4,8 @@ import { useRef, useEffect, FC } from 'react';
 import pdfPhoto from '../../../../../../../assets/images/pdf-photo.png';
 import { IAddingFile, IFile } from '../../../../../../types';
 import { PlusOutlined } from '@ant-design/icons';
+import { Popover } from 'antd';
+import { GoQuestion } from 'react-icons/go';
 
 interface IProps {
   form_id: number;
@@ -92,8 +94,26 @@ export const CitizenFiles: FC<IProps> = ({
 
   return (
     <div className='w-full gap-2 flex flex-col'>
-      {form_id < 1 && <span>Прикрепить файл</span>}
-      {form_id > 0 && <span>Файлы жителя</span>}
+      <div className='flex gap-x-2 items-center'>
+        {form_id < 1 && <span>Прикрепить файл(-ы)</span>}
+        {form_id > 0 && <span>Файлы жителя</span>}
+        {form_id < 1 && (
+          <Popover
+            overlayClassName='bg-none'
+            color='rgba(0, 0, 0, 0.85)'
+            overlayInnerStyle={{ background: 'rgba(0, 0, 0, 0.85)', width: '250px' }}
+            content={
+              <ul className='list-inside list-disc text-gray-200'>
+                <li>Загрузить можно не больше 3 файлов</li>
+                <li>Размер файла не может превышать 2 Мегабайта</li>
+                <li>Допустимым расширением файла считается png, jpg, jpeg и pdf</li>
+              </ul>
+            }
+          >
+            <GoQuestion />
+          </Popover>
+        )}
+      </div>
       <input
         type='file'
         accept='image/png, image/jpg, image/jpeg, application/pdf'
@@ -105,7 +125,7 @@ export const CitizenFiles: FC<IProps> = ({
         {form_id < 1 && addingCitizenFiles.length < 3 && (
           <button
             onClick={() => onButtonClick()}
-            className='transitionFast max-w-[100px] min-w-[100px] aspect-square flex justify-center items-center flex-col border-dashed border-[1px] border-black rounded-md hover:border-blue-700 hover:text-blue-700'
+            className='transitionFast max-w-[100px] min-w-[100px] aspect-square flex justify-center items-center flex-col border-dashed border-[1px] text-black border-black rounded-md hover:border-opacity-60 hover:text-opacity-60'
           >
             <PlusOutlined />
             <span>Загрузить</span>

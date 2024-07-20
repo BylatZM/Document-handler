@@ -5,11 +5,11 @@ import { IPossessionState, IComplex, IPosLoading } from '../../components/types'
 const initialState: IPossessionState = {
   buildings: [],
   possessionTypes: [
+    { id: 5, name: 'Жилищный комплекс' },
     { id: 1, name: 'Квартира' },
     { id: 2, name: 'Коммерческое помещение' },
-    { id: 3, name: 'Парковка' },
     { id: 4, name: 'Кладовка' },
-    { id: 5, name: 'Жилищный комплекс' },
+    { id: 3, name: 'Парковка' },
   ],
   complexes: [],
   possessions: [],

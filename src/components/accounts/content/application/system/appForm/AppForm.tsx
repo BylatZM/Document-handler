@@ -6,6 +6,7 @@ import {
   IApplication,
   IBuilding,
   ICitizenPossession,
+  ICitizenRatingRequest,
   IEmployee,
   IError,
   IPossession,
@@ -33,8 +34,9 @@ import { Contact } from './components/Contact';
 import { defaultAppForm } from './defaultAppForm';
 import { useNavigate } from 'react-router-dom';
 import { CitizenFiles } from './components/CitizenFiles';
-import { Modal } from 'antd';
+import { Modal, Rate } from 'antd';
 import { PlayerPDF } from '../../PlayerPDF';
+import { AddCitizenMarkRequest } from '../../../../../../api/requests/User';
 
 interface IProps {
   application: IApplication | null;
@@ -91,7 +93,8 @@ export const AppForm: FC<IProps> = ({
   const { applicationError } = useActions();
   const [addingCitizenFiles, setAddingCitizenFiles] = useState<IAddingFile[]>([]);
   const [addingEmployeeFiles, setAddingEmployeeFiles] = useState<IAddingFile[]>([]);
-  const [previewOpen, setPreviewOpen] = useState(false);
+  const [filePreviewOpen, setFilePreviewOpen] = useState(false);
+  const [gradePreviewOpen, setGradePreviewOpen] = useState(false);
   const [previewFileType, setPreviewFileType] = useState<'image' | 'document' | null>(null);
   const [previewFile, setPreviewFile] = useState<string | File | null>(null);
   const [previewTitle, setPreviewTitle] = useState('');
@@ -208,10 +211,17 @@ export const AppForm: FC<IProps> = ({
   }, [application]);
 
   const handleCancel = () => {
-    setPreviewFile(null);
     setPreviewTitle('');
-    setPreviewOpen(false);
-    setPreviewFileType(null);
+    if (filePreviewOpen) {
+      setPreviewFileType(null);
+      setPreviewFile(null);
+      setFilePreviewOpen(false);
+    }
+    if (gradePreviewOpen) {
+      setGradePreviewOpen(false);
+      exitFromForm();
+      changeIsNeedToGet(true);
+    }
   };
 
   const showFile = async (file: File | string) => {
@@ -234,7 +244,7 @@ export const AppForm: FC<IProps> = ({
       }
       setPreviewTitle(file.name);
     }
-    setPreviewOpen(true);
+    setFilePreviewOpen(true);
   };
 
   const exitFromForm = () => {
@@ -252,6 +262,12 @@ export const AppForm: FC<IProps> = ({
     if (!response) return;
     if ('type' in response) applicationError(response);
   };
+
+  const setCitizenGrade = async (data: ICitizenRatingRequest) => {
+    await AddCitizenMarkRequest(data, logout);
+    handleCancel();
+  };
+
   return (
     <div
       className={clsx(
@@ -259,17 +275,43 @@ export const AppForm: FC<IProps> = ({
         application ? 'w-full' : 'w-0',
       )}
     >
-      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
-        <div>
-          {typeof previewFile === 'string' && previewFileType === 'image' && (
-            <img
-              alt='выбранное изображение'
-              className='h-auto max-sm:h-3/4 w-[30rem] max-sm:w-auto m-auto'
-              src={previewFile}
-            />
-          )}
-          {previewFileType === 'document' && <PlayerPDF propsFile={previewFile} />}
-        </div>
+      <Modal
+        open={filePreviewOpen || gradePreviewOpen}
+        title={previewTitle}
+        footer={null}
+        onCancel={handleCancel}
+      >
+        {filePreviewOpen && (
+          <div>
+            {typeof previewFile === 'string' && previewFileType === 'image' && (
+              <img
+                alt='выбранное изображение'
+                className='h-auto max-sm:h-3/4 w-[30rem] max-sm:w-auto m-auto'
+                src={previewFile}
+              />
+            )}
+            {previewFileType === 'document' && <PlayerPDF propsFile={previewFile} />}
+          </div>
+        )}
+        {gradePreviewOpen && ['executor', 'dispatcher'].some((el) => el === role) && (
+          <div className='flex flex-col gap-y-2 justify-center items-center'>
+            <>
+              <Rate
+                className='text-3xl cast_stars'
+                onChange={(e: number) =>
+                  setCitizenGrade({
+                    citizen: FormData.applicant.id,
+                    mark: e,
+                  })
+                }
+              />
+              <div className='text-left mt-4 max-sm:mt-2 text-gray-600 text-sm bg-blue-300 rounded-md backdrop-blur-md bg-opacity-50 '>
+                Пожалуйста, оцените по пяти бальной шкале, насколько Вас удовлетворила работа с
+                жителем, где одна звезда - не удовлетворен, пять звезд - претензий не имею
+              </div>
+            </>
+          </div>
+        )}
       </Modal>
       <div
         ref={ref}
@@ -365,17 +407,15 @@ export const AppForm: FC<IProps> = ({
             />
           </div>
           <CitizenComment form_id={FormData.id} data={FormData} changeFormData={changeFormData} />
-          {((FormData.id < 1 && role === 'citizen') || FormData.id > 0) && (
-            <CitizenFiles
-              form_id={FormData.id}
-              responseFilesURL={FormData.citizen_files}
-              getBase64={getBase64}
-              isFileGood={isFileGood}
-              addingCitizenFiles={addingCitizenFiles}
-              setAddingCitizenFiles={setAddingCitizenFiles}
-              showFile={showFile}
-            />
-          )}
+          <CitizenFiles
+            form_id={FormData.id}
+            responseFilesURL={FormData.citizen_files}
+            getBase64={getBase64}
+            isFileGood={isFileGood}
+            addingCitizenFiles={addingCitizenFiles}
+            setAddingCitizenFiles={setAddingCitizenFiles}
+            showFile={showFile}
+          />
           <Source
             form_id={FormData.id}
             role={role}
@@ -434,6 +474,8 @@ export const AppForm: FC<IProps> = ({
             changeIsNeedToGet={changeIsNeedToGet}
             addingCitizenFiles={addingCitizenFiles}
             addingEmployeeFiles={addingEmployeeFiles}
+            setGradePreviewOpen={setGradePreviewOpen}
+            setPreviewTitle={setPreviewTitle}
           />
         </div>
       </div>

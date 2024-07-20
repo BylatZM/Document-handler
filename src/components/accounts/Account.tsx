@@ -1,5 +1,5 @@
 import { getAllCitizenPossessionsRequest, getUserRequest } from '../../api/requests/User';
-import { Loading } from '../Loading/Loading';
+import { Loading } from '../loading/Loading';
 import { useActions } from '../hooks/useActions';
 import { Application } from './content/application/system/Application';
 import { AboutMe } from './content/aboutMe/AboutMe';
@@ -42,6 +42,7 @@ import {
 } from '../types';
 import { Camera } from './content/camera/Camera';
 import { EmailApplication } from './content/application/email/EmailApplication';
+import { RatingForm } from './content/ratingForm/RatingForm';
 
 export const Account = () => {
   const logout = useLogout();
@@ -51,6 +52,7 @@ export const Account = () => {
   const citizenError = useTypedSelector((state) => state.CitizenReducer.error);
   const { pathname } = useLocation();
   const [needShowHelpForm, changeNeedShowHelpForm] = useState(false);
+  const [needShowRatingForm, changeNeedShowRatingForm] = useState(false);
   const [needShowCreatePossessionForm, changeNeedShowCreatePossessionForm] = useState(false);
   const {
     userSuccess,
@@ -382,11 +384,16 @@ export const Account = () => {
           changeIsMenuOpened={changeIsMenuOpened}
           changeNeedShowHelpForm={changeNeedShowHelpForm}
           changeNeedShowCreatePossessionForm={changeNeedShowCreatePossessionForm}
+          changeNeedShowRatingForm={changeNeedShowRatingForm}
         />
         <HelpForm
           needShowForm={needShowHelpForm}
           changeNeedShowForm={changeNeedShowHelpForm}
           getCitizenPossessions={getCitizenPossessions}
+        />
+        <RatingForm
+          changeNeedShowForm={changeNeedShowRatingForm}
+          needShowForm={needShowRatingForm}
         />
         <CreatePossession
           needShowForm={needShowCreatePossessionForm}

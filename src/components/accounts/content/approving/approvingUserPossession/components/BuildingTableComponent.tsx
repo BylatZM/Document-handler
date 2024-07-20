@@ -74,6 +74,7 @@ export const BuildingTableComponent: FC<IProps> = ({
             {!isLoading &&
               buildingsInSelect.map((el) => (
                 <button
+                  key={el.id}
                   className={clsx(
                     'transitionFast border-none p-2',
                     buildingId === el.id ? 'bg-gray-200 text-black' : 'hover:bg-black text-white',

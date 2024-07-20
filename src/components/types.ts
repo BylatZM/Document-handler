@@ -292,8 +292,10 @@ export interface IApplication {
   dispatcher_comment: string | null;
   employee_comment: string | null;
   applicant: {
+    id: number;
     role: string;
   };
+  citizen_rating: number | null;
   possession_type: string;
   contact: string;
   applicant_fio: string;
@@ -569,6 +571,7 @@ export interface IApplicationNotCitizenColumns {
   fio: string;
   phone: string;
   normative: number;
+  citizen_rating: number | null;
 }
 
 export interface IUpdatePassword {
@@ -694,4 +697,25 @@ export interface IAboutMeFormSteps {
   building: boolean;
   possession: boolean;
   create_button: boolean;
+}
+
+export interface ICitizenRatingRequest {
+  citizen: number;
+  mark: number;
+}
+
+export interface IRatingForm {
+  complex?: number;
+  building?: number;
+  possessionType?: number;
+  possession?: number;
+  citizen?: number;
+  mark?: number;
+}
+
+export type IRatingFormLoading = 'form' | 'building' | 'possession' | 'citizen' | null;
+
+export interface ICitizenFio {
+  id: number;
+  fio: string;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, FC } from 'react';
-import Styles from './Main.module.scss';
+import './Main.css';
 import clsx from 'clsx';
 import { Auth } from './authorization/Auth';
 import { Reg } from './registration/Reg';
@@ -37,7 +37,7 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
   }, [pageType, needShowHelpForm]);
 
   return (
-    <div className={Styles.main}>
+    <div className='log_reg_main'>
       <DotsEffect dotsQuantity={10} />
       <SendEmail
         email={email}
@@ -49,7 +49,7 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
         needShowForm={needShowPasswordForm}
         changeNeedShowForm={changeNeedShowPasswordForm}
       />
-      <div className={clsx(Styles.form, isAnimActive && Styles.form_active)}>
+      <div className={clsx('log_reg_main_form', isAnimActive && 'log_reg_main_form_active')}>
         <div className='w-11/12 mx-auto flex items-start mt-3'>
           <div className='logoGrid h-[70px] flex items-center'>
             <img src={cat} width={'70px'} alt='' />
@@ -102,7 +102,7 @@ export const Main: FC<IMainProps> = ({ pageType }) => {
           Написать в техподдержку
         </button>
       </div>
-      <div className={Styles.carouselSection}>
+      <div className='log_reg_main_form_carouselSection'>
         <CarouselBlock showAnimation={isAnimActive} />
       </div>
     </div>

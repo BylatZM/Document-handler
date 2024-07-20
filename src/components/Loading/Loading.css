@@ -1,4 +1,4 @@
-.svg {
+.loading_svg {
   stroke-width: 6;
   stroke-dasharray: 6000;
   stroke-dashoffset: 6000;
@@ -11,13 +11,7 @@
   }
 }
 
-.animate_cat {
-  animation: cat 2s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-}
-
-.animation_text {
+.loading_animation_text {
   animation: message 2s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
