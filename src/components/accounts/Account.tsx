@@ -43,6 +43,7 @@ import {
 import { Camera } from './content/camera/Camera';
 import { EmailApplication } from './content/application/email/EmailApplication';
 import { RatingForm } from './content/ratingForm/RatingForm';
+import { getAllCameraByBuildingIdRequest } from '../../api/requests/Camera';
 
 export const Account = () => {
   const logout = useLogout();
@@ -362,9 +363,12 @@ export const Account = () => {
       );
     }
     if (pathname === '/account/camera') {
-      if (user.email !== 'SuperDispatcher2@yandex.ru')
-        return <ErrorPage message='Страница не найдена' />;
-      return <Camera />;
+      return (
+        <Camera
+          getAllBuildingsByComplexId={getAllBuildingsByComplexId}
+          getCitizenPossessions={getCitizenPossessions}
+        />
+      );
     }
     if (pathname === '/account/approve/living_space' && user.role === 'dispatcher')
       return <ApprovingLivingSpace />;
@@ -403,7 +407,7 @@ export const Account = () => {
         {user.role === 'citizen' && (
           <button
             onClick={() => changeNeedShowHelpForm(true)}
-            className='fixed bottom-10 right-20 rounded-full p-5 bg-white border-blue-700 border-[1px] z-30 max-sm:p-3 max-sm:right-10'
+            className='fixed bottom-10 right-10 rounded-full p-5 bg-white border-blue-700 border-[1px] z-30 max-md:p-3'
           >
             <MdSupportAgent className='text-4xl max-sm:text-2xl' />
           </button>

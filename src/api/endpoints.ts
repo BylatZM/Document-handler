@@ -55,6 +55,9 @@ const endpoints = {
   employee: {
     getEmploysWithExtra: 'employee/getAll',
   },
+  video: {
+    getAllByBuildingId: 'video/get/',
+  },
 };
 
 export default endpoints;

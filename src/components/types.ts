@@ -719,3 +719,10 @@ export interface ICitizenFio {
   id: number;
   fio: string;
 }
+
+export interface ICamera {
+  id: number;
+  url: string;
+  preview: string;
+  description: string;
+}

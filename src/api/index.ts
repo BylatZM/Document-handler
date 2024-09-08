@@ -39,6 +39,7 @@ import {
   ICreateApplicationByCitizenSuccessResponse,
   ICitizenRatingRequest,
   ICitizenFio,
+  ICamera,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -230,3 +231,10 @@ export const getAllSources = (): AxiosPromise<ISource[] | void> =>
 
 export const getAllStatuses = (): AxiosPromise<IStatus[] | void> =>
   axiosInstance.get(endpoints.application.getAllStatuses);
+
+export const getAllCamerasByBuildingId = (
+  buildingId: string,
+): AxiosPromise<ICamera[] | void | IError> =>
+  axiosInstance.get(endpoints.video.getAllByBuildingId + buildingId);
+
+export const getVideoFile = (url: string): AxiosPromise<void> => axiosInstance.get(url);

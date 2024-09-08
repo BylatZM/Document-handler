@@ -1,4 +1,4 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import { ICache } from '../components/types';
 
 export const API_URL =
@@ -35,6 +35,10 @@ axiosInstance.interceptors.request.use((config) => {
   else config.headers['Authorization'] = `Bearer ${access}`;
   if (['system/create/file', 'help', 'email/create/file'].some((el) => config.url?.includes(el))) {
     delete config.headers['Content-Type'];
+  }
+  if (config.url?.includes('hls/stream')) {
+    delete config.headers['Content-Type'];
+    delete config.headers['Authorization'];
   }
   return config;
 });

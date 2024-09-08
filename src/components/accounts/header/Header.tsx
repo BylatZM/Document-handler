@@ -25,9 +25,7 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
           {pathname === '/account/approve/citizen_possession' &&
             'Подтверждение собственностей жителей'}
           {pathname === '/account/approve/living_space' && 'Подтверждение жилплощади'}
-          {pathname === '/account/camera' &&
-            user_email === 'SuperDispatcher2@yandex.ru' &&
-            'Видео камеры'}
+          {pathname === '/account/camera' && 'Видео камеры'}
         </b>
         <Popover
           className='text-xl'
@@ -45,6 +43,8 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
                 'В этом разделе Вы можете подтвердить собственности жителей'}
               {pathname === '/account/approve/living_space' &&
                 'В этом разделе Вы можете подтвердить новое жилое помещение, которое отображается в списках вариантов выбора "ЖК", "Адрес здания", "Собственность"'}
+              {pathname === '/account/camera' &&
+                'В этом разделе вы можете просматривать видео с камер видеонаблюдения'}
             </>
           }
         >

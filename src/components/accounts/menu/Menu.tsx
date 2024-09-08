@@ -32,7 +32,7 @@ export const Menu: FC<IMenuProps> = ({
 }) => {
   const { pathname } = useLocation();
   const logout = useLogout();
-  const { role, email } = useTypedSelector((state) => state.UserReducer.user);
+  const { role } = useTypedSelector((state) => state.UserReducer.user);
 
   const [activeAccordion, changeActiveAccordion] = useState<IAccordionState>({
     confirmations: false,
@@ -58,9 +58,7 @@ export const Menu: FC<IMenuProps> = ({
           {(role === 'executor' || role === 'dispatcher') && (
             <EmailApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           )}
-          {email === 'SuperDispatcher2@yandex.ru' && (
-            <Camera pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
-          )}
+          <Camera pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           {role === 'dispatcher' && (
             <>
               <Directories
