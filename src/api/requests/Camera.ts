@@ -1,8 +1,9 @@
-import { getAllCamerasByBuildingId, getVideoFile } from '..';
+import { getAllCamerasByBuildingId, getSliceInfo } from '..';
 import { ICamera, IError } from '../../components/types';
 import request from 'axios';
 import { refreshRequest } from './Main';
 import { errorAlert } from './Main';
+import axios from 'axios';
 
 export const getAllCameraByBuildingIdRequest = async (
   building_id: string,
@@ -34,12 +35,30 @@ export const getAllCameraByBuildingIdRequest = async (
     if (refresh_status === 403) logout();
   } else return response;
 };
-
-export const getVideoFileRequest = async (url: string): Promise<200 | void> => {
+export const getSlicesInfoRequest = async (url: string): Promise<string[] | void> => {
   try {
-    await getVideoFile(url);
-    return 200;
+    const response = await getSliceInfo(`${url}/index.txt`);
+    if (response.status === 200 && Array.isArray(response.data)) {
+      let blobArray: string[] = [];
+      response.data.forEach((el) => {
+        blobArray.push(`${url}/${el}.mp4`);
+      });
+      return blobArray;
+    }
+    return;
   } catch (e) {
     return;
   }
 };
+
+// export const getVideoStreamRequest = async (url: string): Promise<string | 404 | void> => {
+//   try {
+//     const response = await axios.get(url, { responseType: 'blob' });
+//     return URL.createObjectURL(response.data);
+//   } catch (e) {
+//     if (request.isAxiosError(e) && e.response?.status === 404) {
+//       return 404;
+//     }
+//     return;
+//   }
+// };

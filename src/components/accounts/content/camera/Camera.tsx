@@ -88,6 +88,7 @@ export const Camera: FC<IProps> = ({ getAllBuildingsByComplexId, getCitizenPosse
 
   const changeBuilding = async (building_id: number) => {
     if (error) setError(null);
+    if (cameras.length) setCameras([]);
     setSelectedBuilding(building_id);
     await getAllCamerasByBuildingId(building_id.toString());
   };

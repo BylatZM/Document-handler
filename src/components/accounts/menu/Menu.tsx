@@ -42,7 +42,7 @@ export const Menu: FC<IMenuProps> = ({
     <div
       className={clsx(
         'transitionFast fixed z-40 inset-y-0 left-0 overflow-x-hidden p-1 sm:p-4 overflow-y-auto bg-blue-700 bg-opacity-10 backdrop-blur-xl border-blue-700 border-2 shadow-black shadow-lg menu',
-        isMenuOpened ? 'w-[250px] sm:w-[310px] opacity-100' : 'w-0 opacity-0 mr-[-2px]',
+        isMenuOpened ? 'w-[250px] sm:w-[310px] opacity-100' : 'w-0 opacity-0 left-[-2rem]',
       )}
     >
       <div className='relative w-[240px] sm:min-w-[274px] h-full'>

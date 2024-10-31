@@ -726,3 +726,8 @@ export interface ICamera {
   preview: string;
   description: string;
 }
+
+export interface IVideo {
+  video: Blob;
+  url: string;
+}

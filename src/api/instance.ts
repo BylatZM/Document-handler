@@ -36,7 +36,7 @@ axiosInstance.interceptors.request.use((config) => {
   if (['system/create/file', 'help', 'email/create/file'].some((el) => config.url?.includes(el))) {
     delete config.headers['Content-Type'];
   }
-  if (config.url?.includes('hls/stream')) {
+  if (config.url?.includes('/mp4/')) {
     delete config.headers['Content-Type'];
     delete config.headers['Authorization'];
   }

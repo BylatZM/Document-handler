@@ -237,4 +237,4 @@ export const getAllCamerasByBuildingId = (
 ): AxiosPromise<ICamera[] | void | IError> =>
   axiosInstance.get(endpoints.video.getAllByBuildingId + buildingId);
 
-export const getVideoFile = (url: string): AxiosPromise<void> => axiosInstance.get(url);
+export const getSliceInfo = (url: string): AxiosPromise<void> => axiosInstance.get(url);
