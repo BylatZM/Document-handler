@@ -4,9 +4,8 @@ import { IoFunnel } from 'react-icons/io5';
 import clsx from 'clsx';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import {
-  IComplex,
-  IFilterGisAppOptions,
-  IGisTableColumns,
+  IFilterOpenKazanAppOptions,
+  IOpenKazanTableColumns,
   ISortOptions,
   IStatus,
   ITableParams,
@@ -14,37 +13,36 @@ import {
 import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { FaSort, FaSortDown, FaSortUp } from 'react-icons/fa';
 import { BuildingTableComponent } from './tableColumnComponents/BuildingTableComponent';
-import { ApplicantEmailTableComponent } from './tableColumnComponents/ApplicantEmailTableComponent';
 import { ApplicantFioTableComponent } from './tableColumnComponents/ApplicantFioTableComponent';
 import { ApplicantPhoneTableComponent } from './tableColumnComponents/ApplicantPhoneTableComponent';
 import { PossessionNameTableComponent } from './tableColumnComponents/PossessionNameTableComponent';
 import { SubtypeTableComponent } from './tableColumnComponents/SubtypeTableComponent';
 import { TypeTableComponent } from './tableColumnComponents/TypeTableComponent';
+import { OpenKazanTypeStatusName } from './TableArgs';
+import { EmployeeTableComponent } from './tableColumnComponents/EmployeeTableComponent';
 
 interface IProps {
   showForm: (application_id: number) => void;
-  gisTable: ColumnsType<IGisTableColumns>;
+  openKazanTable: ColumnsType<IOpenKazanTableColumns>;
   tableParams: ITableParams;
-  complexes: IComplex[];
   statuses: IStatus[];
   getGisApplications: (
-    filterOptions?: IFilterGisAppOptions,
+    filterOptions?: IFilterOpenKazanAppOptions,
     sortOptions?: ISortOptions,
   ) => Promise<void>;
   setTableParams: React.Dispatch<React.SetStateAction<ITableParams>>;
   applicationFreshnessStatus: (
     creatingDate: string,
-    normative_in_hours: number,
+    dueDate: string,
   ) => 'fresh' | 'warning' | 'expired';
   isNeedToGet: boolean;
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GisTable: FC<IProps> = ({
+export const OpenKazanTable: FC<IProps> = ({
   showForm,
-  gisTable,
+  openKazanTable,
   tableParams,
-  complexes,
   statuses,
   getGisApplications,
   setTableParams,
@@ -52,18 +50,18 @@ export const GisTable: FC<IProps> = ({
   isNeedToGet,
   changeIsNeedToGet,
 }) => {
-  const { gisApplications } = useTypedSelector((state) => state.ApplicationReducer);
+  const { openKazanApplications } = useTypedSelector((state) => state.ApplicationReducer);
   const { isLoading } = useTypedSelector((state) => state.ApplicationReducer);
-  const [filterOptions, setFilterOptions] = useState<IFilterGisAppOptions>({
-    complexId: null,
+  const [filterOptions, setFilterOptions] = useState<IFilterOpenKazanAppOptions>({
     buildingAddress: null,
     statusId: null,
     phone: null,
-    email: null,
     fio: null,
     possessionName: null,
-    typeId: null,
+    typeName: null,
     subtypeName: null,
+    employeeName: null,
+    typeStatusName: null,
   });
   const [sortOptions, setSortOptions] = useState<ISortOptions>({
     status_inc: false,
@@ -84,27 +82,27 @@ export const GisTable: FC<IProps> = ({
   }, [isNeedToGet]);
 
   useEffect(() => {
-    let sortParams = localStorage.getItem('gis_application_sort_options');
+    let sortParams = localStorage.getItem('open_kazan_application_sort_options');
     let parsedSortObject: ISortOptions = sortOptions;
     if (sortParams) {
       try {
         parsedSortObject = JSON.parse(sortParams);
         setSortOptions(parsedSortObject);
       } catch (e) {
-        localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
+        localStorage.setItem('open_kazan_application_sort_options', JSON.stringify(sortOptions));
       }
-    } else localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
+    } else localStorage.setItem('open_kazan_application_sort_options', JSON.stringify(sortOptions));
 
-    let filterParams = localStorage.getItem('gis_application_filter_options');
-    let parsedFilterObject: IFilterGisAppOptions | null = null;
+    let filterParams = localStorage.getItem('open_kazan_application_filter_options');
+    let parsedFilterObject: IFilterOpenKazanAppOptions | null = null;
     if (filterParams) {
       try {
         parsedFilterObject = JSON.parse(filterParams);
         if (parsedFilterObject) setFilterOptions(parsedFilterObject);
       } catch (e) {
-        localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
+        localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
       }
-    } else localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
+    } else localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
     changeIsNeedToGet(true);
   }, []);
 
@@ -239,7 +237,7 @@ export const GisTable: FC<IProps> = ({
         if (
           props.children &&
           Array.isArray(props.children) &&
-          props.children[1] === 'Жилищный комплекс'
+          props.children[1] === 'Тип статуса заявки'
         ) {
           return (
             <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
@@ -253,36 +251,35 @@ export const GisTable: FC<IProps> = ({
                   overlayClassName='bg-black overflow-y-auto max-h-[150px] border-white border-[1px] bg-opacity-70 max-sm:text-sm'
                   dropdownRender={() => (
                     <div className='flex flex-col'>
-                      {complexes.map((el) => (
+                      {OpenKazanTypeStatusName.map((el, index) => (
                         <button
-                          key={el.id}
+                          key={index + 1}
                           className={clsx(
                             'transitionFast border-none p-2',
-                            filterOptions.complexId === el.id
+                            filterOptions.typeStatusName === el.url_extra
                               ? 'bg-white text-black'
                               : 'hover:bg-black text-white',
                           )}
                           onClick={() => {
                             setFilterOptions((prev) => ({
                               ...prev,
-                              complexId: el.id,
-                              buildingId: null,
+                              typeStatusName: el.url_extra,
                             }));
                             changeIsNeedToGet(true);
                           }}
                         >
-                          {el.name}
+                        {el.description}
                         </button>
                       ))}
                       <button
                         className={clsx(
                           'transitionFast border-none p-2',
-                          filterOptions.complexId === null
+                          filterOptions.typeStatusName === null
                             ? 'text-black bg-white'
                             : 'hover:bg-black text-white',
                         )}
                         onClick={() => {
-                          setFilterOptions((prev) => ({ ...prev, complexId: null }));
+                          setFilterOptions((prev) => ({ ...prev, typeStatusName: null }));
                           changeIsNeedToGet(true);
                         }}
                       >
@@ -294,7 +291,7 @@ export const GisTable: FC<IProps> = ({
                   <IoFunnel
                     className={clsx(
                       'text-lg cursor-pointer',
-                      filterOptions.complexId ? 'text-blue-700' : 'text-white',
+                      filterOptions.typeStatusName ? 'text-blue-700' : 'text-white',
                     )}
                   />
                 </Dropdown>
@@ -312,25 +309,6 @@ export const GisTable: FC<IProps> = ({
               <BuildingTableComponent
                 name={props.children}
                 defaultItemValue={filterOptions.buildingAddress}
-                setFilterOptions={setFilterOptions}
-                changeIsNeedToGet={changeIsNeedToGet}
-              />
-            </th>
-          );
-        }
-        if (
-          props.children &&
-          Array.isArray(props.children) &&
-          props.children[1] === 'Электронная почта'
-        ) {
-          return (
-            <th
-              style={{ background: '#000', color: '#fff', textAlign: 'center' }}
-              className='relative'
-            >
-              <ApplicantEmailTableComponent
-                name={props.children}
-                defaultItemValue={filterOptions.email}
                 setFilterOptions={setFilterOptions}
                 changeIsNeedToGet={changeIsNeedToGet}
               />
@@ -393,8 +371,7 @@ export const GisTable: FC<IProps> = ({
             <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
               <TypeTableComponent
                 name={props.children}
-                complexId={filterOptions.complexId}
-                typeId={filterOptions.typeId}
+                defaultItemValue={filterOptions.typeName}
                 setFilterOptions={setFilterOptions}
                 changeIsNeedToGet={changeIsNeedToGet}
               />
@@ -410,9 +387,23 @@ export const GisTable: FC<IProps> = ({
             <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
               <SubtypeTableComponent
                 name={props.children}
-                complexId={filterOptions.complexId}
-                typeId={filterOptions.typeId}
-                subtypeName={filterOptions.subtypeName}
+                defaultItemValue={filterOptions.subtypeName}
+                setFilterOptions={setFilterOptions}
+                changeIsNeedToGet={changeIsNeedToGet}
+              />
+            </th>
+          );
+        }
+        if (
+          props.children &&
+          Array.isArray(props.children) &&
+          props.children[1] === 'Исполнитель'
+        ) {
+          return (
+            <th style={{ background: '#000', color: '#fff', textAlign: 'center' }}>
+              <EmployeeTableComponent
+                name={props.children}
+                defaultItemValue={filterOptions.subtypeName}
                 setFilterOptions={setFilterOptions}
                 changeIsNeedToGet={changeIsNeedToGet}
               />
@@ -437,24 +428,23 @@ export const GisTable: FC<IProps> = ({
 
   return (
     <Table
-      dataSource={gisApplications.map((el) => ({
+      dataSource={openKazanApplications.map((el) => ({
         key: el.id,
         createdDate: el.created_date,
+        dueDate: el.due_date ?? '—',
         status: el.status.name,
-        type: el.type ? el.type.name : '—',
-        subtype: el.subtype ? el.subtype.name : '—',
-        dueDate: !el.due_date ? '—' : el.due_date,
+        type: el.type_name,
+        subtype: el.subtype_name,
         applicantComment: el.applicant_comment,
-        complex: el.complex ? el.complex.name : '—',
         building: el.building_address,
-        possession: !el.possession ? '—' : el.possession,
-        phone: !el.phone ? '—' : el.phone,
-        email: !el.email ? '—' : el.email,
+        possession: el.possession,
+        phone: el.contact,
         fio: el.applicant_fio,
-        employee: el.employee ? el.employee.employee : '—',
-        normative: el.normative ? el.normative : 120,
+        employee: el.employee_name ?? '—',
+        emergency: el.is_emergency ? 'ЭКСТРЕННАЯ' : 'обычная',
+        deadline: el.deadline,
       }))}
-      columns={gisTable}
+      columns={openKazanTable}
       components={components}
       bordered
       pagination={tableParams.pagination}
@@ -465,13 +455,13 @@ export const GisTable: FC<IProps> = ({
       }}
       rowClassName={(item) => {
         if (
-          applicationFreshnessStatus(item.createdDate, item.normative) === 'expired' &&
-          item.status !== 'Закрыта' && item.status !== 'Заведена неверно'
+          applicationFreshnessStatus(item.createdDate, item.deadline) === 'expired' &&
+          item.status !== 'Закрыта'
         ) {
           return 'table-row bg-red-400 bg-opacity-80';
         }
         if (
-          applicationFreshnessStatus(item.createdDate, item.normative) === 'warning' &&
+          applicationFreshnessStatus(item.createdDate, item.deadline) === 'warning' &&
           item.status !== 'Закрыта'
         ) {
           return 'table-row bg-amber-400 bg-opacity-80';

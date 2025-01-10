@@ -4,49 +4,33 @@ import { useTypedSelector } from '../../../../hooks/useTypedSelector';
 import { ColumnsType } from 'antd/es/table';
 import {
   ITableParams,
-  IGisTableColumns,
-  IGisApplication,
-  IFilterGisAppOptions,
   ISortOptions,
-  IEmployee,
-  IType,
-  ISubtype,
+  IOpenKazanApplication,
+  IOpenKazanTableColumns,
+  IFilterOpenKazanAppOptions,
 } from '../../../../types';
 import { FC, useEffect, useState } from 'react';
 import { useActions } from '../../../../hooks/useActions';
 import { useLogout } from '../../../../hooks/useLogout';
-import { getAllGisApplicationsByExtraRequest } from '../../../../../api/requests/Application';
+import { getAllOpenKazanApplicationsByExtraRequest } from '../../../../../api/requests/Application';
 import { defaultColumns } from './TableArgs';
 import { ColumnsForm } from './ColumnsForm';
-import { GisTable } from './GisTable';
+import { OpenKazanTable } from './OpenKazanTable';
 import { DefaultAppForm } from './appForm/DefaultAppForm';
 
-interface IProps {
-  getPriorities: () => Promise<void>;
-  getStatuses: () => Promise<void>;
-  getEmploys: (complex_id: string, subtype_id: string) => Promise<IEmployee[] | void>;
-  getTypesByComplexId: (complex_id: string) => Promise<IType[] | void>;
-  getSubtypes: (type_id: string, complex_id: string) => Promise<ISubtype[] | void>;
-}
-
-export const GisApplication: FC<IProps> = ({
-  getPriorities,
+export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
   getStatuses,
-  getEmploys,
-  getTypesByComplexId,
-  getSubtypes,
 }) => {
-  const { gisApplications, priorities, statuses } = useTypedSelector(
+  const { openKazanApplications, statuses } = useTypedSelector(
     (state) => state.ApplicationReducer,
   );
-  const { complexes } = useTypedSelector((state) => state.PossessionReducer);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
-  const [selectedItem, changeSelectedItem] = useState<IGisApplication | null>(null);
+  const [selectedItem, changeSelectedItem] = useState<IOpenKazanApplication | null>(null);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
   const [checkboxValues, changeCheckboxValues] = useState<null | string[]>(null);
-  const [gisTable, changeGisTable] = useState<null | ColumnsType<IGisTableColumns>>(null);
-  const { applicationLoading, gisApplicationSuccess } = useActions();
-  const page_size = localStorage.getItem('gis_application_size');
+  const [openKazanTable, changeOpenKazanTable] = useState<null | ColumnsType<IOpenKazanTableColumns>>(null);
+  const { applicationLoading, openKazanApplicationSuccess } = useActions();
+  const page_size = localStorage.getItem('open_kazan_application_size');
   const [tableParams, setTableParams] = useState<ITableParams>({
     pagination: {
       current: 1,
@@ -67,52 +51,51 @@ export const GisApplication: FC<IProps> = ({
 
   const applicationFreshnessStatus = (
     creatingDate: string,
-    normative_in_hours: number,
+    dueDate: string,
   ): 'fresh' | 'warning' | 'expired' => {
-    if (!normative_in_hours) return 'expired';
-    const difference = DifferenceBetweenNowAndNormativeDates(creatingDate, normative_in_hours);
-    if (difference <= 2 && difference > 0) return 'warning';
+    const difference = DifferenceBetweenDates(creatingDate, dueDate);
+    if (difference <= Math.floor(difference / 2) && difference > 0) return 'warning';
     if (difference <= 0) return 'expired';
 
     return 'fresh';
   };
 
-  const DifferenceBetweenNowAndNormativeDates = (
+  const DifferenceBetweenDates = (
     creatingDate: string,
-    normative_in_hours: number,
+    dueDate: string,
   ) => {
-    const nowDate = new Date();
-    const [dmy, hms] = creatingDate.split(' ');
-    let futureDate = new Date(`${dmy.split('.').reverse().join('-')}T${hms}`);
-    futureDate.setDate(futureDate.getDate() + Math.floor(normative_in_hours / 24));
-    return (futureDate.getTime() - nowDate.getTime()) / (24 * 60 * 60 * 1000);
+    const [creatingDatedmy, creatingDatehms] = creatingDate.split(' ');
+    const [dueDatedmy, dueDatehms] = dueDate.split(' ')
+    let creatingDateTotalSeconds = new Date(`${creatingDatedmy.split('.').reverse().join('-')}T${creatingDatehms}`).getTime();
+    let dueDateTotalSeconds = new Date(`${dueDatedmy.split('.').reverse().join('-')}T${dueDatehms}`).getTime();
+    return Math.abs(dueDateTotalSeconds - creatingDateTotalSeconds) / (60 * 60 * 1000);
   };
 
   const showForm = (app_id: number) => {
-    const app = gisApplications.filter((el) => el.id === app_id);
+    const app = openKazanApplications.filter((el) => el.id === app_id);
     if (app.length) changeSelectedItem(app[0]);
     else changeSelectedItem(DefaultAppForm);
   };
 
-  const getGisApplications = async (
-    filterOptions?: IFilterGisAppOptions,
+  const getOpenKazanApplications = async (
+    filterOptions?: IFilterOpenKazanAppOptions,
     sortOptions?: ISortOptions,
   ) => {
-    applicationLoading('gisApplications');
+    applicationLoading('openKazanApplications');
     if (tableParams.pagination) {
-      let application_size: string | null = localStorage.getItem('gis_application_size');
+      let application_size: string | null = localStorage.getItem('open_kazan_application_size');
       if (!application_size) {
-        localStorage.setItem('gis_application_size', '10');
+        localStorage.setItem('open_kazan_application_size', '10');
         application_size = '10';
       }
       let size = parseInt(application_size);
       if (isNaN(size) || size < 1) {
         size = 10;
-        localStorage.setItem('gis_application_size', '10');
+        localStorage.setItem('open_kazan_application_size', '10');
       }
       if (tableParams.pagination.pageSize && size !== tableParams.pagination.pageSize) {
         size = tableParams.pagination.pageSize;
-        localStorage.setItem('gis_application_size', tableParams.pagination.pageSize.toString());
+        localStorage.setItem('open_kazan_application_size', tableParams.pagination.pageSize.toString());
       }
       setTableParams((prev) => ({
         ...prev,
@@ -124,9 +107,18 @@ export const GisApplication: FC<IProps> = ({
     }
     let extra = '';
     if (filterOptions) {
-      localStorage.setItem('gis_application_filter_options', JSON.stringify(filterOptions));
-      if (filterOptions.complexId) {
-        extra += `&complex_id=${filterOptions.complexId}`;
+      localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
+      if (filterOptions.employeeName){
+        extra += `&employee_name=${filterOptions.employeeName}`
+      }
+      if (filterOptions.typeStatusName) {
+        extra += `&type_status_name=${filterOptions.typeStatusName}`;
+      }
+      if (filterOptions.typeName) {
+        extra += `&type_name=${filterOptions.typeName}`;
+      }
+      if (filterOptions.subtypeName) {
+        extra += `&type_name=${filterOptions.subtypeName}`;
       }
       if (filterOptions.buildingAddress) {
         extra += `&building_address=${filterOptions.buildingAddress
@@ -139,9 +131,6 @@ export const GisApplication: FC<IProps> = ({
           .trim()
           .replaceAll(/\s\s/g, '')
           .replaceAll(/[а-яА-Я\s]/g, '')}`;
-      }
-      if (filterOptions.email) {
-        extra += `&email=${filterOptions.email.trim().replaceAll(/\s\s/g, '')}`;
       }
       if (filterOptions.possessionName) {
         extra += `&possession_name=${filterOptions.possessionName
@@ -173,7 +162,7 @@ export const GisApplication: FC<IProps> = ({
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
     if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
-    const response = await getAllGisApplicationsByExtraRequest(logout, page, page_size, extra);
+    const response = await getAllOpenKazanApplicationsByExtraRequest(logout, page, page_size, extra);
     if (response) {
       if (
         (tableParams.pagination && !tableParams.pagination.total) ||
@@ -189,7 +178,7 @@ export const GisApplication: FC<IProps> = ({
           },
         });
       }
-      gisApplicationSuccess(response.result);
+      openKazanApplicationSuccess(response.result);
     } else applicationLoading(null);
   };
 
@@ -199,7 +188,7 @@ export const GisApplication: FC<IProps> = ({
   })) as CheckboxOptionType[];
 
   useEffect(() => {
-    let json_array = localStorage.getItem('gis_application_table_columns');
+    let json_array = localStorage.getItem('open_kazan_application_table_columns');
     let filter_array: string[] = [];
 
     try {
@@ -209,16 +198,16 @@ export const GisApplication: FC<IProps> = ({
     }
 
     if (filter_array.length > 0) {
-      let array: ColumnsType<IGisTableColumns> = [];
+      let array: ColumnsType<IOpenKazanTableColumns> = [];
       defaultColumns.forEach((el) => {
         if (el.key && filter_array.some((item) => item === el.key)) {
           array.push(el);
         }
       });
-      changeGisTable(array);
+      changeOpenKazanTable(array);
       changeCheckboxValues(array.map(({ key }) => key as string));
     } else {
-      changeGisTable(defaultColumns);
+      changeOpenKazanTable(defaultColumns);
       changeCheckboxValues(defaultColumns.map(({ key }) => key as string));
     }
   }, []);
@@ -226,7 +215,6 @@ export const GisApplication: FC<IProps> = ({
   useEffect(() => {
     if (role === 'executor') return;
     if (!statuses.length) getStatuses();
-    if (!priorities.length) getPriorities();
   }, []);
 
   return (
@@ -234,33 +222,30 @@ export const GisApplication: FC<IProps> = ({
       <ColumnsForm
         needShow={needShowColumnForm}
         changeNeedShow={changeNeedShowColumnForm}
-        changeTable={changeGisTable}
+        changeTable={changeOpenKazanTable}
         checkboxValues={checkboxValues}
         changeCheckboxValues={changeCheckboxValues}
         options={options}
       />
       <AppForm
-        gisApplication={selectedItem}
+        openKazanApplication={selectedItem}
         changeIsNeedToGet={changeIsNeedToGet}
         changeSelectedItem={changeSelectedItem}
         applicationFreshnessStatus={
           !selectedItem ||
-          (selectedItem && (selectedItem.status.name === 'Закрыта' || selectedItem.status.name === 'Заведена неверно')) ||
+          (selectedItem && selectedItem.status.name === 'Закрыта') ||
           (selectedItem && selectedItem.id === 0)
             ? 'fresh'
             : applicationFreshnessStatus(
                 selectedItem.created_date,
-                !selectedItem.normative ? 0 : selectedItem.normative,
+                selectedItem.deadline,
               )
         }
-        getEmploys={getEmploys}
-        getSubtypes={getSubtypes}
-        getTypesByComplexId={getTypesByComplexId}
       />
       <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>
           <div className='flex justify-start gap-x-8 pl-3 mb-8 sm:items-center max-sm:flex-col max-sm:gap-x-0 max-sm:gap-y-3'>
-            <span className='text-gray-400 w-fit text-sm'>Найдено: {gisApplications.length}</span>
+            <span className='text-gray-400 w-fit text-sm'>Найдено: {openKazanApplications.length}</span>
             <Button
               className='w-fit border-blue-700 text-blue-700'
               onClick={() => changeNeedShowColumnForm(true)}
@@ -268,16 +253,15 @@ export const GisApplication: FC<IProps> = ({
               Изменить отображаемые столбцы
             </Button>
           </div>
-          {!gisTable && <div className='w-[1024px]'></div>}
-          {gisTable && (
-            <GisTable
+          {!openKazanTable && <div className='w-[1024px]'></div>}
+          {openKazanTable && (
+            <OpenKazanTable
               showForm={showForm}
-              gisTable={gisTable}
+              openKazanTable={openKazanTable}
               tableParams={tableParams}
-              complexes={complexes}
               statuses={statuses}
               setTableParams={setTableParams}
-              getGisApplications={getGisApplications}
+              getGisApplications={getOpenKazanApplications}
               isNeedToGet={isNeedToGet}
               changeIsNeedToGet={changeIsNeedToGet}
               applicationFreshnessStatus={applicationFreshnessStatus}

@@ -284,7 +284,7 @@ export const Application: FC<IProps> = ({
         applicationFreshnessStatus={
           !selectedItem ||
           role === 'citizen' ||
-          (selectedItem && selectedItem.status.name === 'Закрыта') ||
+          (selectedItem && (selectedItem.status.name === 'Закрыта' || selectedItem.status.name === 'Заведена неверно')) ||
           (selectedItem && selectedItem.id === 0)
             ? 'fresh'
             : applicationFreshnessStatus(

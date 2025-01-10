@@ -43,7 +43,7 @@ import {
 import { Camera } from './content/camera/Camera';
 import { EmailApplication } from './content/application/email/EmailApplication';
 import { RatingForm } from './content/ratingForm/RatingForm';
-import { getAllCameraByBuildingIdRequest } from '../../api/requests/Camera';
+import { OpenKazanApplication } from './content/application/openkazan/OpenKazanApplication';
 
 export const Account = () => {
   const logout = useLogout();
@@ -344,6 +344,15 @@ export const Account = () => {
           getEmploys={getEmploys}
           getTypesByComplexId={getTypesByComplexId}
           getSubtypes={getSubtypes}
+        />
+      );
+    }
+    if (pathname === '/account/applications/open_kazan') {
+      if (!['dispatcher'].some((el) => el === user.role))
+        return <ErrorPage message='Страница не найдена' />;
+      return (
+        <OpenKazanApplication
+          getStatuses={getStatuses}
         />
       );
     }

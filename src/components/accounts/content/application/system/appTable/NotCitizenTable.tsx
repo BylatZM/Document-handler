@@ -591,7 +591,7 @@ export const NotCitizenTable: FC<IProps> = ({
       rowClassName={(item) => {
         if (
           applicationFreshnessStatus(item.createdDate, item.normative) === 'expired' &&
-          item.status !== 'Закрыта'
+          item.status !== 'Закрыта' && item.status !== 'Заведена неверно'
         ) {
           return 'table-row bg-red-400 bg-opacity-80';
         }

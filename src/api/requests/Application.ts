@@ -17,6 +17,7 @@ import {
   IUpdateEmailAppByDispatcher,
   IUpdateEmailAppByEmployee,
   ICreateApplicationByCitizenSuccessResponse,
+  IOpenKazanApplicationPagination,
 } from '../../components/types';
 import {
   createSystemApplication,
@@ -36,6 +37,7 @@ import {
   updateEmailApplicationById,
   loadSystemApplicationFiles,
   loadEmailApplicationFiles,
+  getAllOpenKazanApplicationByExtra,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -52,6 +54,38 @@ export const getAllSystemApplicationsByExtraRequest = async (
   const makeRequest = async (): Promise<IApplicationPagination | 401 | void> => {
     try {
       const response = await getAllSystemApplicationsByExtra(page, page_size, extra);
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const getAllOpenKazanApplicationsByExtraRequest = async (
+  logout: () => void,
+  page: string,
+  page_size: string,
+  extra: string,
+): Promise<IOpenKazanApplicationPagination | void> => {
+  const makeRequest = async (): Promise<IOpenKazanApplicationPagination | 401 | void> => {
+    try {
+      const response = await getAllOpenKazanApplicationByExtra(page, page_size, extra);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {

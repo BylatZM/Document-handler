@@ -14,6 +14,7 @@ import { GisApplications } from './buttons/general/GisApplications';
 import { IAccordionState } from '../../types';
 import { Camera } from './buttons/general/Camera';
 import { EmailApplications } from './buttons/general/EmailApplications';
+import { OpenKazanApplications } from './buttons/dispatcher/OpenKazanApplications';
 
 interface IMenuProps {
   isMenuOpened: boolean;
@@ -52,6 +53,9 @@ export const Menu: FC<IMenuProps> = ({
         <div className='flex flex-col mt-10 text-lg'>
           <AboutMe pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           <Applications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
+          {(role === 'dispatcher') && (
+            <OpenKazanApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
+          )}
           {(role === 'executor' || role === 'dispatcher') && (
             <GisApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           )}

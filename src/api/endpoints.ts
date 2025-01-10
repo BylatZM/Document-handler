@@ -51,6 +51,7 @@ const endpoints = {
     getAllSubtypesWithExtra: 'application/subtype/getAll',
     getAllSources: 'application/source/getAll',
     getAllPriorities: 'application/priority/getAll',
+    getAllOpenKazanApplication: 'application/open_kazan/getAll',
   },
   employee: {
     getEmploysWithExtra: 'employee/getAll',

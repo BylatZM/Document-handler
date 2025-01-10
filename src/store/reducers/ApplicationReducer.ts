@@ -1,4 +1,4 @@
-import { IAddingFile } from './../../components/types';
+import { IOpenKazanApplication } from './../../components/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import {
@@ -21,6 +21,7 @@ const initialState: IApplicationState = {
   applications: [],
   gisApplications: [],
   emailApplications: [],
+  openKazanApplications: [],
   types: [],
   grades: [],
   sources: [],
@@ -49,6 +50,10 @@ export const ApplicationReducer = createSlice({
     },
     emailApplicationSuccess: (state, { payload }: PayloadAction<IEmailApplication[]>) => {
       state.emailApplications = payload;
+      state.isLoading = null;
+    },
+    openKazanApplicationSuccess: (state, {payload}: PayloadAction<IOpenKazanApplication[]>) => {
+      state.openKazanApplications = payload;
       state.isLoading = null;
     },
     typesSuccess: (state, { payload }: PayloadAction<IType[]>) => {

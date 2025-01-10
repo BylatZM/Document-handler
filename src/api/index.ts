@@ -40,6 +40,7 @@ import {
   ICitizenRatingRequest,
   ICitizenFio,
   ICamera,
+  IOpenKazanApplicationPagination,
 } from '../components/types';
 
 export const login = (params: IAuthRequest): AxiosPromise<IAuthGoodResponse | IError> =>
@@ -187,6 +188,12 @@ export const getAllGisApplicationsByExtra = (
   axiosInstance.get(
     endpoints.application.getAllGisWithExtra + `?page=${page}&page_size=${page_size}${extra}`,
   );
+
+export const getAllOpenKazanApplicationByExtra = (
+  page: string,
+  page_size: string,
+  extra: string
+): AxiosPromise<IOpenKazanApplicationPagination> => axiosInstance.get(endpoints.application.getAllOpenKazanApplication + `?page=${page}&page_size=${page_size}${extra}`);
 
 export const loadEmailApplicationFiles = (files: FormData): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.application.loadEmailFiles, files);

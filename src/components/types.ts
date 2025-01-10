@@ -69,6 +69,7 @@ export type IAppLoading =
   | 'applications'
   | 'gisApplications'
   | 'emailApplications'
+  | 'openKazanApplications'
   | 'types'
   | 'grades'
   | 'employs'
@@ -82,6 +83,7 @@ export interface IApplicationState {
   applications: IApplication[];
   gisApplications: IGisApplication[];
   emailApplications: IEmailApplication[];
+  openKazanApplications: IOpenKazanApplication[];
   types: IType[];
   grades: IGrade[];
   employs: IEmployee[];
@@ -302,6 +304,64 @@ export interface IApplication {
   normative: number | null;
   citizen_files: IFile[];
   employee_files: IFile[];
+}
+
+export interface IOpenKazanApplicationPagination {
+  result: IOpenKazanApplication[];
+  total: number;
+}
+
+export interface IOpenKazanApplication {
+  id: number;
+  status: IStatus;
+  building_address: string;
+  possession: string;
+  applicant_comment: string;
+  created_date: string;
+  due_date: string | null;
+  deadline: string;
+  employee_name: string | null;
+  applicant_fio: string;
+  contact: string;
+  is_emergency: boolean;
+  type_name: string;
+  subtype_name: string;
+}
+
+export interface IOpenKazanTableColumns {
+  key: number;
+  createdDate: string;
+  dueDate: string;
+  status: string;
+  type: string;
+  subtype: string;
+  applicantComment: string;
+  building: string;
+  possession: string;
+  phone: string;
+  fio: string;
+  employee: string;
+  emergency: string;
+  deadline: string;
+}
+
+export interface IFilterOpenKazanAppOptions {
+  buildingAddress: string | null;
+  statusId: number | null;
+  phone: string | null;
+  fio: string | null;
+  possessionName: string | null;
+  typeName: string | null;
+  subtypeName: string | null;
+  employeeName: string | null;
+  typeStatusName: IOpenKazanTypeStatusName
+}
+
+export type IOpenKazanTypeStatusName = 'emergency' | 'current' | null
+
+export interface IOpenKazanTypeStatusNameTableProps {
+  url_extra: Exclude<IOpenKazanTypeStatusName, null>,
+  description: string
 }
 
 export interface IAddingFile {

@@ -20,6 +20,7 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
         <b className='mr-2 text-lg'>
           {pathname === '/account/aboutMe' && 'Обо мне'}
           {pathname === '/account/applications' && 'Заявки'}
+          {pathname === '/account/applications/open_kazan' && 'Заявки с Открытой Казани'}
           {pathname === '/account/applications/gis' && 'Заявки с ГИС ЖКХ'}
           {pathname === '/account/applications/email' && 'Заявки с почты'}
           {pathname === '/account/approve/citizen_possession' &&
@@ -35,6 +36,7 @@ export const Header: FC<IHeaderProps> = ({ changeIsMenuOpened, isMenuOpened }) =
                 'В этом разделе Вы можете просматривать/изменять базовую информацию касаемо Вашего аккаунта'}
               {pathname === '/account/applications' &&
                 'В этом разделе Вы можете просматривать Ваши заявки и создавать новые'}
+              {pathname === '/account/applications/open_kazan' && 'В этом разделе Вы можете просматривать Ваши заявки с Открытой Казани'}
               {pathname === '/account/applications/gis' &&
                 'В этом разделе Вы можете просматривать Ваши заявки с ГИС ЖКХ'}
               {pathname === '/account/applications/email' &&
