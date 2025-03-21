@@ -348,7 +348,7 @@ export const Account = () => {
       );
     }
     if (pathname === '/account/applications/open_kazan') {
-      if (!['dispatcher'].some((el) => el === user.role))
+      if (!['dispatcher', 'executor'].some((el) => el === user.role))
         return <ErrorPage message='Страница не найдена' />;
       return (
         <OpenKazanApplication

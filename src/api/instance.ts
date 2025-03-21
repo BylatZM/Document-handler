@@ -3,7 +3,7 @@ import { ICache } from '../components/types';
 
 export const API_URL =
   process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8000/api/'
+    ? 'http://46.30.47.99:8000/api/'
     : 'https://uslugi.dltex.ru:8000/api/';
 export const axiosInstance = axios.create({
   baseURL: API_URL,

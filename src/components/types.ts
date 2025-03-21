@@ -314,18 +314,23 @@ export interface IOpenKazanApplicationPagination {
 export interface IOpenKazanApplication {
   id: number;
   status: IStatus;
+  complex: IComplex | null;
   building_address: string;
   possession: string;
   applicant_comment: string;
+  dispatcher_comment: string;
+  employee_comment: string;
   created_date: string;
   due_date: string | null;
   deadline: string;
-  employee_name: string | null;
   applicant_fio: string;
   contact: string;
   is_emergency: boolean;
   type_name: string;
   subtype_name: string;
+  employee: IEmployee;
+  is_warning: boolean;
+  is_expired: boolean;
 }
 
 export interface IOpenKazanTableColumns {
@@ -336,6 +341,7 @@ export interface IOpenKazanTableColumns {
   type: string;
   subtype: string;
   applicantComment: string;
+  complex: string;
   building: string;
   possession: string;
   phone: string;
@@ -343,6 +349,8 @@ export interface IOpenKazanTableColumns {
   employee: string;
   emergency: string;
   deadline: string;
+  isWarning: boolean;
+  isExpired: boolean;
 }
 
 export interface IFilterOpenKazanAppOptions {

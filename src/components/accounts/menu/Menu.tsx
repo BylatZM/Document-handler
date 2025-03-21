@@ -53,7 +53,7 @@ export const Menu: FC<IMenuProps> = ({
         <div className='flex flex-col mt-10 text-lg'>
           <AboutMe pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           <Applications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
-          {(role === 'dispatcher') && (
+          {(role === 'executor' || role === 'dispatcher') && (
             <OpenKazanApplications pathname={pathname} changeIsMenuOpened={changeIsMenuOpened} />
           )}
           {(role === 'executor' || role === 'dispatcher') && (

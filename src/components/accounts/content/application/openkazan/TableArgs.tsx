@@ -35,11 +35,21 @@ export const defaultColumns: ColumnsType<IOpenKazanTableColumns> = [
     title: 'Тип заявки',
     dataIndex: 'type',
     key: 'type',
+    render: (typeName: string) => (
+      <div className='max-w-[200px] max-md:max-h-[50px] max-h-[100px] overflow-hidden leading-[15px]'>
+        {typeName}
+      </div>
+    )
   },
   {
     title: 'Подтип заявки',
     dataIndex: 'subtype',
     key: 'subtype',
+    render: (subtypeName: string) => (
+      <div className='max-w-[200px] max-md:max-h-[50px] max-h-[100px] overflow-hidden leading-[15px]'>
+        {subtypeName}
+      </div>
+    )
   },
   {
     title: 'Статус',
@@ -74,6 +84,14 @@ export const defaultColumns: ColumnsType<IOpenKazanTableColumns> = [
         {applicantComment}
       </div>
     ),
+  },
+  {
+    title: 'Жилищный комлпекс',
+    dataIndex: 'complex',
+    key: 'complex',
+    render: (complex: string) => (
+      <div className='max-w-[200px] max-h-[80px] leading-[15px]'>{complex}</div>
+    )
   },
   {
     title: 'Адрес здания',

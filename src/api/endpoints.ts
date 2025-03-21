@@ -51,7 +51,12 @@ const endpoints = {
     getAllSubtypesWithExtra: 'application/subtype/getAll',
     getAllSources: 'application/source/getAll',
     getAllPriorities: 'application/priority/getAll',
-    getAllOpenKazanApplication: 'application/open_kazan/getAll',
+  },
+  openKazan: {
+    getAllApplicationWithExtra: 'application/open_kazan/getAll',
+    updateByDispatcherSetCloseStatusById: 'application/open_kazan/dispatcher/update/status/close/',
+    updateByEmployeeSetInWorkStatusById: 'application/open_kazan/employee/update/status/work/',
+    updateByEmployeeSetCloseStatusById: 'application/open_kazan/employee/update/status/close/'
   },
   employee: {
     getEmploysWithExtra: 'employee/getAll',

@@ -571,35 +571,31 @@ export const AppTable: FC<IProps> = ({
     changeIsNeedToGet(true);
   };
 
-  const tableComponent = useMemo(() => {
-    return (
-      <Table
-        dataSource={approvingCitizenPossessions.map((el) => ({
-          key: el.id,
-          status: el.approving_status,
-          createdDate: el.created_date,
-          citizenFIO: `${el.last_name} ${el.first_name} ${!el.patronymic ? '' : el.patronymic}`,
-          possessionType: el.possession_type,
-          possessionName: el.possession,
-          complex: el.complex,
-          building: el.building,
-        }))}
-        columns={columns}
-        components={components}
-        loading={isLoading === 'approvingCitizenPossessions'}
-        bordered
-        pagination={tableParams.pagination}
-        locale={{
-          emptyText: <span className='font-bold text-lg'>Нет данных</span>,
-        }}
-        onChange={handleTableChange}
-        rowClassName='text-center'
-        style={{
-          width: 'fit-content',
-        }}
-      />
-    );
-  }, [approvingCitizenPossessions, isLoading, processingRow]);
-
-  return tableComponent;
+  return (
+    <Table
+      dataSource={approvingCitizenPossessions.map((el) => ({
+        key: el.id,
+        status: el.approving_status,
+        createdDate: el.created_date,
+        citizenFIO: `${el.last_name} ${el.first_name} ${!el.patronymic ? '' : el.patronymic}`,
+        possessionType: el.possession_type,
+        possessionName: el.possession,
+        complex: el.complex,
+        building: el.building,
+      }))}
+      columns={columns}
+      components={components}
+      loading={isLoading === 'approvingCitizenPossessions'}
+      bordered
+      pagination={tableParams.pagination}
+      locale={{
+        emptyText: <span className='font-bold text-lg'>Нет данных</span>,
+      }}
+      onChange={handleTableChange}
+      rowClassName='text-center'
+      style={{
+        width: 'fit-content',
+      }}
+    />
+  );
 };

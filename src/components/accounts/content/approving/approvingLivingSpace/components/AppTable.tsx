@@ -6,12 +6,13 @@ import {
   ILivingSpaceColumns,
   INotApprovedLivingSpace,
   IStatus,
+  ITableParams,
 } from '../../../../../types';
 import { Button, ConfigProvider, Dropdown } from 'antd';
 import clsx from 'clsx';
 import { ImSpinner9 } from 'react-icons/im';
 import { HiOutlineCheck } from 'react-icons/hi';
-import Table, { ColumnsType } from 'antd/es/table';
+import Table, { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { IoFunnel } from 'react-icons/io5';
 import { useActions } from '../../../../../hooks/useActions';
 import { BuildingTableComponent } from './BuildingTableComponent';
@@ -22,6 +23,8 @@ import { PersonalAccountTableComponent } from './PersonalAccountTableComponent';
 
 interface IProps {
   tableInfo: INotApprovedLivingSpace[];
+  tableParams: ITableParams;
+  setTableParams: React.Dispatch<React.SetStateAction<ITableParams>>
   changeSelectedPossession: React.Dispatch<React.SetStateAction<INotApprovedLivingSpace | null>>;
   getNotApprovedLivingSpaces: (
     filterOptions: IFilterNotApprovedLivingSpacesOptions,
@@ -41,6 +44,8 @@ const statuses: IStatus[] = [
 
 export const AppTable: FC<IProps> = ({
   tableInfo,
+  tableParams,
+  setTableParams,
   changeSelectedPossession,
   getNotApprovedLivingSpaces,
 }) => {
@@ -89,6 +94,13 @@ export const AppTable: FC<IProps> = ({
     }
     changeIsNeedToGet(true);
   }, []);
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    changeIsNeedToGet(true);
+    setTableParams({
+      pagination,
+    });
+  };
 
   const makeUpdatePossessionStatus = async (possession_id: number, newStatusId: '1' | '3') => {
     if (!tableInfo) return;
@@ -588,7 +600,8 @@ export const AppTable: FC<IProps> = ({
       columns={columns}
       components={components}
       bordered
-      pagination={false}
+      onChange={handleTableChange}
+      pagination={tableParams.pagination}
       loading={isLoading === 'approvingLivingSpaces' ? true : false}
       locale={{
         emptyText: <span className='font-bold text-lg'>Нет данных</span>,

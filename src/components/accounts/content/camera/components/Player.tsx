@@ -11,8 +11,8 @@ interface IProps {
 }
 
 export const Player: FC<IProps> = ({ changeSelectedCamUrl, selectedCamUrl }) => {
-  const [videos, setVideos] = useState<string[] | null>(null);
-  const [playingSliceIndex, setPlayingSliceIndex] = useState<number>(0);
+  const [videoSlices, setVideoSlices] = useState<string[] | null>(null);
+  const [playingVideoURL, setPlayingVideoURL] = useState<string | null>(null);
   const [canGetVideo, setCanGetVideo] = useState<boolean | null>(null);
   const [isPlayerLoading, setPlayerLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -20,23 +20,13 @@ export const Player: FC<IProps> = ({ changeSelectedCamUrl, selectedCamUrl }) => 
   const onHandleClosePlayer = () => {
     changeSelectedCamUrl(null);
     setCanGetVideo(null);
-    setVideos(null);
+    setVideoSlices(null);
     setPlayerLoading(false);
   };
 
   const getLastSlice = async (): Promise<void | string[]> => {
     if (!selectedCamUrl) return;
     return await getSlicesInfoRequest(selectedCamUrl);
-  };
-
-  const startVideoStreaming = async () => {
-    const response = await getLastSlice();
-    if (!Array.isArray(response)) {
-      setCanGetVideo(false);
-    } else {
-      setCanGetVideo(true);
-      setVideos(response);
-    }
   };
 
   const startPlaying = () => {
@@ -46,75 +36,78 @@ export const Player: FC<IProps> = ({ changeSelectedCamUrl, selectedCamUrl }) => 
     }
   };
 
-  const startLoading = () => {
-    setPlayerLoading(true);
-  };
+  const setNewPlayerVideo = async () => {
+    let vSlices = videoSlices
 
-  const handlerVideoEnd = async () => {
-    if (playingSliceIndex + 1 > 4) {
+    if (!vSlices || vSlices.length === 0) {
       setPlayerLoading((prev) => !prev);
       const response = await getLastSlice();
-      if (!Array.isArray(response)) {
-        setCanGetVideo(false);
-      } else {
-        setCanGetVideo(true);
-        setVideos(response);
-      }
-      setPlayingSliceIndex(0);
       setPlayerLoading((prev) => !prev);
-    } else {
-      setPlayingSliceIndex((prev) => prev + 1);
+      if (!Array.isArray(response)) return setCanGetVideo(false);
+
+      if (response.length === 0) return setCanGetVideo(false);
+
+      if (!canGetVideo) {
+        setCanGetVideo(true)
+      }
+
+      vSlices = response
     }
+
+    const videoURL = vSlices.shift()
+    if (!videoURL) return setCanGetVideo(false);
+
+    setVideoSlices(vSlices);
+    setPlayingVideoURL(videoURL);
+  }
+
+  const handlerVideoEnd = () => {
+    setNewPlayerVideo()
   };
 
   const onError = () => {
-    console.log('error');
-    setPlayingSliceIndex((prev) => prev + 1);
+    console.log("error")
+    setNewPlayerVideo()
   };
 
   useEffect(() => {
     if (selectedCamUrl) {
-      startVideoStreaming();
+      setNewPlayerVideo();
     }
   }, [selectedCamUrl]);
 
   return (
     <div
       className={clsx(
-        'transitionFast z-20 fixed inset-0 m-auto flex justify-center items-center bg-black backdrop-blur-sm bg-opacity-30 overflow-hidden',
-        selectedCamUrl ? 'w-full h-full' : 'w-0 h-0',
+        'z-20 fixed inset-0 w-full h-full m-auto flex justify-center items-center bg-black backdrop-blur-sm bg-opacity-30 overflow-hidden',
+        selectedCamUrl ? 'block' : 'hidden',
       )}
     >
-      <button
+      <div
         className={clsx(
-          'transitionFast absolute right-5 top-5 text-black z-10',
-          selectedCamUrl ? 'opacity-100' : 'opacity-0',
+          'max-sm:w-full sm:w-[630px] md:w-[760px] lg:w-[1020px] xl:w-[1275px] aspect-[2/0.85] bg-black relative',
         )}
-        onClick={onHandleClosePlayer}
       >
-        <IoClose className='md:text-lg lg:text-2xl xl:text-3xl 2xl:text-5xl' />
-      </button>
-      {canGetVideo && selectedCamUrl !== null && videos !== null && (
-        <div
-          className={clsx(
-            'max-sm:w-full sm:w-[630px] md:w-[760px] lg:w-[1020px] xl:w-[1275px] aspect-[2/0.85] bg-black',
-            isPlayerLoading ? 'opacity-0 relative z-[-1]' : 'opacity-100',
-          )}
+        <button
+          type='button'
+          className='absolute right-5 top-5 p-5 z-50'
+          onClick={onHandleClosePlayer}
         >
-          <video
-            ref={videoRef}
-            autoPlay={true}
-            className='w-full h-full'
-            onError={onError}
-            controlsList='noplaybackrate nodownload'
-            onPlay={startPlaying}
-            onLoadStart={startLoading}
-            onEnded={handlerVideoEnd}
-            src={videos[playingSliceIndex]}
-          ></video>
-        </div>
-      )}
-      {canGetVideo && selectedCamUrl && (isPlayerLoading || videos === null) && (
+          <IoClose className='md:text-lg lg:text-2xl xl:text-3xl text-white' />
+        </button>
+        {canGetVideo !== null && selectedCamUrl !== null && playingVideoURL !== null && <video
+          ref={videoRef}
+          muted
+          autoPlay
+          className='w-full h-full'
+          controls
+          onError={onError}
+          onPlay={startPlaying}
+          onEnded={handlerVideoEnd}
+          src={playingVideoURL}
+        ></video>}
+      </div>
+      {canGetVideo && selectedCamUrl && isPlayerLoading && (
         <div className='absolute inset-0 m-auto max-sm:w-full sm:w-[630px] md:w-[760px] lg:w-[1020px] xl:w-[1275px] aspect-[2/0.85] bg-black text-blue-700 flex justify-center items-center gap-x-4'>
           <AiOutlineLoading className='animate-spin text-5xl' />
           <span className='text-xl'>Загрузка</span>

@@ -1,11 +1,28 @@
 import { FC } from 'react';
-import { Input } from 'antd';
+import { IOpenKazanApplication } from '../../../../../../types';
+import { Select } from 'antd';
 
-export const Employee: FC<{employee_name: string | null;}> = ({ employee_name }) => {
+interface IProps {
+  data: IOpenKazanApplication;
+}
+
+export const Employee: FC<IProps> = ({ data }) => {
   return (
     <div className='flex flex-col gap-2 w-full'>
       <span>исполнитель</span>
-      <Input className='w-full h-[50px] text-base' disabled value={employee_name ?? ''} />
+        <Select
+          className='h-[50px]'
+          value={!data.employee ? undefined : data.employee.id}
+          disabled
+          options={[
+            data.employee
+              ? {
+                  label: data.employee.employee,
+                  value: data.employee.id,
+                }
+              : [],
+          ]}
+        />
     </div>
   );
 };

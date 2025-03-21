@@ -125,6 +125,8 @@ export const ApprovingLivingSpace = () => {
           <span className='text-gray-400 text-sm'>Найдено: {approvingLivingSpaces.length}</span>
           <AppTable
             tableInfo={approvingLivingSpaces}
+            tableParams={tableParams}
+            setTableParams={setTableParams}
             getNotApprovedLivingSpaces={getNotApprovedLivingSpaces}
             changeSelectedPossession={changeSelectedPossession}
           />

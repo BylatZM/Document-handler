@@ -193,7 +193,13 @@ export const getAllOpenKazanApplicationByExtra = (
   page: string,
   page_size: string,
   extra: string
-): AxiosPromise<IOpenKazanApplicationPagination> => axiosInstance.get(endpoints.application.getAllOpenKazanApplication + `?page=${page}&page_size=${page_size}${extra}`);
+): AxiosPromise<IOpenKazanApplicationPagination> => axiosInstance.get(endpoints.openKazan.getAllApplicationWithExtra + `?page=${page}&page_size=${page_size}${extra}`);
+
+export const updateOpenKazanByDispatcherSetCloseStatusById = (application_id: string, data: {"dispatcher_comment": string}) => axiosInstance.put(endpoints.openKazan.updateByDispatcherSetCloseStatusById+application_id, data)
+
+export const updateOpenKazanByEmployeeSetInWorkStatusById = (application_id: string) => axiosInstance.put(endpoints.openKazan.updateByEmployeeSetInWorkStatusById+application_id)
+
+export const updateOpenKazanByEmployeeSetCloseStatusById = (application_id: string, data: {employee_comment: string}) => axiosInstance.put(endpoints.openKazan.updateByEmployeeSetCloseStatusById+application_id, data)
 
 export const loadEmailApplicationFiles = (files: FormData): AxiosPromise<IError | void> =>
   axiosInstance.post(endpoints.application.loadEmailFiles, files);

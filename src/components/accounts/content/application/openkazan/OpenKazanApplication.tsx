@@ -18,17 +18,18 @@ import { ColumnsForm } from './ColumnsForm';
 import { OpenKazanTable } from './OpenKazanTable';
 import { DefaultAppForm } from './appForm/DefaultAppForm';
 
-export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
-  getStatuses,
-}) => {
-  const { openKazanApplications, statuses } = useTypedSelector(
-    (state) => state.ApplicationReducer,
-  );
+interface IProps {
+  getStatuses: () => Promise<void>;
+}
+
+export const OpenKazanApplication: FC<IProps> = ({ getStatuses }) => {
+  const { openKazanApplications, statuses } = useTypedSelector((state) => state.ApplicationReducer);
   const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [selectedItem, changeSelectedItem] = useState<IOpenKazanApplication | null>(null);
   const [needShowColumnForm, changeNeedShowColumnForm] = useState(false);
   const [checkboxValues, changeCheckboxValues] = useState<null | string[]>(null);
-  const [openKazanTable, changeOpenKazanTable] = useState<null | ColumnsType<IOpenKazanTableColumns>>(null);
+  const [openKazanTable, changeOpenKazanTable] =
+    useState<null | ColumnsType<IOpenKazanTableColumns>>(null);
   const { applicationLoading, openKazanApplicationSuccess } = useActions();
   const page_size = localStorage.getItem('open_kazan_application_size');
   const [tableParams, setTableParams] = useState<ITableParams>({
@@ -48,28 +49,6 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
   });
   const logout = useLogout();
   const [isNeedToGet, changeIsNeedToGet] = useState(false);
-
-  const applicationFreshnessStatus = (
-    creatingDate: string,
-    dueDate: string,
-  ): 'fresh' | 'warning' | 'expired' => {
-    const difference = DifferenceBetweenDates(creatingDate, dueDate);
-    if (difference <= Math.floor(difference / 2) && difference > 0) return 'warning';
-    if (difference <= 0) return 'expired';
-
-    return 'fresh';
-  };
-
-  const DifferenceBetweenDates = (
-    creatingDate: string,
-    dueDate: string,
-  ) => {
-    const [creatingDatedmy, creatingDatehms] = creatingDate.split(' ');
-    const [dueDatedmy, dueDatehms] = dueDate.split(' ')
-    let creatingDateTotalSeconds = new Date(`${creatingDatedmy.split('.').reverse().join('-')}T${creatingDatehms}`).getTime();
-    let dueDateTotalSeconds = new Date(`${dueDatedmy.split('.').reverse().join('-')}T${dueDatehms}`).getTime();
-    return Math.abs(dueDateTotalSeconds - creatingDateTotalSeconds) / (60 * 60 * 1000);
-  };
 
   const showForm = (app_id: number) => {
     const app = openKazanApplications.filter((el) => el.id === app_id);
@@ -95,7 +74,10 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
       }
       if (tableParams.pagination.pageSize && size !== tableParams.pagination.pageSize) {
         size = tableParams.pagination.pageSize;
-        localStorage.setItem('open_kazan_application_size', tableParams.pagination.pageSize.toString());
+        localStorage.setItem(
+          'open_kazan_application_size',
+          tableParams.pagination.pageSize.toString(),
+        );
       }
       setTableParams((prev) => ({
         ...prev,
@@ -108,8 +90,8 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
     let extra = '';
     if (filterOptions) {
       localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
-      if (filterOptions.employeeName){
-        extra += `&employee_name=${filterOptions.employeeName}`
+      if (filterOptions.employeeName) {
+        extra += `&employee_name=${filterOptions.employeeName}`;
       }
       if (filterOptions.typeStatusName) {
         extra += `&type_status_name=${filterOptions.typeStatusName}`;
@@ -150,7 +132,7 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
       }
     }
     if (sortOptions) {
-      localStorage.setItem('gis_application_sort_options', JSON.stringify(sortOptions));
+      localStorage.setItem('open_kazan_application_sort_options', JSON.stringify(sortOptions));
       if (sortOptions.creating_date_dec && !sortOptions.creating_date_inc)
         extra += '&created_date=dec';
       if (!sortOptions.creating_date_dec && sortOptions.creating_date_inc)
@@ -162,7 +144,12 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
     let page_size = '2';
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
     if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
-    const response = await getAllOpenKazanApplicationsByExtraRequest(logout, page, page_size, extra);
+    const response = await getAllOpenKazanApplicationsByExtraRequest(
+      logout,
+      page,
+      page_size,
+      extra,
+    );
     if (response) {
       if (
         (tableParams.pagination && !tableParams.pagination.total) ||
@@ -212,6 +199,14 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
     }
   }, []);
 
+  const getFreshnessStatus = (): 'fresh' | 'warning' | 'expired' => {
+    if (!selectedItem) return 'expired';
+
+    if (selectedItem.is_warning) return 'warning';
+    if (selectedItem.is_expired) return 'expired';
+    return 'fresh';
+  };
+
   useEffect(() => {
     if (role === 'executor') return;
     if (!statuses.length) getStatuses();
@@ -227,25 +222,20 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
         changeCheckboxValues={changeCheckboxValues}
         options={options}
       />
-      <AppForm
-        openKazanApplication={selectedItem}
-        changeIsNeedToGet={changeIsNeedToGet}
-        changeSelectedItem={changeSelectedItem}
-        applicationFreshnessStatus={
-          !selectedItem ||
-          (selectedItem && selectedItem.status.name === 'Закрыта') ||
-          (selectedItem && selectedItem.id === 0)
-            ? 'fresh'
-            : applicationFreshnessStatus(
-                selectedItem.created_date,
-                selectedItem.deadline,
-              )
-        }
-      />
+      {selectedItem && (
+        <AppForm
+          openKazanApplication={selectedItem}
+          changeIsNeedToGet={changeIsNeedToGet}
+          changeSelectedItem={changeSelectedItem}
+          applicationFreshnessStatus={getFreshnessStatus()}
+        />
+      )}
       <div className='mt-[68px] max-sm:mt-[120px] fixed inset-0 overflow-auto z-20'>
         <div className='w-max p-2 flex flex-col m-auto mt-[22px]'>
           <div className='flex justify-start gap-x-8 pl-3 mb-8 sm:items-center max-sm:flex-col max-sm:gap-x-0 max-sm:gap-y-3'>
-            <span className='text-gray-400 w-fit text-sm'>Найдено: {openKazanApplications.length}</span>
+            <span className='text-gray-400 w-fit text-sm'>
+              Найдено: {openKazanApplications.length}
+            </span>
             <Button
               className='w-fit border-blue-700 text-blue-700'
               onClick={() => changeNeedShowColumnForm(true)}
@@ -261,10 +251,9 @@ export const OpenKazanApplication: FC<{getStatuses: () => Promise<void>}> = ({
               tableParams={tableParams}
               statuses={statuses}
               setTableParams={setTableParams}
-              getGisApplications={getOpenKazanApplications}
+              getOpenKazanApplications={getOpenKazanApplications}
               isNeedToGet={isNeedToGet}
               changeIsNeedToGet={changeIsNeedToGet}
-              applicationFreshnessStatus={applicationFreshnessStatus}
             />
           )}
         </div>

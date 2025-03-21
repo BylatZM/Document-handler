@@ -38,6 +38,9 @@ import {
   loadSystemApplicationFiles,
   loadEmailApplicationFiles,
   getAllOpenKazanApplicationByExtra,
+  updateOpenKazanByDispatcherSetCloseStatusById,
+  updateOpenKazanByEmployeeSetInWorkStatusById,
+  updateOpenKazanByEmployeeSetCloseStatusById,
 } from '..';
 import { IError } from '../../components/types';
 import request from 'axios';
@@ -54,38 +57,6 @@ export const getAllSystemApplicationsByExtraRequest = async (
   const makeRequest = async (): Promise<IApplicationPagination | 401 | void> => {
     try {
       const response = await getAllSystemApplicationsByExtra(page, page_size, extra);
-      return response.data;
-    } catch (e) {
-      if (request.isAxiosError(e) && e.response) {
-        if (e.response.status === 401) return 401;
-        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
-      }
-    }
-  };
-
-  const response = await makeRequest();
-  if (!response) return;
-
-  if (response === 401) {
-    const refresh_status = await refreshRequest();
-    if (refresh_status === 200) {
-      const response = await makeRequest();
-      if (response !== 401) return response;
-      else return;
-    }
-    if (refresh_status === 403) logout();
-  } else return response;
-};
-
-export const getAllOpenKazanApplicationsByExtraRequest = async (
-  logout: () => void,
-  page: string,
-  page_size: string,
-  extra: string,
-): Promise<IOpenKazanApplicationPagination | void> => {
-  const makeRequest = async (): Promise<IOpenKazanApplicationPagination | 401 | void> => {
-    try {
-      const response = await getAllOpenKazanApplicationByExtra(page, page_size, extra);
       return response.data;
     } catch (e) {
       if (request.isAxiosError(e) && e.response) {
@@ -623,6 +594,143 @@ export const getAllSubtypesWithExtraRequest = async (
       if (request.isAxiosError(e) && e.response) {
         if (e.response.status === 401) return 401;
         if (e.response.status !== 401 && e.response.status !== 400) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+
+export const getAllOpenKazanApplicationsByExtraRequest = async (
+  logout: () => void,
+  page: string,
+  page_size: string,
+  extra: string,
+): Promise<IOpenKazanApplicationPagination | void> => {
+  const makeRequest = async (): Promise<IOpenKazanApplicationPagination | 401 | void> => {
+    try {
+      const response = await getAllOpenKazanApplicationByExtra(page, page_size, extra);
+      return response.data;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        if (e.response.status !== 400 && e.response.status !== 401) errorAlert(e.response.status);
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const updateOpenKazanAppByDispatcherSetCloseStatusRequest = async (
+  application_id: string,
+  logout: () => void,
+  dispatcher_comment: string,
+): Promise<200 | void | IError> => {
+  const makeRequest = async (): Promise<200 | 401 | IError | void> => {
+    try {
+      await updateOpenKazanByDispatcherSetCloseStatusById(application_id, {'dispatcher_comment': dispatcher_comment});
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) {
+            return e.response.data;
+          } else if (e.response.status !== 401) errorAlert(e.response.status);
+        }
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const updateOpenKazanAppByEmployeeSetInWorkStatusRequest = async (
+  application_id: string,
+  logout: () => void,
+): Promise<200 | void> => {
+  const makeRequest = async (): Promise<200 | 401 | void> => {
+    try {
+      await updateOpenKazanByEmployeeSetInWorkStatusById(application_id);
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) {
+            return e.response.data;
+          } else if (e.response.status !== 401) errorAlert(e.response.status);
+        }
+      }
+    }
+  };
+
+  const response = await makeRequest();
+  if (!response) return;
+
+  if (response === 401) {
+    const refresh_status = await refreshRequest();
+    if (refresh_status === 200) {
+      const response = await makeRequest();
+      if (response !== 401) return response;
+      else return;
+    }
+    if (refresh_status === 403) logout();
+  } else return response;
+};
+
+export const updateOpenKazanAppByEmployeeSetCloseStatusRequest = async (
+  application_id: string,
+  logout: () => void,
+  employee_comment: string
+): Promise<200 | void | IError> => {
+  const makeRequest = async (): Promise<200 | 401 | IError | void> => {
+    try {
+      await updateOpenKazanByEmployeeSetCloseStatusById(application_id, {'employee_comment': employee_comment});
+      return 200;
+    } catch (e) {
+      if (request.isAxiosError(e) && e.response) {
+        if (e.response.status === 401) return 401;
+        else {
+          if (e.response.status === 400) {
+            return e.response.data;
+          } else if (e.response.status !== 401) errorAlert(e.response.status);
+        }
       }
     }
   };

@@ -19,7 +19,7 @@ export const Camera: FC<IProps> = ({ getAllBuildingsByComplexId, getCitizenPosse
   const logout = useLogout();
   const [selectedCamUrl, changeSelectedCamUrl] = useState<string | null>(null);
   const { citizenPossessions } = useTypedSelector((state) => state.CitizenReducer);
-  const { role, is_approved } = useTypedSelector((state) => state.UserReducer.user);
+  const { role } = useTypedSelector((state) => state.UserReducer.user);
   const [complexes, setComplexes] = useState<IComplex[]>([]);
   const [buildings, setBuildings] = useState<IBuilding[]>([]);
   const [selectedComplex, setSelectedComplex] = useState<number | undefined>(undefined);

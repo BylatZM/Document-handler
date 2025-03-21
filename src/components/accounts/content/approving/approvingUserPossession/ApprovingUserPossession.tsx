@@ -107,23 +107,23 @@ export const ApprovingUserPossession = () => {
     if (tableParams.pagination?.current) page = tableParams.pagination.current.toString();
     if (tableParams.pagination?.pageSize) page_size = tableParams.pagination.pageSize.toString();
     const response = await getNotApprovedCitizenPossessionsRequest(page, page_size, extra, logout);
-    if (response) {
-      if (
-        (tableParams.pagination && !tableParams.pagination.total) ||
-        (tableParams.pagination &&
-          tableParams.pagination.total &&
-          tableParams.pagination.total !== response.total)
-      ) {
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: response.total,
-          },
-        });
-      }
-      approvingCitizenPossessionsSuccess(response.result);
-    } else approvingLoading(null);
+    approvingLoading(null);
+    if (!response) return
+    if (
+      (tableParams.pagination && !tableParams.pagination.total) ||
+      (tableParams.pagination &&
+        tableParams.pagination.total &&
+        tableParams.pagination.total !== response.total)
+    ) {
+      setTableParams({
+        ...tableParams,
+        pagination: {
+          ...tableParams.pagination,
+          total: response.total,
+        },
+      });
+    }
+    approvingCitizenPossessionsSuccess(response.result);
   };
 
   return (

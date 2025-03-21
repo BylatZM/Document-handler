@@ -16,6 +16,8 @@ import { DefaultAppForm } from './DefaultAppForm';
 import { Phone } from './components/Phone';
 import { Building } from './components/Building';
 import { Subtype } from './components/Subtype';
+import { PossessionType } from './components/PossessionType';
+import { Complex } from './components/Complex';
 
 interface IProps {
   openKazanApplication: IOpenKazanApplication | null;
@@ -33,9 +35,7 @@ export const AppForm: FC<IProps> = ({
   const ref = useRef<HTMLDivElement | null>(null);
   const logout = useLogout();
   const { role } = useTypedSelector((state) => state.UserReducer.user);
-  const { error } = useTypedSelector(
-    (state) => state.ApplicationReducer,
-  );
+  const { error } = useTypedSelector((state) => state.ApplicationReducer);
   const { applicationError } = useActions();
 
   const [FormData, changeFormData] = useState<IOpenKazanApplication>(DefaultAppForm);
@@ -57,7 +57,7 @@ export const AppForm: FC<IProps> = ({
   return (
     <div
       className={clsx(
-        'transitionGeneral fixed h-full inset-y-0 right-0 bg-opacity-10 bg-blue-700 backdrop-blur-xl flex justify-center items-center overflow-hidden z-50',
+        'fixed h-full inset-y-0 right-0 bg-opacity-10 bg-blue-700 backdrop-blur-xl flex justify-center items-center overflow-hidden z-50',
         openKazanApplication ? 'w-full' : 'w-0',
       )}
     >
@@ -73,7 +73,9 @@ export const AppForm: FC<IProps> = ({
         <div className='flex justify-center gap-4 flex-col disable'>
           <span className='font-bold text-lg mt-4'>Объект исполнения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row gap-2 justify-between mt-2'>
+            <Complex complex={FormData.complex} />
             <Building building_address={FormData.building_address} />
+            <PossessionType />
             <Possession possession={FormData.possession} />
             <ApplicantFio applicant_fio={FormData.applicant_fio} />
             <Phone phone={FormData.contact} />
@@ -81,22 +83,23 @@ export const AppForm: FC<IProps> = ({
           <span className='font-bold text-lg'>Сведения</span>
           <div className='flex flex-col md:flex-wrap md:flex-row justify-between gap-4'>
             <Status status={FormData.status} />
-            <Type
-              type_name={FormData.type_name}
-            />
-            <Subtype
-              subtype_name={FormData.subtype_name}
-            />
+            <Type type_name={FormData.type_name} />
+            <Subtype subtype_name={FormData.subtype_name} />
           </div>
           <ApplicantComment citizen_comment={FormData.applicant_comment} />
-          <TimeSlot data={FormData}/>
+          <TimeSlot data={FormData} changeData={changeFormData} error={error} role={role} />
           <div className='bg-blue-300 p-5 mt-2 rounded-md backdrop-blur-md bg-opacity-50 flex flex-col gap-2'>
             <span className='font-bold text-lg'>Исполнители</span>
-            <Employee
-              employee_name={FormData.employee_name}
-            />
+            <Employee data={FormData} />
           </div>
-          <Buttons data={FormData} role={role} exitFromForm={exitFromForm} logout={logout} />
+          <Buttons
+            data={FormData}
+            role={role}
+            exitFromForm={exitFromForm}
+            logout={logout}
+            changeData={changeFormData}
+            changeIsNeedToGet={changeIsNeedToGet}
+          />
         </div>
       </div>
     </div>

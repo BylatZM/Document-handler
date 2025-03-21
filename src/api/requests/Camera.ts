@@ -3,7 +3,6 @@ import { ICamera, IError } from '../../components/types';
 import request from 'axios';
 import { refreshRequest } from './Main';
 import { errorAlert } from './Main';
-import axios from 'axios';
 
 export const getAllCameraByBuildingIdRequest = async (
   building_id: string,
@@ -50,15 +49,3 @@ export const getSlicesInfoRequest = async (url: string): Promise<string[] | void
     return;
   }
 };
-
-// export const getVideoStreamRequest = async (url: string): Promise<string | 404 | void> => {
-//   try {
-//     const response = await axios.get(url, { responseType: 'blob' });
-//     return URL.createObjectURL(response.data);
-//   } catch (e) {
-//     if (request.isAxiosError(e) && e.response?.status === 404) {
-//       return 404;
-//     }
-//     return;
-//   }
-// };

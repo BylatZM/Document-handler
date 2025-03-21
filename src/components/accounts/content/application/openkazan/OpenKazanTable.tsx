@@ -26,15 +26,11 @@ interface IProps {
   openKazanTable: ColumnsType<IOpenKazanTableColumns>;
   tableParams: ITableParams;
   statuses: IStatus[];
-  getGisApplications: (
+  getOpenKazanApplications: (
     filterOptions?: IFilterOpenKazanAppOptions,
     sortOptions?: ISortOptions,
   ) => Promise<void>;
   setTableParams: React.Dispatch<React.SetStateAction<ITableParams>>;
-  applicationFreshnessStatus: (
-    creatingDate: string,
-    dueDate: string,
-  ) => 'fresh' | 'warning' | 'expired';
   isNeedToGet: boolean;
   changeIsNeedToGet: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -44,9 +40,8 @@ export const OpenKazanTable: FC<IProps> = ({
   openKazanTable,
   tableParams,
   statuses,
-  getGisApplications,
+  getOpenKazanApplications,
   setTableParams,
-  applicationFreshnessStatus,
   isNeedToGet,
   changeIsNeedToGet,
 }) => {
@@ -71,7 +66,7 @@ export const OpenKazanTable: FC<IProps> = ({
   });
 
   const mainProcesses = async () => {
-    getGisApplications(filterOptions, sortOptions);
+    getOpenKazanApplications(filterOptions, sortOptions);
     changeIsNeedToGet((prev) => !prev);
   };
 
@@ -100,9 +95,13 @@ export const OpenKazanTable: FC<IProps> = ({
         parsedFilterObject = JSON.parse(filterParams);
         if (parsedFilterObject) setFilterOptions(parsedFilterObject);
       } catch (e) {
-        localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
+        localStorage.setItem(
+          'open_kazan_application_filter_options',
+          JSON.stringify(filterOptions),
+        );
       }
-    } else localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
+    } else
+      localStorage.setItem('open_kazan_application_filter_options', JSON.stringify(filterOptions));
     changeIsNeedToGet(true);
   }, []);
 
@@ -268,7 +267,7 @@ export const OpenKazanTable: FC<IProps> = ({
                             changeIsNeedToGet(true);
                           }}
                         >
-                        {el.description}
+                          {el.description}
                         </button>
                       ))}
                       <button
@@ -436,34 +435,31 @@ export const OpenKazanTable: FC<IProps> = ({
         type: el.type_name,
         subtype: el.subtype_name,
         applicantComment: el.applicant_comment,
+        complex: !el.complex ? '—' : el.complex.name,
         building: el.building_address,
         possession: el.possession,
         phone: el.contact,
         fio: el.applicant_fio,
-        employee: el.employee_name ?? '—',
+        employee: el.employee.employee,
         emergency: el.is_emergency ? 'ЭКСТРЕННАЯ' : 'обычная',
         deadline: el.deadline,
+        isWarning: el.is_warning,
+        isExpired: el.is_expired,
       }))}
       columns={openKazanTable}
       components={components}
       bordered
       pagination={tableParams.pagination}
       onChange={handleTableChange}
-      loading={isLoading === 'gisApplications' ? true : false}
+      loading={isLoading === 'openKazanApplications' ? true : false}
       locale={{
         emptyText: <span className='font-bold text-lg'>Нет данных</span>,
       }}
       rowClassName={(item) => {
-        if (
-          applicationFreshnessStatus(item.createdDate, item.deadline) === 'expired' &&
-          item.status !== 'Закрыта'
-        ) {
+        if (item.isExpired) {
           return 'table-row bg-red-400 bg-opacity-80';
         }
-        if (
-          applicationFreshnessStatus(item.createdDate, item.deadline) === 'warning' &&
-          item.status !== 'Закрыта'
-        ) {
+        if (item.isWarning && item.status !== 'Закрыта') {
           return 'table-row bg-amber-400 bg-opacity-80';
         }
         return 'table-row bg-blue-700 bg-opacity-20';
